@@ -1,0 +1,13 @@
+<RCC>
+    <qresource prefix="/">
+        <file>open_32.ico</file>
+        <file>redo_32.ico</file>
+        <file>save_32.ico</file>
+        <file>srch_32.ico</file>
+        <file>undo_32.ico</file>
+        <file>Relkon6.png</file>
+        <file>build_32.ico</file>
+        <file>new_32.ico</file>
+        <file>R.ico</file>
+    </qresource>
+</RCC>
