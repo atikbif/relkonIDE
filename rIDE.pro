@@ -6,6 +6,7 @@
 
 QT       += core gui
 QT       += xml
+QT       += serialport
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -38,7 +39,22 @@ SOURCES += main.cpp\
     konTranslator/situation.cpp \
     konTranslator/textblock.cpp \
     RCompiler/rcompiler.cpp \
-    prbuilder.cpp
+    prbuilder.cpp \
+    settingsform.cpp \
+    settingsbase.cpp \
+    Protocols/request.cpp \
+    Protocols/rk.cpp \
+    Protocols/commandinterface.cpp \
+    Protocols/commanddecorator.cpp \
+    Protocols/rkcommand.cpp \
+    Protocols/asciidecorator.cpp \
+    Protocols/udpdecorator.cpp \
+    AutoSearch/scanuart.cpp \
+    AutoSearch/scancontroller.cpp \
+    AutoSearch/scangui.cpp \
+    Protocols/checksum.cpp \
+    AutoSearch/detectedcontroller.cpp \
+    Loader/bootmodesetter.cpp
 
 HEADERS  += mainwindow.h \
     codeeditor.h \
@@ -63,9 +79,26 @@ HEADERS  += mainwindow.h \
     konTranslator/situation.h \
     konTranslator/textblock.h \
     RCompiler/rcompiler.h \
-    prbuilder.h
+    prbuilder.h \
+    settingsform.h \
+    settingsbase.h \
+    Protocols/request.h \
+    Protocols/rk.h \
+    Protocols/commandinterface.h \
+    Protocols/commanddecorator.h \
+    Protocols/rkcommand.h \
+    Protocols/asciidecorator.h \
+    Protocols/udpdecorator.h \
+    AutoSearch/scanuart.h \
+    AutoSearch/scancontroller.h \
+    AutoSearch/scangui.h \
+    Protocols/checksum.h \
+    AutoSearch/detectedcontroller.h \
+    Loader/bootmodesetter.h
 
-FORMS    += mainwindow.ui
+FORMS    += mainwindow.ui \
+    settingsform.ui \
+    AutoSearch/scangui.ui
 
 RESOURCES += \
     icons.qrc

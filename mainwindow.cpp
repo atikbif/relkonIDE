@@ -15,6 +15,9 @@
 #include <QMessageBox>
 
 #include "prbuilder.h"
+#include "settingsform.h"
+#include "AutoSearch/scangui.h"
+#include "Loader/bootmodesetter.h"
 
 QStringList MainWindow::getPrevProjects()
 {
@@ -41,8 +44,9 @@ void MainWindow::updatePrevProjects(const QStringList &prNames)
 int MainWindow::openFileByName(const QString &fName)
 {
     activateInfoPanel();
-    ui->listWidget->addItem(QDateTime::currentDateTime().time().toString() + " :Открытие файла " + fName);
-    ui->listWidget->repaint();
+
+    addMessageToInfoList(QDateTime::currentDateTime().time().toString() + " :Открытие файла " + fName);
+
     QFile file(fName);
     if (file.open(QIODevice::ReadOnly)) {
 
@@ -66,11 +70,16 @@ int MainWindow::openFileByName(const QString &fName)
         tmpCursor.setPosition(editor->document()->firstBlock().position());
         editor->setTextCursor(tmpCursor);
         file.close();
-        ui->listWidget->addItem(QDateTime::currentDateTime().time().toString() + " :Файл успешно открыт");
+        addMessageToInfoList(QDateTime::currentDateTime().time().toString() + " :Файл успешно открыт");
         setWindowTitle(wTitle + " - " + fName);
+        if(settings!=nullptr) {
+            settings->clearSettings();
+            settings->setKonFileName(fName);
+            settings->openSettings();
+        }
         return 1;
     }
-    ui->listWidget->addItem(QDateTime::currentDateTime().time().toString() + " :Ошибка открытия файла");
+    addMessageToInfoList(QDateTime::currentDateTime().time().toString() + " :error - Ошибка открытия файла");
     return 0;
 }
 
@@ -135,6 +144,7 @@ MainWindow::MainWindow(QWidget *parent) :
     redoAct = new QAction(QIcon("://redo_32.ico"), "Повторить отменённую операцию", this);
     srchAct = new QAction(QIcon("://srch_32.ico"), "Искать текст", this);
     buildAct = new QAction(QIcon("://build_32.ico"), "Собрать проект", this);
+    QAction* toPlcAct = new QAction(QIcon("://toPLC_32.ico"), "Загрузить проект в контроллер", this);
 
     connect(newAct, SIGNAL(triggered()), this, SLOT(newFile()));
     connect(openAct, SIGNAL(triggered()), this, SLOT(openFile()));
@@ -143,6 +153,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(redoAct, SIGNAL(triggered()), this, SLOT(redo()));
     connect(srchAct, SIGNAL(triggered()), this, SLOT(searchText()));
     connect(buildAct, SIGNAL(triggered()), this, SLOT(buildPr()));
+    connect(toPlcAct, SIGNAL(triggered()), this, SLOT(projectToPlc()));
 
     ui->mainToolBar->addAction(newAct);
     ui->mainToolBar->addAction(openAct);
@@ -160,6 +171,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->mainToolBar->addWidget(textForSearch);
     ui->mainToolBar->addSeparator();
     ui->mainToolBar->addAction(buildAct);
+    ui->mainToolBar->addSeparator();
+    ui->mainToolBar->addAction(toPlcAct);
     ui->mainToolBar->addWidget(spacer);
 
     QStringList prNames = getPrevProjects();
@@ -170,7 +183,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(textForSearch,SIGNAL(returnPressed()),this,SLOT(searchText()));
 
-    QFont font("Calibri",12,QFont::Normal,false);
+    QFont font("Courier",10,QFont::Normal,false);
     const int tabWidth = 4;  // 4 characters
     QFontMetrics metrics(font);
     editor->setTabStopWidth(tabWidth * metrics.width(' '));
@@ -205,10 +218,11 @@ MainWindow::MainWindow(QWidget *parent) :
 
 
     ui->tabWidget->clear();
-    ui->tabWidget->setFont(QFont("Calibri",12,QFont::Normal,false));
+    ui->tabWidget->setFont(QFont("Courier",10,QFont::Normal,false));
     ui->tabWidget->addTab(editor,"Редактор");
     editor->setFocus();
-    ui->tabWidget->addTab(new QLabel(),"Настройки");
+    settings = new SettingsForm();
+    ui->tabWidget->addTab(settings,"Настройки");
     ui->tabWidget->addTab(new QLabel(),"Отладчик");
 
     setWindowState(Qt::WindowMaximized);
@@ -238,6 +252,8 @@ void MainWindow::newFile()
 {
     if(saveWarning()==0) return;
 
+    addMessageToInfoList(QDateTime::currentDateTime().time().toString() + " :Новый проект");
+
     editor->clear();
     editor->appendPlainText("#DATA //-----Присвоение переменных программы.");
     editor->appendPlainText("   ");
@@ -256,23 +272,49 @@ void MainWindow::newFile()
     prFileName = "";
     QThread::msleep(1000);
     prChangedFlag = false;
+    if(settings!=nullptr) {
+        settings->setKonFileName("");
+        settings->clearSettings();
+    }
+    editor->document()->clearUndoRedoStacks();
 }
 
 void MainWindow::openFile()
 {
     if(saveWarning()==0) return;
+
+    QStringList prevProjects = getPrevProjects();
+    QString path = "/";
+    if(prevProjects.count()) {
+        if(QFile::exists(prevProjects.at(0))) {
+            QFileInfo fInfo(prevProjects.at(0));
+            path = fInfo.absolutePath();
+        }
+    }
+
     QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"),
-                                                    "/",
+                                                    path,
                                                     tr("Relkon Files (*.kon )"));
+    if(fileName.isEmpty()) return;
     openFileByName(fileName);
     QThread::msleep(1000);
     prChangedFlag = false;
+    editor->document()->clearUndoRedoStacks();
 }
 
 void MainWindow::saveFile()
 {
+    QStringList prevProjects = getPrevProjects();
+    QString path = "/";
+    if(prevProjects.count()) {
+        if(QFile::exists(prevProjects.at(0))) {
+            QFileInfo fInfo(prevProjects.at(0));
+            path = fInfo.absolutePath();
+        }
+    }
+
     QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"),
-                                                    "/",
+                                                    path,
                                                     tr("Relkon Files (*.kon )"));
     QFile file(fileName);
     if (file.open(QIODevice::WriteOnly)) {
@@ -295,6 +337,11 @@ void MainWindow::saveFile()
         file.close();
         setWindowTitle(wTitle + " - " + fileName);
         prChangedFlag = false;
+        if(settings!=nullptr) {
+            settings->setKonFileName(fileName);
+            settings->saveSettings();
+        }
+        editor->document()->clearUndoRedoStacks();
     }
 }
 
@@ -346,6 +393,16 @@ void MainWindow::buildPr()
         }
         emit updateKonFileForBuilder(conFile);
         emit startBuild(prDirPath,prFileName);
+    }
+}
+
+void MainWindow::projectToPlc()
+{
+    ScanGUI gui;
+    int ret = gui.exec();
+    if(ret==QDialog::Accepted) {
+        BootModeSetter bootSetter(this);
+        bootSetter.setBootMode();
     }
 }
 

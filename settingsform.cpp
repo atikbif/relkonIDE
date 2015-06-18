@@ -257,7 +257,6 @@ void SettingsForm::clearSettings()
 
 void SettingsForm::saveSettings()
 {
-    unsigned int vers = 0x01;
     QByteArray data;
     writeToBin(data);
     QString fName = konFileName;
@@ -266,6 +265,7 @@ void SettingsForm::saveSettings()
     fName += ".sfr";
     QFile file(fName);
     if(file.open(QIODevice::WriteOnly)) {
+        unsigned int vers = 0x01;
         QDataStream stream(&file);
         stream.setVersion(QDataStream::Qt_5_4);
         stream << codeWord;
@@ -278,7 +278,6 @@ void SettingsForm::saveSettings()
 
 void SettingsForm::openSettings()
 {
-    unsigned int vers = 0x01;
     QByteArray data;
     QString fName = konFileName;
     if(fName.isEmpty()) return;
@@ -293,7 +292,7 @@ void SettingsForm::openSettings()
         stream >> codeWordValue;
         stream >> versValue;
         if(codeWordValue == codeWord) {
-            if(versValue == vers) {
+            if(versValue == 0x01) {
                 stream >> progAddr;
                 stream >> data;
                 if(stream.status()==QDataStream::Ok) {

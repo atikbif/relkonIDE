@@ -130,7 +130,7 @@ void PrBuilder::buildRequest(QString prPath, QString prName)
                         copyFlag = copyFlag && QFile::copy(QApplication::applicationDirPath()+"/build/project.bin",binFileName);
                         copyFlag = copyFlag && QFile::copy(QApplication::applicationDirPath()+"/build/memory.map",prPath + "/build/memory.map");
 
-                        if(copyFlag) emit printMessage("BIN файл сохранён");
+                        if(copyFlag) emit printMessage("bin файл сохранён");
                         else emit printMessage("Ошибка сохранения BIN файла");
                     }
                 }

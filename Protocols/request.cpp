@@ -1,11 +1,11 @@
 #include "request.h"
 
-request::request()
+Request::Request():netAddr(1),memAddr(0),dataNumber(0)
 {
 
 }
 
-request::~request()
+Request::~Request()
 {
 
 }

@@ -29,6 +29,7 @@ void CodeEditor::scanBlocksNums()
 
 CodeEditor::CodeEditor(QWidget *parent): QPlainTextEdit(parent)
 {
+
     lNumbers = new LeftVerticalWidget(this);
     connect(lNumbers,SIGNAL(sendValue(QString,int)),this,SLOT(getCmdFromChildWidget(QString,int)));
 

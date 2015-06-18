@@ -5,6 +5,8 @@
 #include "codeeditor.h"
 #include <QLineEdit>
 #include <QThread>
+#include "settingsbase.h"
+
 
 namespace Ui {
 class MainWindow;
@@ -15,9 +17,10 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
     CodeEditor *editor;
+    SettingsBase *settings;
     QThread builderThread;
 
-    const QString wTitle = "RIDE ";
+    const QString wTitle = "RelkonIDE ";
     const int maxAmountOfPrevProjects = 10;
     QString prDirPath;
     QString prFileName;
@@ -54,6 +57,7 @@ private slots:
     void redo(void);
     void searchText(void);
     void buildPr(void);
+    void projectToPlc(void);
     void on_closeInfoListButton_clicked();
 
     void on_listWidget_doubleClicked(const QModelIndex &index);
