@@ -18,7 +18,7 @@ class ScanGUI : public QDialog
     QVector<QProgressBar*> prBar;
     QLabel message;
 public:
-    explicit ScanGUI(QWidget *parent = 0);
+    explicit ScanGUI(int progAddr=0, QWidget *parent = 0);
     ~ScanGUI();
 
 private:

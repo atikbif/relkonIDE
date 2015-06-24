@@ -8,6 +8,7 @@
 #include <QMutex>
 #include <QVector>
 #include "detectedcontroller.h"
+#include <QSerialPort>
 
 class ScanUART : public QObject
 {
@@ -18,8 +19,14 @@ class ScanUART : public QObject
     bool stopCmd;
     bool startCmd;
     QVector<qint32> baudTable;
-public:
+    unsigned char progAddr;
 
+    bool scan(QSerialPort &port);
+    bool testBootMode(QSerialPort &port);
+    void sendAbortCmd(QSerialPort &port);
+
+public:
+    void setProgAddr(unsigned char value) {progAddr=value;}
     explicit ScanUART(QObject *parent = 0);
     ~ScanUART();
 

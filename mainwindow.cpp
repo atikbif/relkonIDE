@@ -18,6 +18,10 @@
 #include "settingsform.h"
 #include "AutoSearch/scangui.h"
 #include "Loader/bootmodesetter.h"
+#include "Loader/ymodemthread.h"
+#include "AutoSearch/detectedcontroller.h"
+#include <QSerialPort>
+#include "RCompiler/rcompiler.h"
 
 QStringList MainWindow::getPrevProjects()
 {
@@ -398,12 +402,18 @@ void MainWindow::buildPr()
 
 void MainWindow::projectToPlc()
 {
-    ScanGUI gui;
-    int ret = gui.exec();
-    if(ret==QDialog::Accepted) {
-        BootModeSetter bootSetter(this);
-        bootSetter.setBootMode();
-    }
+    if(QFile::exists(RCompiler::getBinFileName())) {
+        ScanGUI gui(settings->getProgAddr(),this);
+        int ret = gui.exec();
+        if(ret==QDialog::Accepted) {
+            BootModeSetter bootSetter(this);
+            if(bootSetter.setBootMode()) {
+                DetectedController* plc = &DetectedController::Instance();
+                YmodemThread loader(plc->getUartName(),this);
+                loader.exec();
+            }
+        }
+    }else QMessageBox::warning(this,"Загрузка","Ошибка открытия файла "+RCompiler::getBinFileName());
 }
 
 void MainWindow::addMessageToInfoList(const QString &message)

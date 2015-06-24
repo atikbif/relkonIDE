@@ -26,8 +26,8 @@ class RCompiler
     QString linkScript;
     QMap<QString,QString> patterns; // pattern's name, pattern's body
 
-    const QString dirOutName = "/obj";
-    const QString dirBuildName = "/build";
+    static const QString dirOutName;
+    static const QString dirBuildName;
 
     void init(void);    // read settings from xml file
     void traverseNode(const QDomNode &node);    // read node from xml file (settings)
@@ -43,6 +43,7 @@ class RCompiler
 public:
     RCompiler();
     QVector<outMessage>& getOutErrors(void) {return errors;}
+    static QString getBinFileName(void);
     void compile(void);
     void link(void);
 };

@@ -15,7 +15,7 @@ class ScanController : public QObject
     QString pName;
     ScanUART* scanWorker;
 public:
-    explicit ScanController(const QString &pName, QObject *parent = 0);
+    explicit ScanController(const QString &pName, int progAddr = 0, QObject *parent = 0);
     ~ScanController();
 
 signals:

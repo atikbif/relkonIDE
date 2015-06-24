@@ -42,6 +42,7 @@ protected:
 public:
     explicit SettingsBase(QWidget *parent = 0);
     ~SettingsBase();
+    unsigned char getProgAddr(void) const {return progAddr;}
     virtual void clearSettings(void);
     void setKonFileName(const QString &fName) {konFileName=fName;}
     virtual void saveSettings(void)=0;  // сохранение настроек в файл

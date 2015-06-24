@@ -56,3 +56,15 @@ int CheckSum::getCRC16(const QByteArray &inpData)
     return wCRCWord;
 }
 
+int CheckSum::getCRCXModem(const QByteArray &inpData)
+{
+    quint16 crc;
+    crc = 0;
+    foreach(quint8 value, inpData) {
+        crc = crc ^ ((quint16)value << 8);
+        for(int i=0;i<8;++i)
+        if(crc&0x8000) crc = (crc << 1) ^ 0x1021; else crc = crc << 1;
+    }
+    return (crc & 0xFFFF);
+}
+

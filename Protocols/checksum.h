@@ -13,6 +13,7 @@ private:
     ~CheckSum();
 public:
     static int getCRC16(const QByteArray &inpData);
+    static int getCRCXModem(const QByteArray &inpData);
 };
 
 #endif // CHECKSUM_H

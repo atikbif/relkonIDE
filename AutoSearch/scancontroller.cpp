@@ -1,10 +1,11 @@
 #include "scancontroller.h"
 
 
-ScanController::ScanController(const QString &pName, QObject *parent) : QObject(parent)
+ScanController::ScanController(const QString &pName, int progAddr, QObject *parent) : QObject(parent)
 {
     this->pName = pName;
     scanWorker = new ScanUART();
+    scanWorker->setProgAddr(progAddr);
     scanWorker->moveToThread(&scanThread);
     connect(&scanThread,SIGNAL(finished()),scanWorker,SLOT(deleteLater()));
     connect(scanWorker,SIGNAL(percentUpdate(float)),this,SLOT(percentUpdate(float)));

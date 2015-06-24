@@ -54,7 +54,11 @@ SOURCES += main.cpp\
     AutoSearch/scangui.cpp \
     Protocols/checksum.cpp \
     AutoSearch/detectedcontroller.cpp \
-    Loader/bootmodesetter.cpp
+    Loader/bootmodesetter.cpp \
+    Loader/ymodem.cpp \
+    Loader/ymodemthread.cpp \
+    Loader/sysframreadwrite.cpp \
+    Loader/sfram.cpp
 
 HEADERS  += mainwindow.h \
     codeeditor.h \
@@ -94,11 +98,17 @@ HEADERS  += mainwindow.h \
     AutoSearch/scangui.h \
     Protocols/checksum.h \
     AutoSearch/detectedcontroller.h \
-    Loader/bootmodesetter.h
+    Loader/bootmodesetter.h \
+    Loader/ymodem.h \
+    Loader/ymodemthread.h \
+    Loader/sysframreadwrite.h \
+    Loader/sfram.h
 
 FORMS    += mainwindow.ui \
     settingsform.ui \
-    AutoSearch/scangui.ui
+    AutoSearch/scangui.ui \
+    Loader/ymodemthread.ui \
+    Loader/sysframreadwrite.ui
 
 RESOURCES += \
     icons.qrc

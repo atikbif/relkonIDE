@@ -7,50 +7,22 @@
 using namespace RkProtocol;
 
 
-ScanUART::ScanUART(QObject *parent) : QObject(parent),pName(""),stopCmd(false),startCmd(false)
+bool ScanUART::scan(QSerialPort &port)
 {
-
-}
-
-ScanUART::~ScanUART()
-{
-
-}
-
-void ScanUART::startScan(const QString &pName)
-{
-    baudTable = {115200,19200,9600,38400,57600,4800};
-    QMutexLocker locker(&mutex);
-    if(startCmd) return;
-    if(!this->pName.isEmpty()) return;
-    startCmd = true;
-    this->pName = pName;
-    locker.unlock();
+    bool foundFlag = false;
+    DetectedController* contr = &DetectedController::Instance();
     float stepWidth = 100.0/(baudTable.count()*2);
     float currentPercent=0;
-
-    DetectedController* contr = &DetectedController::Instance();
-    if(contr->getBaudrate()) {
-        // первой скоростью всегда должна быть 115200
-        // связано с особенностями работы загрузчика контроллера
-        baudTable.removeAll(contr->getBaudrate());
-        if(contr->getBaudrate()!=115200) baudTable.insert(1,contr->getBaudrate());
-        else baudTable.insert(0,contr->getBaudrate());
-    }
-
-    QSerialPort port(pName);
-    port.open(QSerialPort::ReadWrite);
-
     for(int i=0;i<baudTable.count();i++) {
 
         Request req;
-        req.setNetAddress(0x00);
+        req.setNetAddress(progAddr);
 
         port.setBaudRate(baudTable.at(i));
         CommandInterface* cmdBin = new GetCoreVersion();
         CommandInterface* cmdAscii = new AsciiDecorator(cmdBin);
         QVector<CommandInterface*> cmdList {cmdBin, cmdAscii};
-        bool foundFlag = false;
+        foundFlag = false;
         foreach(CommandInterface* cmd, cmdList) {
             if(cmd->execute(req,port)){
                 contr->setBaudrate(baudTable.at(i));
@@ -71,11 +43,94 @@ void ScanUART::startScan(const QString &pName)
             emit percentUpdate(currentPercent);
 
         }
-        if(foundFlag) break;
         delete cmdAscii; // cmdBin удаляется декоратором
-        locker.relock();
-        if(stopCmd) break;
-        locker.unlock();
+        mutex.lock();
+        if(stopCmd) {mutex.unlock();break;}
+        mutex.unlock();
+        if(foundFlag) break;
+    }
+    if(foundFlag) return true;
+    return false;
+}
+
+bool ScanUART::testBootMode(QSerialPort &port)
+{
+    bool foundFlag = false;
+    DetectedController* contr = &DetectedController::Instance();
+
+    Request req;
+    req.setNetAddress(0);
+
+    port.setBaudRate(QSerialPort::Baud115200);
+    CommandInterface* cmd = new GetCoreVersion();
+
+    if(cmd->execute(req,port)){
+        contr->setBaudrate(115200);
+        if(QString(req.getRdData()).contains("boot")) contr->setBootMode(true);
+        else contr->setBootMode(false);
+        contr->setAsciiMode(false);
+        contr->setNetAddress(0);
+        contr->setUartName(pName);
+        if(contr->getBootMode()) {
+            emit plcHasBeenFound(contr);
+            foundFlag = true;
+        }
+    }
+    delete cmd;
+    if(foundFlag) return true;
+    return false;
+}
+
+void ScanUART::sendAbortCmd(QSerialPort &port)
+{
+    QByteArray abortCmd;
+    abortCmd += 'a';
+    port.setBaudRate(QSerialPort::Baud115200);
+    port.write(abortCmd);
+    port.waitForBytesWritten(100);
+    int maxCnt = 20;
+    int cnt=0;
+    while(port.waitForReadyRead(100)) {
+        port.readAll();
+        cnt++;if(cnt>=maxCnt) break;
+    }
+}
+
+ScanUART::ScanUART(QObject *parent) : QObject(parent),pName(""),stopCmd(false),startCmd(false)
+{
+    progAddr = 0;
+}
+
+ScanUART::~ScanUART()
+{
+
+}
+
+void ScanUART::startScan(const QString &pName)
+{
+    baudTable = {115200,19200,9600,38400,57600,4800};
+    QMutexLocker locker(&mutex);
+    if(startCmd) return;
+    if(!this->pName.isEmpty()) return;
+    startCmd = true;
+    this->pName = pName;
+    locker.unlock();
+
+    DetectedController* contr = &DetectedController::Instance();
+    if(contr->getBaudrate()) {
+        // первой скоростью всегда должна быть 115200
+        // связано с особенностями работы загрузчика контроллера
+        baudTable.removeAll(contr->getBaudrate());
+        if(contr->getBaudrate()!=115200) baudTable.insert(1,contr->getBaudrate());
+        else baudTable.insert(0,contr->getBaudrate());
+    }
+
+    QSerialPort port(pName);
+    port.open(QSerialPort::ReadWrite);
+
+    sendAbortCmd(port);
+    if(testBootMode(port)==false) {
+        scan(port);
     }
     port.close();
 }

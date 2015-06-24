@@ -431,3 +431,8 @@ void SettingsForm::on_pushButtonToPLC_clicked()
     writeToBin(data);
     emit writeToPLC(data);
 }
+
+void SettingsForm::on_spinBoxProgAddr_valueChanged(int arg1)
+{
+    progAddr = arg1;
+}

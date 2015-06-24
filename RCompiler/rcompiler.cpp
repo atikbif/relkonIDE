@@ -4,6 +4,9 @@
 #include <QDir>
 #include <QRegExp>
 
+const QString RCompiler::dirOutName = "/obj";
+const QString RCompiler::dirBuildName = "/build";
+
 void RCompiler::init()
 {
     applPath = QCoreApplication::applicationDirPath();
@@ -234,6 +237,11 @@ QByteArray RCompiler::compFile(const QString &fName)
 RCompiler::RCompiler()
 {
     init();
+}
+
+QString RCompiler::getBinFileName()
+{
+    return QCoreApplication::applicationDirPath()+dirBuildName+"/project.bin";
 }
 
 void RCompiler::compile()
