@@ -14,8 +14,8 @@ public:
     bool checkAnAnswer(Request &req);
     ~AsciiDecorator();
 private:
-    bool convertToAscii(Request &req);
-    bool convertToBin(Request &req);
+    static bool convertToAscii(Request &req);
+    static bool convertToBin(Request &req);
 };
 
 #endif // ASCIIDECORATOR_H

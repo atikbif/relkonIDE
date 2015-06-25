@@ -10,11 +10,6 @@ bool CommandDecorator::form(Request &req)
     return cmd->form(req);
 }
 
-bool CommandDecorator::send(Request &req, QIODevice &io)
-{
-    return cmd->send(req,io);
-}
-
 bool CommandDecorator::waitAnAnswer(Request &req, QIODevice &io)
 {
     return cmd->waitAnAnswer(req,io);

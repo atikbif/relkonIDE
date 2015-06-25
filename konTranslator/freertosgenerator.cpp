@@ -213,10 +213,22 @@ void FreeRtosGenerator::createIoDefinesH()
 
 void FreeRtosGenerator::translateIO(QString &str, int konNum)
 {
-    //str+= "hello";
     bool errExp = false;
-    QRegExp inExp("#IN(\\d+).(\\d+)");
+    QRegExp adcExp("ADC(\\d+)");
     int pos=0;
+    while((pos = adcExp.indexIn(str,pos))!=-1) {
+        int adcNum = adcExp.cap(1).toInt();
+        if((adcNum>=1)&&(adcNum<=8)) {
+            str.remove(pos,adcExp.matchedLength());
+            QString newExp = "_Sys_ADC["+QString::number(adcNum-1)+"]";
+            str.insert(pos,newExp);
+        }
+        pos += adcExp.matchedLength();
+    }
+
+    errExp = false;
+    QRegExp inExp("#IN(\\d+).(\\d+)");
+    pos=0;
     while((pos = inExp.indexIn(str,pos))!=-1) {
         int inNum = inExp.cap(1).toInt();
         int bitNum = inExp.cap(2).toInt();

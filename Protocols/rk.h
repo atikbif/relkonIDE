@@ -32,6 +32,16 @@ namespace RkProtocol {
         ~WriteFram();
     };
 
+    class ReadFram: public RkCommand
+    {
+    public:
+        ReadFram();
+        bool form(Request &req);
+        bool getAnAnswer(Request &req);
+        bool waitAnAnswer(Request &req, QIODevice &io);
+        ~ReadFram();
+    };
+
     class ResetController: public RkCommand
     {
     public:

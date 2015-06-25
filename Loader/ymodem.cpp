@@ -175,9 +175,9 @@ void Ymodem::startProcess(const QString &pName, const QString &filePath)
         port = new QSerialPort(pName);
         port->setBaudRate(QSerialPort::Baud115200);
         if(port->open(QSerialPort::ReadWrite)) {
-            bool errFlag = false;
             if(sendStartYmodem()) {
                 if(sendHeader()) {
+                    bool errFlag = false;
                     int byteQuantity = file->size();
                     int reqQuantity = byteQuantity / 1024;
                     if(byteQuantity % 1024) reqQuantity++;

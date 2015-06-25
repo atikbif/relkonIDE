@@ -5,13 +5,12 @@
 // интерфейс передачи данных - UART
 
 #include "commandinterface.h"
-#include <QSerialPort>
+//#include <QSerialPort>
 
 class RkCommand : public CommandInterface
 {
 public:
     RkCommand();
-    bool send(Request &req, QIODevice &io);
     bool waitAnAnswer(Request &req, QIODevice &io);
     bool checkAnAnswer(Request &req);
     bool getAnAnswer(Request &req);

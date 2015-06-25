@@ -7,22 +7,6 @@ RkCommand::RkCommand()
 
 }
 
-bool RkCommand::send(Request &req, QIODevice &io)
-{
-    form(req);
-    if(io.isOpen()) {
-        io.write(req.getBody());
-        io.waitForBytesWritten(100);
-        if(waitAnAnswer(req,io)) {
-            if(checkAnAnswer(req)) {
-                getAnAnswer(req);
-                return true;
-            }
-        }
-    }
-    return false;
-}
-
 RkCommand::~RkCommand()
 {
 
@@ -30,13 +14,16 @@ RkCommand::~RkCommand()
 
 bool RkCommand::waitAnAnswer(Request &req, QIODevice &io)
 {
-    static const int maxCnt = 5; // ограничение ожидания ответа при длительном входящем потоке данных
+    static const int maxCnt = 500; // ограничение ожидания ответа при длительном входящем потоке данных
     if(io.isOpen()){
         QByteArray answer;
-        int cnt=0;
-        while(io.waitForReadyRead(100)) {
+        if(io.waitForReadyRead(50)){
+            int cnt=0;
             answer+=io.readAll();
-            cnt++;if(cnt>=maxCnt) break;
+            while(io.waitForReadyRead(5)) {
+                answer+=io.readAll();
+                cnt++;if(cnt>=maxCnt) break;
+            }
         }
         req.updateRdData(answer);
         if(answer.count()) return true;

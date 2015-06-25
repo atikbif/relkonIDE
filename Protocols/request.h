@@ -25,7 +25,7 @@ public:
     void setDataNumber(int value) {dataNumber=value;}
     int getDataNumber(void) const {return dataNumber;}
     void setWrData(const QByteArray &wrData) {this->wrData = wrData;}
-    const QByteArray& getWrData(void) {return wrData;}
+    const QByteArray& getWrData(void) const {return wrData;}
     void updateRdData(const QByteArray &rdData) {this->rdData = rdData;}
     const QByteArray& getRdData(void) const {return rdData;}
     void insParam(const QString &key, const QString &value) {params.insert(key,value);}

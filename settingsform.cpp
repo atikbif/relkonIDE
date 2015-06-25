@@ -4,6 +4,10 @@
 #include <QDateTime>
 #include <QFile>
 #include <QDataStream>
+#include "AutoSearch/scangui.h"
+#include "AutoSearch/detectedcontroller.h"
+#include <QMessageBox>
+#include "Loader/sysframreadwrite.h"
 
 void SettingsForm::printFactorySettings()
 {
@@ -135,11 +139,11 @@ void SettingsForm::writeToBin(QByteArray &outData)
     outData[1024]=netAddress;
     int speedValue=0;
     int protocol=0;
-    switch(prUart.protocol) {
+    switch(pcUart.protocol) {
         case BIN:protocol=0;break;
         case ASCII:protocol=1;break;
     }
-    switch(prUart.speed) {
+    switch(pcUart.speed) {
         case 4800: speedValue=0;break;
         case 9600: speedValue=1;break;
         case 19200:speedValue=2;break;
@@ -150,11 +154,11 @@ void SettingsForm::writeToBin(QByteArray &outData)
     outData[1025]=speedValue;
     outData[1026]=protocol;
 
-    switch(pcUart.protocol) {
+    switch(prUart.protocol) {
         case BIN:protocol=0;break;
         case ASCII:protocol=1;break;
     }
-    switch(pcUart.speed) {
+    switch(prUart.speed) {
         case 4800: speedValue=0;break;
         case 9600: speedValue=1;break;
         case 19200:speedValue=2;break;
@@ -317,24 +321,6 @@ void SettingsForm::readFromBin(const QByteArray inpData)
         int speedValue = inpData.at(1025);
         switch(speedValue)
         {
-            case 0:prUart.speed = 4800;break;
-            case 1:prUart.speed = 9600;break;
-            case 2:prUart.speed = 19200;break;
-            case 3:prUart.speed = 38400;break;
-            case 4:prUart.speed = 57600;break;
-            case 5:prUart.speed = 115200;break;
-            default:prUart.speed = 115200;break;
-        }
-        int protocol=inpData.at(1026);
-        switch(protocol)
-        {
-            case 0:prUart.protocol = BIN;break;
-            case 1:prUart.protocol = ASCII;break;
-            default:prUart.protocol = BIN;break;
-        }
-        speedValue = inpData.at(1027);
-        switch(speedValue)
-        {
             case 0:pcUart.speed = 4800;break;
             case 1:pcUart.speed = 9600;break;
             case 2:pcUart.speed = 19200;break;
@@ -343,12 +329,30 @@ void SettingsForm::readFromBin(const QByteArray inpData)
             case 5:pcUart.speed = 115200;break;
             default:pcUart.speed = 115200;break;
         }
-        protocol=inpData.at(1028);
+        int protocol=inpData.at(1026);
         switch(protocol)
         {
             case 0:pcUart.protocol = BIN;break;
             case 1:pcUart.protocol = ASCII;break;
             default:pcUart.protocol = BIN;break;
+        }
+        speedValue = inpData.at(1027);
+        switch(speedValue)
+        {
+            case 0:prUart.speed = 4800;break;
+            case 1:prUart.speed = 9600;break;
+            case 2:prUart.speed = 19200;break;
+            case 3:prUart.speed = 38400;break;
+            case 4:prUart.speed = 57600;break;
+            case 5:prUart.speed = 115200;break;
+            default:prUart.speed = 115200;break;
+        }
+        protocol=inpData.at(1028);
+        switch(protocol)
+        {
+            case 0:prUart.protocol = BIN;break;
+            case 1:prUart.protocol = ASCII;break;
+            default:prUart.protocol = BIN;break;
         }
         int emulationcode = inpData.at(1029);
         switch(emulationcode) {
@@ -375,6 +379,7 @@ void SettingsForm::readFromBin(const QByteArray inpData)
 
         if(inpData.at(1113)==0x31) sdOn=true;
         else sdOn=false;
+        updateData();
     }
 }
 
@@ -422,14 +427,39 @@ void SettingsForm::radioButtonBytes_toggled()
 
 void SettingsForm::on_pushButtonFromPLC_clicked()
 {
-    emit readFromPLC();
+    ScanGUI gui(progAddr,this);
+    int ret = gui.exec();
+    if(ret==QDialog::Accepted) {
+        DetectedController* plc = &DetectedController::Instance();
+        if(plc->getBootMode()) QMessageBox::warning(this,"системные настройки контроллера","Контроллер ожидает загрузки программы.\nЧтение/запись настроек невозможны.");
+        else{
+            SysFramReadWrite loader(this);
+            connect(this,SIGNAL(readFromPLC()),&loader,SLOT(startReadProcess()));
+            connect(&loader,SIGNAL(readOK(QByteArray)),this,SLOT(readFromBin(QByteArray)));
+            emit readFromPLC();
+            loader.exec();
+            disconnect(this,SIGNAL(writeToPLC(QByteArray)),&loader,SLOT(startWriteProcess(QByteArray)));
+        }
+    }
 }
 
 void SettingsForm::on_pushButtonToPLC_clicked()
 {
     QByteArray data;
     writeToBin(data);
-    emit writeToPLC(data);
+    ScanGUI gui(progAddr,this);
+    int ret = gui.exec();
+    if(ret==QDialog::Accepted) {
+        DetectedController* plc = &DetectedController::Instance();
+        if(plc->getBootMode()) QMessageBox::warning(this,"системные настройки контроллера","Контроллер ожидает загрузки программы.\nЧтение/запись настроек невозможны.");
+        else{
+            SysFramReadWrite loader(this);
+            connect(this,SIGNAL(writeToPLC(QByteArray)),&loader,SLOT(startWriteProcess(QByteArray)));
+            emit writeToPLC(data);
+            loader.exec();
+            disconnect(this,SIGNAL(writeToPLC(QByteArray)),&loader,SLOT(startWriteProcess(QByteArray)));
+        }
+    }
 }
 
 void SettingsForm::on_spinBoxProgAddr_valueChanged(int arg1)
