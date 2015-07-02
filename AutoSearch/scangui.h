@@ -1,6 +1,8 @@
 #ifndef SCANGUI_H
 #define SCANGUI_H
 
+// диалог с выводом результата поиска контроллера на разных портах
+
 #include <QDialog>
 #include "scancontroller.h"
 #include <QVector>

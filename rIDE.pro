@@ -58,7 +58,11 @@ SOURCES += main.cpp\
     Loader/ymodem.cpp \
     Loader/ymodemthread.cpp \
     Loader/sysframreadwrite.cpp \
-    Loader/sfram.cpp
+    Loader/sfram.cpp \
+    Debugger/varitem.cpp \
+    Debugger/compositevar.cpp \
+    Debugger/iterator.cpp \
+    Debugger/namesortiterator.cpp
 
 HEADERS  += mainwindow.h \
     codeeditor.h \
@@ -102,7 +106,11 @@ HEADERS  += mainwindow.h \
     Loader/ymodem.h \
     Loader/ymodemthread.h \
     Loader/sysframreadwrite.h \
-    Loader/sfram.h
+    Loader/sfram.h \
+    Debugger/varitem.h \
+    Debugger/compositevar.h \
+    Debugger/iterator.h \
+    Debugger/namesortiterator.h
 
 FORMS    += mainwindow.ui \
     settingsform.ui \

@@ -1,6 +1,8 @@
 #ifndef SYSFRAMREADWRITE_H
 #define SYSFRAMREADWRITE_H
 
+// GUI работы с FRAM памятью в отдельном потоке
+
 #include <QDialog>
 #include <QThread>
 #include "sfram.h"
