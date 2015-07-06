@@ -62,7 +62,9 @@ SOURCES += main.cpp\
     Debugger/varitem.cpp \
     Debugger/compositevar.cpp \
     Debugger/iterator.cpp \
-    Debugger/namesortiterator.cpp
+    Debugger/namesortiterator.cpp \
+    Debugger/memcell.cpp \
+    Debugger/memstorage.cpp
 
 HEADERS  += mainwindow.h \
     codeeditor.h \
@@ -110,7 +112,9 @@ HEADERS  += mainwindow.h \
     Debugger/varitem.h \
     Debugger/compositevar.h \
     Debugger/iterator.h \
-    Debugger/namesortiterator.h
+    Debugger/namesortiterator.h \
+    Debugger/memcell.h \
+    Debugger/memstorage.h
 
 FORMS    += mainwindow.ui \
     settingsform.ui \

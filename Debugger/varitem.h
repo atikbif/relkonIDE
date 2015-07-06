@@ -7,6 +7,8 @@
 #include <QObject>
 #include <QString>
 #include <QDateTime>
+#include "memcell.h"
+#include <QStringList>
 
 class VarItem : public QObject
 {
@@ -19,6 +21,13 @@ class VarItem : public QObject
     QString value;      // в текстовом виде т.к. могут быть как целые значения так и с плавающей точкой
     QDateTime timeLabel;    // метка времени переменной
     int quality;        // качество связи
+    int bitNum;         // номер бита
+
+    static const QStringList dataTypes;
+    enum {BIT,CHAR,SHORT,INT,LONG,LONG_LONG,FLOAT,DOUBLE};
+
+    QByteArray getBytesForIntegral(int varSize);
+    void updateByte(int offsetValue, quint8 dataValue, QByteArray &varBytes);
 
 public:
     explicit VarItem(QObject *parent = 0);
@@ -28,6 +37,7 @@ public:
 signals:
 
 public slots:
+    void dataUpdate(const MemCell &cell);
 };
 
 #endif // VARITEM_H
