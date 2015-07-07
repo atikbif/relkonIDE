@@ -14,7 +14,7 @@ class VarItem : public QObject
 {
     Q_OBJECT
     QString dataType;   // int, char, struct, array, ...
-    int memType;        // RAM, FRAM, CLOCK, USER, ...
+    QString memType;        // RAM, FRAM, CLOCK, USER, ...
     int priority;       // приоритет при опросе контроллера - влияет на частоту опроса
     int memAddress;
     QString name;
@@ -32,6 +32,15 @@ class VarItem : public QObject
 public:
     explicit VarItem(QObject *parent = 0);
     QString getName() const {return name;}
+    void setName(const QString &varName) {name=varName;}
+    QString getDataType() const {return dataType;}
+    void setDataType(const QString &value) {dataType=value;}
+    int getMemAddress() const {return memAddress;}
+    void setMemAddress(int value) {memAddress = value;}
+    QString getMemType(void) const {return memType;}
+    void setMemType(const QString &value) {memType=value;}
+    int getBitNum(void) const {return bitNum;}
+    void setBitNum(int value) {if((value>=0)&&(value<8)) bitNum=value;else bitNum=-1;}
     ~VarItem();
 
 signals:

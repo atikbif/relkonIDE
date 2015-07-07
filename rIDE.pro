@@ -64,7 +64,9 @@ SOURCES += main.cpp\
     Debugger/iterator.cpp \
     Debugger/namesortiterator.cpp \
     Debugger/memcell.cpp \
-    Debugger/memstorage.cpp
+    Debugger/memstorage.cpp \
+    Debugger/debuggerform.cpp \
+    Debugger/varguiconnector.cpp
 
 HEADERS  += mainwindow.h \
     codeeditor.h \
@@ -114,13 +116,16 @@ HEADERS  += mainwindow.h \
     Debugger/iterator.h \
     Debugger/namesortiterator.h \
     Debugger/memcell.h \
-    Debugger/memstorage.h
+    Debugger/memstorage.h \
+    Debugger/debuggerform.h \
+    Debugger/varguiconnector.h
 
 FORMS    += mainwindow.ui \
     settingsform.ui \
     AutoSearch/scangui.ui \
     Loader/ymodemthread.ui \
-    Loader/sysframreadwrite.ui
+    Loader/sysframreadwrite.ui \
+    Debugger/debuggerform.ui
 
 RESOURCES += \
     icons.qrc

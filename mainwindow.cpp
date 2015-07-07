@@ -23,6 +23,8 @@
 #include <QSerialPort>
 #include "RCompiler/rcompiler.h"
 
+#include "Debugger/debuggerform.h"
+
 QStringList MainWindow::getPrevProjects()
 {
     QStringList res;
@@ -198,10 +200,10 @@ MainWindow::MainWindow(QWidget *parent) :
                                     "stop: 0 #FAFAFA, stop: 0.4 #F4F4F4,"
                                     "stop: 0.5 #e7e7e7, stop: 1.0 #fafafa);"
         "border: 1px solid #C4C4C3;"
-        "border-bottom-color: #C2C7CB; /* same as the pane color */"
+        "border-bottom-color: #C2C7CB; "
         "border-top-left-radius: 6px;"
         "border-top-right-radius: 6px;"
-        "min-width: 8ex;"
+        "min-width: 8px;"
         "padding: 2px;"
         "}"
         "QTabBar::tab:selected {"
@@ -227,7 +229,8 @@ MainWindow::MainWindow(QWidget *parent) :
     editor->setFocus();
     settings = new SettingsForm();
     ui->tabWidget->addTab(settings,"Настройки");
-    ui->tabWidget->addTab(new QLabel(),"Отладчик");
+    ui->tabWidget->addTab(new DebuggerForm(),"Отладчик");
+
 
     setWindowState(Qt::WindowMaximized);
 

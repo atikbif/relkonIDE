@@ -17,18 +17,22 @@ void NameSortIterator::createCash(CompositeVar *var)
             QStringList varNames = vars.keys();
             varNames.removeDuplicates();
             varNames.sort();
+            int curId=0;
             foreach (QString vName, varNames) {
                QList<CompositeVar*> varsByName = vars.values(vName);
                foreach (CompositeVar* cVar, varsByName) {
                   cash += cVar;
+                  if(cVar==var) posIncash = curId;
+                  curId++;
                }
             }
         }else {
             cash += var;
+            posIncash=0;
         }
 
     }
-    if(cash.count()) posIncash=0;
+    //if(cash.count()) posIncash=0;
 }
 
 bool NameSortIterator::testCashState()
@@ -99,6 +103,7 @@ bool NameSortIterator::down()
     if(testCashState()==false) return false;
     if(cash.at(posIncash)->getChildrenCount()) {
         createCash(cash.at(posIncash)->getChildren().at(0));
+        if(posIncash>=0) posIncash=0;
         return true;
     }
     return false;

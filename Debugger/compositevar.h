@@ -15,8 +15,9 @@ public:
     explicit CompositeVar(CompositeVar* varParent=0, QObject *parent = 0);
     int getChildrenCount(void) const{return affiliatedVars.count();}
     QVector<CompositeVar*> getChildren();
-    void addChild(CompositeVar* var) {affiliatedVars+=var;}
+    void addChild(CompositeVar* var) {affiliatedVars+=var;var->setParent(this);}
     CompositeVar* getParent() const {return varParent;}
+    void setParent(CompositeVar* var) {varParent=var;}
     ~CompositeVar();
 };
 

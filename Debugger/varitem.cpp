@@ -45,7 +45,7 @@ void VarItem::dataUpdate(const MemCell &cell)
     case BIT:
         varBytes = getBytesForIntegral(1);
         updateByte(cellOffset,cell.getValue(),varBytes);
-        if(varBytes.at(0)) value="1";else value="0";
+        if(varBytes.at(0)&(1<<bitNum)) value="1";else value="0";
         break;
     case CHAR:{
         varBytes = getBytesForIntegral(1);
