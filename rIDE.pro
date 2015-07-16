@@ -63,10 +63,14 @@ SOURCES += main.cpp\
     Debugger/compositevar.cpp \
     Debugger/iterator.cpp \
     Debugger/namesortiterator.cpp \
-    Debugger/memcell.cpp \
-    Debugger/memstorage.cpp \
     Debugger/debuggerform.cpp \
-    Debugger/varguiconnector.cpp
+    Debugger/idgenerator.cpp \
+    Debugger/idstorage.cpp \
+    Debugger/varscreator.cpp \
+    Debugger/memblock.cpp \
+    Debugger/memstorage.cpp \
+    Debugger/Scanner/scanmanager.cpp \
+    Debugger/Scanner/plcscanner.cpp
 
 HEADERS  += mainwindow.h \
     codeeditor.h \
@@ -115,10 +119,14 @@ HEADERS  += mainwindow.h \
     Debugger/compositevar.h \
     Debugger/iterator.h \
     Debugger/namesortiterator.h \
-    Debugger/memcell.h \
-    Debugger/memstorage.h \
     Debugger/debuggerform.h \
-    Debugger/varguiconnector.h
+    Debugger/idgenerator.h \
+    Debugger/idstorage.h \
+    Debugger/varscreator.h \
+    Debugger/memblock.h \
+    Debugger/memstorage.h \
+    Debugger/Scanner/scanmanager.h \
+    Debugger/Scanner/plcscanner.h
 
 FORMS    += mainwindow.ui \
     settingsform.ui \
@@ -129,3 +137,7 @@ FORMS    += mainwindow.ui \
 
 RESOURCES += \
     icons.qrc
+
+
+INCLUDEPATH += "C:/boost/boost_1_58_0"
+

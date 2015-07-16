@@ -1,38 +1,45 @@
 #include "namesortiterator.h"
 #include <QMultiMap>
 #include <QStringList>
+#include "compositevar.h"
 
-void NameSortIterator::createCash(CompositeVar *var)
+void NameSortIterator::createCash(const QString &varID)
 {
     cash.clear();
     posIncash=-1;
-    if(var==nullptr) return;
-    CompositeVar* varParent = var->getParent();
-    if(var!=nullptr) {
-        QMultiMap<QString,CompositeVar*> vars;
-        if(varParent!=nullptr) {
-            foreach (CompositeVar* cVar, varParent->getChildren()) {
-               vars.insertMulti(cVar->getName(),cVar);
-            }
-            QStringList varNames = vars.keys();
-            varNames.removeDuplicates();
-            varNames.sort();
-            int curId=0;
-            foreach (QString vName, varNames) {
-               QList<CompositeVar*> varsByName = vars.values(vName);
-               foreach (CompositeVar* cVar, varsByName) {
-                  cash += cVar;
-                  if(cVar==var) posIncash = curId;
-                  curId++;
-               }
+
+    CompositeVar var;
+    if(ids.getVarByID(varID,var)) {
+        QString parID = var.getParentID();
+        if(!parID.isEmpty()) {
+            if(ids.getVarByID(parID,var)) {
+                QStringList childrenIDs = var.getChildren();
+                QMultiMap<QString,QString> vars;
+                foreach (QString id, childrenIDs) {
+                    CompositeVar child;
+                    if(ids.getVarByID(id,child)) {
+                        vars.insertMulti(child.getName(),id);
+                    }
+                }
+                QStringList varNames = vars.keys();
+                varNames.removeDuplicates();
+                varNames.sort();
+                int curId=0;
+                foreach (QString vName, varNames) {
+                   QStringList varsByName = vars.values(vName);
+                   foreach (QString cVar, varsByName) {
+                      cash += cVar;
+                      if(cVar==varID) posIncash = curId;
+                      curId++;
+                   }
+                }
+                return;
             }
         }else {
-            cash += var;
+            cash += varID;
             posIncash=0;
         }
-
     }
-    //if(cash.count()) posIncash=0;
 }
 
 bool NameSortIterator::testCashState()
@@ -41,9 +48,13 @@ bool NameSortIterator::testCashState()
     return true;
 }
 
-NameSortIterator::NameSortIterator(CompositeVar *var)
+NameSortIterator::NameSortIterator(IDStorage &idStor):ids(idStor)
 {
-    if(var!=nullptr) createCash(var);
+    cash.clear();
+    posIncash=-1;
+    if(ids.getIDs().count()) {
+        createCash(ids.getIDs().at(0));
+    }
 }
 
 bool NameSortIterator::next()
@@ -73,27 +84,26 @@ bool NameSortIterator::first()
     return true;
 }
 
-bool NameSortIterator::isTop()
-{
-    if(testCashState()==false) return false;
-    if(cash.count()==1) return true;
-    return false;
-}
-
 bool NameSortIterator::isNode()
 {
     if(testCashState()==false) return false;
-    if(cash.at(posIncash)->getChildrenCount()) return true;
+    CompositeVar var;
+    if(ids.getVarByID(cash.at(posIncash),var)) {
+        if(var.getChildrenCount()) return true;
+    }
     return false;
 }
 
 bool NameSortIterator::up()
 {
     if(testCashState()==false) return false;
-    CompositeVar* varParent = cash.at(0)->getParent();
-    if(varParent!=nullptr) {
-        createCash(varParent);
-        return true;
+    CompositeVar var;
+    if(ids.getVarByID(cash.at(0),var)){
+        QString id = var.getParentID();
+        if(id>0) {
+            createCash(id);
+            return true;
+        }
     }
     return false;
 }
@@ -101,10 +111,13 @@ bool NameSortIterator::up()
 bool NameSortIterator::down()
 {
     if(testCashState()==false) return false;
-    if(cash.at(posIncash)->getChildrenCount()) {
-        createCash(cash.at(posIncash)->getChildren().at(0));
-        if(posIncash>=0) posIncash=0;
-        return true;
+    CompositeVar var;
+    if(ids.getVarByID(cash.at(posIncash),var)){
+        if(var.getChildrenCount()) {
+            createCash(var.getChildren().at(0));
+            posIncash=0;
+            return true;
+        }
     }
     return false;
 }
@@ -116,9 +129,40 @@ bool NameSortIterator::topFirst()
     return true;
 }
 
-VarItem *NameSortIterator::current()
+bool NameSortIterator::hasParent()
 {
-    if(testCashState()==false) return nullptr;
+    if(testCashState()==false) return false;
+    CompositeVar var;
+    if(ids.getVarByID(cash.at(0),var)){
+        QString id = var.getParentID();
+        if(id>0) return true;
+    }
+    return false;
+}
+
+bool NameSortIterator::goToID(const QString &id)
+{
+    CompositeVar var;
+    if(ids.getVarByID(id,var)){
+        createCash(id);
+        return testCashState();
+    }
+    return false;
+}
+
+QString NameSortIterator::getParentID()
+{
+    if(testCashState()==false) return QString();
+    CompositeVar var;
+    if(ids.getVarByID(cash.at(0),var)){
+        return var.getParentID();
+    }
+    return 0;
+}
+
+QString NameSortIterator::currentID()
+{
+    if(testCashState()==false) return QString();
     return cash.at(posIncash);
 }
 

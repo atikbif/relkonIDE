@@ -1,23 +1,27 @@
 #ifndef COMPOSITEVAR_H
 #define COMPOSITEVAR_H
 
-// паттерн компоновщик для построения древовидной структуры элементов VarItem
+// компоновщик для построения древовидной структуры элементов VarItem
 
 #include "varitem.h"
 #include <QVector>
+#include <QString>
+#include <QStringList>
+
 
 class CompositeVar : public VarItem
 {
-    Q_OBJECT
-    QVector<CompositeVar*> affiliatedVars;  // дочерние переменные
-    CompositeVar* varParent;
+    QStringList affiliatedVarIDs;  // дочерние переменные
+    QString parentID;
+
+    void setParent(const VarItem &var) {parentID=var.getID();}
 public:
-    explicit CompositeVar(CompositeVar* varParent=0, QObject *parent = 0);
-    int getChildrenCount(void) const{return affiliatedVars.count();}
-    QVector<CompositeVar*> getChildren();
-    void addChild(CompositeVar* var) {affiliatedVars+=var;var->setParent(this);}
-    CompositeVar* getParent() const {return varParent;}
-    void setParent(CompositeVar* var) {varParent=var;}
+    CompositeVar();
+    int getChildrenCount(void) const{return affiliatedVarIDs.count();}
+    const QStringList& getChildren() const;
+    void addChild(CompositeVar &var) {affiliatedVarIDs+=var.getID();var.setParent(*this);}
+    const QString& getParentID() {return parentID;}
+
     ~CompositeVar();
 };
 

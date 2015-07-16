@@ -1,23 +1,27 @@
 #ifndef MEMSTORAGE_H
 #define MEMSTORAGE_H
 
-// класс для хранения данных различных видов памяти ПЛК
+#include <QObject>
+#include <QVector>
+#include <QByteArray>
+#include "memblock.h"
 
-#include "memcell.h"
-#include <QHash>
-#include <QString>
-
-
-class MemStorage
+class MemStorage : public QObject
 {
-    QHash<QString, MemCell*> blockData; // массив ячеек (тип памяти - QString)
-    QHash<QString, int> blockSize;  // размер указаннного типа памяти
+    Q_OBJECT
+    QVector<MemBlock*> blocks;
 public:
-    void createBlock(const QString &memType,int blSize);
-    int getCount(const QString &memType);
-    MemCell* getCell(const QString &memType, int cellAddress);
-    MemStorage();
+    explicit MemStorage(QObject *parent = 0);
+    bool updateBlock(const QString &memType, int addr, const QByteArray &data);
+    QByteArray getData(const QString &memType, int addr, int count);
+    bool connectCellToID(const QString &memType, int addr, const QString &id);
+    QStringList getMemTypes() const;
+    void clearIDs();
     ~MemStorage();
+
+signals:
+    updateMemory(QStringList ids);
+public slots:
 };
 
 #endif // MEMSTORAGE_H

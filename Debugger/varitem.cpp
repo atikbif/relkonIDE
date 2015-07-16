@@ -1,4 +1,5 @@
 #include "varitem.h"
+#include "idgenerator.h"
 
 const QStringList VarItem::dataTypes = {"bit","char", "short", "int", "long", "long long", "float", "double"};
 
@@ -17,7 +18,13 @@ void VarItem::updateByte(int offsetValue, quint8 dataValue, QByteArray &varBytes
     }
 }
 
-VarItem::VarItem(QObject *parent) : QObject(parent)
+void VarItem::updateID()
+{
+    QString str = name+memType+dataType+QString::number(memAddress)+QString::number(bitNum);
+    id = IdGenerator::getID(str);
+}
+
+VarItem::VarItem()
 {
 
 }
@@ -27,7 +34,7 @@ VarItem::~VarItem()
 
 }
 
-void VarItem::dataUpdate(const MemCell &cell)
+/*void VarItem::dataUpdate(const MemCell &cell)
 {
     int varSize = 0;
     int typeNum=-1;
@@ -103,5 +110,5 @@ void VarItem::dataUpdate(const MemCell &cell)
     }
     timeLabel = cell.getCellTime();
     quality = cell.getQuality();
-}
+}*/
 

@@ -7,26 +7,30 @@
 // поэтому в деструкторе нет необходимость очищать память
 
 #include "iterator.h"
-#include "compositevar.h"
 #include <QVector>
+#include "idstorage.h"
 
 class NameSortIterator : public Iterator
 {
     int posIncash;
-    QVector<CompositeVar*> cash;
-    void createCash(CompositeVar *var); // создаёт отсортированный список sibling переменных
+    QStringList cash;
+    IDStorage& ids;
+
+    void createCash(const QString& varID); // создаёт отсортированный список sibling переменных
     bool testCashState();   // проверяет корректность кэшированного списка переменных
 public:
-    NameSortIterator(CompositeVar* var);
+    NameSortIterator(IDStorage &idStor);
     bool next();
     bool previous();
     bool first();   // перейти к первому элементу текущего среза
-    bool isTop();   // верхний элемент в текущем срезе
     bool isNode();  // имеет потомков
     bool up();  // подняться на родительский уровень
     bool down();    // спуститься к дочерним элементам
     bool topFirst();    // перейти к вершине всего дерева
-    VarItem* current();
+    bool hasParent();   // имеет родителя
+    bool goToID(const QString& id);
+    QString getParentID();    // вернуть id родителя
+    QString currentID();
     int getItemCount(); // количество элементов в текущем уровне
     ~NameSortIterator();
 };

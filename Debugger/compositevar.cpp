@@ -1,20 +1,17 @@
 #include "compositevar.h"
 
-CompositeVar::CompositeVar(CompositeVar *varParent, QObject *parent):VarItem(parent)
+CompositeVar::CompositeVar():VarItem()
 {
-    this->varParent = varParent;
-    if(varParent!=nullptr) {
-        varParent->addChild(this);
-    }
+
 }
 
-QVector<CompositeVar *> CompositeVar::getChildren()
+const QStringList &CompositeVar::getChildren() const
 {
-    return affiliatedVars;
+    return affiliatedVarIDs;
 }
 
 CompositeVar::~CompositeVar()
 {
-    for(int i=0;i<affiliatedVars.count();i++) delete affiliatedVars[i];
+
 }
 

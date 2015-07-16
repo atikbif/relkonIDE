@@ -1,10 +1,15 @@
 #ifndef DEBUGGERFORM_H
 #define DEBUGGERFORM_H
 
+// класс GUI для отладчика
+
 #include <QWidget>
 #include "compositevar.h"
 #include <QTreeWidgetItem>
-#include "varguiconnector.h"
+#include "idstorage.h"
+#include "varscreator.h"
+#include "namesortiterator.h"
+#include <QHash>
 
 namespace Ui {
 class DebuggerForm;
@@ -14,22 +19,23 @@ class DebuggerForm : public QWidget
 {
     Q_OBJECT
 
-    VarGUIConnector varGui;
+
+    VarsCreator varOwner;
+    NameSortIterator* iter;
+    QHash<QString,QTreeWidgetItem*> idWidgetItem;   // переменные в основном GUI дереве
+    QHash<QString,QTreeWidgetItem*> idActiveWidgetItem; // опрашиваемые переменные
 
     void createTree();
     void updateTrees();
-    void treeBuilder(CompositeVar* var, QTreeWidgetItem &item);
-    CompositeVar* vars;
+    void treeBuilder(const QString& varID, QTreeWidgetItem &item);
+
 public:
     explicit DebuggerForm(QWidget *parent = 0);
     ~DebuggerForm();
 
 private slots:
-    void on_treeWidgetMain_customContextMenuRequested(const QPoint &pos);
-
 
     void on_treeWidgetMain_itemDoubleClicked(QTreeWidgetItem *item, int column);
-
     void on_treeWidgetWatch_itemDoubleClicked(QTreeWidgetItem *item, int column);
 
 private:
