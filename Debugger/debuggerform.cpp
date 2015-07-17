@@ -5,6 +5,8 @@
 #include <QMenu>
 #include <QStringList>
 #include <QLineEdit>
+#include "vartomemconnector.h"
+#include "varbytesvalueconverter.h"
 
 
 void DebuggerForm::createTree()
@@ -62,6 +64,7 @@ DebuggerForm::DebuggerForm(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::DebuggerForm)
 {
+    scan = nullptr;
     iter = nullptr;
     ui->setupUi(this);
     ui->tabWidget->setFont(QFont("Courier",10,QFont::Normal,false));
@@ -69,12 +72,16 @@ DebuggerForm::DebuggerForm(QWidget *parent) :
     ui->treeWidgetWatch->sortByColumn(0, Qt::AscendingOrder);
     createTree();
     repaint();
+    VarToMemConnector::updateConnection(memStor,varOwner.getIDStorage());
+    connect(&memStor,SIGNAL(updateMemory(QStringList)),this,SLOT(updateMemory(QStringList)));
+    scan = new ScanManager(&memStor);
 }
 
 DebuggerForm::~DebuggerForm()
 {
     delete ui;
     delete iter;
+    delete scan;
 }
 
 void DebuggerForm::on_treeWidgetMain_itemDoubleClicked(QTreeWidgetItem *item, int column)
@@ -116,4 +123,30 @@ void DebuggerForm::on_treeWidgetWatch_itemDoubleClicked(QTreeWidgetItem *item, i
     idActiveWidgetItem.remove(id);
     ui->treeWidgetWatch->removeItemWidget(item,5);
     delete item;
+}
+void DebuggerForm::on_startButton_clicked()
+{
+    scan->startDebugger();
+}
+
+void DebuggerForm::on_stopButton_clicked()
+{
+    scan->stopDebugger();
+}
+
+void DebuggerForm::updateMemory(QStringList ids)
+{
+    foreach (QString id, ids) {
+        if(idActiveWidgetItem.contains(id)) {
+            QTreeWidgetItem* item = idActiveWidgetItem.value(id);
+            VarItem var = varOwner.getVarByID(id);
+            int varSize=VarBytesValueConverter::getVarSize(var.getDataType());
+            if(varSize) {
+                QByteArray data = memStor.getData(var.getMemType(),var.getMemAddress(),varSize);
+                if(data.count()==varSize) {
+                    item->setText(1,VarBytesValueConverter::getValue(var.getDataType(),data));
+                }
+            }
+        }
+    }
 }

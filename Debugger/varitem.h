@@ -7,7 +7,6 @@
 #include <QObject>
 #include <QString>
 #include <QDateTime>
-#include "memcell.h"
 #include <QStringList>
 
 class VarItem

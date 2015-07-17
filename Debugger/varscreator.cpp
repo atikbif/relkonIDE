@@ -23,9 +23,9 @@ void VarsCreator::generateVarsTree()
     var1->setName("a");var1->setDataType("unsigned int");
     var2->setName("b");var2->setDataType("float");
     var3->setName("c");var3->setDataType("char");
-    var1->setMemType("ram");var1->setMemAddress(0);
-    var2->setMemType("ram");var2->setMemAddress(4);
-    var3->setMemType("ram");var3->setMemAddress(8);
+    var1->setMemType("RAM");var1->setMemAddress(0);
+    var2->setMemType("RAM");var2->setMemAddress(4);
+    var3->setMemType("RAM");var3->setMemAddress(8);
     userVars->addChild(*var1);
     userVars->addChild(*var2);
     userVars->addChild(*var3);

@@ -4,17 +4,24 @@
 // обеспечивает размещение сканера контроллеров в отдельном потоке
 
 #include <QObject>
+#include <QThread>
+#include "plcscanner.h"
+#include "Debugger/memstorage.h"
 
 class ScanManager : public QObject
 {
     Q_OBJECT
+    QThread scanThread;
+    PLCScanner* scanner;
 public:
-    explicit ScanManager(QObject *parent = 0);
+    explicit ScanManager(MemStorage* memStor, QObject *parent = 0);
     ~ScanManager();
 
 signals:
-
+    startProcess(void);
 public slots:
+    void startDebugger();
+    void stopDebugger();
 };
 
 #endif // SCANMANAGER_H

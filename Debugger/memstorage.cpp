@@ -1,4 +1,5 @@
 #include "memstorage.h"
+#include <QMutexLocker>
 
 MemStorage::MemStorage(QObject *parent) : QObject(parent)
 {
@@ -10,8 +11,9 @@ MemStorage::MemStorage(QObject *parent) : QObject(parent)
     blocks += fram;
 }
 
-bool MemStorage::updateBlock(const QString &memType, int addr, const QByteArray &data)
+bool MemStorage::updateBlock(QString memType, int addr, QByteArray data)
 {
+    QMutexLocker locker(&mutex);
     QStringList ids;
     MemBlock* block=nullptr;
     foreach (MemBlock* bl, blocks) {
@@ -23,12 +25,15 @@ bool MemStorage::updateBlock(const QString &memType, int addr, const QByteArray 
        ids+=block->getID(addr);
        addr++;
     }
+    ids.removeDuplicates();
+    locker.unlock();
     emit updateMemory(ids);
     return true;
 }
 
 QByteArray MemStorage::getData(const QString &memType, int addr, int count)
 {
+    QMutexLocker locker(&mutex);
     MemBlock* block=nullptr;
     foreach (MemBlock* bl, blocks) {
        if(bl->getMemType()==memType) {block=bl;break;}

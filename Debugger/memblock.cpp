@@ -2,8 +2,8 @@
 
 MemBlock::MemBlock(const QString &typeOfMem, int count)
 {
-    Q_UNUSED(typeOfMem)
-    Q_UNUSED(count)
+    memType = typeOfMem;
+    data.resize(count);
 }
 
 quint8 MemBlock::getCell(int address) const

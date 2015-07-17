@@ -135,7 +135,7 @@
      <property name="title">
       <string>GroupBox</string>
      </property>
-     <widget class="QPushButton" name="pushButton">
+     <widget class="QPushButton" name="startButton">
       <property name="geometry">
        <rect>
         <x>10</x>
@@ -148,7 +148,7 @@
        <string>старт</string>
       </property>
      </widget>
-     <widget class="QPushButton" name="pushButton_2">
+     <widget class="QPushButton" name="stopButton">
       <property name="geometry">
        <rect>
         <x>90</x>
@@ -161,7 +161,7 @@
        <string>стоп</string>
       </property>
      </widget>
-     <widget class="QPushButton" name="pushButton_3">
+     <widget class="QPushButton" name="updateButton">
       <property name="geometry">
        <rect>
         <x>170</x>
