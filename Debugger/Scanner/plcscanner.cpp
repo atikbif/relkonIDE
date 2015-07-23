@@ -23,7 +23,7 @@ void PLCScanner::scanProcess()
             if(stopCmd) {stopCmd=false;startCmd=false;mutex.unlock();}
             else {
                 mutex.unlock();
-                QThread::msleep(1000);
+                QThread::msleep(1);
                 QByteArray data;
                 data[0] = a++;
                 data[1] = a>>8;

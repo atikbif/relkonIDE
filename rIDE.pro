@@ -72,7 +72,8 @@ SOURCES += main.cpp\
     Debugger/Scanner/scanmanager.cpp \
     Debugger/Scanner/plcscanner.cpp \
     Debugger/vartomemconnector.cpp \
-    Debugger/varbytesvalueconverter.cpp
+    Debugger/varbytesvalueconverter.cpp \
+    Debugger/varparser.cpp
 
 HEADERS  += mainwindow.h \
     codeeditor.h \
@@ -130,7 +131,8 @@ HEADERS  += mainwindow.h \
     Debugger/Scanner/scanmanager.h \
     Debugger/Scanner/plcscanner.h \
     Debugger/vartomemconnector.h \
-    Debugger/varbytesvalueconverter.h
+    Debugger/varbytesvalueconverter.h \
+    Debugger/varparser.h
 
 FORMS    += mainwindow.ui \
     settingsform.ui \

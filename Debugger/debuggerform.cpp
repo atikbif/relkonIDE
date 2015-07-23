@@ -7,6 +7,7 @@
 #include <QLineEdit>
 #include "vartomemconnector.h"
 #include "varbytesvalueconverter.h"
+#include "varparser.h"
 
 
 void DebuggerForm::createTree()
@@ -70,6 +71,10 @@ DebuggerForm::DebuggerForm(QWidget *parent) :
     ui->tabWidget->setFont(QFont("Courier",10,QFont::Normal,false));
     iter = new NameSortIterator(varOwner.getIDStorage());
     ui->treeWidgetWatch->sortByColumn(0, Qt::AscendingOrder);
+    QString fileName = QApplication::applicationDirPath();
+    fileName += "/src/input.kon";
+    VarParser parser(fileName);
+    parser.createXML();
     createTree();
     repaint();
     VarToMemConnector::updateConnection(memStor,varOwner.getIDStorage());

@@ -47,6 +47,7 @@ private slots:
 
 private:
     Ui::DebuggerForm *ui;
+
 };
 
 #endif // DEBUGGERFORM_H
