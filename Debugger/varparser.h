@@ -19,9 +19,8 @@ class VarParser
     void searchVars(void);
     void searchStructures(void);
     bool buildXML(void);
-    QStringList getAlignments(const QString &str, int startTypePos);
-    QMultiHash<QString,QString> getVarsInStr(const QString &str, const QString &varType, const QStringList &varAlignments);
     static int idNum;
+
 
     class FundamentalType {
         int id;
@@ -60,12 +59,18 @@ class VarParser
     class Structure {
         int id;
         QVector<int> members;
+        QString name;
+        int size;
 
     public:
         int getId() const;
         void setId(int value);
         QVector<int> getMembers() const;
         void setMembers(const QVector<int> &value);
+        QString getName() const;
+        void setName(const QString &value);
+        int getSize() const;
+        void setSize(int value);
     };
 
     class Field {
@@ -89,6 +94,7 @@ class VarParser
         int id;
         int type;
         int size;
+        int cnt;
 
     public:
         int getId() const;
@@ -97,7 +103,11 @@ class VarParser
         void setType(int value);
         int getSize() const;
         void setSize(int value);
+        int getCnt() const;
+        void setCnt(int value);
     };
+
+    Array* addArray(const QVector<int> &dimension, int baseTypeID);
 
     QVector<FundamentalType*> fundTypes;
     QVector<Variable*> variables;
@@ -108,6 +118,7 @@ class VarParser
     void addStruct(const QString &name, const QString &body, const QString &vars);
     void addStructVar(const QString &structName, const QString &varName);
     void createFundTypes(void);
+    Array* checkArray(const QString &varDef, int basetype);
 
 public:
     explicit VarParser(const QString &fName);
