@@ -241,7 +241,36 @@ RCompiler::RCompiler()
 
 QString RCompiler::getBinFileName()
 {
-    return QCoreApplication::applicationDirPath()+dirBuildName+"/project.bin";
+    //return QCoreApplication::applicationDirPath()+dirBuildName+"/project.bin";
+    return getBuildDirName() + "/project.bin";
+}
+
+QString RCompiler::getKonFileName()
+{
+    return inpDirName + "/" + inpKonFileName;
+}
+
+QString RCompiler::getMapFileName()
+{
+    return getBuildDirName() + "/memory.map";
+}
+
+QString RCompiler::getBuildDirName()
+{
+    return inpDirName + dirBuildName;
+}
+
+QString RCompiler::inpDirName = "";
+QString RCompiler::inpKonFileName = "";
+
+void RCompiler::setInpDirName(const QString &path)
+{
+    inpDirName = path;
+}
+
+void RCompiler::setInpKonFileName(const QString &name)
+{
+    inpKonFileName = name;
 }
 
 void RCompiler::compile()

@@ -4,6 +4,9 @@
 #include <QRegExp>
 #include <QHash>
 #include <QVector>
+#include <QXmlStreamWriter>
+#include <QMessageBox>
+#include "RCompiler/rcompiler.h"
 
 void VarParser::getVarsBlock()
 {
@@ -146,6 +149,109 @@ void VarParser::searchStructures()
 
 bool VarParser::buildXML()
 {
+    QXmlStreamWriter xmlWriter;
+
+    if(readMapFile()) {
+        xmlWriter.setAutoFormatting(true);
+        if(!RCompiler::getBuildDirName().contains(QRegExp("[\\w\\d]+"))) return false;
+        QFile file(RCompiler::getBuildDirName()+"/variables.xml");
+
+        if (!file.open(QIODevice::WriteOnly)) {return false;}
+        else
+        {
+            xmlWriter.setDevice(&file);
+
+            /* Writes a document start with the XML version number. */
+            xmlWriter.writeStartDocument();
+            xmlWriter.writeStartElement("mapForDebug");
+
+            foreach (FundamentalType* fType, fundTypes) {
+               xmlWriter.writeStartElement("FundamentalType");
+               xmlWriter.writeAttribute("id",QString::number(fType->getId()));
+               xmlWriter.writeAttribute("name",fType->getName());
+               xmlWriter.writeAttribute("size",QString::number(fType->getSize()));
+               xmlWriter.writeEndElement();
+            }
+            foreach (Array* aType, arrays) {
+               xmlWriter.writeStartElement("Array");
+               xmlWriter.writeAttribute("id",QString::number(aType->getId()));
+               xmlWriter.writeAttribute("type",QString::number(aType->getType()));
+               xmlWriter.writeAttribute("size",QString::number(aType->getSize()));
+               xmlWriter.writeAttribute("count",QString::number(aType->getCnt()));
+               xmlWriter.writeEndElement();
+            }
+            foreach (Structure* sType, structs) {
+               xmlWriter.writeStartElement("Struct");
+               xmlWriter.writeAttribute("id",QString::number(sType->getId()));
+               xmlWriter.writeAttribute("name",sType->getName());
+               xmlWriter.writeAttribute("size",QString::number(sType->getSize()));
+               for(int i=0;i<sType->getMembers().count();i++) {
+                   xmlWriter.writeStartElement("FieldID");
+                   xmlWriter.writeAttribute("type",QString::number(sType->getMembers().at(i)));
+                   xmlWriter.writeEndElement();
+               }
+               xmlWriter.writeEndElement();
+            }
+            foreach (Field* fieldType, fields) {
+               xmlWriter.writeStartElement("Field");
+               xmlWriter.writeAttribute("id",QString::number(fieldType->getId()));
+               xmlWriter.writeAttribute("name",fieldType->getName());
+               xmlWriter.writeAttribute("type",QString::number(fieldType->getType()));
+               xmlWriter.writeAttribute("offset",QString::number(fieldType->getOffset()));
+               xmlWriter.writeEndElement();
+            }
+            foreach (Variable* v, variables) {
+               xmlWriter.writeStartElement("Variable");
+               xmlWriter.writeAttribute("id",QString::number(v->getId()));
+               xmlWriter.writeAttribute("name",v->getName());
+               xmlWriter.writeAttribute("type",QString::number(v->getType()));
+               xmlWriter.writeAttribute("memory",v->getMemType());
+               xmlWriter.writeAttribute("address","0x"+QString::number(v->getAddress(),16));
+               xmlWriter.writeEndElement();
+            }
+            xmlWriter.writeEndElement();
+            xmlWriter.writeEndDocument();
+        }
+        return true;
+    }
+    return false;
+}
+
+bool VarParser::readMapFile()
+{
+    QString fName = RCompiler::getMapFileName();
+    QFile file(fName);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+            return false;
+    QTextStream in(&file);
+
+    while (!in.atEnd()) {
+       QString line = in.readLine();
+       if(line.contains("OBJECT")) {
+           QStringList fields = line.split(QRegExp("[\\s\\t]+"));
+           fields.removeFirst();
+           if(fields.count()==8) {
+               bool convRes = false;
+               int varAddress = fields[1].toInt(&convRes,16);
+               if(convRes) mapOfVars.insert(fields.last(),varAddress);
+           }
+       }
+    }
+    file.close();
+    // добавить адреса к описанию переменных
+    // если переменная отсутствует в карте памяти - удалить из списка
+    QVector<Variable*> tmpVarList;
+    QVector<Variable*> missingVarList;
+    foreach (Variable* v, variables) {
+       if(mapOfVars.keys().contains(v->getName())) {
+           int addr = mapOfVars.value(v->getName());
+           tmpVarList += v;
+           v->setAddress(addr);
+           v->setMemType("RAM");
+       }else missingVarList += v;
+    }
+    variables = tmpVarList;
+    for(int i=0;i<missingVarList.count();i++) delete missingVarList[i];
     return true;
 }
 
@@ -372,6 +478,31 @@ VarParser::Array *VarParser::checkArray(const QString &varDef, int basetype)
     return ptr;
 }
 
+void VarParser::clearVarTree()
+{
+    while (arrays.count()){
+        Array* ptr = arrays.last();
+        arrays.removeLast();
+        delete ptr;
+    }
+    while (structs.count()) {
+        Structure* ptr = structs.last();
+        structs.removeLast();
+        delete ptr;
+    }
+    while (fields.count()) {
+        Field* ptr = fields.last();
+        fields.removeLast();
+        delete ptr;
+    }
+    while(variables.count()) {
+        Variable* ptr = variables.last();
+        variables.removeLast();
+        delete ptr;
+    }
+    idNum = 0;
+}
+
 int VarParser::idNum = 0;
 
 VarParser::VarParser(const QString &fName)
@@ -383,6 +514,7 @@ VarParser::VarParser(const QString &fName)
 
 bool VarParser::createXML()
 {
+    clearVarTree();
     QFile file(inpFileName);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
             return false;

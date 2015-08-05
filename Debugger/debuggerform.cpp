@@ -8,10 +8,12 @@
 #include "vartomemconnector.h"
 #include "varbytesvalueconverter.h"
 #include "varparser.h"
+#include "RCompiler/rcompiler.h"
 
 
 void DebuggerForm::createTree()
 {
+    ui->treeWidgetMain->clear();
     varOwner.generateVarsTree();
     QTreeWidgetItem* item = new QTreeWidgetItem(ui->treeWidgetMain);
 
@@ -71,12 +73,12 @@ DebuggerForm::DebuggerForm(QWidget *parent) :
     ui->tabWidget->setFont(QFont("Courier",10,QFont::Normal,false));
     iter = new NameSortIterator(varOwner.getIDStorage());
     ui->treeWidgetWatch->sortByColumn(0, Qt::AscendingOrder);
-    QString fileName = QApplication::applicationDirPath();
-    fileName += "/src/input.kon";
-    VarParser parser(fileName);
-    parser.createXML();
-    createTree();
-    repaint();
+//    QString fileName = QApplication::applicationDirPath();
+//    fileName += "/src/input.kon";
+//    VarParser parser(fileName);
+//    parser.createXML();
+//    createTree();
+//    repaint();
     VarToMemConnector::updateConnection(memStor,varOwner.getIDStorage());
     connect(&memStor,SIGNAL(updateMemory(QStringList)),this,SLOT(updateMemory(QStringList)));
     scan = new ScanManager(&memStor);
@@ -154,4 +156,13 @@ void DebuggerForm::updateMemory(QStringList ids)
             }
         }
     }
+}
+
+void DebuggerForm::on_updateButton_clicked()
+{
+    QString fileName = RCompiler::getKonFileName();
+    VarParser parser(fileName);
+    parser.createXML();
+    createTree();
+    update();
 }

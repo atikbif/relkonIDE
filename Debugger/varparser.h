@@ -7,11 +7,13 @@
 #include <QStringList>
 #include <QMultiHash>
 #include <QVector>
+#include <QHash>
 
 class VarParser
 {
     QStringList dataBlock;
     QString inpFileName;
+    QHash<QString,int> mapOfVars;
 
     void getVarsBlock();
     void removeComments(void);
@@ -20,6 +22,8 @@ class VarParser
     void searchStructures(void);
     bool buildXML(void);
     static int idNum;
+    bool readMapFile(void);
+
 
 
     class FundamentalType {
@@ -119,6 +123,7 @@ class VarParser
     void addStructVar(const QString &structName, const QString &varName);
     void createFundTypes(void);
     Array* checkArray(const QString &varDef, int basetype);
+    void clearVarTree(void);
 
 public:
     explicit VarParser(const QString &fName);

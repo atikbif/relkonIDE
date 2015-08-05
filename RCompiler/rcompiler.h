@@ -28,6 +28,8 @@ class RCompiler
 
     static const QString dirOutName;
     static const QString dirBuildName;
+    static QString inpDirName;
+    static QString inpKonFileName;
 
     void init(void);    // read settings from xml file
     void traverseNode(const QDomNode &node);    // read node from xml file (settings)
@@ -44,6 +46,11 @@ public:
     RCompiler();
     QVector<outMessage>& getOutErrors(void) {return errors;}
     static QString getBinFileName(void);
+    static QString getKonFileName(void);
+    static QString getMapFileName(void);
+    static QString getBuildDirName(void);
+    static void setInpDirName(const QString &path);
+    static void setInpKonFileName(const QString &name);
     void compile(void);
     void link(void);
 };

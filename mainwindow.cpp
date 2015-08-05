@@ -78,6 +78,8 @@ int MainWindow::openFileByName(const QString &fName)
         file.close();
         addMessageToInfoList(QDateTime::currentDateTime().time().toString() + " :Файл успешно открыт");
         setWindowTitle(wTitle + " - " + fName);
+        RCompiler::setInpDirName(fInfo.dir().path());
+        RCompiler::setInpKonFileName(fInfo.fileName());
         if(settings!=nullptr) {
             settings->clearSettings();
             settings->setKonFileName(fName);
@@ -343,6 +345,8 @@ void MainWindow::saveFile()
 
         file.close();
         setWindowTitle(wTitle + " - " + fileName);
+        RCompiler::setInpDirName(fInfo.dir().path());
+        RCompiler::setInpKonFileName(fInfo.fileName());
         prChangedFlag = false;
         if(settings!=nullptr) {
             settings->setKonFileName(fileName);

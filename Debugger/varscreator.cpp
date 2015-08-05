@@ -1,5 +1,8 @@
 #include "varscreator.h"
 #include <QThread>
+#include <RCompiler/rcompiler.h>
+#include <QDomDocument>
+#include <QFile>
 
 VarsCreator::VarsCreator(QObject *parent) : QObject(parent)
 {
@@ -17,6 +20,47 @@ void VarsCreator::generateVarsTree()
     CompositeVar* userVars = new CompositeVar();
     userVars->setName("Пользовательские");
     userVars->setDataType("userNode");
+    mainVar->addChild(*sysVars);
+    mainVar->addChild(*userVars);
+
+    ids.addVar(mainVar);
+    ids.addVar(sysVars);
+    ids.addVar(userVars);
+
+    QDomDocument doc("variables");
+    QString fName = RCompiler::getBuildDirName() + "/variables.xml";
+    QFile file(fName);
+    if (!file.open(QIODevice::ReadOnly)) return;
+    if (!doc.setContent(&file)) {
+        return;
+    }
+
+    QDomNodeList vars = doc.elementsByTagName("Variable");
+    for (int i = 0; i < vars.size(); i++) {
+        QDomNode n = vars.item(i);
+        QDomElement e = n.toElement();
+        if(!e.isNull()) {
+            int typeVar=e.attribute("type").toInt();
+            QDomNodeList fVars = doc.elementsByTagName("FundamentalType");
+            for(int j=0;j<fVars.size();j++) {
+                QDomNode nn = fVars.item(j);
+                QDomElement ee = nn.toElement();
+                int id = ee.attribute("id").toInt();
+                if(id==typeVar) {
+                    CompositeVar* var = new CompositeVar();
+                    var->setName(e.attribute("name"));
+                    var->setMemType(e.attribute("memory"));
+                    var->setMemAddress(e.attribute("address").toInt());
+                    var->setDataType(ee.attribute("name"));
+                    userVars->addChild(*var);
+                    ids.addVar(var);
+                    break;
+                }
+            }
+        }
+    }
+
+    /*
     CompositeVar* var1 = new CompositeVar();
     CompositeVar* var2 = new CompositeVar();
     CompositeVar* var3 = new CompositeVar();
@@ -92,7 +136,7 @@ void VarsCreator::generateVarsTree()
         out2->addChild(*ptr3);ids.addVar(ptr3);
 
 
-    }
+    }*/
 }
 
 QStringList VarsCreator::getIDList()
@@ -115,7 +159,6 @@ VarItem VarsCreator::getVarByID(QString idValue)
 
 bool VarsCreator::updateVarByID(QString idValue, VarItem &var)
 {
-    Q_UNUSED(var)
     CompositeVar cVar;
     if(ids.getVarByID(idValue,cVar)){
         cVar.setValue(var.getValue());
