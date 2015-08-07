@@ -9,7 +9,7 @@ class VarToMemConnector
 {
 public:
     VarToMemConnector();
-    static updateConnection(MemStorage &mem, IDStorage &id);
+    static void updateConnection(MemStorage &mem, IDStorage &id);
     ~VarToMemConnector();
 };
 

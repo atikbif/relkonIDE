@@ -85,10 +85,44 @@ int MainWindow::openFileByName(const QString &fName)
             settings->setKonFileName(fName);
             settings->openSettings();
         }
+        debugger->on_updateButton_clicked();
         return 1;
     }
     addMessageToInfoList(QDateTime::currentDateTime().time().toString() + " :error - Ошибка открытия файла");
     return 0;
+}
+
+void MainWindow::saveFileByName(const QString &fName)
+{
+    QFile file(fName);
+    if (file.open(QIODevice::WriteOnly)) {
+
+        QFileInfo fInfo(fName);
+        prDirPath = fInfo.absolutePath();
+        prFileName = fInfo.fileName();
+
+        QStringList prevPr = getPrevProjects();
+        prevPr.insert(0,fName);
+        updatePrevProjects(prevPr);
+
+        QTextStream out(&file);
+        out.setCodec("Windows-1251");
+        for(int i=0;i<editor->blockCount();i++) {
+            out << editor->document()->findBlockByNumber(i).text();
+            out << "\r\n";
+        }
+
+        file.close();
+        setWindowTitle(wTitle + " - " + fName);
+        RCompiler::setInpDirName(fInfo.dir().path());
+        RCompiler::setInpKonFileName(fInfo.fileName());
+        prChangedFlag = false;
+        if(settings!=nullptr) {
+            settings->setKonFileName(fName);
+            settings->saveSettings();
+        }
+        editor->document()->clearUndoRedoStacks();
+    }
 }
 
 void MainWindow::activateInfoPanel()
@@ -231,7 +265,9 @@ MainWindow::MainWindow(QWidget *parent) :
     editor->setFocus();
     settings = new SettingsForm();
     ui->tabWidget->addTab(settings,"Настройки");
-    ui->tabWidget->addTab(new DebuggerForm(),"Отладчик");
+
+    debugger = new DebuggerForm();
+    ui->tabWidget->addTab(debugger,"Отладчик");
 
 
     setWindowState(Qt::WindowMaximized);
@@ -286,6 +322,11 @@ void MainWindow::newFile()
         settings->clearSettings();
     }
     editor->document()->clearUndoRedoStacks();
+
+    RCompiler::setInpDirName("");
+    RCompiler::setInpKonFileName("");
+
+    debugger->on_updateButton_clicked();
 }
 
 void MainWindow::openFile()
@@ -321,39 +362,26 @@ void MainWindow::saveFile()
             path = fInfo.absolutePath();
         }
     }
-
-    QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"),
+    QString fileName;
+    if(prFileName.isEmpty())
+    fileName = QFileDialog::getSaveFileName(this, tr("Save File"),
                                                     path,
                                                     tr("Relkon Files (*.kon )"));
-    QFile file(fileName);
-    if (file.open(QIODevice::WriteOnly)) {
+    else {
+        fileName = RCompiler::getKonFileName();
 
-        QFileInfo fInfo(fileName);
-        prDirPath = fInfo.absolutePath();
-        prFileName = fInfo.fileName();
-
-        QStringList prevPr = getPrevProjects();
-        prevPr.insert(0,fileName);
-        updatePrevProjects(prevPr);
-
-        QTextStream out(&file);
-        out.setCodec("Windows-1251");
-        for(int i=0;i<editor->blockCount();i++) {
-            out << editor->document()->findBlockByNumber(i).text();
-            out << "\r\n";
+        QFile file(fileName);
+        QFileInfo fInfo(file);
+        QDir dir(fInfo.dir().path()+ "/back");
+        if(!dir.exists()) {
+            dir.mkdir(".");
         }
-
-        file.close();
-        setWindowTitle(wTitle + " - " + fileName);
-        RCompiler::setInpDirName(fInfo.dir().path());
-        RCompiler::setInpKonFileName(fInfo.fileName());
-        prChangedFlag = false;
-        if(settings!=nullptr) {
-            settings->setKonFileName(fileName);
-            settings->saveSettings();
-        }
-        editor->document()->clearUndoRedoStacks();
+        QString backName = QDateTime::currentDateTime().toString();
+        backName.replace(QRegExp("[\\s\\t\\.:]"),"_");
+        backName=fInfo.dir().path() + "/back/" +backName+".kon";
+        QFile::copy(fileName,backName);
     }
+    saveFileByName(fileName);
 }
 
 void MainWindow::undo()
@@ -395,6 +423,7 @@ void MainWindow::searchText()
 
 void MainWindow::buildPr()
 {
+    saveFile();
     activateInfoPanel();
 
     if(ui->listWidget->isVisible()) {

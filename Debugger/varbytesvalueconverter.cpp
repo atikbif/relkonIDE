@@ -12,6 +12,15 @@ QString VarBytesValueConverter::getIntValue(const QString &varType, const QByteA
     }else return QString::number(ulong(value));
 }
 
+QString VarBytesValueConverter::getCharValue(const QString &varType, const QByteArray &data)
+{
+    quint8 value = data.at(0);
+    if(isSigned(varType)) {
+        qint8 res = (qint8)value;
+        return QString::number(long(res));
+    }else return QString::number(ulong(value));
+}
+
 bool VarBytesValueConverter::isSigned(const QString &varType)
 {
     if(varType.contains("unsigned")) return false;
@@ -39,6 +48,7 @@ int VarBytesValueConverter::getVarSize(const QString &varType)
 QString VarBytesValueConverter::getValue(const QString &varType, const QByteArray &data)
 {
     if(varType.contains("int")) return getIntValue(varType,data);
+    if(varType.contains("char")) return getCharValue(varType,data);
     return QString();
 }
 

@@ -7,6 +7,7 @@
 class VarBytesValueConverter
 {
     static QString getIntValue(const QString &varType, const QByteArray &data);
+    static QString getCharValue(const QString &varType, const QByteArray &data);
     static bool isSigned(const QString &varType);
 public:
     VarBytesValueConverter();

@@ -6,6 +6,7 @@
 #include <QLineEdit>
 #include <QThread>
 #include "settingsbase.h"
+#include "Debugger/debuggerform.h"
 
 
 namespace Ui {
@@ -18,6 +19,7 @@ class MainWindow : public QMainWindow
 
     CodeEditor *editor;
     SettingsBase *settings;
+    DebuggerForm *debugger;
     QThread builderThread;
 
     const QString wTitle = "RelkonIDE ";
@@ -28,6 +30,7 @@ class MainWindow : public QMainWindow
     QStringList getPrevProjects(void);
     void updatePrevProjects(const QStringList &prNames);
     int openFileByName(const QString &fName);
+    void saveFileByName(const QString &fName);
     void activateInfoPanel(void);
     int saveWarning(void);
 

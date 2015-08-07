@@ -3,6 +3,7 @@
 #include <QProcess>
 #include <QDir>
 #include <QRegExp>
+#include "Debugger/varparser.h"
 
 const QString RCompiler::dirOutName = "/obj";
 const QString RCompiler::dirBuildName = "/build";
@@ -241,8 +242,10 @@ RCompiler::RCompiler()
 
 QString RCompiler::getBinFileName()
 {
-    //return QCoreApplication::applicationDirPath()+dirBuildName+"/project.bin";
-    return getBuildDirName() + "/project.bin";
+    QString buildFileName = getBuildDirName() + "/" + inpKonFileName;
+    buildFileName.remove(QRegExp("\\.kon"));
+    buildFileName+=".bin";
+    return buildFileName;
 }
 
 QString RCompiler::getKonFileName()
@@ -252,7 +255,10 @@ QString RCompiler::getKonFileName()
 
 QString RCompiler::getMapFileName()
 {
-    return getBuildDirName() + "/memory.map";
+    QString buildFileName = getBuildDirName() + "/" + inpKonFileName;
+    buildFileName.remove(QRegExp("\\.kon"));
+    buildFileName+=".map";
+    return buildFileName;
 }
 
 QString RCompiler::getBuildDirName()

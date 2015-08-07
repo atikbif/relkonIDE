@@ -9,6 +9,7 @@
 #include "varbytesvalueconverter.h"
 #include "varparser.h"
 #include "RCompiler/rcompiler.h"
+#include <QDateTime>
 
 
 void DebuggerForm::createTree()
@@ -46,7 +47,9 @@ void DebuggerForm::treeBuilder(const QString &varID, QTreeWidgetItem &item)
                 QTreeWidgetItem* curItem = new QTreeWidgetItem(&item);
                 curItem->setText(0,varOwner.getVarByID(curPos).getName());
                 curItem->setText(1,varOwner.getVarByID(curPos).getDataType());
-
+                if(item.toolTip(0).isEmpty())
+                curItem->setToolTip(0,item.text(0)+"."+curItem->text(0));
+                else curItem->setToolTip(0,item.toolTip(0)+"."+curItem->text(0));
                 if(iter->isNode()) {
                     treeBuilder(curPos,*curItem);
                     iter->goToID(curPos);
@@ -73,15 +76,33 @@ DebuggerForm::DebuggerForm(QWidget *parent) :
     ui->tabWidget->setFont(QFont("Courier",10,QFont::Normal,false));
     iter = new NameSortIterator(varOwner.getIDStorage());
     ui->treeWidgetWatch->sortByColumn(0, Qt::AscendingOrder);
-//    QString fileName = QApplication::applicationDirPath();
-//    fileName += "/src/input.kon";
-//    VarParser parser(fileName);
-//    parser.createXML();
-//    createTree();
-//    repaint();
-    VarToMemConnector::updateConnection(memStor,varOwner.getIDStorage());
     connect(&memStor,SIGNAL(updateMemory(QStringList)),this,SLOT(updateMemory(QStringList)));
     scan = new ScanManager(&memStor);
+
+    ui->tabWidget->setStyleSheet("QTabBar::tab {"
+        "background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,"
+                                    "stop: 0 #FAFAFA, stop: 0.4 #F4F4F4,"
+                                    "stop: 0.5 #e7e7e7, stop: 1.0 #fafafa);"
+        "border: 1px solid #C4C4C3;"
+        "border-top-color: #C2C7CB; "
+        "border-bottom-left-radius: 6px;"
+        "border-bottom-right-radius: 6px;"
+        "min-width: 8px;"
+        "padding: 2px;"
+        "}"
+        "QTabBar::tab:selected {"
+             "border-color: #9B9B9B;"
+             "border-bottom-color: #FFFFFF;"
+             "}"
+        "QTabBar::tab:!selected {"
+             "border-color: #9B9B9B;"
+             "margin-top: 2px;"
+             "}"
+        "QTabBar::tab:selected, QTabBar::tab:hover {"
+             "background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,"
+                                         "stop: 0 #f1f1f1, stop: 0.2 #dedede,"
+                                         "stop: 0.3 #e8e8e8, stop: 1.0 #ffffff);"
+             "}");
 }
 
 DebuggerForm::~DebuggerForm()
@@ -100,17 +121,19 @@ void DebuggerForm::on_treeWidgetMain_itemDoubleClicked(QTreeWidgetItem *item, in
         if(iter->goToID(id)) {
             VarItem var = varOwner.getVarByID(id);
             QStringList sList;
-            QString varName = var.getName();
-            QString fullName = varName;
+            QString varName;
+            QString fullName = var.getName();
             if(iter->up()) {
                 VarItem var = varOwner.getVarByID(iter->currentID());
-                QString dataType = var.getDataType();
-                if((dataType!="userNode")&&(dataType!="sysNode")){
-                    varName = var.getName()+"."+varName;
-                }
                 do{var = varOwner.getVarByID(iter->currentID());fullName = var.getName()+"."+fullName;}while (iter->up());
             }
-            sList << varName << "" << "" << "" << var.getDataType();
+            QStringList fNameList = fullName.split('.');
+            fNameList.removeFirst();fNameList.removeFirst();
+            foreach (QString s, fNameList) {
+               varName += "." + s;
+            }
+            varName.remove(0,1);
+            sList << varName << "" << "" << "0x"+QString::number(var.getMemAddress(),16).toUpper() << var.getDataType();
             QTreeWidgetItem* newItem = new QTreeWidgetItem(sList);
             idActiveWidgetItem.insert(id,newItem);
             var.setPriority(1);
@@ -152,6 +175,7 @@ void DebuggerForm::updateMemory(QStringList ids)
                 QByteArray data = memStor.getData(var.getMemType(),var.getMemAddress(),varSize);
                 if(data.count()==varSize) {
                     item->setText(1,VarBytesValueConverter::getValue(var.getDataType(),data));
+                    item->setText(2,QDateTime::currentDateTime().time().toString());
                 }
             }
         }
@@ -160,9 +184,35 @@ void DebuggerForm::updateMemory(QStringList ids)
 
 void DebuggerForm::on_updateButton_clicked()
 {
-    QString fileName = RCompiler::getKonFileName();
-    VarParser parser(fileName);
-    parser.createXML();
+    idWidgetItem.clear();
     createTree();
+    updateValuesTree();
+    VarToMemConnector::updateConnection(memStor,varOwner.getIDStorage());
     update();
+}
+
+void DebuggerForm::updateValuesTree()
+{
+    QHash<QString,QString> fullNames;
+    foreach (QTreeWidgetItem* item, idWidgetItem.values()) {
+       QString fName = item->toolTip(0);
+       fullNames.insert(fName,idWidgetItem.key(item));
+    }
+    QList<QTreeWidgetItem*> actItems = idActiveWidgetItem.values();
+    for(int i=0;i<actItems.count();i++) {
+        QString curId = idActiveWidgetItem.key(actItems.at(i));
+        QString curFullName = actItems.at(i)->toolTip(0);
+        QString newId = fullNames.value(curFullName);
+        if(!newId.isEmpty()) {
+            if(curId != newId) {
+                VarItem var = varOwner.getVarByID(newId);
+                idActiveWidgetItem.remove(curId);
+                idActiveWidgetItem.insert(newId,actItems.at(i));
+                actItems[i]->setText(3,"0x"+QString::number(var.getMemAddress(),16).toUpper());
+                actItems[i]->setText(4,var.getDataType());
+            }
+        }
+    }
+
+
 }

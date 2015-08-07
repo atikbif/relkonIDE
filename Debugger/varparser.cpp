@@ -206,7 +206,7 @@ bool VarParser::buildXML()
                xmlWriter.writeAttribute("name",v->getName());
                xmlWriter.writeAttribute("type",QString::number(v->getType()));
                xmlWriter.writeAttribute("memory",v->getMemType());
-               xmlWriter.writeAttribute("address","0x"+QString::number(v->getAddress(),16));
+               xmlWriter.writeAttribute("address","0x"+QString::number(v->getAddress()-0x20000000,16));
                xmlWriter.writeEndElement();
             }
             xmlWriter.writeEndElement();
@@ -243,8 +243,9 @@ bool VarParser::readMapFile()
     QVector<Variable*> tmpVarList;
     QVector<Variable*> missingVarList;
     foreach (Variable* v, variables) {
-       if(mapOfVars.keys().contains(v->getName())) {
-           int addr = mapOfVars.value(v->getName());
+       QString varName = v->getName().remove(QRegExp("[\\s\\t]+")).remove(QRegExp("\\[\\d+\\]"));
+       if(mapOfVars.keys().contains(varName)) {
+           int addr = mapOfVars.value(varName);
            tmpVarList += v;
            v->setAddress(addr);
            v->setMemType("RAM");
@@ -500,15 +501,14 @@ void VarParser::clearVarTree()
         variables.removeLast();
         delete ptr;
     }
-    idNum = 0;
 }
 
 int VarParser::idNum = 0;
 
 VarParser::VarParser(const QString &fName)
 {
+    idNum = 0;
     inpFileName = fName;
-
     createFundTypes();
 }
 

@@ -22,6 +22,12 @@
        <height>411</height>
       </size>
      </property>
+     <property name="layoutDirection">
+      <enum>Qt::LeftToRight</enum>
+     </property>
+     <property name="tabPosition">
+      <enum>QTabWidget::South</enum>
+     </property>
      <property name="currentIndex">
       <number>0</number>
      </property>
@@ -95,7 +101,7 @@
          </column>
          <column>
           <property name="text">
-           <string>качество</string>
+           <string>адрес</string>
           </property>
          </column>
          <column>

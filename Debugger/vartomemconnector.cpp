@@ -7,10 +7,11 @@ VarToMemConnector::VarToMemConnector()
 
 }
 
-VarToMemConnector::updateConnection(MemStorage &mem, IDStorage &id)
+void VarToMemConnector::updateConnection(MemStorage &mem, IDStorage &id)
 {
     QStringList ids = id.getIDs();
     CompositeVar var;
+    mem.clearIDs();
     foreach (QString varID, ids) {
        if(id.getVarByID(varID,var)) {
            mem.connectCellToID(var.getMemType(),var.getMemAddress(),varID);

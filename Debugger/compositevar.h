@@ -13,7 +13,6 @@ class CompositeVar : public VarItem
 {
     QStringList affiliatedVarIDs;  // дочерние переменные
     QString parentID;
-
     void setParent(const VarItem &var) {parentID=var.getID();}
 public:
     CompositeVar();

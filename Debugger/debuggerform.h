@@ -32,6 +32,7 @@ class DebuggerForm : public QWidget
     void createTree();
     void updateTrees();
     void treeBuilder(const QString& varID, QTreeWidgetItem &item);
+    void updateValuesTree(void);
 
 public:
     explicit DebuggerForm(QWidget *parent = 0);
@@ -44,7 +45,7 @@ private slots:
     void on_startButton_clicked();
     void on_stopButton_clicked();
     void updateMemory(QStringList ids);
-
+public slots:
     void on_updateButton_clicked();
 
 private:

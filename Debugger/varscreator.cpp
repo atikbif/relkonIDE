@@ -4,6 +4,74 @@
 #include <QDomDocument>
 #include <QFile>
 
+void VarsCreator::addVarToTree(const QDomElement &e, CompositeVar *var, CompositeVar *parent)
+{
+    if(parent == nullptr) return;
+    if(e.tagName()=="FundamentalType") {
+        var->setDataType(e.attribute("name"));//+" :0x" + QString::number(var->getMemAddress(),16));
+        parent->addChild(*var);
+        ids.addVar(var);
+    }else if(e.tagName()=="Variable") {
+        bool res = false;
+        int type = e.attribute("type").toInt(&res);
+        if(res) {
+            QDomElement ee = allData.at(elemByID.value(type)).toElement();
+            addVarToTree(ee,var,parent);
+        }
+    }else if(e.tagName()=="Struct") {
+        var->setDataType("структура");
+        parent->addChild(*var);
+        ids.addVar(var);
+        QDomNodeList fields = e.childNodes();
+        for(int i=0;i<fields.count();i++) {
+            // fieldID
+            QDomNode n = fields.item(i);
+            QDomElement ee = n.toElement();
+            if(!ee.isNull()) {
+                bool res = false;
+                int type = ee.attribute("type").toInt(&res);
+                if(res) {
+                    QDomElement eee = allData.at(elemByID.value(type)).toElement();
+                    CompositeVar *v = new CompositeVar();
+                    v->setMemType(var->getMemType());
+                    v->setMemAddress(var->getMemAddress()+eee.attribute("offset").toInt());
+                    addVarToTree(eee,v,var);
+                }
+            }
+        }
+    }else if(e.tagName()=="Field") {
+        var->setName(e.attribute("name"));
+        bool res = false;
+        int type = e.attribute("type").toInt(&res);
+        if(res) {
+            QDomElement ee = allData.at(elemByID.value(type)).toElement();
+            addVarToTree(ee,var,parent);
+        }
+    }else if(e.tagName()=="Array") {
+        QString name = var->getName();
+        name.remove(QRegExp("\\[\\d+\\]"));
+        var->setName(name);
+        var->setDataType("архив");
+
+        parent->addChild(*var);
+        ids.addVar(var);
+        bool res = false;
+        int type = e.attribute("type").toInt(&res);
+        if(res) {
+            QDomElement ee = allData.at(elemByID.value(type)).toElement();
+            int cnt = e.attribute("count").toInt();
+            int offset = e.attribute("size").toInt()/cnt;
+            for(int i=0;i<cnt;i++) {
+                CompositeVar* v = new CompositeVar();
+                v->setName(QString::number(i));
+                v->setMemType(var->getMemType());
+                v->setMemAddress(var->getMemAddress()+offset*i);
+                addVarToTree(ee,v,var);
+            }
+        }
+    }
+}
+
 VarsCreator::VarsCreator(QObject *parent) : QObject(parent)
 {
     iter = nullptr;
@@ -15,11 +83,11 @@ void VarsCreator::generateVarsTree()
     CompositeVar* mainVar = new CompositeVar();
     mainVar->setName("Переменные");
     CompositeVar* sysVars = new CompositeVar();
-    sysVars->setName("Системные");
-    sysVars->setDataType("sysNode");
+    sysVars->setName("Система");
+    sysVars->setDataType("-");
     CompositeVar* userVars = new CompositeVar();
-    userVars->setName("Пользовательские");
-    userVars->setDataType("userNode");
+    userVars->setName("Пользователь");
+    userVars->setDataType("-");
     mainVar->addChild(*sysVars);
     mainVar->addChild(*userVars);
 
@@ -35,28 +103,31 @@ void VarsCreator::generateVarsTree()
         return;
     }
 
+    elemByID.clear();
+
     QDomNodeList vars = doc.elementsByTagName("Variable");
-    for (int i = 0; i < vars.size(); i++) {
+    allData = doc.elementsByTagName("mapForDebug").at(0).childNodes();
+
+    for(int i=0;i<allData.count();i++) {
+        QDomNode n = allData.item(i);
+        QDomElement e = n.toElement();
+        if(!e.isNull()) {
+            if(!e.attribute("id").isEmpty()) elemByID.insert(e.attribute("id").toInt(),i);
+        }
+    }
+
+
+
+    for(int i=0;i<vars.count();i++) {
         QDomNode n = vars.item(i);
         QDomElement e = n.toElement();
         if(!e.isNull()) {
-            int typeVar=e.attribute("type").toInt();
-            QDomNodeList fVars = doc.elementsByTagName("FundamentalType");
-            for(int j=0;j<fVars.size();j++) {
-                QDomNode nn = fVars.item(j);
-                QDomElement ee = nn.toElement();
-                int id = ee.attribute("id").toInt();
-                if(id==typeVar) {
-                    CompositeVar* var = new CompositeVar();
-                    var->setName(e.attribute("name"));
-                    var->setMemType(e.attribute("memory"));
-                    var->setMemAddress(e.attribute("address").toInt());
-                    var->setDataType(ee.attribute("name"));
-                    userVars->addChild(*var);
-                    ids.addVar(var);
-                    break;
-                }
-            }
+            CompositeVar *var = new CompositeVar();
+            var->setName(e.attribute("name"));
+            var->setMemType(e.attribute("memory"));
+            bool res;
+            var->setMemAddress(e.attribute("address").remove(0,2).toInt(&res,16));
+            addVarToTree(e,var,userVars);
         }
     }
 

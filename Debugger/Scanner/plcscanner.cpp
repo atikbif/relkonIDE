@@ -27,7 +27,7 @@ void PLCScanner::scanProcess()
                 QByteArray data;
                 data[0] = a++;
                 data[1] = a>>8;
-                emit updateBlock("RAM",0,data);
+                emit updateBlock("RAM",0x8FD0,data);
             }
         }else mutex.unlock();
     }

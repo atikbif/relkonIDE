@@ -5,6 +5,8 @@
 #include "konTranslator/freertosfactory.h"
 #include <QApplication>
 #include <QRegExp>
+#include "Debugger/varparser.h"
+
 
 int PrBuilder::convertStrNum(int cStrNum)
 {
@@ -122,15 +124,18 @@ void PrBuilder::buildRequest(QString prPath, QString prName)
                     if(!prPath.isEmpty()) {
                         removeBuildFiles(prPath,prName);
 
-                        QString binFileName = prName;
-                        binFileName.remove(".kon");
-                        binFileName = prPath + "/build/" + binFileName + ".bin";
+                        QString binFileName = RCompiler::getBinFileName();
+                        QString mapFileName = RCompiler::getMapFileName();
 
                         bool copyFlag = true;
                         copyFlag = copyFlag && QFile::copy(QApplication::applicationDirPath()+"/build/project.bin",binFileName);
-                        copyFlag = copyFlag && QFile::copy(QApplication::applicationDirPath()+"/build/memory.map",prPath + "/build/memory.map");
+                        copyFlag = copyFlag && QFile::copy(QApplication::applicationDirPath()+"/build/memory.map",mapFileName);
 
-                        if(copyFlag) emit printMessage("bin файл сохранён");
+                        if(copyFlag) {
+                            emit printMessage("bin файл сохранён");
+                            VarParser parser(RCompiler::getKonFileName());
+                            parser.createXML();
+                        }
                         else emit printMessage("Ошибка сохранения BIN файла");
                     }
                 }
