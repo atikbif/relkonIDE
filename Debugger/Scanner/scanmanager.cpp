@@ -11,6 +11,11 @@ ScanManager::ScanManager(MemStorage *memStor, QObject *parent) : QObject(parent)
     emit startProcess();
 }
 
+void ScanManager::setScheduler(RequestScheduler *scheduler)
+{
+    scanner->setScheduler(scheduler);
+}
+
 ScanManager::~ScanManager()
 {
     scanner->finishProcess();

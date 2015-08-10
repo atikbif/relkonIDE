@@ -12,6 +12,7 @@
 #include <QHash>
 #include "memstorage.h"
 #include "Scanner/scanmanager.h"
+#include "requestscheduler.h"
 
 namespace Ui {
 class DebuggerForm;
@@ -28,6 +29,7 @@ class DebuggerForm : public QWidget
     QHash<QString,QTreeWidgetItem*> idActiveWidgetItem; // опрашиваемые переменные
     MemStorage memStor;
     ScanManager* scan;
+    RequestScheduler scheduler;
 
     void createTree();
     void updateTrees();

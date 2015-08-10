@@ -140,6 +140,9 @@ void DebuggerForm::on_treeWidgetMain_itemDoubleClicked(QTreeWidgetItem *item, in
             newItem->setToolTip(0,fullName);
             ui->treeWidgetWatch->addTopLevelItem(newItem);
             ui->treeWidgetWatch->setItemWidget(newItem,5,new QLineEdit("-",ui->treeWidgetWatch));
+
+            scheduler.addReadOperation(var);
+            scheduler.schedule();
         }
     }
 }
@@ -149,13 +152,19 @@ void DebuggerForm::on_treeWidgetWatch_itemDoubleClicked(QTreeWidgetItem *item, i
     // удаление переменной из дерева просмотра
     Q_UNUSED(column)
     QString id = idActiveWidgetItem.key(item);
-    varOwner.getVarByID(id).setPriority(0);
+    VarItem var = varOwner.getVarByID(id);
+    var.setPriority(0);
+    varOwner.updateVarByID(id,var);
     idActiveWidgetItem.remove(id);
     ui->treeWidgetWatch->removeItemWidget(item,5);
     delete item;
+
+    scheduler.removeReadOperation(var);
+    scheduler.schedule();
 }
 void DebuggerForm::on_startButton_clicked()
 {
+    scan->setScheduler(&scheduler);
     scan->startDebugger();
 }
 

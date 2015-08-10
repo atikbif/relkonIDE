@@ -42,6 +42,15 @@ namespace RkProtocol {
         ~ReadFram();
     };
 
+    class ReadRam: public RkCommand
+    {
+    public:
+        ReadRam();
+        bool form(Request &req);
+        bool getAnAnswer(Request &req);
+        ~ReadRam();
+    };
+
     class ResetController: public RkCommand
     {
     public:

@@ -171,6 +171,8 @@ bool ReadFram::form(Request &req)
     reqBody += crc&0xFF;
     reqBody += (crc>>8)&0xFF;
     req.getBody() = reqBody;
+    req.insParam("rw","read");
+    req.insParam("mem","FRAM");
     return true;
 }
 
@@ -203,6 +205,46 @@ bool ReadFram::waitAnAnswer(Request &req, QIODevice &io)
 }
 
 ReadFram::~ReadFram()
+{
+
+}
+
+//-------------------------------------------------
+
+ReadRam::ReadRam()
+{
+
+}
+
+bool ReadRam::form(Request &req)
+{
+    QByteArray reqBody = req.getBody();
+    reqBody.clear();
+    reqBody += req.getNetAddress();
+    reqBody += 0xD4;
+    reqBody += req.getMemAddress() >> 8;
+    reqBody += req.getMemAddress() & 0xFF;
+    reqBody += req.getDataNumber() >>8;
+    reqBody += req.getDataNumber() & 0xFF;
+    int crc = CheckSum::getCRC16(reqBody);
+    reqBody += crc&0xFF;
+    reqBody += (crc>>8)&0xFF;
+    req.getBody() = reqBody;
+    req.insParam("rw","read");
+    req.insParam("mem","RAM");
+    return true;
+}
+
+bool ReadRam::getAnAnswer(Request &req)
+{
+    QByteArray answer = req.getRdData();
+    answer.chop(2);
+    answer.remove(0,1);
+    req.updateRdData(answer);
+    return true;
+}
+
+ReadRam::~ReadRam()
 {
 
 }

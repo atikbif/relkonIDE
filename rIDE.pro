@@ -73,7 +73,8 @@ SOURCES += main.cpp\
     Debugger/Scanner/plcscanner.cpp \
     Debugger/vartomemconnector.cpp \
     Debugger/varbytesvalueconverter.cpp \
-    Debugger/varparser.cpp
+    Debugger/varparser.cpp \
+    Debugger/requestscheduler.cpp
 
 HEADERS  += mainwindow.h \
     codeeditor.h \
@@ -132,7 +133,8 @@ HEADERS  += mainwindow.h \
     Debugger/Scanner/plcscanner.h \
     Debugger/vartomemconnector.h \
     Debugger/varbytesvalueconverter.h \
-    Debugger/varparser.h
+    Debugger/varparser.h \
+    Debugger/requestscheduler.h
 
 FORMS    += mainwindow.ui \
     settingsform.ui \
