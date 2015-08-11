@@ -231,7 +231,7 @@ MainWindow::MainWindow(QWidget *parent) :
     editor->setTabStopWidth(tabWidth * metrics.width(' '));
     editor->setFont(font);
 
-    ui->tabWidget->setStyleSheet("QTabBar::tab {"
+    /*ui->tabWidget->setStyleSheet("QTabBar::tab {"
         "background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,"
                                     "stop: 0 #FAFAFA, stop: 0.4 #F4F4F4,"
                                     "stop: 0.5 #e7e7e7, stop: 1.0 #fafafa);"
@@ -254,13 +254,13 @@ MainWindow::MainWindow(QWidget *parent) :
              "background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,"
                                          "stop: 0 #f1f1f1, stop: 0.2 #dedede,"
                                          "stop: 0.3 #e8e8e8, stop: 1.0 #ffffff);"
-             "}");
+             "}");*/
 
 
 
 
     ui->tabWidget->clear();
-    ui->tabWidget->setFont(QFont("Courier",10,QFont::Normal,false));
+    ui->tabWidget->tabBar()->setFont(QFont("Courier",12,QFont::Normal,false));
     ui->tabWidget->addTab(editor,"Редактор");
     editor->setFocus();
     settings = new SettingsForm();

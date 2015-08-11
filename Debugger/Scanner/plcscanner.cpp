@@ -10,6 +10,8 @@ PLCScanner::PLCScanner(QObject *parent) : QObject(parent)
     stopCmd=false;
     finishCmd = false;
     scheduler = nullptr;
+    cntCorrect = 0;
+    cntError = 0;
 }
 
 PLCScanner::~PLCScanner()
@@ -20,12 +22,6 @@ PLCScanner::~PLCScanner()
 void PLCScanner::scanProcess()
 {
     DetectedController* plc = &DetectedController::Instance();
-    /*DetectedController* plc = &DetectedController::Instance();
-    if(!plc->getUartName().isEmpty()) return;
-    if(plc->getBootMode()) return;
-    QSerialPort port(plc->getUartName());
-    port.setBaudRate(plc->getBaudrate());
-    if(port.open(QSerialPort::ReadWrite)) {*/
     QSerialPort port;
     forever{
         mutex.lock();
@@ -47,10 +43,11 @@ void PLCScanner::scanProcess()
                         if(plc->getAsciiMode()) cmd = new AsciiDecorator(cmd);
                         req.setNetAddress(plc->getNetAddress());
                         if(cmd->execute(req,port)) {
+                            emit updateCorrectRequestCnt(++cntCorrect);
                             if(req.hasKey("mem") && req.hasKey("rw") && req.getParam("rw")=="read") {
                                 emit updateBlock(req.getParam("mem"),req.getMemAddress(),req.getRdData());
                             }
-                        }
+                        }else emit updateErrorRequestCnt(++cntError);
                     }
                     scheduler->moveToNext();
                     //delete cmd;

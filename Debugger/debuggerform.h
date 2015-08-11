@@ -47,6 +47,7 @@ private slots:
     void on_startButton_clicked();
     void on_stopButton_clicked();
     void updateMemory(QStringList ids);
+    void updateCorrErrAnswerCount(int cnt, bool correctFlag);
 public slots:
     void on_updateButton_clicked();
 

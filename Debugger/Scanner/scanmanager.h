@@ -22,6 +22,10 @@ public:
 
 signals:
     startProcess(void);
+    void updateAnswerCnt(int cnt, bool correctAnswer);
+private slots:
+    void updCorrAnswerCnt(int cnt);
+    void updErrAnswerCnt(int cnt);
 public slots:
     void startDebugger();
     void stopDebugger();

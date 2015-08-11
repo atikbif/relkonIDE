@@ -14,7 +14,7 @@ ScanGUI::ScanGUI(int progAddr, QWidget *parent) :
     }
 
     if(portNames.count()==0) {
-        message.setStyleSheet("QLabel { font: bold; color : darkred; }");
+        //message.setStyleSheet("QLabel { font: bold; color : darkred; }");
         message.setText("COM порты не обнаружены");
     }else {
         foreach(QString pName, portNames) {
@@ -48,7 +48,7 @@ void ScanGUI::percentUpdate(float percValue, const QString &pName)
         if(bar->value()<99) finishFlag = false;
     }
     if(finishFlag) {
-        message.setStyleSheet("QLabel { font: bold; color : darkred; }");
+        //message.setStyleSheet("QLabel { font: bold; color : darkred; }");
         message.setText("Контроллер не найден");
         DetectedController::Instance().setUartName("");
     }

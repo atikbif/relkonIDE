@@ -73,36 +73,14 @@ DebuggerForm::DebuggerForm(QWidget *parent) :
     scan = nullptr;
     iter = nullptr;
     ui->setupUi(this);
-    ui->tabWidget->setFont(QFont("Courier",10,QFont::Normal,false));
+    ui->tabWidget->tabBar()->setFont(QFont("Courier",12,QFont::Normal,false));
     iter = new NameSortIterator(varOwner.getIDStorage());
     ui->treeWidgetWatch->sortByColumn(0, Qt::AscendingOrder);
     connect(&memStor,SIGNAL(updateMemory(QStringList)),this,SLOT(updateMemory(QStringList)));
-    scan = new ScanManager(&memStor);
-
-    ui->tabWidget->setStyleSheet("QTabBar::tab {"
-        "background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,"
-                                    "stop: 0 #FAFAFA, stop: 0.4 #F4F4F4,"
-                                    "stop: 0.5 #e7e7e7, stop: 1.0 #fafafa);"
-        "border: 1px solid #C4C4C3;"
-        "border-top-color: #C2C7CB; "
-        "border-bottom-left-radius: 6px;"
-        "border-bottom-right-radius: 6px;"
-        "min-width: 8px;"
-        "padding: 2px;"
-        "}"
-        "QTabBar::tab:selected {"
-             "border-color: #9B9B9B;"
-             "border-bottom-color: #FFFFFF;"
-             "}"
-        "QTabBar::tab:!selected {"
-             "border-color: #9B9B9B;"
-             "margin-top: 2px;"
-             "}"
-        "QTabBar::tab:selected, QTabBar::tab:hover {"
-             "background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,"
-                                         "stop: 0 #f1f1f1, stop: 0.2 #dedede,"
-                                         "stop: 0.3 #e8e8e8, stop: 1.0 #ffffff);"
-             "}");
+    scan = new ScanManager(&memStor,this);
+    connect(scan,SIGNAL(updateAnswerCnt(int,bool)),this,SLOT(updateCorrErrAnswerCount(int,bool)));
+    ui->lcdNumberCorrect->setDigitCount(8);
+    ui->lcdNumberError->setDigitCount(8);
 }
 
 DebuggerForm::~DebuggerForm()
@@ -164,6 +142,14 @@ void DebuggerForm::on_treeWidgetWatch_itemDoubleClicked(QTreeWidgetItem *item, i
 }
 void DebuggerForm::on_startButton_clicked()
 {
+    ui->tabWidgetCanal->setEnabled(false);
+    ui->pushButtonTimeWrite->setEnabled(true);
+    ui->radioButtonCOM->setEnabled(false);
+    ui->radioButtonUDP->setEnabled(false);
+    ui->spinBoxNetAddress->setEnabled(false);
+    ui->stopButton->setEnabled(true);
+    ui->startButton->setEnabled(false);
+
     scan->setScheduler(&scheduler);
     scan->startDebugger();
 }
@@ -171,6 +157,13 @@ void DebuggerForm::on_startButton_clicked()
 void DebuggerForm::on_stopButton_clicked()
 {
     scan->stopDebugger();
+    ui->tabWidgetCanal->setEnabled(true);
+    ui->pushButtonTimeWrite->setEnabled(false);
+    ui->radioButtonCOM->setEnabled(true);
+    ui->radioButtonUDP->setEnabled(true);
+    ui->spinBoxNetAddress->setEnabled(true);
+    ui->stopButton->setEnabled(false);
+    ui->startButton->setEnabled(true);
 }
 
 void DebuggerForm::updateMemory(QStringList ids)
@@ -189,6 +182,13 @@ void DebuggerForm::updateMemory(QStringList ids)
             }
         }
     }
+}
+
+void DebuggerForm::updateCorrErrAnswerCount(int cnt, bool correctFlag)
+{
+    if(correctFlag) ui->lcdNumberCorrect->display(cnt);
+    else ui->lcdNumberError->display(cnt);
+    ui->textBrowserRequests->setText(QString::number(cnt)+"\r\n");
 }
 
 void DebuggerForm::on_updateButton_clicked()

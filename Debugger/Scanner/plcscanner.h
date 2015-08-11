@@ -15,6 +15,7 @@ class PLCScanner : public QObject
     bool startCmd;
     bool finishCmd;
     RequestScheduler* scheduler;
+    int cntCorrect,cntError;
 public:
     explicit PLCScanner(QObject *parent = 0);
     ~PLCScanner();
@@ -24,6 +25,8 @@ public:
     void setScheduler(RequestScheduler* ptr);
 signals:
     updateBlock(QString memType, int addr, QByteArray data);
+    updateCorrectRequestCnt(int cnt);
+    updateErrorRequestCnt(int cnt);
 public slots:
     void scanProcess(void);
 
