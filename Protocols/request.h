@@ -14,6 +14,7 @@ class Request
     unsigned int dataNumber;    // количество данных
     QByteArray wrData;          // массив с данными для записи
     QByteArray rdData;          // массив с прочитанными данными
+    QByteArray answerData;      // необработанный ответ
     QHash<QString, QString> params;     // дополнительные параметры для расширения функционала
     QByteArray reqBody;
 public:
@@ -33,6 +34,8 @@ public:
     QString getParam(const QString &key) const {return params.value(key);}
     QByteArray& getBody(void) {return reqBody;}
     ~Request();
+    QByteArray getAnswerData() const;
+    void setAnswerData(const QByteArray &value);
 };
 
 #endif // REQUEST_H

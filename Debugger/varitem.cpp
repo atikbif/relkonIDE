@@ -26,7 +26,7 @@ void VarItem::updateID()
 
 VarItem::VarItem()
 {
-
+    bitNum = 0;
 }
 
 VarItem::~VarItem()

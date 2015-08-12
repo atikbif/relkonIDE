@@ -7,6 +7,9 @@
 #include <Qvector>
 #include <QMutex>
 #include "varitem.h"
+#include <QHash>
+#include <QString>
+#include <QBitArray>
 
 struct CmdData{
     CommandInterface* cmd;
@@ -17,8 +20,17 @@ class RequestScheduler : public QObject
 {
     QMutex mutex;
     QVector<CmdData*> cmdQueue;
+    QVector<CmdData*> binQueue; // хранилище для отложенного удаления
     int i;  // текущий индекс
+    QHash<QString,QBitArray> devMap;
     Q_OBJECT
+
+    static const int maxHole = 10;
+    static const int maxLength = 100;
+
+    void clearBin(void);
+    CommandInterface* getRdCmdByMemType(const QString &memType);
+    void scanMap(const QString &memType);
 public:
     explicit RequestScheduler(QObject *parent = 0);
     CommandInterface* getCmd(void);  // возвращает команду для выполнения
@@ -27,7 +39,6 @@ public:
     void addReadOperation(VarItem v);   // добавить операцию чтения переменной
     void removeReadOperation(VarItem v);    // удалить чтение области памяти переменной
     void addWriteOperation(VarItem v);  // запрос на запись переменной
-    void clearQueue(void);  // очистить очередь запросов
     void schedule();    // сформировать очередь запросов
     ~RequestScheduler();
 

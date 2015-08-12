@@ -10,6 +10,10 @@
 #include "varparser.h"
 #include "RCompiler/rcompiler.h"
 #include <QDateTime>
+#include <QSerialPortInfo>
+#include "AutoSearch/scangui.h"
+#include <QMessageBox>
+#include "debuggersettings.h"
 
 
 void DebuggerForm::createTree()
@@ -79,8 +83,10 @@ DebuggerForm::DebuggerForm(QWidget *parent) :
     connect(&memStor,SIGNAL(updateMemory(QStringList)),this,SLOT(updateMemory(QStringList)));
     scan = new ScanManager(&memStor,this);
     connect(scan,SIGNAL(updateAnswerCnt(int,bool)),this,SLOT(updateCorrErrAnswerCount(int,bool)));
+    connect(scan,SIGNAL(addMessage(QString)),this,SLOT(getMessageFromDebugProcess(QString)));
     ui->lcdNumberCorrect->setDigitCount(8);
     ui->lcdNumberError->setDigitCount(8);
+    updateComPortList();
 }
 
 DebuggerForm::~DebuggerForm()
@@ -111,6 +117,9 @@ void DebuggerForm::on_treeWidgetMain_itemDoubleClicked(QTreeWidgetItem *item, in
                varName += "." + s;
             }
             varName.remove(0,1);
+
+            if(idActiveWidgetItem.contains(id)) return;
+
             sList << varName << "" << "" << "0x"+QString::number(var.getMemAddress(),16).toUpper() << var.getDataType();
             QTreeWidgetItem* newItem = new QTreeWidgetItem(sList);
             idActiveWidgetItem.insert(id,newItem);
@@ -142,16 +151,28 @@ void DebuggerForm::on_treeWidgetWatch_itemDoubleClicked(QTreeWidgetItem *item, i
 }
 void DebuggerForm::on_startButton_clicked()
 {
-    ui->tabWidgetCanal->setEnabled(false);
-    ui->pushButtonTimeWrite->setEnabled(true);
-    ui->radioButtonCOM->setEnabled(false);
-    ui->radioButtonUDP->setEnabled(false);
-    ui->spinBoxNetAddress->setEnabled(false);
-    ui->stopButton->setEnabled(true);
-    ui->startButton->setEnabled(false);
 
-    scan->setScheduler(&scheduler);
-    scan->startDebugger();
+    if(ui->radioButtonUDP->isChecked()) {
+        QMessageBox::warning(this,"Ограничение отладчика","В данный момент работа по протоколу UDP не доступна.\n");
+    }else {
+        DebuggerSettings settings;
+        settings.setPortName(ui->comboBoxCOM->currentText());
+        settings.setProtocol(ui->comboBoxProtocol->currentText());
+        settings.setBaudrate(ui->comboBoxSpeed->currentText().toInt());
+        settings.setNetAddress(ui->spinBoxNetAddress->value());
+        scan->setDebSettings(settings);
+
+        ui->tabWidgetCanal->setEnabled(false);
+        ui->pushButtonTimeWrite->setEnabled(true);
+        ui->radioButtonCOM->setEnabled(false);
+        ui->radioButtonUDP->setEnabled(false);
+        ui->spinBoxNetAddress->setEnabled(false);
+        ui->stopButton->setEnabled(true);
+        ui->startButton->setEnabled(false);
+
+        scan->setScheduler(&scheduler);
+        scan->startDebugger();
+    }
 }
 
 void DebuggerForm::on_stopButton_clicked()
@@ -188,7 +209,24 @@ void DebuggerForm::updateCorrErrAnswerCount(int cnt, bool correctFlag)
 {
     if(correctFlag) ui->lcdNumberCorrect->display(cnt);
     else ui->lcdNumberError->display(cnt);
-    ui->textBrowserRequests->setText(QString::number(cnt)+"\r\n");
+    //ui->textBrowserRequests->setText(QString::number(cnt)+"\r\n");
+}
+
+void DebuggerForm::getMessageFromDebugProcess(QString message)
+{
+    QString txt = ui->textBrowserRequests->toPlainText();
+    QStringList sList = txt.split("\n");
+    //sList.removeDuplicates();
+    if(sList.count()>=15) {
+        sList.removeFirst();
+        sList+=message;
+    }else sList+=message;
+    txt="";
+    foreach (QString str, sList) {
+        if(!str.isEmpty()) txt+=str+"\n";
+    }
+    ui->textBrowserRequests->setText(txt);
+
 }
 
 void DebuggerForm::on_updateButton_clicked()
@@ -224,4 +262,50 @@ void DebuggerForm::updateValuesTree()
     }
 
 
+}
+
+void DebuggerForm::updateComPortList()
+{
+    QStringList portNames;
+    foreach (const QSerialPortInfo &info, QSerialPortInfo::availablePorts()) {
+            portNames << info.portName();
+    }
+    ui->comboBoxCOM->clear();
+    if(portNames.count()) {
+        foreach (QString pName, portNames) {
+           ui->comboBoxCOM->addItem(pName);
+        }
+    }
+}
+
+void DebuggerForm::on_pushButtonCOMUpdate_clicked()
+{
+    updateComPortList();
+}
+
+void DebuggerForm::on_pushButtonAutoSearch_clicked()
+{
+    int progAddr = ui->spinBoxNetAddress->value();
+    ScanGUI gui(progAddr,this);
+    int ret = gui.exec();
+    if(ret==QDialog::Accepted) {
+        DetectedController* plc = &DetectedController::Instance();
+        if(plc->getBootMode()) {
+            QMessageBox::warning(this,"системные настройки контроллера","Контроллер ожидает загрузки программы.\n");
+        }
+        else{
+            updateComPortList();
+            ui->comboBoxCOM->setCurrentText(plc->getUartName());
+            ui->comboBoxSpeed->setCurrentText(QString::number(plc->getBaudrate()));
+            QString protocol = "BIN";
+            if(plc->getAsciiMode()) protocol = "ASCII";
+            ui->comboBoxProtocol->setCurrentText(protocol);
+        }
+    }
+}
+
+void DebuggerForm::on_checkBoxLog_clicked()
+{
+    if(ui->checkBoxLog->isChecked()) ui->textBrowserRequests->setVisible(true);
+    else ui->textBrowserRequests->setVisible(false);
 }

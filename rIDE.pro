@@ -74,7 +74,8 @@ SOURCES += main.cpp\
     Debugger/vartomemconnector.cpp \
     Debugger/varbytesvalueconverter.cpp \
     Debugger/varparser.cpp \
-    Debugger/requestscheduler.cpp
+    Debugger/requestscheduler.cpp \
+    Debugger/debuggersettings.cpp
 
 HEADERS  += mainwindow.h \
     codeeditor.h \
@@ -134,7 +135,8 @@ HEADERS  += mainwindow.h \
     Debugger/vartomemconnector.h \
     Debugger/varbytesvalueconverter.h \
     Debugger/varparser.h \
-    Debugger/requestscheduler.h
+    Debugger/requestscheduler.h \
+    Debugger/debuggersettings.h
 
 FORMS    += mainwindow.ui \
     settingsform.ui \

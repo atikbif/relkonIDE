@@ -21,11 +21,12 @@ bool CommandInterface::execute(Request &req, QIODevice &io)
             QThread::currentThread()->msleep(waitWritePause);
         }
         if(waitAnAnswer(req,io)) {
+            req.setAnswerData(req.getRdData());
             if(checkAnAnswer(req)) {
                 getAnAnswer(req);
                 return true;
             }
-        }
+        }else req.setAnswerData(QByteArray());
     }
     return false;
 }

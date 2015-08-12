@@ -1,11 +1,80 @@
 #include "requestscheduler.h"
 #include "Protocols/rk.h"
+#include "varbytesvalueconverter.h"
 
 using namespace RkProtocol;
+
+void RequestScheduler::clearBin()
+{
+    foreach (CmdData* cmdStruct, binQueue) {
+       delete cmdStruct->cmd;
+       delete cmdStruct->req;
+       delete cmdStruct;
+    }
+    binQueue.clear();
+}
+
+CommandInterface *RequestScheduler::getRdCmdByMemType(const QString &memType)
+{
+    CommandInterface* ptr = nullptr;
+    if(memType=="RAM") ptr = new ReadRam();
+    else if(memType=="FRAM") ptr = new ReadFram();
+    return ptr;
+}
+
+void RequestScheduler::scanMap(const QString &memType)
+{
+    QBitArray map = devMap.value(memType);
+    if(map.count()) {
+        int startAddr=-1;
+        int stopAddr=-1;
+        int holeCnt=0;
+        int i=0;
+
+        while(1) {
+            startAddr = -1;
+            stopAddr = -1;
+            holeCnt = 0;
+            if(i>=map.count()) break;
+            while (1) {
+               if(map.at(i)) {
+                   holeCnt=0;
+                   if(startAddr<0) startAddr = i;
+                   if(startAddr>=0) {
+                      if(i-startAddr+1>maxLength) break;
+                      stopAddr = i;
+                   }
+
+               }else {
+                   if(startAddr>=0) {
+                       holeCnt++;
+                       if(holeCnt>=maxHole) break;
+                   }
+               }
+               i++;
+               if(i>=map.count()) break;
+            }
+            if(startAddr>=0) {  // new request
+                CommandInterface* cmd = getRdCmdByMemType(memType);
+                if(cmd!=nullptr) {
+                    Request* req = new Request();
+                    req->setDataNumber(stopAddr-startAddr+1);
+                    req->setMemAddress(startAddr);
+                    CmdData* cmdStruct = new CmdData;
+                    cmdStruct->cmd = cmd;
+                    cmdStruct->req = req;
+                    cmdQueue += cmdStruct;
+                }
+            }
+        }
+
+    }
+}
 
 RequestScheduler::RequestScheduler(QObject *parent) : QObject(parent)
 {
     i = 0;
+    devMap.clear();
 }
 
 CommandInterface *RequestScheduler::getCmd()
@@ -21,6 +90,7 @@ CommandInterface *RequestScheduler::getCmd()
 Request RequestScheduler::getReq()
 {
     QMutexLocker locker(&mutex);
+    clearBin();
     Request r;
     if(cmdQueue.count()) {
         r = *(cmdQueue.at(i)->req);
@@ -32,36 +102,29 @@ void RequestScheduler::moveToNext()
 {
     QMutexLocker locker(&mutex);
     i++;
-    if(i>=cmdQueue.count()) i=0;
+    if(i>=cmdQueue.count()) {
+        i=0;
+    }
 }
 
 void RequestScheduler::addReadOperation(VarItem v)
 {
     QMutexLocker locker(&mutex);
-    CommandInterface* cmd = nullptr;
+    int cnt = VarBytesValueConverter::getVarSize(v.getDataType());
     if(v.getPriority()==0) return;
-    int cnt = 0;
-    if(v.getDataType().contains("char")) cnt=1;
-    else if(v.getDataType().contains("short")) cnt=2;
-    else if(v.getDataType().contains("int")) cnt=4;
-    else if(v.getDataType().contains("long long")) cnt=8;
-    else if(v.getDataType().contains("long")) cnt=4;
-    else if(v.getDataType().contains("float")) cnt=4;
-    else if(v.getDataType().contains("double")) cnt=8;
-    if(v.getMemType()=="RAM") {
-        cmd = new ReadRam();
-    }else if(v.getMemType()=="FRAM") {
-        cmd = new ReadFram();
+    if(devMap.contains(v.getMemType())) {
+        int beginPos = v.getMemAddress();
+        int endPos = beginPos+cnt;
+        QBitArray map = devMap.value(v.getMemType());
+        if(map.size()<endPos) map.resize(endPos);
+        map.fill(true,beginPos,endPos);
+        devMap.insert(v.getMemType(),map);
+    }else {
+        QBitArray map(v.getMemAddress()+cnt);
+        map.fill(true,v.getMemAddress(),map.count());
+        devMap.insert(v.getMemType(),map);
     }
-    if(cmd!=nullptr) {
-        Request* req = new Request();
-        req->setDataNumber(cnt);
-        req->setMemAddress(v.getMemAddress());
-        CmdData* cmdStruct = new CmdData;
-        cmdStruct->cmd = cmd;
-        cmdStruct->req = req;
-        cmdQueue += cmdStruct;
-    }
+
 }
 
 void RequestScheduler::removeReadOperation(VarItem v)
@@ -74,25 +137,19 @@ void RequestScheduler::addWriteOperation(VarItem v)
     Q_UNUSED(v)
 }
 
-void RequestScheduler::clearQueue()
+void RequestScheduler::schedule()
 {
     QMutexLocker locker(&mutex);
     i=0;
-    foreach (CmdData* cmdStruct, cmdQueue) {
-       delete cmdStruct->cmd;
-       delete cmdStruct->req;
-       delete cmdStruct;
-    }
+    binQueue+=cmdQueue;
     cmdQueue.clear();
-}
-
-void RequestScheduler::schedule()
-{
-
+    scanMap("RAM");
+    scanMap("FRAM");
 }
 
 RequestScheduler::~RequestScheduler()
 {
+    clearBin();
     foreach (CmdData* cmdStruct, cmdQueue) {
        delete cmdStruct->cmd;
        delete cmdStruct->req;

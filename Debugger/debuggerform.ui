@@ -279,41 +279,6 @@
         <property name="title">
          <string/>
         </property>
-        <widget class="QLabel" name="label_3">
-         <property name="geometry">
-          <rect>
-           <x>10</x>
-           <y>10</y>
-           <width>60</width>
-           <height>16</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>Отклик, мс:</string>
-         </property>
-        </widget>
-        <widget class="QLineEdit" name="lineEditAnswerTime">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="geometry">
-          <rect>
-           <x>76</x>
-           <y>10</y>
-           <width>95</width>
-           <height>20</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>0</string>
-         </property>
-         <property name="maxLength">
-          <number>6</number>
-         </property>
-         <property name="readOnly">
-          <bool>true</bool>
-         </property>
-        </widget>
         <widget class="QGroupBox" name="groupBox_4">
          <property name="geometry">
           <rect>
@@ -352,7 +317,7 @@
           </item>
          </layout>
         </widget>
-        <widget class="QWidget" name="">
+        <widget class="QWidget" name="layoutWidget">
          <property name="geometry">
           <rect>
            <x>10</x>
@@ -500,6 +465,32 @@
           </item>
          </layout>
         </widget>
+        <widget class="QCheckBox" name="checkBoxLog">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>10</y>
+           <width>91</width>
+           <height>17</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Вкл/выкл лог</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </widget>
+      </item>
+      <item row="0" column="4">
+       <widget class="QTextBrowser" name="textBrowserRequests">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+          <horstretch>1</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
        </widget>
       </item>
       <item row="0" column="2">
@@ -529,128 +520,124 @@
          <enum>QTabWidget::Triangular</enum>
         </property>
         <property name="currentIndex">
-         <number>1</number>
+         <number>0</number>
         </property>
         <widget class="QWidget" name="tab">
          <attribute name="title">
           <string>COM</string>
          </attribute>
-         <layout class="QGridLayout" name="gridLayout_7">
+         <layout class="QGridLayout" name="gridLayout_2">
           <item row="0" column="0">
-           <layout class="QGridLayout" name="gridLayout_2">
-            <item row="0" column="0">
-             <widget class="QLabel" name="label_8">
-              <property name="text">
-               <string>Порт:</string>
-              </property>
-             </widget>
+           <widget class="QLabel" name="label_8">
+            <property name="text">
+             <string>Порт:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QComboBox" name="comboBoxCOM">
+            <item>
+             <property name="text">
+              <string>COM1</string>
+             </property>
             </item>
-            <item row="0" column="1">
-             <widget class="QComboBox" name="comboBoxCOM">
-              <item>
-               <property name="text">
-                <string>COM1</string>
-               </property>
-              </item>
-             </widget>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QPushButton" name="pushButtonCOMUpdate">
+            <property name="text">
+             <string>обновить</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="label_5">
+            <property name="text">
+             <string>Скорость:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QComboBox" name="comboBoxSpeed">
+            <item>
+             <property name="text">
+              <string>4800</string>
+             </property>
             </item>
-            <item row="1" column="0" colspan="2">
-             <widget class="QPushButton" name="pushButtonCOMUpdate">
-              <property name="text">
-               <string>обн. список портов</string>
-              </property>
-             </widget>
+            <item>
+             <property name="text">
+              <string>9600</string>
+             </property>
             </item>
-            <item row="2" column="0">
-             <widget class="QLabel" name="label_5">
-              <property name="text">
-               <string>Скорость:</string>
-              </property>
-             </widget>
+            <item>
+             <property name="text">
+              <string>19200</string>
+             </property>
             </item>
-            <item row="2" column="1">
-             <widget class="QComboBox" name="comboBoxSpeed">
-              <item>
-               <property name="text">
-                <string>4800</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>9600</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>19200</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>38400</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>57600</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>115200</string>
-               </property>
-              </item>
-             </widget>
+            <item>
+             <property name="text">
+              <string>38400</string>
+             </property>
             </item>
-            <item row="3" column="0">
-             <widget class="QLabel" name="label_4">
-              <property name="text">
-               <string>Протокол:</string>
-              </property>
-             </widget>
+            <item>
+             <property name="text">
+              <string>57600</string>
+             </property>
             </item>
-            <item row="3" column="1">
-             <widget class="QComboBox" name="comboBoxProtocol">
-              <item>
-               <property name="text">
-                <string>BIN</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>ASCII</string>
-               </property>
-              </item>
-             </widget>
+            <item>
+             <property name="text">
+              <string>115200</string>
+             </property>
             </item>
-            <item row="4" column="0" colspan="2">
-             <widget class="QPushButton" name="pushButtonAutoSearch">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="text">
-               <string>ПОИСК</string>
-              </property>
-             </widget>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QLabel" name="label_4">
+            <property name="text">
+             <string>Протокол:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="QComboBox" name="comboBoxProtocol">
+            <item>
+             <property name="text">
+              <string>BIN</string>
+             </property>
             </item>
-            <item row="5" column="0">
-             <widget class="QLabel" name="label_6">
-              <property name="text">
-               <string>Канал:</string>
-              </property>
-             </widget>
+            <item>
+             <property name="text">
+              <string>ASCII</string>
+             </property>
             </item>
-            <item row="6" column="0" colspan="2">
-             <widget class="QLineEdit" name="lineEditCanal">
-              <property name="enabled">
-               <bool>false</bool>
-              </property>
-             </widget>
-            </item>
-           </layout>
+           </widget>
+          </item>
+          <item row="4" column="1">
+           <widget class="QPushButton" name="pushButtonAutoSearch">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>ПОИСК</string>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="0">
+           <widget class="QLabel" name="label_6">
+            <property name="text">
+             <string>Канал:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="6" column="0" colspan="2">
+           <widget class="QLineEdit" name="lineEditCanal">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+           </widget>
           </item>
          </layout>
         </widget>
@@ -701,14 +688,17 @@
        </widget>
       </item>
       <item row="0" column="3">
-       <widget class="QTextBrowser" name="textBrowserRequests">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-          <horstretch>1</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
         </property>
-       </widget>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
       </item>
      </layout>
     </widget>

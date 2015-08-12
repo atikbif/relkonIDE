@@ -35,6 +35,7 @@ class DebuggerForm : public QWidget
     void updateTrees();
     void treeBuilder(const QString& varID, QTreeWidgetItem &item);
     void updateValuesTree(void);
+    void updateComPortList(void);
 
 public:
     explicit DebuggerForm(QWidget *parent = 0);
@@ -48,6 +49,13 @@ private slots:
     void on_stopButton_clicked();
     void updateMemory(QStringList ids);
     void updateCorrErrAnswerCount(int cnt, bool correctFlag);
+    void getMessageFromDebugProcess(QString message);
+    void on_pushButtonCOMUpdate_clicked();
+
+    void on_pushButtonAutoSearch_clicked();
+
+    void on_checkBoxLog_clicked();
+
 public slots:
     void on_updateButton_clicked();
 
