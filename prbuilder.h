@@ -17,6 +17,7 @@ public:
 signals:
     void printMessage(const QString &str);
     void buildIsFinished(void);
+    void buildIsOk(void);
 public slots:
     void buildRequest(QString prPath, QString prName);
     void setFileText(QStringList str);

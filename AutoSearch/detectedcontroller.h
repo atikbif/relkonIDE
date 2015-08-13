@@ -14,6 +14,7 @@ class DetectedController
     bool asciiMode;
     bool bootMode;
     QMutex mutex;
+    QString canName;
 public:
     static DetectedController& Instance()
     {
@@ -34,6 +35,10 @@ public:
 
     bool getBootMode();
     void setBootMode(bool value);
+
+
+    QString getCanName();
+    void setCanName(const QString &value);
 
 private:
     DetectedController();                                          // Private constructor

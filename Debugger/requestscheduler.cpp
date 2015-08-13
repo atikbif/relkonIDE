@@ -22,6 +22,15 @@ CommandInterface *RequestScheduler::getRdCmdByMemType(const QString &memType)
     return ptr;
 }
 
+CommandInterface *RequestScheduler::getWrCmdByMemType(const QString &memType)
+{
+    CommandInterface* ptr = nullptr;
+    if(memType=="RAM") ptr = new WriteRam();
+    else if(memType=="FRAM") ptr = new WriteFram();
+    else if(memType=="TIME") ptr = new WriteTime();
+    return ptr;
+}
+
 void RequestScheduler::scanMap(const QString &memType)
 {
     QBitArray map = devMap.value(memType);
@@ -74,6 +83,7 @@ void RequestScheduler::scanMap(const QString &memType)
 RequestScheduler::RequestScheduler(QObject *parent) : QObject(parent)
 {
     i = 0;
+    removeWr = false;
     devMap.clear();
 }
 
@@ -81,7 +91,12 @@ CommandInterface *RequestScheduler::getCmd()
 {
     QMutexLocker locker(&mutex);
     CommandInterface* ptr = nullptr;
-    if(cmdQueue.count()) {
+
+    // проверка очереди на запись
+    if(wrQueue.count()) {
+        ptr = wrQueue.first()->cmd;
+        removeWr = true;
+    }else if(cmdQueue.count()) {
         ptr = cmdQueue.at(i)->cmd;
     }
     return ptr;
@@ -90,9 +105,12 @@ CommandInterface *RequestScheduler::getCmd()
 Request RequestScheduler::getReq()
 {
     QMutexLocker locker(&mutex);
-    clearBin();
     Request r;
-    if(cmdQueue.count()) {
+    // проверка очереди на запись
+    if(wrQueue.count()) {
+        r = *(wrQueue.first()->req);
+        removeWr = true;
+    }else if(cmdQueue.count()) {
         r = *(cmdQueue.at(i)->req);
     }
     return r;
@@ -101,6 +119,17 @@ Request RequestScheduler::getReq()
 void RequestScheduler::moveToNext()
 {
     QMutexLocker locker(&mutex);
+    clearBin();
+    if(removeWr) {
+        removeWr = false;
+        if(wrQueue.count()) {
+            CmdData* cmdStruct = wrQueue.first();
+            delete cmdStruct->cmd;
+            delete cmdStruct->req;
+            delete cmdStruct;
+            wrQueue.remove(0);
+        }
+    }
     i++;
     if(i>=cmdQueue.count()) {
         i=0;
@@ -129,12 +158,32 @@ void RequestScheduler::addReadOperation(VarItem v)
 
 void RequestScheduler::removeReadOperation(VarItem v)
 {
-    Q_UNUSED(v)
+    QMutexLocker locker(&mutex);
+    int cnt = VarBytesValueConverter::getVarSize(v.getDataType());
+    if(devMap.contains(v.getMemType())) {
+        int beginPos = v.getMemAddress();
+        int endPos = beginPos+cnt;
+        QBitArray map = devMap.value(v.getMemType());
+        if(map.size()<endPos) return;
+        map.fill(false,beginPos,endPos);
+        devMap.insert(v.getMemType(),map);
+    }
 }
 
 void RequestScheduler::addWriteOperation(VarItem v)
 {
-    Q_UNUSED(v)
+    CommandInterface* cmd = getWrCmdByMemType(v.getMemType());
+    if(cmd!=nullptr) {
+        int cnt = VarBytesValueConverter::getVarSize(v.getDataType());
+        Request* req = new Request();
+        req->setDataNumber(cnt);
+        req->setMemAddress(v.getMemAddress());
+        req->setWrData(VarBytesValueConverter::getWrData(v));
+        CmdData* cmdStruct = new CmdData;
+        cmdStruct->cmd = cmd;
+        cmdStruct->req = req;
+        wrQueue += cmdStruct;
+    }
 }
 
 void RequestScheduler::schedule()
@@ -151,6 +200,11 @@ RequestScheduler::~RequestScheduler()
 {
     clearBin();
     foreach (CmdData* cmdStruct, cmdQueue) {
+       delete cmdStruct->cmd;
+       delete cmdStruct->req;
+       delete cmdStruct;
+    }
+    foreach (CmdData* cmdStruct, wrQueue) {
        delete cmdStruct->cmd;
        delete cmdStruct->req;
        delete cmdStruct;

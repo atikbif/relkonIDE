@@ -66,7 +66,25 @@ int VarBytesValueConverter::getVarSize(const QString &varType)
     else if(varType.contains("long")) varSize=4;
     else if(varType.contains("float")) varSize=4;
     else if(varType.contains("double")) varSize=8;
+    else if(varType.contains("time")) varSize=7;
     return varSize;
+}
+
+QByteArray VarBytesValueConverter::getWrData(VarItem var)
+{
+    QByteArray data;
+    if(var.getDataType()=="unsigned char") {
+        data+=(unsigned char)(var.getValue().toInt());
+    }else if(var.getDataType()=="time") {
+        QStringList inpData = var.getValue().split(" ");
+        foreach (QString timeCell, inpData) {
+           if(!timeCell.isEmpty()) {
+               data += (unsigned char)(timeCell.toInt());
+           }
+        }
+        while(data.count()<7) data+='\0'; // размер пакета данных для записи времени
+    }
+    return data;
 }
 
 QString VarBytesValueConverter::getValue(const QString &varType, const QByteArray &data)

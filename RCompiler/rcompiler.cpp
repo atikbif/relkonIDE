@@ -261,6 +261,14 @@ QString RCompiler::getMapFileName()
     return buildFileName;
 }
 
+QString RCompiler::getDebugFileName()
+{
+    QString buildFileName = getBuildDirName() + "/" + inpKonFileName;
+    buildFileName.remove(QRegExp("\\.kon"));
+    buildFileName+="_debug.xml";
+    return buildFileName;
+}
+
 QString RCompiler::getBuildDirName()
 {
     return inpDirName + dirBuildName;

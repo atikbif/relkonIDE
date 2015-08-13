@@ -16,6 +16,33 @@
 #include "debuggersettings.h"
 
 
+void DebuggerForm::saveView()
+{
+    QFile file(RCompiler::getDebugFileName());
+    if(file.open(QIODevice::WriteOnly)) {
+        QXmlStreamWriter xmlWriter(&file);
+        xmlWriter.setAutoFormatting(true);
+        xmlWriter.writeStartDocument();
+
+        xmlWriter.writeStartElement("LAMPS");
+
+        xmlWriter.writeStartElement("LIGHT1");
+        xmlWriter.writeTextElement("State", "statevalue" );
+        xmlWriter.writeTextElement("Room", "roomvalue");
+        xmlWriter.writeTextElement("Potencial", "potencialvalue");
+
+        xmlWriter.writeEndElement();
+        xmlWriter.writeEndElement();
+
+        file.close();
+    }
+}
+
+void DebuggerForm::openView()
+{
+
+}
+
 void DebuggerForm::createTree()
 {
     ui->treeWidgetMain->clear();
@@ -84,6 +111,7 @@ DebuggerForm::DebuggerForm(QWidget *parent) :
     scan = new ScanManager(&memStor,this);
     connect(scan,SIGNAL(updateAnswerCnt(int,bool)),this,SLOT(updateCorrErrAnswerCount(int,bool)));
     connect(scan,SIGNAL(addMessage(QString)),this,SLOT(getMessageFromDebugProcess(QString)));
+    connect(scan,SIGNAL(updateTimeStr(QString)),this,SLOT(getTimeStr(QString)));
     ui->lcdNumberCorrect->setDigitCount(8);
     ui->lcdNumberError->setDigitCount(8);
     updateComPortList();
@@ -146,7 +174,13 @@ void DebuggerForm::on_treeWidgetWatch_itemDoubleClicked(QTreeWidgetItem *item, i
     ui->treeWidgetWatch->removeItemWidget(item,5);
     delete item;
 
-    scheduler.removeReadOperation(var);
+    scheduler.removeReadOperation(var); // удаление области памяти переменной из опроса
+    // повторное сканирование переменных на случай их пересечения с удалённым участком
+    QStringList idList = idActiveWidgetItem.keys();
+    foreach (QString varID, idList) {
+       var = varOwner.getVarByID(varID);
+       scheduler.addReadOperation(var);
+    }
     scheduler.schedule();
 }
 void DebuggerForm::on_startButton_clicked()
@@ -229,6 +263,11 @@ void DebuggerForm::getMessageFromDebugProcess(QString message)
 
 }
 
+void DebuggerForm::getTimeStr(QString timeStr)
+{
+    ui->lineEditTime->setText(timeStr);
+}
+
 void DebuggerForm::on_updateButton_clicked()
 {
     idWidgetItem.clear();
@@ -300,6 +339,7 @@ void DebuggerForm::on_pushButtonAutoSearch_clicked()
             QString protocol = "BIN";
             if(plc->getAsciiMode()) protocol = "ASCII";
             ui->comboBoxProtocol->setCurrentText(protocol);
+            ui->lineEditCanal->setText(plc->getCanName());
         }
     }
 }
@@ -308,4 +348,31 @@ void DebuggerForm::on_checkBoxLog_clicked()
 {
     if(ui->checkBoxLog->isChecked()) ui->textBrowserRequests->setVisible(true);
     else ui->textBrowserRequests->setVisible(false);
+}
+
+void DebuggerForm::on_pushButtonTimeWrite_clicked()
+{
+    // Синхронизация времени
+    VarItem var;
+    var.setMemAddress(0);
+    var.setMemType("TIME");
+    var.setDataType("time");
+    QByteArray timeData;
+    QTime curtime = QDateTime::currentDateTime().time();
+    QDate curdate = QDateTime::currentDateTime().date();
+    timeData += curtime.second();
+    timeData += curtime.minute();
+    timeData += curtime.hour();
+    timeData += curdate.dayOfWeek();
+    timeData += curdate.day();
+    timeData += curdate.month();
+    timeData += curdate.year()%100;
+    QString strData;
+    for(int i=0;i<timeData.count();i++) {
+       // приведение данных к формату ПЛК
+       unsigned char tmp = timeData.at(i)%10 + ((timeData.at(i)/10)<<4);
+       strData += QString::number(tmp) + " ";
+    }
+    var.setValue(strData);
+    scheduler.addWriteOperation(var);
 }

@@ -49,6 +49,18 @@ void DetectedController::setBootMode(bool value)
     QMutexLocker locker(&mutex);
     bootMode = value;
 }
+
+QString DetectedController::getCanName()
+{
+    QMutexLocker locker(&mutex);
+    return canName;
+}
+
+void DetectedController::setCanName(const QString &value)
+{
+    QMutexLocker locker(&mutex);
+    canName = value;
+}
 qint32 DetectedController::getBaudrate()
 {
     QMutexLocker locker(&mutex);
@@ -63,7 +75,7 @@ void DetectedController::setBaudrate(const qint32 &value)
 
 DetectedController::DetectedController()
 {
-
+    canName = "";
 }
 
 DetectedController::~DetectedController()

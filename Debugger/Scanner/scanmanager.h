@@ -27,10 +27,12 @@ signals:
     startProcess(void);
     void updateAnswerCnt(int cnt, bool correctAnswer);
     void addMessage(QString message);
+    void updateTimeStr(QString timeStr);
 private slots:
     void updCorrAnswerCnt(int cnt);
     void updErrAnswerCnt(int cnt);
     void getMessage(QString message);
+    void getTimeStr(QString timeStr);
 public slots:
     void startDebugger();
     void stopDebugger();

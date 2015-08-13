@@ -3,6 +3,7 @@
 
 #include <QString>
 #include <QByteArray>
+#include "varitem.h"
 
 class VarBytesValueConverter
 {
@@ -15,6 +16,7 @@ class VarBytesValueConverter
 public:
     VarBytesValueConverter();
     static int getVarSize(const QString &varType);
+    static QByteArray getWrData(VarItem var);
     static QString getValue(const QString &varType, const QByteArray &data);
     ~VarBytesValueConverter();
 };

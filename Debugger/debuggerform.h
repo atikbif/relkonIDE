@@ -31,6 +31,7 @@ class DebuggerForm : public QWidget
     ScanManager* scan;
     RequestScheduler scheduler;
 
+
     void createTree();
     void updateTrees();
     void treeBuilder(const QString& varID, QTreeWidgetItem &item);
@@ -39,6 +40,8 @@ class DebuggerForm : public QWidget
 
 public:
     explicit DebuggerForm(QWidget *parent = 0);
+    void saveView();
+    void openView();
     ~DebuggerForm();
 
 private slots:
@@ -50,11 +53,14 @@ private slots:
     void updateMemory(QStringList ids);
     void updateCorrErrAnswerCount(int cnt, bool correctFlag);
     void getMessageFromDebugProcess(QString message);
+    void getTimeStr(QString timeStr);
     void on_pushButtonCOMUpdate_clicked();
 
     void on_pushButtonAutoSearch_clicked();
 
     void on_checkBoxLog_clicked();
+
+    void on_pushButtonTimeWrite_clicked();
 
 public slots:
     void on_updateButton_clicked();

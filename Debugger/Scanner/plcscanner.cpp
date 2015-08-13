@@ -35,15 +35,26 @@ QString PLCScanner::reqToHexStr(Request &req)
 
 void PLCScanner::startReq(QSerialPort &port)
 {
-    CommandInterface* cmd = new GetCoreVersion();
+    //CommandInterface* cmd = new GetCoreVersion();
+    CommandInterface* cmd = new ReadTime();
     if(cmd!=nullptr) {
         Request req;
         req.setNetAddress(settings.getNetAddress());
+        req.setMemAddress(0);
+        req.setDataNumber(7);
         if(settings.getComSettings().protocol=="ASCII") cmd = new AsciiDecorator(cmd);
         req.setNetAddress(settings.getNetAddress());
         if(cmd->execute(req,port)) {
             emit updateCorrectRequestCnt(++cntCorrect);
             emit addMessage(reqToHexStr(req));
+            int secs = (req.getRdData().at(0) & 0x0F) + 10*(req.getRdData().at(0)>>4);
+            QString secStr = QString::number(secs);if(secStr.size()<2) secStr = "0"+secStr;
+            int mins = (req.getRdData().at(1) & 0x0F) + 10*(req.getRdData().at(1)>>4);
+            QString minStr = QString::number(mins);if(minStr.size()<2) minStr = "0"+minStr;
+            int hours = (req.getRdData().at(2) & 0x0F) + 10*(req.getRdData().at(2)>>4);
+            QString hourStr = QString::number(hours);if(hourStr.size()<2) hourStr = "0"+hourStr;
+            QString plcTime = hourStr + ":" + minStr + ":" + secStr;
+            emit updateTimeStr(plcTime);
         }else
         {
             emit updateErrorRequestCnt(++cntError);

@@ -29,7 +29,16 @@ namespace RkProtocol {
     public:
         WriteFram();
         bool form(Request &req);
+        bool waitAnAnswer(Request &req, QIODevice &io);
         ~WriteFram();
+    };
+
+    class WriteRam: public RkCommand
+    {
+    public:
+        WriteRam();
+        bool form(Request &req);
+        ~WriteRam();
     };
 
     class ReadFram: public RkCommand
@@ -49,6 +58,24 @@ namespace RkProtocol {
         bool form(Request &req);
         bool getAnAnswer(Request &req);
         ~ReadRam();
+    };
+
+    class ReadTime: public RkCommand
+    {
+    public:
+        ReadTime();
+        bool form(Request &req);
+        bool getAnAnswer(Request &req);
+        ~ReadTime();
+    };
+
+    class WriteTime: public RkCommand
+    {
+    public:
+        WriteTime();
+        bool form(Request &req);
+        bool waitAnAnswer(Request &req, QIODevice &io);
+        ~WriteTime();
     };
 
     class ResetController: public RkCommand

@@ -295,7 +295,7 @@
           </sizepolicy>
          </property>
          <property name="title">
-          <string>Время</string>
+          <string>Время ПЛК</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_5">
           <item row="0" column="0">

@@ -259,7 +259,6 @@ bool VarParser::readMapFile()
 // добавление одномерного или многомерного массива
 VarParser::Array *VarParser::addArray(const QVector<int> &dimension, int baseTypeID)
 {
-    Array* ptr = nullptr;
     // поиск базового типа
     int baseSize=0;
     for(int j=0;j<fundTypes.count();j++) {
@@ -277,7 +276,7 @@ VarParser::Array *VarParser::addArray(const QVector<int> &dimension, int baseTyp
     }
     QVector<Array*> resArrays;
     for(int i=0;i<reverseDmension.count();i++) {
-        ptr = new Array();
+        Array* ptr = new Array();
         ptr->setId(idNum++);
         ptr->setCnt(reverseDmension.at(i)); // разрядность массива
         if(i==0) {
@@ -342,6 +341,7 @@ void VarParser::addStruct(const QString &name, const QString &body, const QStrin
            // проверка на указатели
            if(curVarName.at(0)=='*') {
                for(int i=0;i<structFields.count();i++) delete structFields.at(i);
+               delete field;
                return;
            }
            // массивы

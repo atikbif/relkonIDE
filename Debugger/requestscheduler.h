@@ -21,6 +21,8 @@ class RequestScheduler : public QObject
     QMutex mutex;
     QVector<CmdData*> cmdQueue;
     QVector<CmdData*> binQueue; // хранилище для отложенного удаления
+    QVector<CmdData*> wrQueue;  // команды на запись
+    bool removeWr;       // флаг необходимости удалить команду записи из очереди
     int i;  // текущий индекс
     QHash<QString,QBitArray> devMap;
     Q_OBJECT
@@ -30,6 +32,7 @@ class RequestScheduler : public QObject
 
     void clearBin(void);
     CommandInterface* getRdCmdByMemType(const QString &memType);
+    CommandInterface* getWrCmdByMemType(const QString &memType);
     void scanMap(const QString &memType);
 public:
     explicit RequestScheduler(QObject *parent = 0);

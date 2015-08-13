@@ -36,6 +36,7 @@ signals:
     updateCorrectRequestCnt(int cnt);
     updateErrorRequestCnt(int cnt);
     addMessage(QString message);
+    updateTimeStr(QString timeStr);
 public slots:
     void scanProcess(void);
 

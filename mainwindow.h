@@ -68,6 +68,7 @@ private slots:
     void on_tabWidget_currentChanged(int index);
     void openPrevProject(void);
     void prWasChanged(void);
+    void buildWithoutErrors(void);
 
 public slots:
     void addMessageToInfoList(const QString &message);

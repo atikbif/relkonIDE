@@ -35,16 +35,17 @@ int PrBuilder::convertStrNum(int cStrNum)
 
 void PrBuilder::removeBuildFiles(const QString & prPath, const QString &prName)
 {
+    Q_UNUSED(prName)
+    QString binFileName = RCompiler::getBinFileName();
+    QString mapFileName = RCompiler::getMapFileName();
+
     if(!prPath.isEmpty()) {
         QDir dir(prPath + "/build");
         if(!dir.exists()) {
             dir.mkdir(".");
         }
-        QString binFileName = prName;
-        binFileName.remove(".kon");
-        binFileName = dir.path() + "/" + binFileName + ".bin";
         QFile::remove(binFileName);
-        QFile::remove(dir.path() + "/memory.map");
+        QFile::remove(mapFileName);
         QFile::remove(dir.path() + "/build.log");
         QFile::remove(dir.path() + "/fc_u.c");
     }
@@ -135,6 +136,7 @@ void PrBuilder::buildRequest(QString prPath, QString prName)
                             emit printMessage("bin файл сохранён");
                             VarParser parser(RCompiler::getKonFileName());
                             parser.createXML();
+                            emit buildIsOk();
                         }
                         else emit printMessage("Ошибка сохранения BIN файла");
                     }

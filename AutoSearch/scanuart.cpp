@@ -37,6 +37,16 @@ bool ScanUART::scan(QSerialPort &port)
 
                 emit plcHasBeenFound(contr);
                 foundFlag = true;
+
+                // get canal name
+                if(contr->getBootMode()==false) {
+                    CommandInterface* cmdGetName = new GetCanName();
+                    if(contr->getAsciiMode()) cmdGetName = new AsciiDecorator(cmdGetName);
+                    if(cmdGetName->execute(req,port)) {
+                        contr->setCanName(QString(req.getRdData()));
+                    }
+                    delete cmdGetName;
+                }
                 break;
             }
             currentPercent+=stepWidth;

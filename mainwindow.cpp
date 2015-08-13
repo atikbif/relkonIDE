@@ -85,7 +85,10 @@ int MainWindow::openFileByName(const QString &fName)
             settings->setKonFileName(fName);
             settings->openSettings();
         }
+        repaint();
         debugger->on_updateButton_clicked();
+        QThread::msleep(500);
+        on_closeInfoListButton_clicked();
         return 1;
     }
     addMessageToInfoList(QDateTime::currentDateTime().time().toString() + " :error - Ошибка открытия файла");
@@ -122,6 +125,7 @@ void MainWindow::saveFileByName(const QString &fName)
             settings->saveSettings();
         }
         editor->document()->clearUndoRedoStacks();
+        debugger->saveView();
     }
 }
 
@@ -278,6 +282,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(this, SIGNAL(startBuild(QString,QString)), buildProc, SLOT(buildRequest(QString,QString)));
     connect(this,SIGNAL(updateKonFileForBuilder(QStringList)), buildProc, SLOT(setFileText(QStringList)));
     connect(buildProc, SIGNAL(printMessage(QString)), this, SLOT(addMessageToInfoList(QString)));
+    connect(buildProc, SIGNAL(buildIsOk()),this,SLOT(buildWithoutErrors()));
     builderThread.start();
 
     newFile();
@@ -538,4 +543,10 @@ void MainWindow::openPrevProject()
 void MainWindow::prWasChanged()
 {
     prChangedFlag = true;
+}
+
+void MainWindow::buildWithoutErrors()
+{
+    QThread::msleep(1000);
+    on_closeInfoListButton_clicked();
 }
