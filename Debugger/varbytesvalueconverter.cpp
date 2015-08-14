@@ -45,6 +45,13 @@ QString VarBytesValueConverter::getLongValue(const QString &varType, const QByte
     return getIntValue(varType,data);
 }
 
+QString VarBytesValueConverter::getBitValue(const int bitNum, const QByteArray &data)
+{
+    quint8 value = data.at(0);
+    if(value & 1<<bitNum) return QString("1");
+    return QString("0");
+}
+
 bool VarBytesValueConverter::isSigned(const QString &varType)
 {
     if(varType.contains("unsigned")) return false;
@@ -87,13 +94,18 @@ QByteArray VarBytesValueConverter::getWrData(VarItem var)
     return data;
 }
 
-QString VarBytesValueConverter::getValue(const QString &varType, const QByteArray &data)
+QString VarBytesValueConverter::getValue(VarItem &var, const QByteArray &data)
 {
-    if(varType.contains("int")) return getIntValue(varType,data);
-    if(varType.contains("char")) return getCharValue(varType,data);
-    if(varType.contains("short")) return getShortValue(varType,data);
-    if(varType.contains("long long")) return getLongLongValue(varType,data);
-    if(varType.contains("long")) return getLongValue(varType,data);
+    QString vType = var.getDataType();
+    if(vType.contains("int")) return getIntValue(vType,data);
+    if(vType.contains("char")) {
+        if(var.getBitNum()>=0) return getBitValue(var.getBitNum(),data);
+        return getCharValue(vType,data);
+    }
+    if(vType.contains("short")) return getShortValue(vType,data);
+    if(vType.contains("long long")) return getLongLongValue(vType,data);
+    if(vType.contains("long")) return getLongValue(vType,data);
+
     return QString();
 }
 

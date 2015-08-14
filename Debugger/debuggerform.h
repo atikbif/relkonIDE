@@ -42,6 +42,7 @@ public:
     explicit DebuggerForm(QWidget *parent = 0);
     void saveView();
     void openView();
+    void clearView();
     ~DebuggerForm();
 
 private slots:

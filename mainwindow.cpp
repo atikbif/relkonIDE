@@ -85,8 +85,10 @@ int MainWindow::openFileByName(const QString &fName)
             settings->setKonFileName(fName);
             settings->openSettings();
         }
+        editor->document()->clearUndoRedoStacks();
         repaint();
         debugger->on_updateButton_clicked();
+        debugger->openView();
         QThread::msleep(500);
         on_closeInfoListButton_clicked();
         return 1;
@@ -330,8 +332,8 @@ void MainWindow::newFile()
 
     RCompiler::setInpDirName("");
     RCompiler::setInpKonFileName("");
-
     debugger->on_updateButton_clicked();
+    debugger->clearView();
 }
 
 void MainWindow::openFile()
@@ -352,9 +354,9 @@ void MainWindow::openFile()
                                                     tr("Relkon Files (*.kon )"));
     if(fileName.isEmpty()) return;
     openFileByName(fileName);
-    QThread::msleep(1000);
+    //QThread::msleep(1000);
     prChangedFlag = false;
-    editor->document()->clearUndoRedoStacks();
+    //editor->document()->clearUndoRedoStacks();
 }
 
 void MainWindow::saveFile()
@@ -535,7 +537,7 @@ void MainWindow::openPrevProject()
         QString fName = a->text();
         if(saveWarning()==0) return;
         openFileByName(fName);
-        QThread::msleep(1000);
+        //QThread::msleep(1000);
         prChangedFlag = false;
     }
 }

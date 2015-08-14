@@ -19,6 +19,7 @@ CommandInterface *RequestScheduler::getRdCmdByMemType(const QString &memType)
     CommandInterface* ptr = nullptr;
     if(memType=="RAM") ptr = new ReadRam();
     else if(memType=="FRAM") ptr = new ReadFram();
+    else if(memType=="IO") ptr = new ReadIO();
     return ptr;
 }
 
@@ -194,6 +195,16 @@ void RequestScheduler::schedule()
     cmdQueue.clear();
     scanMap("RAM");
     scanMap("FRAM");
+    scanMap("IO");
+}
+
+void RequestScheduler::clear()
+{
+    QMutexLocker locker(&mutex);
+    i=0;
+    binQueue+=cmdQueue;
+    cmdQueue.clear();
+    devMap.clear();
 }
 
 RequestScheduler::~RequestScheduler()

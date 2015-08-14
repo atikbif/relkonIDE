@@ -60,6 +60,15 @@ namespace RkProtocol {
         ~ReadRam();
     };
 
+    class ReadIO: public RkCommand
+    {
+    public:
+        ReadIO();
+        bool form(Request &req);
+        bool getAnAnswer(Request &req);
+        ~ReadIO();
+    };
+
     class ReadTime: public RkCommand
     {
     public:

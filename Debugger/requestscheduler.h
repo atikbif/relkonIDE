@@ -43,6 +43,7 @@ public:
     void removeReadOperation(VarItem v);    // удалить чтение области памяти переменной
     void addWriteOperation(VarItem v);  // запрос на запись переменной
     void schedule();    // сформировать очередь запросов
+    void clear();
     ~RequestScheduler();
 
 signals:

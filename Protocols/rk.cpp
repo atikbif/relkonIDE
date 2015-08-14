@@ -393,3 +393,42 @@ WriteRam::~WriteRam()
 {
 
 }
+
+
+ReadIO::ReadIO()
+{
+
+}
+
+bool ReadIO::form(Request &req)
+{
+    QByteArray reqBody = req.getBody();
+    reqBody.clear();
+    reqBody += req.getNetAddress();
+    reqBody += 0xB0;
+    reqBody += req.getMemAddress() >> 8;
+    reqBody += req.getMemAddress() & 0xFF;
+    reqBody += req.getDataNumber() >>8;
+    reqBody += req.getDataNumber() & 0xFF;
+    int crc = CheckSum::getCRC16(reqBody);
+    reqBody += crc&0xFF;
+    reqBody += (crc>>8)&0xFF;
+    req.getBody() = reqBody;
+    req.insParam("rw","read");
+    req.insParam("mem","IO");
+    return true;
+}
+
+bool ReadIO::getAnAnswer(Request &req)
+{
+    QByteArray answer = req.getRdData();
+    answer.chop(2);
+    answer.remove(0,1);
+    req.updateRdData(answer);
+    return true;
+}
+
+ReadIO::~ReadIO()
+{
+
+}

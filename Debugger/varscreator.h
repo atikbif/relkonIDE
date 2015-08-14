@@ -24,6 +24,11 @@ class VarsCreator : public QObject
     QDomNodeList allData;
 
     void addVarToTree(const QDomElement &e, CompositeVar *var, CompositeVar* parent=0);
+    void createSysVars(CompositeVar* parent);
+    void addDiscrInputs(CompositeVar* parent);
+    void addDiscrOutputs(CompositeVar* parent);
+    void addAnalogInputs(CompositeVar* parent);
+    void addAnalogOutputs(CompositeVar* parent);
 public:
     explicit VarsCreator(QObject *parent = 0);
     void generateVarsTree(void);

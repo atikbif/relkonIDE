@@ -14,6 +14,7 @@
 #include "AutoSearch/scangui.h"
 #include <QMessageBox>
 #include "debuggersettings.h"
+#include <QDomDocument>
 
 
 void DebuggerForm::saveView()
@@ -24,23 +25,88 @@ void DebuggerForm::saveView()
         xmlWriter.setAutoFormatting(true);
         xmlWriter.writeStartDocument();
 
-        xmlWriter.writeStartElement("LAMPS");
+        xmlWriter.writeStartElement("VarView");
 
-        xmlWriter.writeStartElement("LIGHT1");
-        xmlWriter.writeTextElement("State", "statevalue" );
-        xmlWriter.writeTextElement("Room", "roomvalue");
-        xmlWriter.writeTextElement("Potencial", "potencialvalue");
+        QList<QTreeWidgetItem*> actItems = idActiveWidgetItem.values();
+        for(int i=0;i<actItems.count();i++) {
+            QString curId = idActiveWidgetItem.key(actItems.at(i));
+            QString curFullName = actItems.at(i)->toolTip(0);
+                xmlWriter.writeStartElement("var");
+                xmlWriter.writeAttribute("id",curId);
+                xmlWriter.writeAttribute("name",curFullName);
+                QString commentText="";
+                QWidget* widget =  ui->treeWidgetWatch->itemWidget(actItems.at(i),5);
+                QLineEdit* tEdit = dynamic_cast<QLineEdit*>(widget);
+                if(tEdit!=nullptr) commentText = tEdit->text();
+                xmlWriter.writeAttribute("comment",commentText);
+                xmlWriter.writeEndElement();
+        }
 
         xmlWriter.writeEndElement();
-        xmlWriter.writeEndElement();
-
         file.close();
     }
 }
 
 void DebuggerForm::openView()
 {
+    idActiveWidgetItem.clear();
+    ui->treeWidgetWatch->clear();
+    scheduler.clear();
 
+    QDomDocument doc("debug");
+    QString fName = RCompiler::getDebugFileName();
+    QFile file(fName);
+    if (!file.open(QIODevice::ReadOnly)) return;
+    if (!doc.setContent(&file)) {
+        return;
+    }
+
+    QHash<QString,QString> fullNames;
+    foreach (QTreeWidgetItem* item, idWidgetItem.values()) {
+       QString fName = item->toolTip(0);
+       fullNames.insert(fName,idWidgetItem.key(item));
+    }
+
+    QDomNodeList vars = doc.elementsByTagName("var");
+
+    for(int i=0;i<vars.count();i++) {
+        QDomNode n = vars.item(i);
+        QDomElement e = n.toElement();
+        if(!e.isNull()) {
+            QString fullName = e.attribute("name");
+            QString newId = fullNames.value(fullName);
+
+            if(!newId.isEmpty()) {
+                VarItem var = varOwner.getVarByID(newId);
+                QStringList sList;
+                QString varName;
+
+                QStringList fNameList = fullName.split('.');
+                fNameList.removeFirst();fNameList.removeFirst();
+                foreach (QString s, fNameList) {
+                  varName += "." + s;
+                }
+                varName.remove(0,1);
+
+                sList << varName << "" << "" << "0x"+QString::number(var.getMemAddress(),16).toUpper() << var.getDataType();
+                QTreeWidgetItem* newItem = new QTreeWidgetItem(sList);
+                idActiveWidgetItem.insert(newId,newItem);
+                var.setPriority(1);
+                newItem->setToolTip(0,fullName);
+                ui->treeWidgetWatch->addTopLevelItem(newItem);
+                ui->treeWidgetWatch->setItemWidget(newItem,5,new QLineEdit(e.attribute("comment"),ui->treeWidgetWatch));
+                scheduler.addReadOperation(var);
+            }
+        }
+    }
+    scheduler.schedule();
+}
+
+void DebuggerForm::clearView()
+{
+    idActiveWidgetItem.clear();
+    ui->treeWidgetWatch->clear();
+    scheduler.clear();
 }
 
 void DebuggerForm::createTree()
@@ -179,6 +245,7 @@ void DebuggerForm::on_treeWidgetWatch_itemDoubleClicked(QTreeWidgetItem *item, i
     QStringList idList = idActiveWidgetItem.keys();
     foreach (QString varID, idList) {
        var = varOwner.getVarByID(varID);
+       var.setPriority(1);
        scheduler.addReadOperation(var);
     }
     scheduler.schedule();
@@ -231,7 +298,7 @@ void DebuggerForm::updateMemory(QStringList ids)
             if(varSize) {
                 QByteArray data = memStor.getData(var.getMemType(),var.getMemAddress(),varSize);
                 if(data.count()==varSize) {
-                    item->setText(1,VarBytesValueConverter::getValue(var.getDataType(),data));
+                    item->setText(1,VarBytesValueConverter::getValue(var,data));
                     item->setText(2,QDateTime::currentDateTime().time().toString());
                 }
             }
@@ -284,6 +351,7 @@ void DebuggerForm::updateValuesTree()
        QString fName = item->toolTip(0);
        fullNames.insert(fName,idWidgetItem.key(item));
     }
+    scheduler.clear();
     QList<QTreeWidgetItem*> actItems = idActiveWidgetItem.values();
     for(int i=0;i<actItems.count();i++) {
         QString curId = idActiveWidgetItem.key(actItems.at(i));
@@ -297,10 +365,15 @@ void DebuggerForm::updateValuesTree()
                 actItems[i]->setText(3,"0x"+QString::number(var.getMemAddress(),16).toUpper());
                 actItems[i]->setText(4,var.getDataType());
             }
+
         }
     }
-
-
+    foreach (QString id, idActiveWidgetItem.keys()) {
+        VarItem var = varOwner.getVarByID(id);
+        var.setPriority(1);
+        scheduler.addReadOperation(var);
+    }
+    scheduler.schedule();
 }
 
 void DebuggerForm::updateComPortList()

@@ -72,6 +72,189 @@ void VarsCreator::addVarToTree(const QDomElement &e, CompositeVar *var, Composit
     }
 }
 
+void VarsCreator::createSysVars(CompositeVar* parent)
+{
+    addDiscrInputs(parent);
+    addDiscrOutputs(parent);
+    addAnalogInputs(parent);
+    addAnalogOutputs(parent);
+}
+
+void VarsCreator::addDiscrInputs(CompositeVar *parent)
+{
+    CompositeVar* diVar = new CompositeVar();
+    diVar->setName("DI");
+    for(int i=0;i<6;i++) {
+        CompositeVar* var = new CompositeVar();
+        var->setName(((i>=4)?"DIN":"IN")+QString::number(i));
+        for(int j=0;j<8;j++) {
+            CompositeVar* bit = new CompositeVar();
+            bit->setName(QString::number(j));
+            bit->setBitNum(j);
+            bit->setDataType("unsigned char");
+            bit->setMemType("IO");
+            bit->setMemAddress(i);
+            var->addChild(*bit);
+            ids.addVar(bit);
+        }
+        diVar->addChild(*var);
+        ids.addVar(var);
+    }
+
+    CompositeVar* mmbVar = new CompositeVar();
+    mmbVar->setName("MMB");
+    mmbVar->setMemAddress(0);   // для различия с другими узлами MMB
+    for(int i=0;i<32;i++) {
+        CompositeVar* var = new CompositeVar();
+        var->setName("IN"+QString::number(i+4));
+        for(int j=0;j<4;j++) {
+            CompositeVar* bit = new CompositeVar();
+            bit->setName(QString::number(j));
+            bit->setBitNum(j);
+            bit->setDataType("unsigned char");
+            bit->setMemType("IO");
+            bit->setMemAddress(0x24+i);
+            var->addChild(*bit);
+            ids.addVar(bit);
+        }
+        mmbVar->addChild(*var);
+        ids.addVar(var);
+    }
+    diVar->addChild(*mmbVar);
+    ids.addVar(mmbVar);
+
+    parent->addChild(*diVar);
+    ids.addVar(diVar);
+}
+
+void VarsCreator::addDiscrOutputs(CompositeVar *parent)
+{
+    CompositeVar* doVar = new CompositeVar();
+    doVar->setName("DO");
+    for(int i=0;i<6;i++) {
+        CompositeVar* var = new CompositeVar();
+        var->setName(((i>=4)?"DOUT":"OUT")+QString::number(i));
+        for(int j=0;j<8;j++) {
+            CompositeVar* bit = new CompositeVar();
+            bit->setName(QString::number(j));
+            bit->setBitNum(j);
+            bit->setDataType("unsigned char");
+            bit->setMemType("IO");
+            bit->setMemAddress(0x06+i);
+            var->addChild(*bit);
+            ids.addVar(bit);
+        }
+        doVar->addChild(*var);
+        ids.addVar(var);
+    }
+
+    CompositeVar* mmbVar = new CompositeVar();
+    mmbVar->setName("MMB");
+    mmbVar->setMemAddress(1);   // для различия с другими узлами MMB
+    for(int i=0;i<32;i++) {
+        CompositeVar* var = new CompositeVar();
+        var->setName("OUT"+QString::number(i+4));
+        for(int j=0;j<4;j++) {
+            CompositeVar* bit = new CompositeVar();
+            bit->setName(QString::number(j));
+            bit->setBitNum(j);
+            bit->setDataType("unsigned char");
+            bit->setMemType("IO");
+            bit->setMemAddress(0x44+i);
+            var->addChild(*bit);
+            ids.addVar(bit);
+        }
+        mmbVar->addChild(*var);
+        ids.addVar(var);
+    }
+    doVar->addChild(*mmbVar);
+    ids.addVar(mmbVar);
+
+    parent->addChild(*doVar);
+    ids.addVar(doVar);
+
+}
+
+void VarsCreator::addAnalogInputs(CompositeVar *parent)
+{
+    CompositeVar* aiVar = new CompositeVar();
+    aiVar->setName("AI");
+    for(int i=0;i<8;i++) {
+        CompositeVar* var = new CompositeVar();
+        var->setName("ADC"+QString::number(i+1));
+        var->setDataType("unsigned short");
+        var->setMemType("IO");
+        var->setMemAddress(0x0C+i*2);
+
+        aiVar->addChild(*var);
+        ids.addVar(var);
+    }
+
+    CompositeVar* mmbVar = new CompositeVar();
+    mmbVar->setName("MMB");
+    mmbVar->setMemAddress(2);   // для различия с другими узлами MMB
+    for(int i=0;i<32;i++) {
+        CompositeVar* var = new CompositeVar();
+        var->setName("ADC"+QString::number(9+i*4)+".."+QString::number(12+i*4));
+        for(int j=0;j<4;j++) {
+            CompositeVar* intVar = new CompositeVar();
+            intVar->setName("ADC"+QString::number(9+i*4+j));
+            intVar->setDataType("unsigned short");
+            intVar->setMemType("IO");
+            intVar->setMemAddress(0x64+i*8+j*2);
+            var->addChild(*intVar);
+            ids.addVar(intVar);
+        }
+        mmbVar->addChild(*var);
+        ids.addVar(var);
+    }
+    aiVar->addChild(*mmbVar);
+    ids.addVar(mmbVar);
+
+    parent->addChild(*aiVar);
+    ids.addVar(aiVar);
+}
+
+void VarsCreator::addAnalogOutputs(CompositeVar *parent)
+{
+    CompositeVar* aoVar = new CompositeVar();
+    aoVar->setName("AO");
+    for(int i=0;i<4;i++) {
+        CompositeVar* var = new CompositeVar();
+        var->setName("DAC"+QString::number(i+1));
+        var->setDataType("unsigned short");
+        var->setMemType("IO");
+        var->setMemAddress(0x1C+i*2);
+
+        aoVar->addChild(*var);
+        ids.addVar(var);
+    }
+
+    CompositeVar* mmbVar = new CompositeVar();
+    mmbVar->setName("MMB");
+    mmbVar->setMemAddress(3);   // для различия с другими узлами MMB
+    for(int i=0;i<32;i++) {
+        CompositeVar* var = new CompositeVar();
+        var->setName("DAC"+QString::number(5+i*2)+"_"+QString::number(6+i*2));
+        for(int j=0;j<2;j++) {
+            CompositeVar* intVar = new CompositeVar();
+            intVar->setName("DAC"+QString::number(5+i*2+j));
+            intVar->setDataType("unsigned short");
+            intVar->setMemType("IO");
+            intVar->setMemAddress(0x164+i*4+j*2);
+            var->addChild(*intVar);
+            ids.addVar(intVar);
+        }
+        mmbVar->addChild(*var);
+        ids.addVar(var);
+    }
+    aoVar->addChild(*mmbVar);
+    ids.addVar(mmbVar);
+
+    parent->addChild(*aoVar);
+    ids.addVar(aoVar);
+}
+
 VarsCreator::VarsCreator(QObject *parent) : QObject(parent)
 {
     iter = nullptr;
@@ -130,6 +313,8 @@ void VarsCreator::generateVarsTree()
             addVarToTree(e,var,userVars);
         }
     }
+    createSysVars(sysVars);
+
 
     /*
     CompositeVar* var1 = new CompositeVar();
