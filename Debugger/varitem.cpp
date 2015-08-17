@@ -3,6 +3,16 @@
 
 const QStringList VarItem::dataTypes = {"bit","char", "short", "int", "long", "long long", "float", "double"};
 
+
+bool VarItem::getReadOnly() const
+{
+    return readOnly;
+}
+
+void VarItem::setReadOnly(bool value)
+{
+    readOnly = value;
+}
 QByteArray VarItem::getBytesForIntegral(int varSize)
 {
     qint64 tmp = value.toLongLong();
@@ -27,6 +37,7 @@ void VarItem::updateID()
 VarItem::VarItem()
 {
     bitNum = -1;
+    readOnly = false;
 }
 
 VarItem::~VarItem()

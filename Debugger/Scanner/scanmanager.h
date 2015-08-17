@@ -20,6 +20,7 @@ public:
     explicit ScanManager(MemStorage* memStor, QObject *parent = 0);
     void setScheduler(RequestScheduler* scheduler);
     void setDebSettings(const DebuggerSettings &newSettings);
+    bool isWorking(void) {return scanner->isWorking();}
 
     ~ScanManager();
 

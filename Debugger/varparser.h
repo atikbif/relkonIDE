@@ -26,6 +26,7 @@ class VarParser
 
 
 
+
     class FundamentalType {
         int id;
         QString name;
@@ -128,6 +129,7 @@ class VarParser
 public:
     explicit VarParser(const QString &fName);
     bool createXML(void);
+    static bool readSitNum(QVector<int> &addr, QVector<int> &prNum);
     ~VarParser();
 };
 

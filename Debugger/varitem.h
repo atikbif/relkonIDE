@@ -21,6 +21,7 @@ class VarItem
     int quality;        // качество связи
     volatile int bitNum;         // номер бита
     QString id;
+    bool readOnly;  // только для чтения
 
     static const QStringList dataTypes;
     enum {BIT,CHAR,SHORT,INT,LONG,LONG_LONG,FLOAT,DOUBLE};
@@ -46,6 +47,8 @@ public:
     void setPriority(int value) {priority = value;}
     int getPriority(void) const {return priority;}
     virtual ~VarItem();
+    bool getReadOnly() const;
+    void setReadOnly(bool value);
 };
 
 #endif // VARITEM_H

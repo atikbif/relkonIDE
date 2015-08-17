@@ -3,6 +3,7 @@
 #include <RCompiler/rcompiler.h>
 #include <QDomDocument>
 #include <QFile>
+#include "varparser.h"
 
 void VarsCreator::addVarToTree(const QDomElement &e, CompositeVar *var, CompositeVar *parent)
 {
@@ -78,6 +79,9 @@ void VarsCreator::createSysVars(CompositeVar* parent)
     addDiscrOutputs(parent);
     addAnalogInputs(parent);
     addAnalogOutputs(parent);
+    addFactorySettings(parent);
+    addDispVar(parent);
+    addSituationNum(parent);
 }
 
 void VarsCreator::addDiscrInputs(CompositeVar *parent)
@@ -255,6 +259,137 @@ void VarsCreator::addAnalogOutputs(CompositeVar *parent)
     ids.addVar(aoVar);
 }
 
+void VarsCreator::addFactorySettings(CompositeVar *parent)
+{
+    CompositeVar* fsVar = new CompositeVar();
+    fsVar->setName("Settings");
+
+    CompositeVar* charVar = new CompositeVar();
+    charVar->setName("char");
+    charVar->setMemAddress(0);   // для различия с другими узлами char
+    for(int i=0;i<1024;i++) {
+        CompositeVar* var = new CompositeVar();
+        var->setName("EE"+QString::number(i));
+        var->setDataType("unsigned char");
+        var->setMemAddress(0x7B00 + i);
+        var->setMemType("FRAM");
+        charVar->addChild(*var);
+        ids.addVar(var);
+    }
+    fsVar->addChild(*charVar);
+    ids.addVar(charVar);
+
+    CompositeVar* shortVar = new CompositeVar();
+    shortVar->setName("short");
+    shortVar->setMemAddress(0);   // для различия с другими узлами short
+    for(int i=0;i<512;i++) {
+        CompositeVar* var = new CompositeVar();
+        var->setName("EE"+QString::number(i*2)+"i");
+        var->setDataType("unsigned short");
+        var->setMemAddress(0x7B00 + i*2);
+        var->setMemType("FRAM");
+        shortVar->addChild(*var);
+        ids.addVar(var);
+    }
+    fsVar->addChild(*shortVar);
+    ids.addVar(shortVar);
+
+    CompositeVar* longVar = new CompositeVar();
+    longVar->setName("long");
+    longVar->setMemAddress(0);   // для различия с другими узлами long
+    for(int i=0;i<256;i++) {
+        CompositeVar* var = new CompositeVar();
+        var->setName("EE"+QString::number(i*4)+"l");
+        var->setDataType("unsigned long");
+        var->setMemAddress(0x7B00 + i*4);
+        var->setMemType("FRAM");
+        longVar->addChild(*var);
+        ids.addVar(var);
+    }
+    fsVar->addChild(*longVar);
+    ids.addVar(longVar);
+
+    parent->addChild(*fsVar);
+    ids.addVar(fsVar);
+}
+
+void VarsCreator::addDispVar(CompositeVar *parent)
+{
+    CompositeVar* dispVar = new CompositeVar();
+    dispVar->setName("Disp");
+
+    CompositeVar* charVar = new CompositeVar();
+    charVar->setName("char");
+    charVar->setMemAddress(1);   // для различия с другими узлами char
+    for(int i=0;i<256;i++) {
+        CompositeVar* var = new CompositeVar();
+        var->setName("MEM"+QString::number(i));
+        var->setDataType("unsigned char");
+        var->setMemAddress(i);
+        var->setMemType("USER");
+        charVar->addChild(*var);
+        ids.addVar(var);
+    }
+    dispVar->addChild(*charVar);
+    ids.addVar(charVar);
+
+    CompositeVar* shortVar = new CompositeVar();
+    shortVar->setName("short");
+    shortVar->setMemAddress(1);   // для различия с другими узлами short
+    for(int i=0;i<128;i++) {
+        CompositeVar* var = new CompositeVar();
+        var->setName("MEM"+QString::number(i*2)+"i");
+        var->setDataType("unsigned short");
+        var->setMemAddress(i*2);
+        var->setMemType("USER");
+        shortVar->addChild(*var);
+        ids.addVar(var);
+    }
+    dispVar->addChild(*shortVar);
+    ids.addVar(shortVar);
+
+    CompositeVar* longVar = new CompositeVar();
+    longVar->setName("long");
+    longVar->setMemAddress(1);   // для различия с другими узлами long
+    for(int i=0;i<64;i++) {
+        CompositeVar* var = new CompositeVar();
+        var->setName("MEM"+QString::number(i*4)+"l");
+        var->setDataType("unsigned long");
+        var->setMemAddress(i*4);
+        var->setMemType("USER");
+        longVar->addChild(*var);
+        ids.addVar(var);
+    }
+    dispVar->addChild(*longVar);
+    ids.addVar(longVar);
+
+    parent->addChild(*dispVar);
+    ids.addVar(dispVar);
+}
+
+void VarsCreator::addSituationNum(CompositeVar *parent)
+{
+    QVector<int> memAddr;
+    QVector<int> prNum;
+    int offset = 4;
+    if(VarParser::readSitNum(memAddr,prNum)) {
+        CompositeVar* sitVar = new CompositeVar();
+        sitVar->setName("SIT");
+            for(int i=0;i<memAddr.count();i++) {
+                CompositeVar* var = new CompositeVar();
+                var->setName("Proc"+QString::number(prNum.at(i)));
+                var->setDataType("unsigned int");
+                var->setMemAddress(memAddr.at(i)+offset);
+                var->setMemType("RAM");
+                var->setReadOnly(true);
+                sitVar->addChild(*var);
+                ids.addVar(var);
+            }
+        parent->addChild(*sitVar);
+        ids.addVar(sitVar);
+    }
+}
+
 VarsCreator::VarsCreator(QObject *parent) : QObject(parent)
 {
     iter = nullptr;
@@ -314,85 +449,6 @@ void VarsCreator::generateVarsTree()
         }
     }
     createSysVars(sysVars);
-
-
-    /*
-    CompositeVar* var1 = new CompositeVar();
-    CompositeVar* var2 = new CompositeVar();
-    CompositeVar* var3 = new CompositeVar();
-    var1->setName("a");var1->setDataType("unsigned int");
-    var2->setName("b");var2->setDataType("float");
-    var3->setName("c");var3->setDataType("char");
-    var1->setMemType("RAM");var1->setMemAddress(0);
-    var2->setMemType("RAM");var2->setMemAddress(4);
-    var3->setMemType("RAM");var3->setMemAddress(8);
-    userVars->addChild(*var1);
-    userVars->addChild(*var2);
-    userVars->addChild(*var3);
-    mainVar->addChild(*sysVars);
-    mainVar->addChild(*userVars);
-
-    ids.addVar(mainVar);
-    ids.addVar(sysVars);
-    ids.addVar(userVars);
-    ids.addVar(var1);
-    ids.addVar(var2);
-    ids.addVar(var3);
-
-    CompositeVar* inoutVars = new CompositeVar();
-    inoutVars->setName("входы_выходы");
-    ids.addVar(inoutVars);
-    sysVars->addChild(*inoutVars);
-    CompositeVar* in0 = new CompositeVar();
-    in0->setName("IN0");
-    ids.addVar(in0);
-    CompositeVar* in1 = new CompositeVar();
-    in1->setName("IN1");
-    ids.addVar(in1);
-    inoutVars->addChild(*in1);
-    inoutVars->addChild(*in0);
-    for(int i=0;i<8;i++) {
-        CompositeVar* ptr1 = new CompositeVar();
-        ptr1->setName("bit"+QString::number(i));
-        ptr1->setDataType("bit");
-        ptr1->setMemType("io");ptr1->setMemAddress(0);ptr1->setBitNum(i);
-        in0->addChild(*ptr1);
-        ids.addVar(ptr1);
-        CompositeVar* ptr2 = new CompositeVar();
-        ptr2->setName("bit"+QString::number(i));
-        ptr2->setDataType("bit");
-        ptr2->setMemType("io");ptr2->setMemAddress(1);ptr2->setBitNum(i);
-        in1->addChild(*ptr2);
-        ids.addVar(ptr2);
-    }
-    CompositeVar* out0 = new CompositeVar();
-    out0->setName("OUT0");ids.addVar(out0);inoutVars->addChild(*out0);
-    CompositeVar* out1 = new CompositeVar();
-    out1->setName("OUT1");ids.addVar(out1);inoutVars->addChild(*out1);
-    CompositeVar* out2 = new CompositeVar();
-    out2->setName("OUT2");ids.addVar(out2);inoutVars->addChild(*out2);
-
-
-
-    for(int i=0;i<8;i++) {
-        CompositeVar* ptr1 = new CompositeVar();
-        ptr1->setName("bit"+QString::number(i));
-        ptr1->setDataType("bit");
-        ptr1->setMemType("io");ptr1->setMemAddress(2);ptr1->setBitNum(i);
-        out0->addChild(*ptr1);ids.addVar(ptr1);
-        CompositeVar* ptr2 = new CompositeVar();
-        ptr2->setName("bit"+QString::number(i));
-        ptr2->setDataType("bit");
-        ptr2->setMemType("io");ptr2->setMemAddress(3);ptr2->setBitNum(i);
-        out1->addChild(*ptr2);ids.addVar(ptr2);
-        CompositeVar* ptr3 = new CompositeVar();
-        ptr3->setName("bit"+QString::number(i));
-        ptr3->setDataType("bit");
-        ptr3->setMemType("io");ptr3->setMemAddress(4);ptr3->setBitNum(i);
-        out2->addChild(*ptr3);ids.addVar(ptr3);
-
-
-    }*/
 }
 
 QStringList VarsCreator::getIDList()
@@ -416,11 +472,10 @@ VarItem VarsCreator::getVarByID(QString idValue)
 bool VarsCreator::updateVarByID(QString idValue, VarItem &var)
 {
     CompositeVar cVar;
-    if(ids.getVarByID(idValue,cVar)){
-        cVar.setValue(var.getValue());
-        return true;
-    }
-    return false;
+    ids.getVarByID(idValue,cVar);
+    cVar.setValue(var.getValue());
+    ids.setVarByID(idValue,cVar);
+    return true;
 }
 
 

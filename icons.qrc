@@ -10,5 +10,6 @@
         <file>new_32.ico</file>
         <file>R.ico</file>
         <file>toPLC_32.ico</file>
+        <file>write_32.ico</file>
     </qresource>
 </RCC>

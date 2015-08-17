@@ -432,3 +432,106 @@ ReadIO::~ReadIO()
 {
 
 }
+
+
+ReadDispRam::ReadDispRam()
+{
+
+}
+
+bool ReadDispRam::form(Request &req)
+{
+    QByteArray reqBody = req.getBody();
+    reqBody.clear();
+    reqBody += req.getNetAddress();
+    reqBody += 0xD0;
+    reqBody += req.getMemAddress() & 0xFF;
+    reqBody += req.getDataNumber() & 0xFF;
+    int crc = CheckSum::getCRC16(reqBody);
+    reqBody += crc&0xFF;
+    reqBody += (crc>>8)&0xFF;
+    req.getBody() = reqBody;
+    req.insParam("rw","read");
+    req.insParam("mem","USER");
+    return true;
+}
+
+bool ReadDispRam::getAnAnswer(Request &req)
+{
+    QByteArray answer = req.getRdData();
+    answer.chop(2);
+    answer.remove(0,1);
+    req.updateRdData(answer);
+    return true;
+}
+
+ReadDispRam::~ReadDispRam()
+{
+
+}
+
+
+WriteDispRam::WriteDispRam()
+{
+
+}
+
+bool WriteDispRam::form(Request &req)
+{
+    QByteArray reqBody = req.getBody();
+    reqBody.clear();
+    reqBody += req.getNetAddress();
+    reqBody += 0xE0;
+    reqBody += req.getMemAddress() & 0xFF;
+    reqBody += req.getDataNumber() & 0xFF;
+    for(int i=0;i<req.getDataNumber();i++) {
+        if(i<req.getWrData().count()) reqBody += req.getWrData().at(i);
+        else reqBody+='\0';
+    }
+    int crc = CheckSum::getCRC16(reqBody);
+    reqBody += crc&0xFF;
+    reqBody += (crc>>8)&0xFF;
+    req.getBody() = reqBody;
+    req.insParam("rw","write");
+    req.insParam("mem","USER");
+    return true;
+}
+
+WriteDispRam::~WriteDispRam()
+{
+
+}
+
+
+WriteIO::WriteIO()
+{
+
+}
+
+bool WriteIO::form(Request &req)
+{
+    QByteArray reqBody = req.getBody();
+    reqBody.clear();
+    reqBody += req.getNetAddress();
+    reqBody += 0xB1;
+    reqBody += req.getMemAddress() >> 8;
+    reqBody += req.getMemAddress() & 0xFF;
+    reqBody += req.getDataNumber() >>8;
+    reqBody += req.getDataNumber() & 0xFF;
+    for(int i=0;i<req.getDataNumber();i++) {
+        if(i<req.getWrData().count()) reqBody += req.getWrData().at(i);
+        else reqBody+='\0';
+    }
+    int crc = CheckSum::getCRC16(reqBody);
+    reqBody += crc&0xFF;
+    reqBody += (crc>>8)&0xFF;
+    req.getBody() = reqBody;
+    req.insParam("rw","write");
+    req.insParam("mem","IO");
+    return true;
+}
+
+WriteIO::~WriteIO()
+{
+
+}

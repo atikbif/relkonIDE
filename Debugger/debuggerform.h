@@ -31,6 +31,8 @@ class DebuggerForm : public QWidget
     ScanManager* scan;
     RequestScheduler scheduler;
 
+    VarItem wrVar;      // переменная для записи
+
 
     void createTree();
     void updateTrees();
@@ -62,6 +64,9 @@ private slots:
     void on_checkBoxLog_clicked();
 
     void on_pushButtonTimeWrite_clicked();
+
+    void on_treeWidgetWatch_customContextMenuRequested(const QPoint &pos);
+    void writeVar();
 
 public slots:
     void on_updateButton_clicked();

@@ -75,7 +75,8 @@ SOURCES += main.cpp\
     Debugger/varbytesvalueconverter.cpp \
     Debugger/varparser.cpp \
     Debugger/requestscheduler.cpp \
-    Debugger/debuggersettings.cpp
+    Debugger/debuggersettings.cpp \
+    Debugger/dialogwritevar.cpp
 
 HEADERS  += mainwindow.h \
     codeeditor.h \
@@ -136,14 +137,16 @@ HEADERS  += mainwindow.h \
     Debugger/varbytesvalueconverter.h \
     Debugger/varparser.h \
     Debugger/requestscheduler.h \
-    Debugger/debuggersettings.h
+    Debugger/debuggersettings.h \
+    Debugger/dialogwritevar.h
 
 FORMS    += mainwindow.ui \
     settingsform.ui \
     AutoSearch/scangui.ui \
     Loader/ymodemthread.ui \
     Loader/sysframreadwrite.ui \
-    Debugger/debuggerform.ui
+    Debugger/debuggerform.ui \
+    Debugger/dialogwritevar.ui
 
 RESOURCES += \
     icons.qrc

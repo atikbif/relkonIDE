@@ -1,5 +1,29 @@
 #include "varbytesvalueconverter.h"
 
+QString VarBytesValueConverter::getFloatValue(const QString &varType, const QByteArray &data)
+{
+    Q_UNUSED(varType)
+    float f;
+    if (data.count() >= (int)sizeof(f))
+    {
+      f = *reinterpret_cast<const float*>(data.data());
+      return QString::number(f);
+    }
+    return QString();
+}
+
+QString VarBytesValueConverter::getDoubleValue(const QString &varType, const QByteArray &data)
+{
+    Q_UNUSED(varType)
+    double d;
+    if (data.count() >= (int)sizeof(d))
+    {
+      d = *reinterpret_cast<const double*>(data.data());
+      return QString::number(d);
+    }
+    return QString();
+}
+
 QString VarBytesValueConverter::getIntValue(const QString &varType, const QByteArray &data)
 {
     quint32 value = 0;
@@ -80,8 +104,42 @@ int VarBytesValueConverter::getVarSize(const QString &varType)
 QByteArray VarBytesValueConverter::getWrData(VarItem var)
 {
     QByteArray data;
-    if(var.getDataType()=="unsigned char") {
+    if(var.getDataType().contains("char")) {
         data+=(unsigned char)(var.getValue().toInt());
+    }else if(var.getDataType().contains("short")) {
+        int value = var.getValue().toInt();
+        data += value & 0xFF;
+        data += (value>>8) &0xFF;
+    }else if(var.getDataType().contains("int")) {
+        int value = var.getValue().toInt();
+        data += value & 0xFF;
+        data += (value>>8) &0xFF;
+        data += (value>>16) &0xFF;
+        data += (value>>24) &0xFF;
+    }else if(var.getDataType().contains("long long")) {
+            quint64 value = var.getValue().toLongLong();
+            data += value & 0xFF;
+            data += (value>>8) &0xFF;
+            data += (value>>16) &0xFF;
+            data += (value>>24) &0xFF;
+            data += (value>>32) &0xFF;
+            data += (value>>40) &0xFF;
+            data += (value>>48) &0xFF;
+            data += (value>>56) &0xFF;
+    }else if(var.getDataType().contains("long")) {
+        quint32 value = var.getValue().toLong();
+        data += value & 0xFF;
+        data += (value>>8) &0xFF;
+        data += (value>>16) &0xFF;
+        data += (value>>24) &0xFF;
+    }else if(var.getDataType()=="float") {
+        float f = var.getValue().toFloat();
+        QByteArray ba(reinterpret_cast<const char *>(&f), sizeof (f));
+        data += ba;
+    }else if(var.getDataType()=="double") {
+        double d = var.getValue().toDouble();
+        QByteArray ba(reinterpret_cast<const char *>(&d), sizeof (d));
+        data += ba;
     }else if(var.getDataType()=="time") {
         QStringList inpData = var.getValue().split(" ");
         foreach (QString timeCell, inpData) {
@@ -105,6 +163,8 @@ QString VarBytesValueConverter::getValue(VarItem &var, const QByteArray &data)
     if(vType.contains("short")) return getShortValue(vType,data);
     if(vType.contains("long long")) return getLongLongValue(vType,data);
     if(vType.contains("long")) return getLongValue(vType,data);
+    if(vType.contains("float")) return getFloatValue(vType,data);
+    if(vType.contains("double")) return getDoubleValue(vType,data);
 
     return QString();
 }

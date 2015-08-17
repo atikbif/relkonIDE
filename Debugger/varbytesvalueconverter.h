@@ -7,6 +7,8 @@
 
 class VarBytesValueConverter
 {
+    static QString getFloatValue(const QString &varType, const QByteArray &data);
+    static QString getDoubleValue(const QString &varType, const QByteArray &data);
     static QString getIntValue(const QString &varType, const QByteArray &data);
     static QString getCharValue(const QString &varType, const QByteArray &data);
     static QString getShortValue(const QString &varType, const QByteArray &data);

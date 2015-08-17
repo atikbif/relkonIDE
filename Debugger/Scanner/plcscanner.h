@@ -31,6 +31,7 @@ public:
     void finishProcess(void);
     void setScheduler(RequestScheduler* ptr);
     void updSettings(const DebuggerSettings &newSettings) {settings=newSettings;}
+    bool isWorking(void) {return startCmd;}
 signals:
     updateBlock(QString memType, int addr, QByteArray data);
     updateCorrectRequestCnt(int cnt);

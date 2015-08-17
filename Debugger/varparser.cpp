@@ -534,6 +534,37 @@ bool VarParser::createXML()
     return buildXML();
 }
 
+bool VarParser::readSitNum(QVector<int> &addr, QVector<int> &prNum)
+{
+    QString fName = RCompiler::getMapFileName();
+    QFile file(fName);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+            return false;
+    QTextStream in(&file);
+
+    while (!in.atEnd()) {
+       QString line = in.readLine();
+       if(line.contains("OBJECT")) {
+           QStringList fields = line.split(QRegExp("[\\s\\t]+"));
+           fields.removeFirst();
+           if(fields.count()==8) {
+               bool convRes = false;
+               int varAddress = fields[1].toInt(&convRes,16);
+               if(convRes) {
+                   QString vName = fields.last();
+                   QRegExp pNumExpr("_Sys4x_p(\\d+)");
+                   if(pNumExpr.indexIn(vName)!=-1) {
+                       prNum += pNumExpr.cap(1).toInt();
+                       addr += varAddress - 0x20000000;
+                   }
+               }
+           }
+       }
+    }
+    file.close();
+    return true;
+}
+
 VarParser::~VarParser()
 {
     for(int i=0;i<fundTypes.count();i++) {
@@ -571,8 +602,6 @@ void VarParser::FundamentalType::setSize(int value)
 {
     size = value;
 }
-
-
 
 int VarParser::Variable::getId() const
 {

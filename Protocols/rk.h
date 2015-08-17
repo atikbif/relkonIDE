@@ -41,6 +41,22 @@ namespace RkProtocol {
         ~WriteRam();
     };
 
+    class WriteDispRam: public RkCommand
+    {
+    public:
+        WriteDispRam();
+        bool form(Request &req);
+        ~WriteDispRam();
+    };
+
+    class WriteIO: public RkCommand
+    {
+    public:
+        WriteIO();
+        bool form(Request &req);
+        ~WriteIO();
+    };
+
     class ReadFram: public RkCommand
     {
     public:
@@ -58,6 +74,15 @@ namespace RkProtocol {
         bool form(Request &req);
         bool getAnAnswer(Request &req);
         ~ReadRam();
+    };
+
+    class ReadDispRam: public RkCommand
+    {
+    public:
+        ReadDispRam();
+        bool form(Request &req);
+        bool getAnAnswer(Request &req);
+        ~ReadDispRam();
     };
 
     class ReadIO: public RkCommand

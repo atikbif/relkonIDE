@@ -29,6 +29,9 @@ class VarsCreator : public QObject
     void addDiscrOutputs(CompositeVar* parent);
     void addAnalogInputs(CompositeVar* parent);
     void addAnalogOutputs(CompositeVar* parent);
+    void addFactorySettings(CompositeVar* parent);
+    void addDispVar(CompositeVar* parent);
+    void addSituationNum(CompositeVar* parent);
 public:
     explicit VarsCreator(QObject *parent = 0);
     void generateVarsTree(void);

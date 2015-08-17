@@ -15,6 +15,7 @@
 #include <QMessageBox>
 #include "debuggersettings.h"
 #include <QDomDocument>
+#include "dialogwritevar.h"
 
 
 void DebuggerForm::saveView()
@@ -181,6 +182,7 @@ DebuggerForm::DebuggerForm(QWidget *parent) :
     ui->lcdNumberCorrect->setDigitCount(8);
     ui->lcdNumberError->setDigitCount(8);
     updateComPortList();
+    ui->treeWidgetWatch->setContextMenuPolicy(Qt::CustomContextMenu);
 }
 
 DebuggerForm::~DebuggerForm()
@@ -298,6 +300,12 @@ void DebuggerForm::updateMemory(QStringList ids)
             if(varSize) {
                 QByteArray data = memStor.getData(var.getMemType(),var.getMemAddress(),varSize);
                 if(data.count()==varSize) {
+                    QString value="";
+                    for(int i=0;i<varSize;i++) {
+                        value+=QString::number((quint8)(data.at(i)))+":";
+                    }
+                    var.setValue(value);
+                    varOwner.updateVarByID(id,var);
                     item->setText(1,VarBytesValueConverter::getValue(var,data));
                     item->setText(2,QDateTime::currentDateTime().time().toString());
                 }
@@ -448,4 +456,56 @@ void DebuggerForm::on_pushButtonTimeWrite_clicked()
     }
     var.setValue(strData);
     scheduler.addWriteOperation(var);
+}
+
+void DebuggerForm::on_treeWidgetWatch_customContextMenuRequested(const QPoint &pos)
+{
+    QTreeWidgetItem* item =  ui->treeWidgetWatch->itemAt(pos);
+    if((item)&&(scan->isWorking())) {
+        QString id = idActiveWidgetItem.key(item);
+        if(!id.isEmpty()) {
+            VarItem var = varOwner.getVarByID(id);
+            if(var.getReadOnly()==false) {
+                wrVar = var;
+                QMenu *menu=new QMenu(this);
+                if(var.getBitNum()>=0) {
+                    menu->addAction(QIcon("://write_32.ico"),"Переключить",this,SLOT(writeVar()));
+                }else {
+                    wrVar.setValue(item->text(1));
+                    menu->addAction(QIcon("://write_32.ico"),"Изменить",this,SLOT(writeVar()));
+                }
+                menu->popup(ui->treeWidgetWatch->viewport()->mapToGlobal(pos));
+            }
+        }
+
+
+    }
+
+}
+
+void DebuggerForm::writeVar()
+{
+    // запись переменной
+    if(wrVar.getBitNum()>=0) {
+        QStringList values = wrVar.getValue().split(":");
+        if(values.count()) {
+            quint8 byteValue = values.at(0).toInt();
+            byteValue = byteValue ^ (1<<wrVar.getBitNum());
+            wrVar.setValue(QString::number(byteValue));
+            scheduler.addWriteOperation(wrVar);
+        }
+    }else {
+
+        DialogWriteVar* dialog = new DialogWriteVar(wrVar.getValue(),this);
+        dialog->setVar(wrVar);
+        int ret = dialog->exec();
+        if(ret==QDialog::Accepted) {
+            if(dialog->checkResult()) {
+                wrVar.setValue(dialog->getResult());
+                scheduler.addWriteOperation(wrVar);
+            }
+            else QMessageBox::warning(this,"Изменение переменной","Некорректное значение");
+        }
+        delete dialog;
+    }
 }
