@@ -11,5 +11,7 @@
         <file>R.ico</file>
         <file>toPLC_32.ico</file>
         <file>write_32.ico</file>
+        <file>green_32.ico</file>
+        <file>red_32.ico</file>
     </qresource>
 </RCC>

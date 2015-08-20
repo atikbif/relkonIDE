@@ -60,8 +60,11 @@ QString VarBytesValueConverter::getShortValue(const QString &varType, const QByt
 QString VarBytesValueConverter::getLongLongValue(const QString &varType, const QByteArray &data)
 {
     Q_UNUSED(varType)
-    Q_UNUSED(data)
-    return QString();
+    quint64 value = 0;
+    for(int i=0;i<8;i++) {
+        value |= (quint64)((quint8)data.at(i)) << (8*i);
+    }
+    return QString::number(qlonglong(value));
 }
 
 QString VarBytesValueConverter::getLongValue(const QString &varType, const QByteArray &data)

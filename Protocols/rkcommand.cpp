@@ -17,10 +17,10 @@ bool RkCommand::waitAnAnswer(Request &req, QIODevice &io)
     static const int maxCnt = 500; // ограничение ожидания ответа при длительном входящем потоке данных
     if(io.isOpen()){
         QByteArray answer;
-        if(io.waitForReadyRead(50)){
+        if(io.waitForReadyRead(100)){
             int cnt=0;
             answer+=io.readAll();
-            while(io.waitForReadyRead(5)) {
+            while(io.waitForReadyRead(10)) {
                 answer+=io.readAll();
                 cnt++;if(cnt>=maxCnt) break;
             }

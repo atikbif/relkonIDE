@@ -28,7 +28,7 @@ class RequestScheduler : public QObject
     Q_OBJECT
 
     static const int maxHole = 10;
-    static const int maxLength = 100;
+    static const int maxLength = 64;
 
     void clearBin(void);
     CommandInterface* getRdCmdByMemType(const QString &memType);

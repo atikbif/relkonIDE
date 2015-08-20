@@ -39,6 +39,15 @@
       <property name="currentIndex">
        <number>0</number>
       </property>
+      <property name="elideMode">
+       <enum>Qt::ElideNone</enum>
+      </property>
+      <property name="documentMode">
+       <bool>false</bool>
+      </property>
+      <property name="movable">
+       <bool>false</bool>
+      </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
         <string>Tab 1</string>
@@ -125,8 +134,16 @@
    </property>
    <widget class="QMenu" name="menu">
     <property name="title">
-     <string>Последние проекты</string>
+     <string>Файл</string>
     </property>
+    <widget class="QMenu" name="menuNew">
+     <property name="title">
+      <string>new</string>
+     </property>
+     <addaction name="action1"/>
+     <addaction name="action2"/>
+    </widget>
+    <addaction name="menuNew"/>
    </widget>
    <addaction name="menu"/>
   </widget>
@@ -139,6 +156,41 @@
    </attribute>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
+  <action name="actionNew">
+   <property name="text">
+    <string>Новый</string>
+   </property>
+  </action>
+  <action name="actionOpen">
+   <property name="text">
+    <string>Открыть</string>
+   </property>
+  </action>
+  <action name="actionSave">
+   <property name="text">
+    <string>Сохранить</string>
+   </property>
+  </action>
+  <action name="actionSaveAs">
+   <property name="text">
+    <string>Сохранить как</string>
+   </property>
+  </action>
+  <action name="actionRecently">
+   <property name="text">
+    <string>Недавние проекты</string>
+   </property>
+  </action>
+  <action name="action1">
+   <property name="text">
+    <string>1</string>
+   </property>
+  </action>
+  <action name="action2">
+   <property name="text">
+    <string>2</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources>

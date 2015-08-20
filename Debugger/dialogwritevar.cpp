@@ -24,7 +24,7 @@ bool DialogWriteVar::checkResult()
     // проверка корректности введённого текста
     if(longRes==true) {
         if(var.getDataType()=="char") {
-            qint8 res = (qint8)longRes;
+            qint8 res = (qint8)lValue;
             ui->lineEdit->setText(QString::number(res));
             return true;
         }

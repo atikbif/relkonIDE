@@ -13,6 +13,8 @@
 #include "memstorage.h"
 #include "Scanner/scanmanager.h"
 #include "requestscheduler.h"
+#include "bitio.h"
+#include "anio.h"
 
 namespace Ui {
 class DebuggerForm;
@@ -27,6 +29,9 @@ class DebuggerForm : public QWidget
     NameSortIterator* iter;
     QHash<QString,QTreeWidgetItem*> idWidgetItem;   // переменные в основном GUI дереве
     QHash<QString,QTreeWidgetItem*> idActiveWidgetItem; // опрашиваемые переменные
+    QMultiHash<int,BitIO*> ioHash;
+    QMultiHash<int,AnIO*> anIoHash;
+    QHash<QString,QLineEdit*> ioComments;
     MemStorage memStor;
     ScanManager* scan;
     RequestScheduler scheduler;
@@ -39,6 +44,7 @@ class DebuggerForm : public QWidget
     void treeBuilder(const QString& varID, QTreeWidgetItem &item);
     void updateValuesTree(void);
     void updateComPortList(void);
+    void buildIO(void);
 
 public:
     explicit DebuggerForm(QWidget *parent = 0);
@@ -67,6 +73,10 @@ private slots:
 
     void on_treeWidgetWatch_customContextMenuRequested(const QPoint &pos);
     void writeVar();
+    void inOutClicked();
+    void anInOutClicked();
+
+    void on_tabWidget_currentChanged(int index);
 
 public slots:
     void on_updateButton_clicked();

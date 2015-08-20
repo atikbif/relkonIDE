@@ -95,7 +95,7 @@ bool WriteFram::waitAnAnswer(Request &req, QIODevice &io)
         if(io.waitForReadyRead(200)){
             int cnt=0;
             answer+=io.readAll();
-            while(io.waitForReadyRead(5)) {
+            while(io.waitForReadyRead(10)) {
                 answer+=io.readAll();
                 cnt++;if(cnt>=maxCnt) break;
             }
@@ -214,7 +214,7 @@ bool ReadFram::waitAnAnswer(Request &req, QIODevice &io)
         if(io.waitForReadyRead(200)){
             int cnt=0;
             answer+=io.readAll();
-            while(io.waitForReadyRead(5)) {
+            while(io.waitForReadyRead(10)) {
                 answer+=io.readAll();
                 cnt++;if(cnt>=maxCnt) break;
             }
@@ -344,7 +344,7 @@ bool WriteTime::waitAnAnswer(Request &req, QIODevice &io)
         if(io.waitForReadyRead(200)){
             int cnt=0;
             answer+=io.readAll();
-            while(io.waitForReadyRead(5)) {
+            while(io.waitForReadyRead(10)) {
                 answer+=io.readAll();
                 cnt++;if(cnt>=maxCnt) break;
             }

@@ -76,7 +76,9 @@ SOURCES += main.cpp\
     Debugger/varparser.cpp \
     Debugger/requestscheduler.cpp \
     Debugger/debuggersettings.cpp \
-    Debugger/dialogwritevar.cpp
+    Debugger/dialogwritevar.cpp \
+    bitio.cpp \
+    Debugger/anio.cpp
 
 HEADERS  += mainwindow.h \
     codeeditor.h \
@@ -138,7 +140,9 @@ HEADERS  += mainwindow.h \
     Debugger/varparser.h \
     Debugger/requestscheduler.h \
     Debugger/debuggersettings.h \
-    Debugger/dialogwritevar.h
+    Debugger/dialogwritevar.h \
+    bitio.h \
+    Debugger/anio.h
 
 FORMS    += mainwindow.ui \
     settingsform.ui \

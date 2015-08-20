@@ -8,6 +8,7 @@
 #include "AutoSearch/detectedcontroller.h"
 #include <QMessageBox>
 #include "Loader/sysframreadwrite.h"
+#include "RCompiler/rcompiler.h"
 
 void SettingsForm::printFactorySettings()
 {
@@ -263,29 +264,30 @@ void SettingsForm::saveSettings()
 {
     QByteArray data;
     writeToBin(data);
-    QString fName = konFileName;
+    QString fName = RCompiler::getKonFileName();//konFileName;
     if(fName.isEmpty()) return;
-    fName.remove(QRegExp(".kon"));
+    fName.remove(QRegExp("\\.kon"));
     fName += ".sfr";
-    QFile file(fName);
-    if(file.open(QIODevice::WriteOnly)) {
+    QFile* sFile = new QFile(fName);
+    if(sFile->open(QIODevice::WriteOnly)) {
         unsigned int vers = 0x01;
-        QDataStream stream(&file);
+        QDataStream stream(sFile);
         stream.setVersion(QDataStream::Qt_5_4);
         stream << codeWord;
         stream << vers;
         stream << progAddr;
         stream << data;
-        file.close();
+        sFile->close();
     }
+    delete sFile;
 }
 
 void SettingsForm::openSettings()
 {
     QByteArray data;
-    QString fName = konFileName;
+    QString fName = RCompiler::getKonFileName();//konFileName;
     if(fName.isEmpty()) return;
-    fName.remove(QRegExp(".kon"));
+    fName.remove(QRegExp("\\.kon"));
     fName += ".sfr";
     QFile file(fName);
     if(file.open(QIODevice::ReadOnly)) {

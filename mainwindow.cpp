@@ -42,15 +42,22 @@ void MainWindow::updatePrevProjects(const QStringList &prNames)
     settings.setValue("/Settings/PrevProjects",prNames);
     QStringList resList = getPrevProjects();
     ui->menu->clear();
+
+    ui->menu->addAction(newAct);
+    ui->menu->addAction(openAct);
+    ui->menu->addAction(saveAct);
+    ui->menu->addAction(saveAsAct);
+    QMenu* recPr = new QMenu("Недавние проекты");
+    ui->menu->addMenu(recPr);
     foreach(QString name, resList) {
-        ui->menu->addAction(name,this,SLOT(openPrevProject()));
+        //ui->menu->addAction(name,this,SLOT(openPrevProject()));
+        recPr->addAction(name,this,SLOT(openPrevProject()));
     }
 }
 
 int MainWindow::openFileByName(const QString &fName)
 {
     activateInfoPanel();
-
     addMessageToInfoList(QDateTime::currentDateTime().time().toString() + " :Открытие файла " + fName);
 
     QFile file(fName);
@@ -116,7 +123,6 @@ void MainWindow::saveFileByName(const QString &fName)
             out << editor->document()->findBlockByNumber(i).text();
             out << "\r\n";
         }
-
         file.close();
         setWindowTitle(wTitle + " - " + fName);
         RCompiler::setInpDirName(fInfo.dir().path());
@@ -126,7 +132,6 @@ void MainWindow::saveFileByName(const QString &fName)
             settings->setKonFileName(fName);
             settings->saveSettings();
         }
-        editor->document()->clearUndoRedoStacks();
         debugger->saveView();
     }
 }
@@ -185,14 +190,15 @@ MainWindow::MainWindow(QWidget *parent) :
     Highlighter* highlighter = new Highlighter(editor->document());
     Q_UNUSED(highlighter);
 
-    QAction* newAct = new QAction(QIcon("://new_32.ico"), "Создать новый файл", this);
-    QAction* openAct = new QAction(QIcon("://open_32.ico"), "Открыть существующий файл", this);
-    QAction* saveAct = new QAction(QIcon("://save_32.ico"), "Сохранить текущий файл", this);
+    newAct = new QAction(QIcon("://new_32.ico"), "Новый проект", this);
+    openAct = new QAction(QIcon("://open_32.ico"), "Открыть", this);
+    saveAct = new QAction(QIcon("://save_32.ico"), "Сохранить", this);
+    saveAsAct = new QAction(QIcon("://save_32.ico"), "Сохранить как", this);
     undoAct = new QAction(QIcon("://undo_32.ico"), "Отменить операцию", this);
     redoAct = new QAction(QIcon("://redo_32.ico"), "Повторить отменённую операцию", this);
     srchAct = new QAction(QIcon("://srch_32.ico"), "Искать текст", this);
     buildAct = new QAction(QIcon("://build_32.ico"), "Собрать проект", this);
-    QAction* toPlcAct = new QAction(QIcon("://toPLC_32.ico"), "Загрузить проект в контроллер", this);
+    toPlcAct = new QAction(QIcon("://toPLC_32.ico"), "Загрузить проект в контроллер", this);
 
     connect(newAct, SIGNAL(triggered()), this, SLOT(newFile()));
     connect(openAct, SIGNAL(triggered()), this, SLOT(openFile()));
@@ -202,6 +208,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(srchAct, SIGNAL(triggered()), this, SLOT(searchText()));
     connect(buildAct, SIGNAL(triggered()), this, SLOT(buildPr()));
     connect(toPlcAct, SIGNAL(triggered()), this, SLOT(projectToPlc()));
+    connect(saveAsAct,SIGNAL(triggered()), this, SLOT(saveAsFile()));
 
     ui->mainToolBar->addAction(newAct);
     ui->mainToolBar->addAction(openAct);
@@ -275,6 +282,12 @@ MainWindow::MainWindow(QWidget *parent) :
     debugger = new DebuggerForm();
     ui->tabWidget->addTab(debugger,"Отладчик");
 
+    /*ui->mdiArea->addSubWindow(editor);
+    ui->mdiArea->addSubWindow(debugger);
+    ui->mdiArea->addSubWindow(settings);
+    ui->mdiArea->tileSubWindows();//setViewMode(QMdiArea::TabbedView);
+    */
+
 
     setWindowState(Qt::WindowMaximized);
 
@@ -308,30 +321,39 @@ void MainWindow::newFile()
 
     editor->clear();
     editor->appendPlainText("#DATA //-----Присвоение переменных программы.");
-    editor->appendPlainText("   ");
+    editor->appendPlainText("    ");
     editor->appendPlainText("#INIT //-----Инициализация данных.");
-    editor->appendPlainText("   ");
+    editor->appendPlainText("    ");
     editor->appendPlainText("#STARTp0;");
-    editor->appendPlainText("   ");
+    editor->appendPlainText("    ");
     editor->appendPlainText("//-----Начало программы.");
     editor->appendPlainText("#PROCESS 0");
     editor->appendPlainText("#SIT1(0.1)");
-    editor->appendPlainText("   ");
+    editor->appendPlainText("    ");
     editor->appendPlainText("#/R;");
-    setWindowTitle(wTitle + " - несохранённый проект");
+
+    // - путь по умолчанию
+    QDir dir(QApplication::applicationDirPath()+"/newProject");
+    if(!dir.exists()) {
+        dir.mkdir(".");
+    }
+    saveFileByName(dir.absolutePath()+"/project.kon");
+    //
+
+    /*setWindowTitle(wTitle + " - несохранённый проект");
 
     prDirPath = "";
     prFileName = "";
-    QThread::msleep(1000);
+    QThread::msleep(1000);*/
     prChangedFlag = false;
     if(settings!=nullptr) {
-        settings->setKonFileName("");
+        //settings->setKonFileName("");
         settings->clearSettings();
     }
     editor->document()->clearUndoRedoStacks();
 
-    RCompiler::setInpDirName("");
-    RCompiler::setInpKonFileName("");
+    //RCompiler::setInpDirName("");
+    //RCompiler::setInpKonFileName("");
     debugger->on_updateButton_clicked();
     debugger->clearView();
 }
@@ -388,6 +410,23 @@ void MainWindow::saveFile()
         backName=fInfo.dir().path() + "/back/" +backName+".kon";
         QFile::copy(fileName,backName);
     }
+    saveFileByName(fileName);
+}
+
+void MainWindow::saveAsFile()
+{
+    QStringList prevProjects = getPrevProjects();
+    QString path = "/";
+    if(prevProjects.count()) {
+        if(QFile::exists(prevProjects.at(0))) {
+            QFileInfo fInfo(prevProjects.at(0));
+            path = fInfo.absolutePath();
+        }
+    }
+    QString fileName;
+    fileName = QFileDialog::getSaveFileName(this, tr("Save File"),
+                                                    path,
+                                                    tr("Relkon Files (*.kon )"));
     saveFileByName(fileName);
 }
 

@@ -3,7 +3,7 @@
 
 MemStorage::MemStorage(QObject *parent) : QObject(parent)
 {
-    MemBlock* io = new MemBlock("IO",256);
+    MemBlock* io = new MemBlock("IO",484);
     MemBlock* ram = new MemBlock("RAM",64*1024);
     MemBlock* fram = new MemBlock("FRAM",32*1024);
     MemBlock* dispRam = new MemBlock("USER",256);

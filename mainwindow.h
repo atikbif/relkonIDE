@@ -51,11 +51,17 @@ private:
     QAction* redoAct;
     QAction* srchAct;
     QAction* buildAct;
+    QAction* toPlcAct;
+    QAction* newAct;
+    QAction* openAct;
+    QAction* saveAct;
+    QAction* saveAsAct;
 
 private slots:
     void newFile(void);
     void openFile(void);
     void saveFile(void);
+    void saveAsFile(void);
     void undo(void);
     void redo(void);
     void searchText(void);
