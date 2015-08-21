@@ -18,7 +18,7 @@ void NameSortIterator::createCash(const QString &varID)
                 foreach (QString id, childrenIDs) {
                     CompositeVar child;
                     if(ids.getVarByID(id,child)) {
-                        vars.insertMulti(child.getName(),id);
+                        vars.insert(child.getName(),id);
                     }
                 }
                 QStringList varNames = vars.keys();
@@ -62,16 +62,6 @@ bool NameSortIterator::next()
     if(testCashState()==false) return false;
     if(posIncash+1<cash.count()) {
         posIncash++;
-        return true;
-    }
-    return false;
-}
-
-bool NameSortIterator::previous()
-{
-    if(testCashState()==false) return false;
-    if(posIncash>0) {
-        posIncash--;
         return true;
     }
     return false;
@@ -129,17 +119,6 @@ bool NameSortIterator::topFirst()
     return true;
 }
 
-bool NameSortIterator::hasParent()
-{
-    if(testCashState()==false) return false;
-    CompositeVar var;
-    if(ids.getVarByID(cash.at(0),var)){
-        QString id = var.getParentID();
-        if(id>0) return true;
-    }
-    return false;
-}
-
 bool NameSortIterator::goToID(const QString &id)
 {
     CompositeVar var;
@@ -148,16 +127,6 @@ bool NameSortIterator::goToID(const QString &id)
         return testCashState();
     }
     return false;
-}
-
-QString NameSortIterator::getParentID()
-{
-    if(testCashState()==false) return QString();
-    CompositeVar var;
-    if(ids.getVarByID(cash.at(0),var)){
-        return var.getParentID();
-    }
-    return 0;
 }
 
 QString NameSortIterator::currentID()

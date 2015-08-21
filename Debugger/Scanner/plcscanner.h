@@ -1,7 +1,8 @@
 #ifndef PLCSCANNER_H
 #define PLCSCANNER_H
 
-// опрос контроллеров в режиме отладчика
+//----------Класс, выполняющий опрос контроллера в режиме отладчика
+//----------работает в отдельном потоке
 
 #include <QObject>
 #include <QMutex>
@@ -15,14 +16,15 @@ class PLCScanner : public QObject
 {
     Q_OBJECT
     QMutex mutex;
-    bool stopCmd;
-    bool startCmd;
-    bool finishCmd;
-    RequestScheduler* scheduler;
-    DebuggerSettings settings;
-    int cntCorrect,cntError;
-    QString reqToHexStr(Request &req);
-    void startReq(QSerialPort &port);
+    bool stopCmd;       // команда на приостановку опроса
+    bool startCmd;      // команда на запуск опроса
+    bool finishCmd;     // команда на завершение работы потока
+    RequestScheduler* scheduler;        // планировщик запросов
+    DebuggerSettings settings;          // настройки канала связи отладчика (UDP,COM)
+    int cntCorrect,cntError;            // счётчики успешных и ошибочных запросов
+    QString reqToHexStr(Request &req);  // преобразование запроса и ответа в текст для отображения в логе
+    void startReq(QSerialPort &port);   // системные запросы, не зависящие от планировщика (время ПЛК)
+    static const int sysReqPeriod = 10; // периодичность включения системных запросов
 public:
     explicit PLCScanner(QObject *parent = 0);
     ~PLCScanner();
@@ -33,13 +35,13 @@ public:
     void updSettings(const DebuggerSettings &newSettings) {settings=newSettings;}
     bool isWorking(void) {return startCmd;}
 signals:
-    updateBlock(QString memType, int addr, QByteArray data);
+    updateBlock(QString memType, int addr, QByteArray data);    // обновление блока памяти
     updateCorrectRequestCnt(int cnt);
     updateErrorRequestCnt(int cnt);
-    addMessage(QString message);
-    updateTimeStr(QString timeStr);
+    addMessage(QString message);    // добавить сообщение в лог
+    updateTimeStr(QString timeStr); // обновить текущее время ПЛК
 public slots:
-    void scanProcess(void);
+    void scanProcess(void); // рабочий процесс
 
 };
 

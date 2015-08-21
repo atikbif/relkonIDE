@@ -1,6 +1,8 @@
 #ifndef MEMSTORAGE_H
 #define MEMSTORAGE_H
 
+// хранилище всех типов памяти
+
 #include <QObject>
 #include <QVector>
 #include <QByteArray>
@@ -13,6 +15,14 @@ class MemStorage : public QObject
     QVector<MemBlock*> blocks;
     QMutex mutex;
 public:
+    static const int ioMemSize = 484;
+    static const int ramMemSize = 64*1024;
+    static const int framMemSize = 32*1024;
+    static const int userMemSize = 256;
+    static const QString ioMemName;
+    static const QString ramMemName;
+    static const QString framMemName;
+    static const QString userMemName;
     explicit MemStorage(QObject *parent = 0);
     QByteArray getData(const QString &memType, int addr, int count);
     bool connectCellToID(const QString &memType, int addr, const QString &id);

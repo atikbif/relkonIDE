@@ -367,7 +367,6 @@ void DebuggerForm::updateMemory(QStringList ids)
                         QByteArray data = memStor.getData(var.getMemType(),var.getMemAddress(),2);
                         quint16 value = (quint8)data[1];
                         value = (value<<8) | ((quint8)data[0]);
-                        ptr->setValue(value);
                         QString txtValue = QString::number(value);
                         if(ptr->getName().contains("ADC")) txtValue+=":"+QString::number(value>>8);
                         ptr->getLcdNum()->setText(txtValue);
@@ -633,7 +632,6 @@ void DebuggerForm::buildIO()
         aDef->setComment(comment);
         aDef->setLcdNum(number);
         aDef->setSlider(slider);
-        aDef->setValue(0);
         anIoHash.insert(aDef->getAddress(),aDef);
         ioComments.insert(aDef->getName(),comment);
     }
@@ -667,7 +665,6 @@ void DebuggerForm::buildIO()
         aDef->setComment(comment);
         aDef->setLcdNum(number);
         aDef->setSlider(slider);
-        aDef->setValue(0);
         anIoHash.insert(aDef->getAddress(),aDef);
         ioComments.insert(aDef->getName(),comment);
     }
@@ -703,7 +700,6 @@ void DebuggerForm::buildIO()
         aDef->setComment(comment);
         aDef->setLcdNum(number);
         aDef->setSlider(slider);
-        aDef->setValue(0);
         anIoHash.insert(aDef->getAddress(),aDef);
         ioComments.insert(aDef->getName(),comment);
     }
@@ -737,7 +733,6 @@ void DebuggerForm::buildIO()
         aDef->setComment(comment);
         aDef->setLcdNum(number);
         aDef->setSlider(slider);
-        aDef->setValue(0);
         anIoHash.insert(aDef->getAddress(),aDef);
         ioComments.insert(aDef->getName(),comment);
     }

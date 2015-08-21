@@ -13,6 +13,7 @@ public:
     bool waitAnAnswer(Request &req, QIODevice &io);
     bool checkAnAnswer(Request& req);
     bool getAnAnswer(Request& req);
+    CommandInterface* clone(void) {return new CommandDecorator(cmd);}
     ~CommandDecorator();
 private:
     CommandInterface* cmd;

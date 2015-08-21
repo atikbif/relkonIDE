@@ -1,5 +1,4 @@
 #include "varitem.h"
-#include "idgenerator.h"
 
 const QStringList VarItem::dataTypes = {"bit","char", "short", "int", "long", "long long", "float", "double"};
 
@@ -31,7 +30,7 @@ void VarItem::updateByte(int offsetValue, quint8 dataValue, QByteArray &varBytes
 void VarItem::updateID()
 {
     QString str = name+memType+dataType+QString::number(memAddress)+QString::number(bitNum);
-    id = IdGenerator::getID(str);
+    id = str;
 }
 
 VarItem::VarItem()

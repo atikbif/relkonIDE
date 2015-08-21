@@ -10,18 +10,15 @@ class Iterator
 {
 public:
     Iterator();
-    virtual bool next() = 0;
-    virtual bool previous() = 0;
-    virtual bool first() = 0;
-    virtual bool hasParent() = 0;
-    virtual bool isNode() = 0;
-    virtual bool up() = 0;
-    virtual bool down() = 0;
-    virtual bool topFirst() = 0;
-    virtual QString currentID() = 0;
-    virtual QString getParentID() = 0;
-    virtual bool goToID(const QString& id) = 0;
-    virtual int getItemCount() = 0;
+    virtual bool next() = 0;    // перейти к следующему элементу
+    virtual bool first() = 0;   // перейти к первому элементу в узле
+    virtual bool isNode() = 0;  // имеет ли дочерние элементы
+    virtual bool up() = 0;      // перейти к родителю
+    virtual bool down() = 0;    // перейти к потомку
+    virtual bool topFirst() = 0;    // перейти на вершину дерева
+    virtual QString currentID() = 0;    // идентификатор текущего элемента
+    virtual bool goToID(const QString& id) = 0; // перейти к указанному элементу
+    virtual int getItemCount() = 0; // количество элементов в текущем уровне
 
     virtual ~Iterator();
 };

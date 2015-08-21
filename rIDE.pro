@@ -64,7 +64,6 @@ SOURCES += main.cpp\
     Debugger/iterator.cpp \
     Debugger/namesortiterator.cpp \
     Debugger/debuggerform.cpp \
-    Debugger/idgenerator.cpp \
     Debugger/idstorage.cpp \
     Debugger/varscreator.cpp \
     Debugger/memblock.cpp \
@@ -128,7 +127,6 @@ HEADERS  += mainwindow.h \
     Debugger/iterator.h \
     Debugger/namesortiterator.h \
     Debugger/debuggerform.h \
-    Debugger/idgenerator.h \
     Debugger/idstorage.h \
     Debugger/varscreator.h \
     Debugger/memblock.h \

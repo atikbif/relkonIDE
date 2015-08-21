@@ -1,8 +1,6 @@
 #include "plcscanner.h"
 #include <QThread>
-#include "AutoSearch/detectedcontroller.h"
 #include "Protocols/asciidecorator.h"
-#include <QMessageBox>
 #include <QDateTime>
 #include "Protocols/rk.h"
 
@@ -10,10 +8,12 @@ using namespace RkProtocol;
 
 QString PLCScanner::reqToHexStr(Request &req)
 {
+    // текущее время с миллисекундами
     QString message = QDateTime::currentDateTime().time().toString()+":";
     QString msStr = QString::number(QDateTime::currentMSecsSinceEpoch()%1000);
     while(msStr.size()<3) msStr = "0" + msStr;
     message+=msStr;
+    // запрос и ответ
     message+=" [TX:] ";
     QByteArray body = req.getBody();
     QString str;
@@ -35,7 +35,7 @@ QString PLCScanner::reqToHexStr(Request &req)
 
 void PLCScanner::startReq(QSerialPort &port)
 {
-    //CommandInterface* cmd = new GetCoreVersion();
+    // чтение времени
     CommandInterface* cmd = new ReadTime();
     if(cmd!=nullptr) {
         Request req;
@@ -46,7 +46,6 @@ void PLCScanner::startReq(QSerialPort &port)
         req.setNetAddress(settings.getNetAddress());
         if(cmd->execute(req,port)) {
             emit updateCorrectRequestCnt(++cntCorrect);
-            emit addMessage(reqToHexStr(req));
             int secs = (req.getRdData().at(0) & 0x0F) + 10*(req.getRdData().at(0)>>4);
             QString secStr = QString::number(secs);if(secStr.size()<2) secStr = "0"+secStr;
             int mins = (req.getRdData().at(1) & 0x0F) + 10*(req.getRdData().at(1)>>4);
@@ -58,8 +57,8 @@ void PLCScanner::startReq(QSerialPort &port)
         }else
         {
             emit updateErrorRequestCnt(++cntError);
-            emit addMessage(reqToHexStr(req));
         }
+        emit addMessage(reqToHexStr(req));
     }
     delete cmd;
 }
@@ -81,27 +80,42 @@ PLCScanner::~PLCScanner()
 
 void PLCScanner::scanProcess()
 {
-    //DetectedController* plc = &DetectedController::Instance();
-    int cmdCnt=0;
+    int cmdCnt=0;   // счётчик для периодического включения системных запросов
     QSerialPort port;
     forever{
         mutex.lock();
-        if(finishCmd) {port.close();startCmd=false;stopCmd=false;finishCmd=false;mutex.unlock();break;}
+        if(finishCmd) { // завершение процесса
+            port.close();
+            startCmd=false;
+            stopCmd=false;
+            finishCmd=false;
+            mutex.unlock();
+            break;
+        }
         if(startCmd) {
+            // открытие порта если он закрыт
             if(!port.isOpen()) {
                 port.setPortName(settings.getComSettings().portName);
                 port.setBaudRate(settings.getComSettings().baudrate);
                 if(!port.open(QSerialPort::ReadWrite)) {
+                    // ошибка открытия порта
                     emit addMessage(QDateTime::currentDateTime().time().toString() + ": невозможно открыть порт " + port.portName());
                     QThread::msleep(1000);
                 }
                 cmdCnt=0;
             }
-            if(stopCmd) {port.close();stopCmd=false;startCmd=false;mutex.unlock();}
+            if(stopCmd) {   // приостановить опрос
+                port.close();
+                stopCmd=false;
+                startCmd=false;
+                mutex.unlock();
+            }
             else {
+                // опрос контроллера
                 mutex.unlock();
                 QThread::msleep(1);
                 if((scheduler!=nullptr)&&(port.isOpen())) {
+                    // получение команды и запроса от планировщика
                     CommandInterface* cmd = scheduler->getCmd();
                     if(cmd!=nullptr) {
                         Request req = scheduler->getReq();
@@ -109,23 +123,20 @@ void PLCScanner::scanProcess()
                         req.setNetAddress(settings.getNetAddress());
                         if(cmd->execute(req,port)) {
                             emit updateCorrectRequestCnt(++cntCorrect);
+                            // обновление памяти по результатам чтения
                             if(req.hasKey("mem") && req.hasKey("rw") && req.getParam("rw")=="read") {
                                 emit updateBlock(req.getParam("mem"),req.getMemAddress(),req.getRdData());
                             }
-                            emit addMessage(reqToHexStr(req));
-                        }else
-                        {
-                            emit updateErrorRequestCnt(++cntError);
-                            emit addMessage(reqToHexStr(req));
-                        }
+                        }else emit updateErrorRequestCnt(++cntError);
+                        // вывод сообщения в лог
+                        emit addMessage(reqToHexStr(req));
                     }
+                    // переместить планировщик на следущие команду и запрос
                     scheduler->moveToNext();
-                    if(cmdCnt==0) {
-                        startReq(port);
-                    }
-                    cmdCnt++;
-                    if(cmdCnt>=10) cmdCnt=0;
-                    //delete cmd;
+                    // периодический вызов системных команд
+                    if(cmdCnt==0) startReq(port);
+                    cmdCnt++;if(cmdCnt>=sysReqPeriod) cmdCnt=0;
+                    delete cmd;
                 }
             }
         }else mutex.unlock();

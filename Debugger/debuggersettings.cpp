@@ -12,7 +12,7 @@ void DebuggerSettings::setNetAddress(int value)
 }
 DebuggerSettings::DebuggerSettings()
 {
-    udpSettings.portNum = 12144;
+    udpSettings.portNum = defaultUDPPortNum;
 }
 
 DebuggerSettings::~DebuggerSettings()

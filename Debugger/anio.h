@@ -1,20 +1,19 @@
 #ifndef ANIO_H
 #define ANIO_H
 
+// класс описания аналогового входа/выхода
+
 #include <QString>
-#include <QLCDNumber>
 #include <QLineEdit>
 #include <QSlider>
 
 class AnIO
 {
-    QString name;
-    int address;
-    //QLCDNumber *lcdNum;
-    QLineEdit *lcdNum;
-    QLineEdit *comment;
-    QSlider *slider;
-    int value;
+    QString name;   // имя входа
+    int address;    // адрес в памяти
+    QLineEdit *lcdNum;  // указатель на виджет с отображаемым значением
+    QLineEdit *comment; // указатель на виджет с комментарием
+    QSlider *slider;    // указатель на виджет для изменения знчения
 
 public:
     AnIO();
@@ -29,8 +28,6 @@ public:
     void setComment(QLineEdit *value);
     QSlider *getSlider() const;
     void setSlider(QSlider *value);
-    int getValue() const;
-    void setValue(int value);
 };
 
 #endif // ANIO_H

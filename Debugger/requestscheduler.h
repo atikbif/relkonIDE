@@ -1,6 +1,8 @@
 #ifndef REQUESTSCHEDULER_H
 #define REQUESTSCHEDULER_H
 
+// планировщик запросов
+
 #include <QObject>
 #include "Protocols/rkcommand.h"
 #include "Protocols/request.h"
@@ -19,18 +21,18 @@ struct CmdData{
 class RequestScheduler : public QObject
 {
     QMutex mutex;
-    QVector<CmdData*> cmdQueue;
+    QVector<CmdData*> cmdQueue; // основная очередь команд
     QVector<CmdData*> binQueue; // хранилище для отложенного удаления
     QVector<CmdData*> wrQueue;  // команды на запись
     bool removeWr;       // флаг необходимости удалить команду записи из очереди
     int i;  // текущий индекс
-    QHash<QString,QBitArray> devMap;
+    QHash<QString,QBitArray> devMap;    // тип памяти - битовые поля (1 - опраш./0 - не опраш.)
     Q_OBJECT
 
     static const int maxHole = 10;
     static const int maxLength = 64;
 
-    void clearBin(void);
+    void clearBin(void);    // очистить хранилище для отложенного удаления
     CommandInterface* getRdCmdByMemType(const QString &memType);
     CommandInterface* getWrCmdByMemType(const QString &memType);
     void scanMap(const QString &memType);

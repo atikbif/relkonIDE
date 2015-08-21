@@ -13,14 +13,14 @@ class MemBlock
     QMultiHash<int,QString> addrID;  // соответствие адреса ячейки и идентификаторов переменных
     QByteArray data;
 public:
-    MemBlock(const QString &typeOfMem, int count);
+    MemBlock(const QString &typeOfMem, int count);  // count - размер массива
     quint8 getCell(int address) const;
     bool updateCell(int address, quint8 value);
     const QString& getMemType() const {return memType;}
     QStringList getID(int addr);
     bool addID(int addr, const QString& id);
     int getSize() const {return data.count();}
-    void clearIDs(void) {addrID.clear();}
+    void clearIDs(void) {addrID.clear();}   // сбросить привязки ячеек к идентификаторам
     ~MemBlock();
 };
 

@@ -1,6 +1,8 @@
 #ifndef DIALOGWRITEVAR_H
 #define DIALOGWRITEVAR_H
 
+// Диалог для ввода значения переменной при записи
+
 #include <QDialog>
 #include "varitem.h"
 
@@ -11,13 +13,12 @@ class DialogWriteVar;
 class DialogWriteVar : public QDialog
 {
     Q_OBJECT
-
-    VarItem var;
+    VarItem var;    // для определения типа редактируемой переменной
 public:
     explicit DialogWriteVar(QString startValue,QWidget *parent = 0);
-    QString getResult(void);
-    bool checkResult(void);
-    void setVar(VarItem inpVar) {var=inpVar;}
+    QString getResult(void);    // введённое значение
+    bool checkResult(void);     // проверка введённого значения на корректность
+    void setVar(const VarItem &inpVar) {var=inpVar;}    // задать тип переменной
     ~DialogWriteVar();
 
 private:

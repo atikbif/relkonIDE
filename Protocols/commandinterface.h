@@ -17,6 +17,7 @@ public:
     virtual bool checkAnAnswer(Request& req)=0; // проверка ответа
     virtual bool getAnAnswer(Request& req)=0;   // формирование буфера ответа
     virtual bool execute(Request& req, QIODevice& io);
+    virtual CommandInterface* clone(void)=0;
 public:
     virtual ~CommandInterface();
 };

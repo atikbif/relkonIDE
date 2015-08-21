@@ -10,6 +10,7 @@ namespace RkProtocol {
         int netAddress;
     public:
         GetCoreVersion();
+        CommandInterface* clone(void) {return new GetCoreVersion();}
         bool form(Request &req);
         bool getAnAnswer(Request &req);
         int getNetAddress(void) const {return netAddress;}
@@ -20,6 +21,7 @@ namespace RkProtocol {
     {
     public:
         GetCpu();
+        CommandInterface* clone(void) {return new GetCpu();}
         bool form(Request &req);
         ~GetCpu();
     };
@@ -28,6 +30,7 @@ namespace RkProtocol {
     {
     public:
         WriteFram();
+        CommandInterface* clone(void) {return new WriteFram();}
         bool form(Request &req);
         bool waitAnAnswer(Request &req, QIODevice &io);
         ~WriteFram();
@@ -37,6 +40,7 @@ namespace RkProtocol {
     {
     public:
         WriteRam();
+        CommandInterface* clone(void) {return new WriteRam();}
         bool form(Request &req);
         ~WriteRam();
     };
@@ -45,6 +49,7 @@ namespace RkProtocol {
     {
     public:
         WriteDispRam();
+        CommandInterface* clone(void) {return new WriteDispRam();}
         bool form(Request &req);
         ~WriteDispRam();
     };
@@ -53,6 +58,7 @@ namespace RkProtocol {
     {
     public:
         WriteIO();
+        CommandInterface* clone(void) {return new WriteIO();}
         bool form(Request &req);
         ~WriteIO();
     };
@@ -61,6 +67,7 @@ namespace RkProtocol {
     {
     public:
         ReadFram();
+        CommandInterface* clone(void) {return new ReadFram();}
         bool form(Request &req);
         bool getAnAnswer(Request &req);
         bool waitAnAnswer(Request &req, QIODevice &io);
@@ -71,6 +78,7 @@ namespace RkProtocol {
     {
     public:
         ReadRam();
+        CommandInterface* clone(void) {return new ReadRam();}
         bool form(Request &req);
         bool getAnAnswer(Request &req);
         ~ReadRam();
@@ -80,6 +88,7 @@ namespace RkProtocol {
     {
     public:
         ReadDispRam();
+        CommandInterface* clone(void) {return new ReadDispRam();}
         bool form(Request &req);
         bool getAnAnswer(Request &req);
         ~ReadDispRam();
@@ -89,6 +98,7 @@ namespace RkProtocol {
     {
     public:
         ReadIO();
+        CommandInterface* clone(void) {return new ReadIO();}
         bool form(Request &req);
         bool getAnAnswer(Request &req);
         ~ReadIO();
@@ -98,6 +108,7 @@ namespace RkProtocol {
     {
     public:
         ReadTime();
+        CommandInterface* clone(void) {return new ReadTime();}
         bool form(Request &req);
         bool getAnAnswer(Request &req);
         ~ReadTime();
@@ -107,6 +118,7 @@ namespace RkProtocol {
     {
     public:
         WriteTime();
+        CommandInterface* clone(void) {return new WriteTime();}
         bool form(Request &req);
         bool waitAnAnswer(Request &req, QIODevice &io);
         ~WriteTime();
@@ -116,6 +128,7 @@ namespace RkProtocol {
     {
     public:
         ResetController();
+        CommandInterface* clone(void) {return new ResetController();}
         bool form(Request &req);
         ~ResetController();
     };
@@ -124,25 +137,11 @@ namespace RkProtocol {
     {
     public:
         GetCanName();
+        CommandInterface* clone(void) {return new GetCanName();}
         bool form(Request &req);
         bool getAnAnswer(Request &req);
         ~GetCanName();
     };
 }
-
-/*
-    readUserMem();
-    readRAM();
-    readFRAM();
-    readClock();
-    readIO();
-    readFlash();
-    readFactorySettings();
-    writeUserMem();
-    writeRAM();
-    writeClock();
-    writeIO();
-    writeFactorySettings();
-*/
 
 #endif // RK_H

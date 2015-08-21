@@ -26,6 +26,7 @@ class DebuggerSettings
     comData comSettings;
     udpData udpSettings;
     int netAddress;
+    static const int defaultUDPPortNum = 12144;
 public:
     DebuggerSettings();
     const comData getComSettings(void) const {return comSettings;}

@@ -51,15 +51,6 @@ void AnIO::setSlider(QSlider *value)
     slider = value;
 }
 
-int AnIO::getValue() const
-{
-    return value;
-}
-
-void AnIO::setValue(int value)
-{
-    value = value;
-}
 AnIO::AnIO()
 {
 

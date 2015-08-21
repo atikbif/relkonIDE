@@ -5,7 +5,6 @@
 
 #include "varitem.h"
 #include <QVector>
-#include <QString>
 #include <QStringList>
 
 

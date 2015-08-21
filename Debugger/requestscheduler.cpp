@@ -103,7 +103,11 @@ CommandInterface *RequestScheduler::getCmd()
     }else if(cmdQueue.count()) {
         ptr = cmdQueue.at(i)->cmd;
     }
-    return ptr;
+    // возвращает новый объект чтобы внешняя программа могла его удалить
+    // связано с использованием декораторов
+    // т.к. они автоматически удаляют базовые объекты
+    if(ptr) return ptr->clone();
+    return nullptr;
 }
 
 Request RequestScheduler::getReq()

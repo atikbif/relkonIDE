@@ -1,7 +1,7 @@
 #ifndef IDSTORAGE_H
 #define IDSTORAGE_H
 
-// класс для хранения соответствия к переменным по их идентификаторам
+// класс для хранения соответствия переменных и их идентификаторов
 
 #include <QHash>
 #include "compositevar.h"
@@ -14,8 +14,8 @@ public:
     void addVar(CompositeVar* var);
     bool getVarByID(const QString& idValue, CompositeVar &var);
     bool setVarByID(const QString& idValue, CompositeVar &var);
-    void clear();
-    const QStringList getIDs(void);
+    void clear();   // очистить список
+    const QStringList getIDs(void); // вернуть список идентификаторов
     ~IDStorage();
 };
 

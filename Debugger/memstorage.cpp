@@ -1,12 +1,17 @@
 #include "memstorage.h"
 #include <QMutexLocker>
 
+const QString MemStorage::ioMemName = "IO";
+const QString MemStorage::ramMemName = "RAM";
+const QString MemStorage::framMemName = "FRAM";
+const QString MemStorage::userMemName = "USER";
+
 MemStorage::MemStorage(QObject *parent) : QObject(parent)
 {
-    MemBlock* io = new MemBlock("IO",484);
-    MemBlock* ram = new MemBlock("RAM",64*1024);
-    MemBlock* fram = new MemBlock("FRAM",32*1024);
-    MemBlock* dispRam = new MemBlock("USER",256);
+    MemBlock* io = new MemBlock(ioMemName,ioMemSize);
+    MemBlock* ram = new MemBlock(ramMemName,ramMemSize);
+    MemBlock* fram = new MemBlock(framMemName,framMemSize);
+    MemBlock* dispRam = new MemBlock(userMemName,userMemSize);
     blocks += io;
     blocks += ram;
     blocks += fram;
