@@ -1,6 +1,7 @@
 #include "requestscheduler.h"
 #include "Protocols/rk.h"
 #include "varbytesvalueconverter.h"
+#include "memstorage.h"
 
 using namespace RkProtocol;
 
@@ -17,21 +18,21 @@ void RequestScheduler::clearBin()
 CommandInterface *RequestScheduler::getRdCmdByMemType(const QString &memType)
 {
     CommandInterface* ptr = nullptr;
-    if(memType=="RAM") ptr = new ReadRam();
-    else if(memType=="FRAM") ptr = new ReadFram();
-    else if(memType=="IO") ptr = new ReadIO();
-    else if(memType=="USER") ptr = new ReadDispRam();
+    if(memType==MemStorage::ramMemName) ptr = new ReadRam();
+    else if(memType==MemStorage::framMemName) ptr = new ReadFram();
+    else if(memType==MemStorage::ioMemName) ptr = new ReadIO();
+    else if(memType==MemStorage::userMemName) ptr = new ReadDispRam();
     return ptr;
 }
 
 CommandInterface *RequestScheduler::getWrCmdByMemType(const QString &memType)
 {
     CommandInterface* ptr = nullptr;
-    if(memType=="RAM") ptr = new WriteRam();
-    else if(memType=="FRAM") ptr = new WriteFram();
-    else if(memType=="TIME") ptr = new WriteTime();
-    else if(memType=="IO") ptr = new WriteIO();
-    else if(memType=="USER") ptr = new WriteDispRam();
+    if(memType==MemStorage::ramMemName) ptr = new WriteRam();
+    else if(memType==MemStorage::framMemName) ptr = new WriteFram();
+    else if(memType==MemStorage::timeMemName) ptr = new WriteTime();
+    else if(memType==MemStorage::ioMemName) ptr = new WriteIO();
+    else if(memType==MemStorage::userMemName) ptr = new WriteDispRam();
     return ptr;
 }
 
@@ -39,15 +40,11 @@ void RequestScheduler::scanMap(const QString &memType)
 {
     QBitArray map = devMap.value(memType);
     if(map.count()) {
-        int startAddr=-1;
-        int stopAddr=-1;
-        int holeCnt=0;
         int i=0;
-
         while(1) {
-            startAddr = -1;
-            stopAddr = -1;
-            holeCnt = 0;
+            int startAddr = -1;
+            int stopAddr = -1;
+            int holeCnt = 0;
             if(i>=map.count()) break;
             while (1) {
                if(map.at(i)) {
@@ -200,10 +197,10 @@ void RequestScheduler::schedule()
     i=0;
     binQueue+=cmdQueue;
     cmdQueue.clear();
-    scanMap("RAM");
-    scanMap("FRAM");
-    scanMap("IO");
-    scanMap("USER");
+    scanMap(MemStorage::ramMemName);
+    scanMap(MemStorage::framMemName);
+    scanMap(MemStorage::ioMemName);
+    scanMap(MemStorage::userMemName);
 }
 
 void RequestScheduler::clear()

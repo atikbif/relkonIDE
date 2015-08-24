@@ -9,7 +9,7 @@ void VarsCreator::addVarToTree(const QDomElement &e, CompositeVar *var, Composit
 {
     if(parent == nullptr) return;
     if(e.tagName()=="FundamentalType") {
-        var->setDataType(e.attribute("name"));//+" :0x" + QString::number(var->getMemAddress(),16));
+        var->setDataType(e.attribute("name"));
         parent->addChild(*var);
         ids.addVar(var);
     }else if(e.tagName()=="Variable") {
@@ -95,7 +95,7 @@ void VarsCreator::addDiscrInputs(CompositeVar *parent)
             CompositeVar* bit = new CompositeVar();
             bit->setName(QString::number(j));
             bit->setBitNum(j);
-            bit->setDataType("unsigned char");
+            bit->setDataType(VarItem::ucharType);
             bit->setMemType("IO");
             bit->setMemAddress(i);
             var->addChild(*bit);
@@ -115,7 +115,7 @@ void VarsCreator::addDiscrInputs(CompositeVar *parent)
             CompositeVar* bit = new CompositeVar();
             bit->setName(QString::number(j));
             bit->setBitNum(j);
-            bit->setDataType("unsigned char");
+            bit->setDataType(VarItem::ucharType);
             bit->setMemType("IO");
             bit->setMemAddress(0x24+i);
             var->addChild(*bit);
@@ -142,7 +142,7 @@ void VarsCreator::addDiscrOutputs(CompositeVar *parent)
             CompositeVar* bit = new CompositeVar();
             bit->setName(QString::number(j));
             bit->setBitNum(j);
-            bit->setDataType("unsigned char");
+            bit->setDataType(VarItem::ucharType);
             bit->setMemType("IO");
             bit->setMemAddress(0x06+i);
             var->addChild(*bit);
@@ -162,7 +162,7 @@ void VarsCreator::addDiscrOutputs(CompositeVar *parent)
             CompositeVar* bit = new CompositeVar();
             bit->setName(QString::number(j));
             bit->setBitNum(j);
-            bit->setDataType("unsigned char");
+            bit->setDataType(VarItem::ucharType);
             bit->setMemType("IO");
             bit->setMemAddress(0x44+i);
             var->addChild(*bit);
@@ -186,7 +186,7 @@ void VarsCreator::addAnalogInputs(CompositeVar *parent)
     for(int i=0;i<8;i++) {
         CompositeVar* var = new CompositeVar();
         var->setName("ADC"+QString::number(i+1));
-        var->setDataType("unsigned short");
+        var->setDataType(VarItem::ushortType);
         var->setMemType("IO");
         var->setMemAddress(0x0C+i*2);
 
@@ -203,7 +203,7 @@ void VarsCreator::addAnalogInputs(CompositeVar *parent)
         for(int j=0;j<4;j++) {
             CompositeVar* intVar = new CompositeVar();
             intVar->setName("ADC"+QString::number(9+i*4+j));
-            intVar->setDataType("unsigned short");
+            intVar->setDataType(VarItem::ushortType);
             intVar->setMemType("IO");
             intVar->setMemAddress(0x64+i*8+j*2);
             var->addChild(*intVar);
@@ -226,7 +226,7 @@ void VarsCreator::addAnalogOutputs(CompositeVar *parent)
     for(int i=0;i<4;i++) {
         CompositeVar* var = new CompositeVar();
         var->setName("DAC"+QString::number(i+1));
-        var->setDataType("unsigned short");
+        var->setDataType(VarItem::ushortType);
         var->setMemType("IO");
         var->setMemAddress(0x1C+i*2);
 
@@ -243,7 +243,7 @@ void VarsCreator::addAnalogOutputs(CompositeVar *parent)
         for(int j=0;j<2;j++) {
             CompositeVar* intVar = new CompositeVar();
             intVar->setName("DAC"+QString::number(5+i*2+j));
-            intVar->setDataType("unsigned short");
+            intVar->setDataType(VarItem::ushortType);
             intVar->setMemType("IO");
             intVar->setMemAddress(0x164+i*4+j*2);
             var->addChild(*intVar);
@@ -270,7 +270,7 @@ void VarsCreator::addFactorySettings(CompositeVar *parent)
     for(int i=0;i<1024;i++) {
         CompositeVar* var = new CompositeVar();
         var->setName("EE"+QString::number(i));
-        var->setDataType("unsigned char");
+        var->setDataType(VarItem::ucharType);
         var->setMemAddress(0x7B00 + i);
         var->setMemType("FRAM");
         charVar->addChild(*var);
@@ -285,7 +285,7 @@ void VarsCreator::addFactorySettings(CompositeVar *parent)
     for(int i=0;i<512;i++) {
         CompositeVar* var = new CompositeVar();
         var->setName("EE"+QString::number(i*2)+"i");
-        var->setDataType("unsigned short");
+        var->setDataType(VarItem::ushortType);
         var->setMemAddress(0x7B00 + i*2);
         var->setMemType("FRAM");
         shortVar->addChild(*var);
@@ -300,7 +300,7 @@ void VarsCreator::addFactorySettings(CompositeVar *parent)
     for(int i=0;i<256;i++) {
         CompositeVar* var = new CompositeVar();
         var->setName("EE"+QString::number(i*4)+"l");
-        var->setDataType("unsigned long");
+        var->setDataType(VarItem::ulongType);
         var->setMemAddress(0x7B00 + i*4);
         var->setMemType("FRAM");
         longVar->addChild(*var);
@@ -324,7 +324,7 @@ void VarsCreator::addDispVar(CompositeVar *parent)
     for(int i=0;i<256;i++) {
         CompositeVar* var = new CompositeVar();
         var->setName("MEM"+QString::number(i));
-        var->setDataType("unsigned char");
+        var->setDataType(VarItem::ucharType);
         var->setMemAddress(i);
         var->setMemType("USER");
         charVar->addChild(*var);
@@ -339,7 +339,7 @@ void VarsCreator::addDispVar(CompositeVar *parent)
     for(int i=0;i<128;i++) {
         CompositeVar* var = new CompositeVar();
         var->setName("MEM"+QString::number(i*2)+"i");
-        var->setDataType("unsigned short");
+        var->setDataType(VarItem::ushortType);
         var->setMemAddress(i*2);
         var->setMemType("USER");
         shortVar->addChild(*var);
@@ -354,7 +354,7 @@ void VarsCreator::addDispVar(CompositeVar *parent)
     for(int i=0;i<64;i++) {
         CompositeVar* var = new CompositeVar();
         var->setName("MEM"+QString::number(i*4)+"l");
-        var->setDataType("unsigned long");
+        var->setDataType(VarItem::ulongType);
         var->setMemAddress(i*4);
         var->setMemType("USER");
         longVar->addChild(*var);
@@ -371,14 +371,14 @@ void VarsCreator::addSituationNum(CompositeVar *parent)
 {
     QVector<int> memAddr;
     QVector<int> prNum;
-    int offset = 4;
     if(VarParser::readSitNum(memAddr,prNum)) {
+        int offset = 4;
         CompositeVar* sitVar = new CompositeVar();
         sitVar->setName("SIT");
             for(int i=0;i<memAddr.count();i++) {
                 CompositeVar* var = new CompositeVar();
                 var->setName("Proc"+QString::number(prNum.at(i)));
-                var->setDataType("unsigned int");
+                var->setDataType(VarItem::uintType);
                 var->setMemAddress(memAddr.at(i)+offset);
                 var->setMemType("RAM");
                 var->setReadOnly(true);

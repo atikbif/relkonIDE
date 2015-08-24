@@ -16,6 +16,10 @@ class AnIO
     QSlider *slider;    // указатель на виджет для изменения знчения
 
 public:
+    static const int inputStartAddress = 0x0C;
+    static const int outputStartAddress = 0x1C;
+    static const int mmbInputStartAddress = 0x64;
+    static const int mmbOutputStartAddress = 0x164;
     AnIO();
     ~AnIO();
     QString getName() const;

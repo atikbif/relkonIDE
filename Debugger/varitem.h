@@ -17,19 +17,26 @@ class VarItem
     volatile int memAddress;
     QString name;
     QString value;      // в текстовом виде т.к. могут быть как целые значения так и с плавающей точкой
-    QDateTime timeLabel;    // метка времени переменной
-    int quality;        // качество связи
-    volatile int bitNum;         // номер бита
-    QString id;
+    volatile int bitNum;         // номер бита (-1 если переменная не битовая)
+    QString id;     // идентификатор переменной
     bool readOnly;  // только для чтения
-
-    static const QStringList dataTypes;
-    enum {BIT,CHAR,SHORT,INT,LONG,LONG_LONG,FLOAT,DOUBLE};
-
-    QByteArray getBytesForIntegral(int varSize);
-    void updateByte(int offsetValue, quint8 dataValue, QByteArray &varBytes);
     void updateID(void);
+
 public:
+    // названия типов
+    static const QString charType;
+    static const QString ucharType;
+    static const QString shortType;
+    static const QString ushortType;
+    static const QString intType;
+    static const QString uintType;
+    static const QString longType;
+    static const QString ulongType;
+    static const QString longLongType;
+    static const QString floatType;
+    static const QString doubleType;
+    static const QString timeType;
+
     VarItem();
     const QString& getName() const {return name;}
     void setName(const QString &varName) {name=varName;updateID();}
@@ -42,7 +49,7 @@ public:
     int getBitNum(void) const {return bitNum;}
     void setBitNum(int value) {if((value>=0)&&(value<8)) bitNum=value;else bitNum=-1;updateID();}
     const QString& getID(void) const {return id;}
-    const QString& getValue() {return value;}
+    const QString& getValue() const {return value;}
     void setValue(const QString &newValue) {value = newValue;}
     void setPriority(int value) {priority = value;}
     int getPriority(void) const {return priority;}

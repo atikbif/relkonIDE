@@ -1,6 +1,7 @@
 #include "rk.h"
 #include "checksum.h"
 #include <QThread>
+#include "Debugger/memstorage.h"
 
 using namespace RkProtocol;
 
@@ -290,7 +291,7 @@ bool ReadTime::form(Request &req)
     reqBody += (crc>>8)&0xFF;
     req.getBody() = reqBody;
     req.insParam("rw","read");
-    req.insParam("mem","TIME");
+    req.insParam("mem",MemStorage::timeMemName);
     return true;
 }
 
@@ -332,7 +333,7 @@ bool WriteTime::form(Request &req)
     reqBody += (crc>>8)&0xFF;
     req.getBody() = reqBody;
     req.insParam("rw","write");
-    req.insParam("mem","TIME");
+    req.insParam("mem",MemStorage::timeMemName);
     return true;
 }
 

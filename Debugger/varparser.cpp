@@ -7,6 +7,7 @@
 #include <QXmlStreamWriter>
 #include <QMessageBox>
 #include "RCompiler/rcompiler.h"
+#include "Debugger/varitem.h"
 
 void VarParser::getVarsBlock()
 {
@@ -74,10 +75,20 @@ void VarParser::searchVars()
     foreach (QString str, dataBlock) {
        allData+=str;
     }
+    // удаление переходов между строками
     allData.remove(QRegExp("[\\r\\n]+"));
+    // замена промежутков пробелом
     allData.replace(QRegExp("[\\s\\t]+")," ");
-    allData. remove(QRegExp("=[\\s\\t]*[\\d\\.]+"));
+    // удаление инициализации переменных
+    allData.remove(QRegExp("=[\\s\\t]*-*[\\d\\.]+"));
+    // удаление фигурных скобок и их содержимого
+    allData.remove(QRegExp("\\{[^\\}]*\\}"));
+    // удаление фигурных скобок (для влож. массивов) и символа равно
+    allData.remove(QRegExp("[\\{\\}=]"));
+    // удаление двойных кавычек и их содержимого
+    allData.remove(QRegExp("\"[^\"]*\""));
 
+    // сканирование всех фундаментальных типов
     for(int i=0;i<fundTypes.count();i++) {
         QRegExp varsExp(fundTypes.at(i)->getName()+"[\\s\\t]+([^;]+);");
         int pos = 0;
@@ -91,9 +102,9 @@ void VarParser::searchVars()
                     for(int j=0;j<varNames.count();j++) {
                         // *******************************************
                         QString curVarName = varNames.at(j);
-                        //curVarName.remove();
                         if(curVarName.isEmpty()) continue;
                         Variable* var = new Variable();
+                        // проверка на массив
                         Array* ptr = checkArray(curVarName,fundTypes.at(i)->getId());
                         if(ptr!=nullptr) {var->setType(ptr->getId());}
                         else{var->setType(fundTypes.at(i)->getId());}
@@ -140,7 +151,6 @@ void VarParser::searchStructures()
             QString nameOfVar = structVarExpr.cap(2);
             addStructVar(nameOfType,nameOfVar);
             allData.remove(pos,structVarExpr.matchedLength());
-            //pos+=structVarExpr.matchedLength();
         }
     }
     dataBlock.clear();
@@ -223,6 +233,7 @@ bool VarParser::readMapFile()
     QFile file(fName);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
             return false;
+    // чтение map файла
     QTextStream in(&file);
 
     while (!in.atEnd()) {
@@ -241,7 +252,7 @@ bool VarParser::readMapFile()
     // добавить адреса к описанию переменных
     // если переменная отсутствует в карте памяти - удалить из списка
     QVector<Variable*> tmpVarList;
-    QVector<Variable*> missingVarList;
+    QVector<Variable*> missingVarList;  // список переменных, отсутствующих в карте памяти
     foreach (Variable* v, variables) {
        QString varName = v->getName().remove(QRegExp("[\\s\\t]+")).remove(QRegExp("\\[\\d+\\]"));
        if(mapOfVars.keys().contains(varName)) {
@@ -432,17 +443,17 @@ void VarParser::createFundTypes()
     // сортировка для облегчения разбора переменных
     struct sType{QString name;int size;}standTypes[] =
     {
-        {"unsigned char",1},
-        {"char",1},
-        {"unsigned short",2},
-        {"short",2},
-        {"unsigned int",4},
-        {"int",4},
-        {"long long",8},
-        {"unsigned long",4},
-        {"long",4},
-        {"float",4},
-        {"double",8}
+        {VarItem::ucharType,1},
+        {VarItem::charType,1},
+        {VarItem::ushortType,2},
+        {VarItem::shortType,2},
+        {VarItem::uintType,4},
+        {VarItem::intType,4},
+        {VarItem::longLongType,8},
+        {VarItem::ulongType,4},
+        {VarItem::longType,4},
+        {VarItem::floatType,4},
+        {VarItem::doubleType,8}
     };
 
     int cnt = sizeof(standTypes)/sizeof(sType);
@@ -572,6 +583,10 @@ VarParser::~VarParser()
     }
 }
 
+VarParser::FundamentalType::FundamentalType():id(0),name(""),size(0)
+{
+
+}
 
 int VarParser::FundamentalType::getId() const
 {
@@ -601,6 +616,11 @@ int VarParser::FundamentalType::getSize() const
 void VarParser::FundamentalType::setSize(int value)
 {
     size = value;
+}
+
+VarParser::Variable::Variable():id(0),name(""),type(1),address(0),memType("")
+{
+
 }
 
 int VarParser::Variable::getId() const
@@ -653,7 +673,6 @@ void VarParser::Variable::setMemType(const QString &value)
     memType = value;
 }
 
-
 QString VarParser::Structure::getName() const
 {
     return name;
@@ -673,6 +692,12 @@ void VarParser::Structure::setSize(int value)
 {
     size = value;
 }
+
+VarParser::Structure::Structure():id(0),name(""),size(0)
+{
+
+}
+
 int VarParser::Structure::getId() const
 {
     return id;
@@ -691,6 +716,11 @@ QVector<int> VarParser::Structure::getMembers() const
 void VarParser::Structure::setMembers(const QVector<int> &value)
 {
     members = value;
+}
+
+VarParser::Field::Field(): id(0), name(""), type(1), offset(0)
+{
+
 }
 
 int VarParser::Field::getId() const
@@ -743,6 +773,12 @@ void VarParser::Array::setCnt(int value)
 {
     cnt = value;
 }
+
+VarParser::Array::Array():id(0),type(1),size(0),cnt(0)
+{
+
+}
+
 int VarParser::Array::getId() const
 {
     return id;

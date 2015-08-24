@@ -30,7 +30,7 @@ void DebuggerForm::saveView()
         xmlWriter.setAutoFormatting(true);
         xmlWriter.writeStartDocument();
         xmlWriter.writeStartElement("Debugger");
-
+        // сохранение переменных из дерева просмотра
         xmlWriter.writeStartElement("VarView");
         QList<QTreeWidgetItem*> actItems = idActiveWidgetItem.values();
         for(int i=0;i<actItems.count();i++) {
@@ -47,7 +47,7 @@ void DebuggerForm::saveView()
                 xmlWriter.writeEndElement();
         }
         xmlWriter.writeEndElement();
-
+        // сохранение комментариев к закладке входов/выходов
         xmlWriter.writeStartElement("IOView");
         foreach (QString ioName, ioComments.keys()) {
            xmlWriter.writeStartElement("io");
@@ -79,34 +79,35 @@ void DebuggerForm::openView()
     if (!doc.setContent(&file)) {
         return;
     }
-
+    // построение списка соответствий полного имени переменной в дереви и её идентификатора
     QHash<QString,QString> fullNames;
     foreach (QTreeWidgetItem* item, idWidgetItem.values()) {
        QString fName = item->toolTip(0);
        fullNames.insert(fName,idWidgetItem.key(item));
     }
 
+    // поиск описания переменных для вывода в дереве просмотра
     QDomNodeList vars = doc.elementsByTagName("var");
-
     for(int i=0;i<vars.count();i++) {
         QDomNode n = vars.item(i);
         QDomElement e = n.toElement();
         if(!e.isNull()) {
             QString fullName = e.attribute("name");
             QString newId = fullNames.value(fullName);
-
+            // проверка на наличие в текущем проекте переменной с указанным именем
             if(!newId.isEmpty()) {
                 VarItem var = varOwner.getVarByID(newId);
                 QStringList sList;
                 QString varName;
 
                 QStringList fNameList = fullName.split('.');
+                // Удаление из имени 2-х первых узлов (Переменные.(пользватель/система))
                 fNameList.removeFirst();fNameList.removeFirst();
                 foreach (QString s, fNameList) {
                   varName += "." + s;
                 }
-                varName.remove(0,1);
-
+                varName.remove(0,1);// удаление стартовой "."
+                // список полей для отображения в дереве просмотра
                 sList << varName << "" << "" << "0x"+QString::number(var.getMemAddress(),16).toUpper() << var.getDataType();
                 QTreeWidgetItem* newItem = new QTreeWidgetItem(sList);
                 idActiveWidgetItem.insert(newId,newItem);
@@ -114,12 +115,13 @@ void DebuggerForm::openView()
                 newItem->setToolTip(0,fullName);
                 ui->treeWidgetWatch->addTopLevelItem(newItem);
                 ui->treeWidgetWatch->setItemWidget(newItem,5,new QLineEdit(e.attribute("comment"),ui->treeWidgetWatch));
-                scheduler.addReadOperation(var);
+                scheduler.addReadOperation(var);    // добавить переменную к заданию планировщика
             }
         }
     }
-    scheduler.schedule();
+    scheduler.schedule();   // составить новый список запросов планировщика
 
+    // разбор комментариев к вкладке входов/выходов
     QDomNodeList ios = doc.elementsByTagName("io");
     for(int i=0;i<ios.count();i++) {
         QDomNode n = ios.item(i);
@@ -193,12 +195,7 @@ void DebuggerForm::treeBuilder(const QString &varID, QTreeWidgetItem &item)
                 iter->next();
             }
         }
-    }/*else {
-        QTreeWidgetItem* singleItem = new QTreeWidgetItem(&item);
-        singleItem->setText(0,varOwner.getVarByID(iter->currentID()).getName());
-        singleItem->setText(1,varOwner.getVarByID(iter->currentID()).getDataType());
-        idWidgetItem.insert(iter->currentID(),singleItem);
-    }*/
+    }
 }
 
 DebuggerForm::DebuggerForm(QWidget *parent) :
@@ -299,6 +296,7 @@ void DebuggerForm::on_treeWidgetWatch_itemDoubleClicked(QTreeWidgetItem *item, i
     }
     scheduler.schedule();
 }
+
 void DebuggerForm::on_startButton_clicked()
 {
 
@@ -340,61 +338,11 @@ void DebuggerForm::on_stopButton_clicked()
 void DebuggerForm::updateMemory(QStringList ids)
 {
     foreach (QString id, ids) {
+        // если активна вкладка входов/выходов
         if(ui->tabWidget->currentIndex()==1) {
-            if(idWidgetItem.contains(id)) {
-                VarItem var = varOwner.getVarByID(id);
-                if(var.getMemType()=="IO") {
-                    if(ioHash.contains(var.getMemAddress())) {
-                        QList<BitIO*> ptrList = ioHash.values(var.getMemAddress());
-                        QByteArray data = memStor.getData(var.getMemType(),var.getMemAddress(),1);
-                        foreach (BitIO* ptr, ptrList) {
-                            bool state = data[0]&1<<ptr->getBitNum();
-                            if(state!=ptr->getState()) {
-                                if(state) {
-                                    if(ptr->getName().contains("IN"))
-                                    ptr->getButton()->setStyleSheet("border: 2px solid #8f8f91;border-radius: 10px;background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,stop: 0 #00ff00, stop: 1 #ffffff);");
-                                    else
-                                    ptr->getButton()->setStyleSheet("border: 2px solid #8f8f91;border-radius: 10px;background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,stop: 0 #ff0000, stop: 1 #ffffff);");
-                                }
-                                else {
-                                    ptr->getButton()->setStyleSheet("border: 2px solid #8f8f91;border-radius: 10px;background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,stop: 0 #f6f7fa, stop: 1 #dadbde);");
-                                }
-                                ptr->setState(state);
-                            }
-                        }
-                    }else if(anIoHash.contains(var.getMemAddress())) {
-                        AnIO* ptr = anIoHash.value(var.getMemAddress());
-                        QByteArray data = memStor.getData(var.getMemType(),var.getMemAddress(),2);
-                        quint16 value = (quint8)data[1];
-                        value = (value<<8) | ((quint8)data[0]);
-                        QString txtValue = QString::number(value);
-                        if(ptr->getName().contains("ADC")) txtValue+=":"+QString::number(value>>8);
-                        ptr->getLcdNum()->setText(txtValue);
-
-                        if(!ptr->getSlider()->hasFocus()) ptr->getSlider()->setValue(value);
-                    }
-                }
-            }
+            updateIOVarGUI(id);
         }else if(ui->tabWidget->currentIndex()==0) {
-
-            if(idActiveWidgetItem.contains(id)) {
-                QTreeWidgetItem* item = idActiveWidgetItem.value(id);
-                VarItem var = varOwner.getVarByID(id);
-                int varSize=VarBytesValueConverter::getVarSize(var.getDataType());
-                if(varSize) {
-                    QByteArray data = memStor.getData(var.getMemType(),var.getMemAddress(),varSize);
-                    if(data.count()==varSize) {
-                        QString value="";
-                        for(int i=0;i<varSize;i++) {
-                            value+=QString::number((quint8)(data.at(i)))+":";
-                        }
-                        var.setValue(value);
-                        varOwner.updateVarByID(id,var);
-                        item->setText(1,VarBytesValueConverter::getValue(var,data));
-                        item->setText(2,QDateTime::currentDateTime().time().toString());
-                    }
-                }
-            }
+            updateVarGUI(id);
         }
     }
 }
@@ -403,14 +351,12 @@ void DebuggerForm::updateCorrErrAnswerCount(int cnt, bool correctFlag)
 {
     if(correctFlag) ui->lcdNumberCorrect->display(cnt);
     else ui->lcdNumberError->display(cnt);
-    //ui->textBrowserRequests->setText(QString::number(cnt)+"\r\n");
 }
 
 void DebuggerForm::getMessageFromDebugProcess(QString message)
 {
     QString txt = ui->textBrowserRequests->toPlainText();
     QStringList sList = txt.split("\n");
-    //sList.removeDuplicates();
     if(sList.count()>5) {
         sList.removeFirst();
         sList+=message;
@@ -420,7 +366,6 @@ void DebuggerForm::getMessageFromDebugProcess(QString message)
         if(!str.isEmpty()) txt+=str+"\n";
     }
     ui->textBrowserRequests->setText(txt);
-
 }
 
 void DebuggerForm::getTimeStr(QString timeStr)
@@ -458,7 +403,6 @@ void DebuggerForm::updateValuesTree()
                 actItems[i]->setText(3,"0x"+QString::number(var.getMemAddress(),16).toUpper());
                 actItems[i]->setText(4,var.getDataType());
             }
-
         }
     }
     foreach (QString id, idActiveWidgetItem.keys()) {
@@ -485,6 +429,13 @@ void DebuggerForm::updateComPortList()
 
 void DebuggerForm::buildIO()
 {
+    buildDIO(); // вывод дискретных датчиков
+    buildAIO(); // вывод аналоговых датчиков
+}
+
+void DebuggerForm::buildDIO()
+{
+    // используется компоновщик по сетке, который помещается в виджет прокрутки
     QWidget *client = new QWidget(this);
     QGridLayout *grLayout= new QGridLayout(client);
 
@@ -492,257 +443,173 @@ void DebuggerForm::buildIO()
         QString name;
         if(i<4) name = "IN"+QString::number(i);
         else name = "DIN" + QString::number(i);
-        QGroupBox *boxIn = new QGroupBox(name);
-        QVBoxLayout *vLayoutIn = new QVBoxLayout(boxIn);
-        for(int j=0;j<8;j++) {
-            QHBoxLayout *hLayout = new QHBoxLayout();
-            QPushButton *b = new QPushButton();
-            b->setStyleSheet("border: 2px solid #8f8f91;border-radius: 10px;background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,stop: 0 #f6f7fa, stop: 1 #dadbde);");
-            b->setFixedSize(20,20);
-            connect(b,SIGNAL(clicked()),this,SLOT(inOutClicked()));
-            QLineEdit *e = new QLineEdit();
-            hLayout->addWidget(b);
-            hLayout->addWidget(e);
-            vLayoutIn->addLayout(hLayout);
-            BitIO *bitDef = new BitIO();
-            bitDef->setName(name+"."+QString::number(j));
-            bitDef->setBitNum(j);
-            bitDef->setButton(b);
-            bitDef->setComment(e);
-            bitDef->setAddress(i);
-            bitDef->setState(false);
-            ioHash.insert(bitDef->getAddress(),bitDef);
-            ioComments.insert(bitDef->getName(),e);
-        }
-        boxIn->setLayout(vLayoutIn);
+        QGroupBox *boxIn = addDIO(name,BitIO::inputStartAddress + i,8);
         grLayout->addWidget(boxIn,1,i+1);
 
         if(i<4) name = "OUT"+QString::number(i);
         else name = "DOUT" + QString::number(i);
-        QGroupBox *boxOut = new QGroupBox(name);
-        QVBoxLayout *vLayoutOut = new QVBoxLayout(boxOut);
-        for(int j=0;j<8;j++) {
-            QHBoxLayout *hLayout = new QHBoxLayout();
-            QPushButton *b = new QPushButton();
-            b->setStyleSheet("border: 2px solid #8f8f91;border-radius: 10px;background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,stop: 0 #f6f7fa, stop: 1 #dadbde);");
-            b->setFixedSize(20,20);
-            connect(b,SIGNAL(clicked()),this,SLOT(inOutClicked()));
-            QLineEdit *e = new QLineEdit();
-            hLayout->addWidget(b);
-            hLayout->addWidget(e);
-            vLayoutOut->addLayout(hLayout);
-            BitIO *bitDef = new BitIO();
-            bitDef->setName(name+"."+QString::number(j));
-            bitDef->setBitNum(j);
-            bitDef->setButton(b);
-            bitDef->setComment(e);
-            bitDef->setAddress(i+0x06);
-            bitDef->setState(false);
-            ioHash.insert(bitDef->getAddress(),bitDef);
-            ioComments.insert(bitDef->getName(),e);
-        }
-        boxOut->setLayout(vLayoutOut);
+        QGroupBox *boxOut = addDIO(name,BitIO::outputStartAddress + i,8);
         grLayout->addWidget(boxOut,2,i+1);
     }
-
+    // модули Matchbox
     for(int i=0;i<32;i++) {
         QString name;
         name = "IN"+QString::number(i+4);
-        QGroupBox *boxIn = new QGroupBox(name);
-        QVBoxLayout *vLayoutIn = new QVBoxLayout(boxIn);
-        for(int j=0;j<4;j++) {
-            QHBoxLayout *hLayout = new QHBoxLayout();
-            QPushButton *b = new QPushButton();
-            b->setStyleSheet("border: 2px solid #8f8f91;border-radius: 10px;background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,stop: 0 #f6f7fa, stop: 1 #dadbde);");
-            b->setFixedSize(20,20);
-            connect(b,SIGNAL(clicked()),this,SLOT(inOutClicked()));
-            QLineEdit *e = new QLineEdit();
-            hLayout->addWidget(b);
-            hLayout->addWidget(e);
-            vLayoutIn->addLayout(hLayout);
-            BitIO *bitDef = new BitIO();
-            bitDef->setName(name+"."+QString::number(j));
-            bitDef->setBitNum(j);
-            bitDef->setButton(b);
-            bitDef->setComment(e);
-            bitDef->setAddress(0x24+i);
-            bitDef->setState(false);
-            ioHash.insert(bitDef->getAddress(),bitDef);
-            ioComments.insert(bitDef->getName(),e);
-        }
-        boxIn->setLayout(vLayoutIn);
+        QGroupBox *boxIn = addDIO(name,BitIO::mmbInputStartAddress + i,4);
         grLayout->addWidget(boxIn,3+(i/6)*2,(i%6)+1);
 
         name = "OUT"+QString::number(i+4);
-        QGroupBox *boxOut = new QGroupBox(name);
-        QVBoxLayout *vLayoutOut = new QVBoxLayout(boxOut);
-        for(int j=0;j<4;j++) {
-            QHBoxLayout *hLayout = new QHBoxLayout();
-            QPushButton *b = new QPushButton();
-            b->setStyleSheet("border: 2px solid #8f8f91;border-radius: 10px;background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,stop: 0 #f6f7fa, stop: 1 #dadbde);");
-            b->setFixedSize(20,20);
-            connect(b,SIGNAL(clicked()),this,SLOT(inOutClicked()));
-            QLineEdit *e = new QLineEdit();
-            hLayout->addWidget(b);
-            hLayout->addWidget(e);
-            vLayoutOut->addLayout(hLayout);
-            BitIO *bitDef = new BitIO();
-            bitDef->setName(name+"."+QString::number(j));
-            bitDef->setBitNum(j);
-            bitDef->setButton(b);
-            bitDef->setComment(e);
-            bitDef->setAddress(i+0x44);
-            bitDef->setState(false);
-            ioHash.insert(bitDef->getAddress(),bitDef);
-            ioComments.insert(bitDef->getName(),e);
-        }
-        boxOut->setLayout(vLayoutOut);
+        QGroupBox *boxOut = addDIO(name,BitIO::mmbOutputStartAddress + i,4);
         grLayout->addWidget(boxOut,4+(i/6)*2,(i%6)+1);
     }
     client->setLayout(grLayout);
     ui->scrollArea->setWidget(client);
+}
 
+QGroupBox *DebuggerForm::addDIO(const QString &name, int startAddress, int bitCnt)
+{
+    QGroupBox *box = new QGroupBox(name);
+    QVBoxLayout *layout = new QVBoxLayout(box);
+    for(int j=0;j<bitCnt;j++) {
+        QHBoxLayout *hLayout = new QHBoxLayout();
+        QPushButton *b = new QPushButton();
+        b->setStyleSheet("border: 2px solid #8f8f91;border-radius: 10px;background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,stop: 0 #f6f7fa, stop: 1 #dadbde);");
+        b->setFixedSize(20,20);
+        connect(b,SIGNAL(clicked()),this,SLOT(inOutClicked()));
+        QLineEdit *e = new QLineEdit();
+        hLayout->addWidget(b);
+        hLayout->addWidget(e);
+        layout->addLayout(hLayout);
+        BitIO *bitDef = new BitIO();
+        bitDef->setName(name+"."+QString::number(j));
+        bitDef->setBitNum(j);
+        bitDef->setButton(b);
+        bitDef->setComment(e);
+        bitDef->setAddress(startAddress);
+        bitDef->setState(false);
+        ioHash.insert(bitDef->getAddress(),bitDef);
+        ioComments.insert(bitDef->getName(),e);
+    }
+    box->setLayout(layout);
+    return box;
+}
+
+QGroupBox *DebuggerForm::addAIO(const QString &grName, const QString &ioName, int addr, int startNum, int endNum)
+{
+    QGroupBox *box = new QGroupBox(grName);
+    QVBoxLayout *vLayout = new QVBoxLayout(box);
+    for(int i=startNum;i<=endNum;i++) {
+        QHBoxLayout *hLayout = new QHBoxLayout();
+        QLabel *name = new QLabel(ioName+QString::number(i)+":");
+        QSlider *slider = new QSlider(Qt::Horizontal);
+        slider->setMaximum(65535);
+        slider->setMinimum(0);
+        connect(slider,SIGNAL(sliderReleased()),this,SLOT(anInOutClicked()));
+        QLineEdit *number = new QLineEdit();
+        number->setStyleSheet("border: 2px solid gray;"
+                              "border-radius: 10px;"
+                              "padding: 0 8px;"
+                              "background: #e0e0f0;");
+        number->setReadOnly(true);
+        QLineEdit *comment = new QLineEdit();
+        hLayout->addWidget(name,0);
+        hLayout->addWidget(slider,1);
+        hLayout->addWidget(number,1);
+        hLayout->addWidget(comment,1);
+        vLayout->addLayout(hLayout);
+        AnIO *aDef = new AnIO();
+        aDef->setName(ioName+QString::number(i));
+        aDef->setAddress(addr+(i-startNum)*2);
+        aDef->setComment(comment);
+        aDef->setLcdNum(number);
+        aDef->setSlider(slider);
+        anIoHash.insert(aDef->getAddress(),aDef);
+        ioComments.insert(aDef->getName(),comment);
+    }
+    box->setLayout(vLayout);
+    return box;
+}
+
+void DebuggerForm::buildAIO()
+{
     QWidget *clientAn = new QWidget(this);
     QVBoxLayout *vLayoutAn= new QVBoxLayout(clientAn);
 
-    QGroupBox *boxAdc = new QGroupBox("ADC1..8");
-    QVBoxLayout *vLayoutAdc = new QVBoxLayout(boxAdc);
-    for(int i=1;i<9;i++) {
-        QHBoxLayout *hLayout = new QHBoxLayout();
-        QLabel *name = new QLabel("ADC"+QString::number(i)+":");
-        QSlider *slider = new QSlider(Qt::Horizontal);
-        slider->setMaximum(65535);
-        slider->setMinimum(0);
-        connect(slider,SIGNAL(sliderReleased()),this,SLOT(anInOutClicked()));
-        QLineEdit *number = new QLineEdit();
-        number->setStyleSheet("border: 2px solid gray;"
-                              "border-radius: 10px;"
-                              "padding: 0 8px;"
-                              "background: #e0e0f0;");
-        number->setReadOnly(true);
-        QLineEdit *comment = new QLineEdit();
-        hLayout->addWidget(name,0);
-        hLayout->addWidget(slider,1);
-        hLayout->addWidget(number,1);
-        hLayout->addWidget(comment,1);
-        vLayoutAdc->addLayout(hLayout);
-        AnIO *aDef = new AnIO();
-        aDef->setName("ADC"+QString::number(i));
-        aDef->setAddress(0x0C+(i-1)*2);
-        aDef->setComment(comment);
-        aDef->setLcdNum(number);
-        aDef->setSlider(slider);
-        anIoHash.insert(aDef->getAddress(),aDef);
-        ioComments.insert(aDef->getName(),comment);
-    }
-    boxAdc->setLayout(vLayoutAdc);
+    QGroupBox *boxAdc = addAIO("ADC1..8","ADC",AnIO::inputStartAddress,1,8);
     vLayoutAn->addWidget(boxAdc);
 
-    QGroupBox *boxDac = new QGroupBox("DAC1..4");
-    QVBoxLayout *vLayoutDac = new QVBoxLayout(boxDac);
-    for(int i=1;i<5;i++) {
-        QHBoxLayout *hLayout = new QHBoxLayout();
-        QLabel *name = new QLabel("DAC"+QString::number(i)+":");
-        QSlider *slider = new QSlider(Qt::Horizontal);
-        slider->setMaximum(65535);
-        slider->setMinimum(0);
-        connect(slider,SIGNAL(sliderReleased()),this,SLOT(anInOutClicked()));
-        QLineEdit *number = new QLineEdit();
-        number->setStyleSheet("border: 2px solid gray;"
-                              "border-radius: 10px;"
-                              "padding: 0 8px;"
-                              "background: #e0e0f0;");
-        number->setReadOnly(true);
-        QLineEdit *comment = new QLineEdit();
-        hLayout->addWidget(name,0);
-        hLayout->addWidget(slider,1);
-        hLayout->addWidget(number,1);
-        hLayout->addWidget(comment,1);
-        vLayoutDac->addLayout(hLayout);
-        AnIO *aDef = new AnIO();
-        aDef->setName("DAC"+QString::number(i));
-        aDef->setAddress(0x1C+(i-1)*2);
-        aDef->setComment(comment);
-        aDef->setLcdNum(number);
-        aDef->setSlider(slider);
-        anIoHash.insert(aDef->getAddress(),aDef);
-        ioComments.insert(aDef->getName(),comment);
-    }
-    boxDac->setLayout(vLayoutDac);
+    QGroupBox *boxDac = addAIO("DAC1..4","DAC",AnIO::outputStartAddress,1,4);
     vLayoutAn->addWidget(boxDac);
 
-    QGroupBox *boxAdcMmb = new QGroupBox("Matchbox ADC");
-    QVBoxLayout *vLayoutAdcMmb = new QVBoxLayout(boxAdcMmb);
-    for(int i=9;i<137;i++) {
-        QHBoxLayout *hLayout = new QHBoxLayout();
-        QLabel *name = new QLabel("ADC"+QString::number(i)+":");
-        QSlider *slider = new QSlider(Qt::Horizontal);
-        slider->setMaximum(65535);
-        slider->setMinimum(0);
-        connect(slider,SIGNAL(sliderReleased()),this,SLOT(anInOutClicked()));
-        //QLCDNumber *number = new QLCDNumber(6);
-        //number->setPalette(Qt::darkGray);
-        QLineEdit *number = new QLineEdit();
-        number->setStyleSheet("border: 2px solid gray;"
-                              "border-radius: 10px;"
-                              "padding: 0 8px;"
-                              "background: #e0e0f0;");
-        number->setReadOnly(true);
-        QLineEdit *comment = new QLineEdit();
-        hLayout->addWidget(name,0);
-        hLayout->addWidget(slider,1);
-        hLayout->addWidget(number,1);
-        hLayout->addWidget(comment,1);
-        vLayoutAdcMmb->addLayout(hLayout);
-        AnIO *aDef = new AnIO();
-        aDef->setName("ADC"+QString::number(i));
-        aDef->setAddress(0x64+(i-9)*2);
-        aDef->setComment(comment);
-        aDef->setLcdNum(number);
-        aDef->setSlider(slider);
-        anIoHash.insert(aDef->getAddress(),aDef);
-        ioComments.insert(aDef->getName(),comment);
-    }
-    boxAdcMmb->setLayout(vLayoutAdcMmb);
+    QGroupBox *boxAdcMmb = addAIO("Matchbox ADC","ADC",AnIO::mmbInputStartAddress,9,136);
     vLayoutAn->addWidget(boxAdcMmb);
 
-    QGroupBox *boxDacMmb = new QGroupBox("Matchbox DAC");
-    QVBoxLayout *vLayoutDacMmb = new QVBoxLayout(boxDacMmb);
-    for(int i=5;i<69;i++) {
-        QHBoxLayout *hLayout = new QHBoxLayout();
-        QLabel *name = new QLabel("DAC"+QString::number(i)+":");
-        QSlider *slider = new QSlider(Qt::Horizontal);
-        slider->setMaximum(65535);
-        slider->setMinimum(0);
-        connect(slider,SIGNAL(sliderReleased()),this,SLOT(anInOutClicked()));
-        QLineEdit *number = new QLineEdit();
-        number->setStyleSheet("border: 2px solid gray;"
-                              "border-radius: 10px;"
-                              "padding: 0 8px;"
-                              "background: #e0e0f0;");
-        number->setReadOnly(true);
-        QLineEdit *comment = new QLineEdit();
-        hLayout->addWidget(name,0);
-        hLayout->addWidget(slider,1);
-        hLayout->addWidget(number,1);
-        hLayout->addWidget(comment,1);
-        vLayoutDacMmb->addLayout(hLayout);
-        AnIO *aDef = new AnIO();
-        aDef->setName("DAC"+QString::number(i));
-        aDef->setAddress(0x164+(i-5)*2);
-        aDef->setComment(comment);
-        aDef->setLcdNum(number);
-        aDef->setSlider(slider);
-        anIoHash.insert(aDef->getAddress(),aDef);
-        ioComments.insert(aDef->getName(),comment);
-    }
-    boxDacMmb->setLayout(vLayoutDacMmb);
+    QGroupBox *boxDacMmb = addAIO("Matchbox DAC","DAC",AnIO::mmbOutputStartAddress,5,68);
     vLayoutAn->addWidget(boxDacMmb);
-
-
 
     clientAn->setLayout(vLayoutAn);
     ui->scrollArea_2->setWidget(clientAn);
+}
+
+void DebuggerForm::updateIOVarGUI(const QString &id)
+{
+    if(idWidgetItem.contains(id)) {
+        VarItem var = varOwner.getVarByID(id);
+        if(var.getMemType()==MemStorage::ioMemName) {
+            if(ioHash.contains(var.getMemAddress())) {
+                QList<BitIO*> ptrList = ioHash.values(var.getMemAddress());
+                QByteArray data = memStor.getData(var.getMemType(),var.getMemAddress(),1);
+                foreach (BitIO* ptr, ptrList) {
+                    bool state = data[0]&1<<ptr->getBitNum();
+                    // обновлять GUI только по изменению состояния
+                    if(state!=ptr->getState()) {
+                        if(state) {
+                            if(ptr->getName().contains("IN"))
+                            ptr->getButton()->setStyleSheet("border: 2px solid #8f8f91;border-radius: 10px;background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,stop: 0 #00ff00, stop: 1 #ffffff);");
+                            else
+                            ptr->getButton()->setStyleSheet("border: 2px solid #8f8f91;border-radius: 10px;background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,stop: 0 #ff0000, stop: 1 #ffffff);");
+                        }
+                        else {
+                            ptr->getButton()->setStyleSheet("border: 2px solid #8f8f91;border-radius: 10px;background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,stop: 0 #f6f7fa, stop: 1 #dadbde);");
+                        }
+                        ptr->setState(state);
+                    }
+                }
+            }else if(anIoHash.contains(var.getMemAddress())) {
+                AnIO* ptr = anIoHash.value(var.getMemAddress());
+                QByteArray data = memStor.getData(var.getMemType(),var.getMemAddress(),2);
+                quint16 value = (quint8)data[1];
+                value = (value<<8) | ((quint8)data[0]);
+                QString txtValue = QString::number(value);
+                if(ptr->getName().contains("ADC")) txtValue+=":"+QString::number(value>>8);
+                ptr->getLcdNum()->setText(txtValue);
+                if(!ptr->getSlider()->hasFocus()) ptr->getSlider()->setValue(value);
+            }
+        }
+    }
+}
+
+void DebuggerForm::updateVarGUI(const QString &id)
+{
+    if(idActiveWidgetItem.contains(id)) {
+        QTreeWidgetItem* item = idActiveWidgetItem.value(id);
+        VarItem var = varOwner.getVarByID(id);
+        int varSize=VarBytesValueConverter::getVarSize(var.getDataType());
+        if(varSize) {
+            QByteArray data = memStor.getData(var.getMemType(),var.getMemAddress(),varSize);
+            if(data.count()==varSize) {
+                QString value="";
+                for(int i=0;i<varSize;i++) {
+                    // формат значения - байты данных, разделённые двоеточием
+                    value+=QString::number((quint8)(data.at(i)))+":";
+                }
+                var.setValue(value);
+                varOwner.updateVarByID(id,var);
+                item->setText(1,VarBytesValueConverter::getValue(var,data));
+                item->setText(2,QDateTime::currentDateTime().time().toString());
+            }
+        }
+    }
 }
 
 void DebuggerForm::on_pushButtonCOMUpdate_clicked()
@@ -783,8 +650,8 @@ void DebuggerForm::on_pushButtonTimeWrite_clicked()
     // Синхронизация времени
     VarItem var;
     var.setMemAddress(0);
-    var.setMemType("TIME");
-    var.setDataType("time");
+    var.setMemType(MemStorage::timeMemName);
+    var.setDataType(VarItem::timeType);
     QByteArray timeData;
     QTime curtime = QDateTime::currentDateTime().time();
     QDate curdate = QDateTime::currentDateTime().date();
@@ -824,16 +691,15 @@ void DebuggerForm::on_treeWidgetWatch_customContextMenuRequested(const QPoint &p
                 menu->popup(ui->treeWidgetWatch->viewport()->mapToGlobal(pos));
             }
         }
-
-
     }
-
 }
 
 void DebuggerForm::writeVar()
 {
     // запись переменной
-    if(wrVar.getBitNum()>=0) {
+    if(wrVar.getBitNum()>=0) {  // битовая переменная
+        // байты значения при формировании разделены двоеточием
+        // в исходном значении инвертируется необходимый бит
         QStringList values = wrVar.getValue().split(":");
         if(values.count()) {
             quint8 byteValue = values.at(0).toInt();
@@ -842,7 +708,6 @@ void DebuggerForm::writeVar()
             scheduler.addWriteOperation(wrVar);
         }
     }else {
-
         DialogWriteVar* dialog = new DialogWriteVar(wrVar.getValue(),this);
         dialog->setVar(wrVar);
         int ret = dialog->exec();
@@ -864,21 +729,19 @@ void DebuggerForm::inOutClicked()
          foreach (BitIO* ptr, ioHash.values()) {
             if(ptr->getButton()==b) {
                 VarItem var;
-                QByteArray data = memStor.getData("IO",ptr->getAddress(),1);
+                QByteArray data = memStor.getData(MemStorage::ioMemName,ptr->getAddress(),1);
                 if(data.count()) {
                     quint8 byte = data[0] ^ (1<<ptr->getBitNum());
                     var.setValue(QString::number(byte));
-                    var.setDataType("unsigned char");
+                    var.setDataType(VarItem::ucharType);
                     var.setMemAddress(ptr->getAddress());
-                    var.setMemType("IO");
+                    var.setMemType(MemStorage::ioMemName);
                     var.setPriority(1);
                     scheduler.addWriteOperation(var);
                 }
-
                 break;
             }
          }
-
      }
 }
 
@@ -889,19 +752,13 @@ void DebuggerForm::anInOutClicked()
         foreach (AnIO* ptr, anIoHash.values()) {
            if(ptr->getSlider()==sl) {
                VarItem var;
-
                quint16 byte = sl->value();
-               // поменять старший младший байт местами
-               //quint8 hByte = byte >> 8;
-               //byte = (byte << 8) | hByte;
-
                var.setValue(QString::number(byte));
-               var.setDataType("unsigned short");
+               var.setDataType(VarItem::ushortType);
                var.setMemAddress(ptr->getAddress());
-               var.setMemType("IO");
+               var.setMemType(MemStorage::ioMemName);
                var.setPriority(1);
                scheduler.addWriteOperation(var);
-
                break;
            }
         }
@@ -911,7 +768,7 @@ void DebuggerForm::anInOutClicked()
 
 void DebuggerForm::on_tabWidget_currentChanged(int index)
 {
-    if(index==0) {
+    if(index==0) {  // вкладка просмотра переменных
         scheduler.clear();
         foreach (QString id, idActiveWidgetItem.keys()) {
             VarItem var = varOwner.getVarByID(id);
@@ -919,20 +776,16 @@ void DebuggerForm::on_tabWidget_currentChanged(int index)
             scheduler.addReadOperation(var);
         }
         scheduler.schedule();
-    }else if(index==1) {
+    }else if(index==1) {    // вкладка входов/выходов
         scheduler.clear();
-        for(int i=0;i<484;i++) {
+        for(int i=0;i<MemStorage::ioMemSize;i++) {
             VarItem var;
-            var.setDataType("unsigned char");
-            var.setMemType("IO");
+            var.setDataType(VarItem::ucharType);
+            var.setMemType(MemStorage::ioMemName);
             var.setPriority(1);
             var.setMemAddress(i);
             scheduler.addReadOperation(var);
         }
         scheduler.schedule();
-    }else if(index==2) {
-        scheduler.clear();
-        scheduler.schedule();
     }
-
 }

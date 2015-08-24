@@ -5,6 +5,7 @@ const QString MemStorage::ioMemName = "IO";
 const QString MemStorage::ramMemName = "RAM";
 const QString MemStorage::framMemName = "FRAM";
 const QString MemStorage::userMemName = "USER";
+const QString MemStorage::timeMemName = "TIME";
 
 MemStorage::MemStorage(QObject *parent) : QObject(parent)
 {
@@ -29,8 +30,7 @@ bool MemStorage::updateBlock(QString memType, int addr, QByteArray data)
     if(block==nullptr) return false;
     foreach (quint8 cellValue, data) {
        if(!block->updateCell(addr,cellValue)) return false;
-       ids+=block->getID(addr);
-       addr++;
+       ids+=block->getID(addr++);
     }
     ids.removeDuplicates();
     locker.unlock();

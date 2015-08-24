@@ -18,7 +18,7 @@ public:
     int getChildrenCount(void) const{return affiliatedVarIDs.count();}
     const QStringList& getChildren() const;
     void addChild(CompositeVar &var) {affiliatedVarIDs+=var.getID();var.setParent(*this);}
-    const QString& getParentID() {return parentID;}
+    const QString& getParentID() const {return parentID;}
 
     ~CompositeVar();
 };

@@ -1,6 +1,8 @@
 #ifndef VARBYTESVALUECONVERTER_H
 #define VARBYTESVALUECONVERTER_H
 
+// класс преобразования данных из набора байт в GUI строку и обратно
+
 #include <QString>
 #include <QByteArray>
 #include "varitem.h"

@@ -93,33 +93,33 @@ VarBytesValueConverter::VarBytesValueConverter()
 int VarBytesValueConverter::getVarSize(const QString &varType)
 {
     int varSize=0;
-    if(varType.contains("char")) varSize=1;
-    else if(varType.contains("short")) varSize=2;
-    else if(varType.contains("int")) varSize=4;
-    else if(varType.contains("long long")) varSize=8;
-    else if(varType.contains("long")) varSize=4;
-    else if(varType.contains("float")) varSize=4;
-    else if(varType.contains("double")) varSize=8;
-    else if(varType.contains("time")) varSize=7;
+    if(varType.contains(VarItem::charType)) varSize=1;
+    else if(varType.contains(VarItem::shortType)) varSize=2;
+    else if(varType.contains(VarItem::intType)) varSize=4;
+    else if(varType.contains(VarItem::longLongType)) varSize=8;
+    else if(varType.contains(VarItem::longType)) varSize=4;
+    else if(varType.contains(VarItem::floatType)) varSize=4;
+    else if(varType.contains(VarItem::doubleType)) varSize=8;
+    else if(varType.contains(VarItem::timeType)) varSize=7;
     return varSize;
 }
 
 QByteArray VarBytesValueConverter::getWrData(VarItem var)
 {
     QByteArray data;
-    if(var.getDataType().contains("char")) {
+    if(var.getDataType().contains(VarItem::charType)) {
         data+=(unsigned char)(var.getValue().toInt());
-    }else if(var.getDataType().contains("short")) {
+    }else if(var.getDataType().contains(VarItem::shortType)) {
         int value = var.getValue().toInt();
         data += value & 0xFF;
         data += (value>>8) &0xFF;
-    }else if(var.getDataType().contains("int")) {
+    }else if(var.getDataType().contains(VarItem::intType)) {
         int value = var.getValue().toInt();
         data += value & 0xFF;
         data += (value>>8) &0xFF;
         data += (value>>16) &0xFF;
         data += (value>>24) &0xFF;
-    }else if(var.getDataType().contains("long long")) {
+    }else if(var.getDataType().contains(VarItem::longLongType)) {
             quint64 value = var.getValue().toLongLong();
             data += value & 0xFF;
             data += (value>>8) &0xFF;
@@ -129,21 +129,21 @@ QByteArray VarBytesValueConverter::getWrData(VarItem var)
             data += (value>>40) &0xFF;
             data += (value>>48) &0xFF;
             data += (value>>56) &0xFF;
-    }else if(var.getDataType().contains("long")) {
+    }else if(var.getDataType().contains(VarItem::longType)) {
         quint32 value = var.getValue().toLong();
         data += value & 0xFF;
         data += (value>>8) &0xFF;
         data += (value>>16) &0xFF;
         data += (value>>24) &0xFF;
-    }else if(var.getDataType()=="float") {
+    }else if(var.getDataType()==VarItem::floatType) {
         float f = var.getValue().toFloat();
         QByteArray ba(reinterpret_cast<const char *>(&f), sizeof (f));
         data += ba;
-    }else if(var.getDataType()=="double") {
+    }else if(var.getDataType()==VarItem::doubleType) {
         double d = var.getValue().toDouble();
         QByteArray ba(reinterpret_cast<const char *>(&d), sizeof (d));
         data += ba;
-    }else if(var.getDataType()=="time") {
+    }else if(var.getDataType()==VarItem::timeType) {
         QStringList inpData = var.getValue().split(" ");
         foreach (QString timeCell, inpData) {
            if(!timeCell.isEmpty()) {
@@ -158,16 +158,16 @@ QByteArray VarBytesValueConverter::getWrData(VarItem var)
 QString VarBytesValueConverter::getValue(VarItem &var, const QByteArray &data)
 {
     QString vType = var.getDataType();
-    if(vType.contains("int")) return getIntValue(vType,data);
-    if(vType.contains("char")) {
+    if(vType.contains(VarItem::intType)) return getIntValue(vType,data);
+    if(vType.contains(VarItem::charType)) {
         if(var.getBitNum()>=0) return getBitValue(var.getBitNum(),data);
         return getCharValue(vType,data);
     }
-    if(vType.contains("short")) return getShortValue(vType,data);
-    if(vType.contains("long long")) return getLongLongValue(vType,data);
-    if(vType.contains("long")) return getLongValue(vType,data);
-    if(vType.contains("float")) return getFloatValue(vType,data);
-    if(vType.contains("double")) return getDoubleValue(vType,data);
+    if(vType.contains(VarItem::shortType)) return getShortValue(vType,data);
+    if(vType.contains(VarItem::longLongType)) return getLongLongValue(vType,data);
+    if(vType.contains(VarItem::longType)) return getLongValue(vType,data);
+    if(vType.contains(VarItem::floatType)) return getFloatValue(vType,data);
+    if(vType.contains(VarItem::doubleType)) return getDoubleValue(vType,data);
 
     return QString();
 }

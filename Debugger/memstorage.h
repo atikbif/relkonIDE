@@ -23,6 +23,7 @@ public:
     static const QString ramMemName;
     static const QString framMemName;
     static const QString userMemName;
+    static const QString timeMemName;
     explicit MemStorage(QObject *parent = 0);
     QByteArray getData(const QString &memType, int addr, int count);
     bool connectCellToID(const QString &memType, int addr, const QString &id);

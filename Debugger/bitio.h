@@ -13,8 +13,11 @@ class BitIO
     int address;
     bool state;
 public:
+    static const int inputStartAddress = 0x00;
+    static const int outputStartAddress = 0x06;
+    static const int mmbInputStartAddress = 0x24;
+    static const int mmbOutputStartAddress = 0x44;
     BitIO();
-
     ~BitIO();
     QPushButton *getButton() const;
     void setButton(QPushButton *value);

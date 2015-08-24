@@ -60,7 +60,8 @@ void BitIO::setState(bool value)
 {
     state = value;
 }
-BitIO::BitIO()
+
+BitIO::BitIO():button(nullptr),comment(nullptr),bitNum(0),name(""),address(0),state(false)
 {
     
 }

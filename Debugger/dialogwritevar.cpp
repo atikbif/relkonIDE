@@ -23,56 +23,56 @@ bool DialogWriteVar::checkResult()
     double dValue = getResult().toDouble(&doubleRes);
     // проверка корректности введённого текста
     if(longRes==true) {
-        if(var.getDataType()=="char") {
+        if(var.getDataType()==VarItem::charType) {
             qint8 res = (qint8)lValue;
             ui->lineEdit->setText(QString::number(res));
             return true;
         }
-        if(var.getDataType()=="unsigned char") {
+        if(var.getDataType()==VarItem::ucharType) {
             if(lValue<0) return false;
             quint8 res = (qint8)lValue;
             ui->lineEdit->setText(QString::number(res));
             return true;
         }
-        if(var.getDataType()=="short") {
+        if(var.getDataType()==VarItem::shortType) {
             qint16 res = (qint16)lValue;
             ui->lineEdit->setText(QString::number(res));
             return true;
         }
-        if(var.getDataType()=="unsigned short") {
+        if(var.getDataType()==VarItem::ushortType) {
             if(lValue<0) return false;
             quint16 res = (qint16)lValue;
             ui->lineEdit->setText(QString::number(res));
             return true;
         }
-        if(var.getDataType()=="int") {
+        if(var.getDataType()==VarItem::intType) {
             qint32 res = (qint32)lValue;
             ui->lineEdit->setText(QString::number(res));
             return true;
         }
-        if(var.getDataType()=="unsigned int") {
+        if(var.getDataType()==VarItem::uintType) {
             if(lValue<0) return false;
             quint32 res = (qint32)lValue;
             ui->lineEdit->setText(QString::number(res));
             return true;
         }
-        if(var.getDataType()=="long") {
+        if(var.getDataType()==VarItem::longType) {
             qint32 res = (qint32)lValue;
             ui->lineEdit->setText(QString::number(res));
             return true;
         }
-        if(var.getDataType()=="unsigned long") {
+        if(var.getDataType()==VarItem::ulongType) {
             if(lValue<0) return false;
             quint32 res = (qint32)lValue;
             ui->lineEdit->setText(QString::number(res));
             return true;
         }
-        if(var.getDataType()=="long long") {
+        if(var.getDataType()==VarItem::longLongType) {
             return true;
         }
     }
     if(doubleRes==true) {
-        if(var.getDataType()=="float") {
+        if(var.getDataType()==VarItem::floatType) {
             float res = (float)dValue;
             ui->lineEdit->setText(QString::number(res));
             return true;

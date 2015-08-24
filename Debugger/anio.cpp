@@ -51,7 +51,7 @@ void AnIO::setSlider(QSlider *value)
     slider = value;
 }
 
-AnIO::AnIO()
+AnIO::AnIO():name(""),address(0),lcdNum(nullptr),comment(nullptr),slider(nullptr)
 {
 
 }
