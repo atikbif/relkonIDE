@@ -78,7 +78,8 @@ SOURCES += main.cpp\
     Debugger/dialogwritevar.cpp \
     Debugger/anio.cpp \
     Debugger/bitio.cpp \
-    LCD/displaystr.cpp
+    LCD/displaystr.cpp \
+    LCD/varpattern.cpp
 
 HEADERS  += mainwindow.h \
     codeeditor.h \
@@ -142,7 +143,8 @@ HEADERS  += mainwindow.h \
     Debugger/dialogwritevar.h \
     Debugger/anio.h \
     Debugger/bitio.h \
-    LCD/displaystr.h
+    LCD/displaystr.h \
+    LCD/varpattern.h
 
 FORMS    += mainwindow.ui \
     settingsform.ui \
