@@ -79,7 +79,8 @@ SOURCES += main.cpp\
     Debugger/anio.cpp \
     Debugger/bitio.cpp \
     LCD/displaystr.cpp \
-    LCD/varpattern.cpp
+    LCD/varpattern.cpp \
+    LCD/display.cpp
 
 HEADERS  += mainwindow.h \
     codeeditor.h \
@@ -144,7 +145,8 @@ HEADERS  += mainwindow.h \
     Debugger/anio.h \
     Debugger/bitio.h \
     LCD/displaystr.h \
-    LCD/varpattern.h
+    LCD/varpattern.h \
+    LCD/display.h
 
 FORMS    += mainwindow.ui \
     settingsform.ui \

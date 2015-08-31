@@ -1,9 +1,9 @@
 #include "displaystr.h"
 
+bool DisplayStr::replaceMode = false;
 
-bool DisplayStr::getReplaceMode() const
+bool DisplayStr::getReplaceMode()
 {
-    QMutexLocker locker(&mutex);
     return replaceMode;
 }
 
@@ -45,7 +45,6 @@ void DisplayStr::deleteSymbol(int pos)
 
 void DisplayStr::setReplaceMode(bool value)
 {
-    QMutexLocker locker(&mutex);
     replaceMode = value;
 }
 
@@ -73,9 +72,34 @@ bool DisplayStr::addVar(const VarPattern &vP, int pos)
     return true;
 }
 
-DisplayStr::DisplayStr():replaceMode(false)
+DisplayStr::DisplayStr():active(true)
 {
     data.append(" ",length);
+}
+
+DisplayStr::DisplayStr(const DisplayStr &s)
+{
+    foreach (vPatt* ptr, vList) {delete ptr;}
+    vList.clear();
+    foreach (vPatt* ptr, s.getVars()) {
+       vPatt* copyPattern = new vPatt(*ptr);
+       vList += copyPattern;
+    }
+    data = s.getString();
+}
+
+DisplayStr &DisplayStr::operator=(const DisplayStr &s)
+{
+    if (this != &s) {
+        foreach (vPatt* ptr, vList) {delete ptr;}
+        vList.clear();
+        foreach (vPatt* ptr, s.getVars()) {
+           vPatt* copyPattern = new vPatt(*ptr);
+           vList += copyPattern;
+        }
+        data = s.getString();
+    }
+    return *this;
 }
 
 DisplayStr::~DisplayStr()
