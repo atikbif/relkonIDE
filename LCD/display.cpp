@@ -2,6 +2,7 @@
 
 bool Display::checkStrNum(int strNum, int subStrNum)
 {
+    if(subStrNum<0) return false;
     if((strNum>=0)&&(strNum<strCount)) {
         if(subStrNum<data.value(strNum).count()) return true;
     }
@@ -23,8 +24,16 @@ bool Display::setCursor(int xPos, int yPos)
 {
     if((yPos<0)||(yPos>=strCount)) return false;
     if((xPos<0)||(xPos>=DisplayStr::getLength())) return false;
+    x = xPos;
+    y = yPos;
     emit cursorPosChanged(xPos,yPos);
     return true;
+}
+
+int Display::getSubStrCount(int strNum) const
+{
+    if((strNum<0)||(strNum>=strCount)) return -1;
+    return data.value(strNum).count();
 }
 
 void Display::moveCursorRight()
@@ -112,6 +121,10 @@ bool Display::addEmptyStrBefore(int strNum, int subStrNum)
     QVector<DisplayStr*> subStrings = data.value(strNum);
     subStrings.insert(subStrNum,str);
     data.insert(strNum,subStrings);
+    curStr.insert(strNum,subStrNum);
+    x=0;y=strNum;
+    emit cursorPosChanged(x,y);
+    emit curStrNumChanged(strNum,subStrNum);
     emit strListChanged(strNum);
     return true;
 }
@@ -123,6 +136,10 @@ bool Display::addEmptyStrAfter(int strNum, int subStrNum)
     QVector<DisplayStr*> subStrings = data.value(strNum);
     subStrings.insert(subStrNum+1,str);
     data.insert(strNum,subStrings);
+    curStr.insert(strNum,subStrNum+1);
+    x=0;y=strNum;
+    emit cursorPosChanged(x,y);
+    emit curStrNumChanged(strNum,subStrNum+1);
     emit strListChanged(strNum);
     return true;
 }
@@ -142,6 +159,10 @@ bool Display::pasteStrFromBuffer(int strNum, int subStrNum)
     QVector<DisplayStr*> subStrings = data.value(strNum);
     DisplayStr* str = subStrings.at(subStrNum);
     str->operator =(*copyStrBuf);
+    curStr.insert(strNum,subStrNum);
+    x=0;y=strNum;
+    emit cursorPosChanged(x,y);
+    emit curStrNumChanged(strNum,subStrNum);
     emit strChanged(strNum, subStrNum);
     return true;
 }
@@ -150,8 +171,14 @@ bool Display::deleteStr(int strNum, int subStrNum)
 {
     if(checkStrNum(strNum,subStrNum)==false) return false;
     QVector<DisplayStr*> subStrings = data.value(strNum);
+    if(subStrings.count()==1) return false;
     subStrings.remove(subStrNum);
     data.insert(strNum,subStrings);
+    if(subStrNum>=subStrings.count()) subStrNum--;
+    curStr.insert(strNum,subStrNum);
+    x=0;y=strNum;
+    emit cursorPosChanged(x,y);
+    emit curStrNumChanged(strNum,subStrNum);
     emit strListChanged(strNum);
     return true;
 }
@@ -160,8 +187,12 @@ bool Display::insertSymbol(quint8 code)
 {
     if(checkStrNum(y,getCurSubStrNum(y))==false) return false;
     DisplayStr* str = data.value(y).at(getCurSubStrNum(y));
-    emit strChanged(y,getCurSubStrNum(y));
-    return str->insertSymbol(x,code);
+    if(str->insertSymbol(x,code)==true) {
+        moveCursorRight();
+        emit strChanged(y,getCurSubStrNum(y));
+        return true;
+    }
+    return false;
 }
 
 void Display::deleteSymbol()

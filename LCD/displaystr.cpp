@@ -72,18 +72,28 @@ bool DisplayStr::addVar(const VarPattern &vP, int pos)
     return true;
 }
 
+bool DisplayStr::getVar(int num, vPatt &v) const
+{
+    if((num<0)||(num>=getVarsCount())) return false;
+    v.pos = vList.at(num)->pos;
+    v.variable = vList.at(num)->variable;
+    return true;
+}
+
 DisplayStr::DisplayStr():active(true)
 {
-    data.append(" ",length);
+    data.fill(spaceCode,length);
 }
 
 DisplayStr::DisplayStr(const DisplayStr &s)
 {
     foreach (vPatt* ptr, vList) {delete ptr;}
     vList.clear();
-    foreach (vPatt* ptr, s.getVars()) {
-       vPatt* copyPattern = new vPatt(*ptr);
-       vList += copyPattern;
+    for(int i=0;i<s.getVarsCount();i++) {
+        vPatt v;
+        s.getVar(i,v);
+        vPatt* copyPattern = new vPatt(v);
+        vList += copyPattern;
     }
     data = s.getString();
 }
@@ -93,9 +103,11 @@ DisplayStr &DisplayStr::operator=(const DisplayStr &s)
     if (this != &s) {
         foreach (vPatt* ptr, vList) {delete ptr;}
         vList.clear();
-        foreach (vPatt* ptr, s.getVars()) {
-           vPatt* copyPattern = new vPatt(*ptr);
-           vList += copyPattern;
+        for(int i=0;i<s.getVarsCount();i++) {
+            vPatt v;
+            s.getVar(i,v);
+            vPatt* copyPattern = new vPatt(v);
+            vList += copyPattern;
         }
         data = s.getString();
     }

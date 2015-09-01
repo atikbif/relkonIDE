@@ -8,16 +8,21 @@
 #include <QVector>
 #include <QMutexLocker>
 
+struct vPatt{
+    int pos;
+    VarPattern variable;
+    vPatt(int vPos, const VarPattern &v):pos(vPos),variable(v)
+    {
+
+    }
+    vPatt():pos(0),variable(VarPattern("",""))
+    {
+
+    }
+};
+
 class DisplayStr
 {
-    struct vPatt{
-        int pos;
-        VarPattern variable;
-        vPatt(int vPos, const VarPattern &v):pos(vPos),variable(v)
-        {
-
-        }
-    };
     QVector<vPatt*> vList;  // список переменных
     static const int length=20; // длина строки
     static const quint8 spaceCode = 0x20;
@@ -38,7 +43,8 @@ public:
     void deleteSymbol(int pos);
     static void setReplaceMode(bool value);
     bool addVar(const VarPattern& vP, int pos);
-    const QVector<vPatt*> getVars(void) const {return vList;}
+    int getVarsCount(void) const {return vList.count();}
+    bool getVar(int num, vPatt &v) const;
     bool isActive(void) const {return active;}
     void setActive(bool value) {active=value;}
 };
