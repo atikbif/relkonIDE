@@ -31,8 +31,8 @@ bool SymbolData::setData(const QList<QBitArray> &pixels)
     return true;
 }
 
-SymbolData::SymbolData(int sHeight, int sWidth, int sCode):
-    height(sHeight), width(sWidth), code(sCode)
+SymbolData::SymbolData(int sCode):
+    code(sCode)
 {
     for(int i=0;i<height;i++) {
         QBitArray pixelLine;
@@ -46,12 +46,12 @@ const QList<QBitArray> SymbolData::getData() const
     return data;
 }
 
-int SymbolData::getHeight() const
+int SymbolData::getHeight()
 {
     return height;
 }
 
-int SymbolData::getWidth() const
+int SymbolData::getWidth()
 {
     return width;
 }

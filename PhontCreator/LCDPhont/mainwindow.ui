@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>Редактор шрифта</string>
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QVBoxLayout" name="verticalLayout">
@@ -44,9 +44,9 @@
     <property name="title">
      <string>Файл</string>
     </property>
-    <addaction name="action"/>
-    <addaction name="action_2"/>
-    <addaction name="action_3"/>
+    <addaction name="actionNew"/>
+    <addaction name="actionOpen"/>
+    <addaction name="actionSave"/>
    </widget>
    <addaction name="menu"/>
   </widget>
@@ -59,17 +59,17 @@
    </attribute>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
-  <action name="action">
+  <action name="actionNew">
    <property name="text">
     <string>Новый</string>
    </property>
   </action>
-  <action name="action_2">
+  <action name="actionOpen">
    <property name="text">
     <string>Открыть</string>
    </property>
   </action>
-  <action name="action_3">
+  <action name="actionSave">
    <property name="text">
     <string>Сохранить</string>
    </property>

@@ -16,7 +16,7 @@ void SymbolEditor::setWidth(int value)
 void SymbolEditor::setData(const SymbolData &sd)
 {
     if(sData) delete sData;
-    sData = new SymbolData(sd.getHeight(),sd.getWidth(),sd.getCode());
+    sData = new SymbolData(sd.getCode());
     sData->setData(sd.getData());
     repaint();
 }

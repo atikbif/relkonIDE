@@ -28,3 +28,6 @@ HEADERS  += mainwindow.h \
     symboldelegate.h
 
 FORMS    += mainwindow.ui
+
+RESOURCES += \
+    images.qrc

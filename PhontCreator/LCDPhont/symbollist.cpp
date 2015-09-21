@@ -3,7 +3,7 @@
 SymbolList::SymbolList(QObject *parent):QAbstractListModel(parent)
 {
     for(int i=0;i<256;i++) {
-        SymbolData* s = new SymbolData(10,7,i);
+        SymbolData* s = new SymbolData(i);
         sList += s;
     }
 }

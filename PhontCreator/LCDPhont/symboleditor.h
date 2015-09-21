@@ -10,7 +10,7 @@ class SymbolEditor : public QWidget
     Q_OBJECT
     SymbolData* sData;
     int width,height;
-    static const int space = 5;
+    static const int space = 2;
 public:
     int getHeight(void) const {return height;}
     int getWidth(void) const {return width;}

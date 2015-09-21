@@ -33,11 +33,9 @@ void SymbolDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option
 
     if(s!=nullptr) {
         painter->drawText(option.rect,Qt::AlignCenter,QString::number(s->getCode()));
-        image.scaledToHeight(option.rect.height(),Qt::SmoothTransformation);
+        image = image.scaledToHeight(option.rect.height()-1,Qt::SmoothTransformation);
         painter->drawImage(option.rect.topLeft(),image);
     }
-
-
     painter->restore();
 }
 

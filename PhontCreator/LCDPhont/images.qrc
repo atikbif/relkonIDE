@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/">
+        <file>new_32.ico</file>
+        <file>open_32.ico</file>
+        <file>save_32.ico</file>
+    </qresource>
+</RCC>
