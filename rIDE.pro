@@ -80,7 +80,10 @@ SOURCES += main.cpp\
     Debugger/bitio.cpp \
     LCD/displaystr.cpp \
     LCD/varpattern.cpp \
-    LCD/display.cpp
+    LCD/display.cpp \
+    LCD/lcdform.cpp \
+    LCD/displaywidget.cpp \
+    LCD/patterneditorwidget.cpp
 
 HEADERS  += mainwindow.h \
     codeeditor.h \
@@ -146,7 +149,10 @@ HEADERS  += mainwindow.h \
     Debugger/bitio.h \
     LCD/displaystr.h \
     LCD/varpattern.h \
-    LCD/display.h
+    LCD/display.h \
+    LCD/lcdform.h \
+    LCD/displaywidget.h \
+    LCD/patterneditorwidget.h
 
 FORMS    += mainwindow.ui \
     settingsform.ui \
@@ -154,7 +160,8 @@ FORMS    += mainwindow.ui \
     Loader/ymodemthread.ui \
     Loader/sysframreadwrite.ui \
     Debugger/debuggerform.ui \
-    Debugger/dialogwritevar.ui
+    Debugger/dialogwritevar.ui \
+    LCD/lcdform.ui
 
 RESOURCES += \
     icons.qrc

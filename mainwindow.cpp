@@ -24,7 +24,7 @@
 #include "RCompiler/rcompiler.h"
 
 #include "Debugger/debuggerform.h"
-#include "LCD/display.h"
+#include "LCD/lcdform.h"
 
 QStringList MainWindow::getPrevProjects()
 {
@@ -255,7 +255,8 @@ MainWindow::MainWindow(QWidget *parent) :
     debugger = new DebuggerForm();
     ui->tabWidget->addTab(debugger,"Отладчик");
 
-    Display d;
+    LCDForm* lcd = new LCDForm();
+    ui->tabWidget->addTab(lcd,"Пульт");
 
     /*ui->mdiArea->addSubWindow(editor);
     ui->mdiArea->addSubWindow(debugger);
