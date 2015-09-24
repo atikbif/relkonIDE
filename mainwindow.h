@@ -7,6 +7,7 @@
 #include <QThread>
 #include "settingsbase.h"
 #include "Debugger/debuggerform.h"
+#include "LCD/display.h"
 
 
 namespace Ui {
@@ -20,6 +21,7 @@ class MainWindow : public QMainWindow
     CodeEditor *editor;
     SettingsBase *settings;
     DebuggerForm *debugger;
+    Display *displ;
     QThread builderThread;
 
     const QString wTitle = "RelkonIDE ";

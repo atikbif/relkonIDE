@@ -2,6 +2,8 @@
 #define LCDFORM_H
 
 #include <QWidget>
+#include "displaywidget.h"
+#include "display.h"
 
 namespace Ui {
 class LCDForm;
@@ -10,9 +12,10 @@ class LCDForm;
 class LCDForm : public QWidget
 {
     Q_OBJECT
-
+    DisplayWidget* dW;
+    Display& displ;
 public:
-    explicit LCDForm(QWidget *parent = 0);
+    explicit LCDForm(Display& d,QWidget *parent = 0);
     ~LCDForm();
 
 private:

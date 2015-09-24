@@ -83,7 +83,8 @@ SOURCES += main.cpp\
     LCD/display.cpp \
     LCD/lcdform.cpp \
     LCD/displaywidget.cpp \
-    LCD/patterneditorwidget.cpp
+    LCD/patterneditorwidget.cpp \
+    LCD/lcdphont.cpp
 
 HEADERS  += mainwindow.h \
     codeeditor.h \
@@ -152,7 +153,8 @@ HEADERS  += mainwindow.h \
     LCD/display.h \
     LCD/lcdform.h \
     LCD/displaywidget.h \
-    LCD/patterneditorwidget.h
+    LCD/patterneditorwidget.h \
+    LCD/lcdphont.h
 
 FORMS    += mainwindow.ui \
     settingsform.ui \

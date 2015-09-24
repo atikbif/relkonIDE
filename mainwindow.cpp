@@ -255,7 +255,8 @@ MainWindow::MainWindow(QWidget *parent) :
     debugger = new DebuggerForm();
     ui->tabWidget->addTab(debugger,"Отладчик");
 
-    LCDForm* lcd = new LCDForm();
+    displ = new Display();
+    LCDForm* lcd = new LCDForm(*displ);
     ui->tabWidget->addTab(lcd,"Пульт");
 
     /*ui->mdiArea->addSubWindow(editor);
@@ -287,6 +288,7 @@ MainWindow::~MainWindow()
     builderThread.quit();
     builderThread.wait();
     delete ui;
+    delete displ;
 }
 
 void MainWindow::newFile()

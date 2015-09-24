@@ -6,8 +6,8 @@
 #include "displaywidget.h"
 #include "patterneditorwidget.h"
 
-LCDForm::LCDForm(QWidget *parent) :
-    QWidget(parent),
+LCDForm::LCDForm(Display &d, QWidget *parent) :
+    QWidget(parent),displ(d),
     ui(new Ui::LCDForm)
 {
     ui->setupUi(this);
@@ -21,8 +21,12 @@ LCDForm::LCDForm(QWidget *parent) :
     layout->addWidget(l2,1,1,1,1);
     layout->addWidget(l3,1,2,1,1);
     layout->addWidget(l4,1,3,1,1);
-    layout->addWidget(new DisplayWidget(),0,0,1,3);
-    layout->addWidget(new PatternEditorWidget(),0,3,1,1);
+    dW = new DisplayWidget(displ);
+    layout->addWidget(dW,0,0,1,2);
+    layout->addWidget(new PatternEditorWidget(),0,2,1,2);
+    connect(&displ,SIGNAL(cursorPosChanged(int,int)),dW,SLOT(update()));
+    connect(&displ,SIGNAL(curStrNumChanged(int,int)),dW,SLOT(update()));
+    connect(&displ,SIGNAL(strChanged(int,int)),dW,SLOT(update()));
 }
 
 LCDForm::~LCDForm()
