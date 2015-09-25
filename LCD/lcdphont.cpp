@@ -54,6 +54,14 @@ int LCDPhont::getSymbCodeinPhont(int unicodeValue) const
     return 0;
 }
 
+int LCDPhont::getUnicodeValue(int phontCode) const
+{
+    if(uncdTable.values().contains(phontCode)) {
+        return uncdTable.key(phontCode);
+    }
+    return 0x20; // space code
+}
+
 LCDPhont::~LCDPhont()
 {
 

@@ -10,7 +10,7 @@ bool DisplayStr::getReplaceMode()
 int DisplayStr::getSymbol(int pos) const
 {
     QMutexLocker locker(&mutex);
-    int res = 0;
+    quint8 res = 0;
     if((pos>=0)&&(pos<length)) res = data.at(pos);
     return res;
 }
@@ -96,6 +96,7 @@ DisplayStr::DisplayStr(const DisplayStr &s)
         vList += copyPattern;
     }
     data = s.getString();
+    active = s.isActive();
 }
 
 DisplayStr &DisplayStr::operator=(const DisplayStr &s)
@@ -110,6 +111,7 @@ DisplayStr &DisplayStr::operator=(const DisplayStr &s)
             vList += copyPattern;
         }
         data = s.getString();
+        active = s.isActive();
     }
     return *this;
 }

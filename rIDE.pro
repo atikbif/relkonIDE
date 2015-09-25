@@ -84,7 +84,8 @@ SOURCES += main.cpp\
     LCD/lcdform.cpp \
     LCD/displaywidget.cpp \
     LCD/patterneditorwidget.cpp \
-    LCD/lcdphont.cpp
+    LCD/lcdphont.cpp \
+    LCD/strlistwidget.cpp
 
 HEADERS  += mainwindow.h \
     codeeditor.h \
@@ -154,7 +155,8 @@ HEADERS  += mainwindow.h \
     LCD/lcdform.h \
     LCD/displaywidget.h \
     LCD/patterneditorwidget.h \
-    LCD/lcdphont.h
+    LCD/lcdphont.h \
+    LCD/strlistwidget.h
 
 FORMS    += mainwindow.ui \
     settingsform.ui \
@@ -166,7 +168,8 @@ FORMS    += mainwindow.ui \
     LCD/lcdform.ui
 
 RESOURCES += \
-    icons.qrc
+    icons.qrc \
+    LCD/lcdicons.qrc
 
 
 INCLUDEPATH += "C:/boost/boost_1_58_0"

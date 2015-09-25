@@ -1,0 +1,9 @@
+<RCC>
+    <qresource prefix="/">
+        <file>act_32.ico</file>
+        <file>copy_32.ico</file>
+        <file>del_32.ico</file>
+        <file>ins_16.ico</file>
+        <file>paste_32.ico</file>
+    </qresource>
+</RCC>

@@ -37,7 +37,7 @@ public:
     const DisplayStr getCursorString(void);  // вернуть строку, на которую указывает курсор
     int getCurSubStrNum(int strNum) const;
     bool getReplaceMode(void) const {return DisplayStr::getReplaceMode();}
-    void setReplaceMode(bool value) {DisplayStr::setReplaceMode(value);}
+    void setReplaceMode(bool value);
     bool addEmptyStrBefore(int strNum, int subStrNum);
     bool addEmptyStrAfter(int strNum, int subStrNum);
     bool copyStrToBuffer(int strNum, int subStrNum);
@@ -45,8 +45,10 @@ public:
     bool deleteStr(int strNum, int subStrNum);
     bool insertSymbol(quint8 code);
     void deleteSymbol(void);
+    void backspace(void);
     bool addVar(const VarPattern& vP);
     bool goToStr(int strNum, int subStrNum); // сделать строку активной и переместить туда курсор
+    void toggleActive(int strNum, int subStrNum);
     ~Display();
 signals:
     cursorPosChanged(int x,int y); // были изменены координаты курсора

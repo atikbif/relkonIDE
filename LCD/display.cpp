@@ -114,6 +114,15 @@ int Display::getCurSubStrNum(int strNum) const
     return -1;
 }
 
+void Display::setReplaceMode(bool value)
+{
+    if(value!=getReplaceMode()) {
+        DisplayStr::setReplaceMode(value);
+        emit cursorPosChanged(x,y);
+    }
+
+}
+
 bool Display::addEmptyStrBefore(int strNum, int subStrNum)
 {
     if(checkStrNum(strNum,subStrNum)==false) return false;
@@ -124,8 +133,8 @@ bool Display::addEmptyStrBefore(int strNum, int subStrNum)
     curStr.insert(strNum,subStrNum);
     x=0;y=strNum;
     emit cursorPosChanged(x,y);
-    emit curStrNumChanged(strNum,subStrNum);
     emit strListChanged(strNum);
+    emit curStrNumChanged(strNum,subStrNum);
     return true;
 }
 
@@ -139,8 +148,8 @@ bool Display::addEmptyStrAfter(int strNum, int subStrNum)
     curStr.insert(strNum,subStrNum+1);
     x=0;y=strNum;
     emit cursorPosChanged(x,y);
-    emit curStrNumChanged(strNum,subStrNum+1);
     emit strListChanged(strNum);
+    emit curStrNumChanged(strNum,subStrNum+1);
     return true;
 }
 
@@ -203,6 +212,15 @@ void Display::deleteSymbol()
     return str->deleteSymbol(x);
 }
 
+void Display::backspace()
+{
+    if(x>0) {
+        x--;
+        deleteSymbol();
+        emit cursorPosChanged(x,y);
+    }
+}
+
 bool Display::addVar(const VarPattern &vP)
 {
     if(checkStrNum(y,getCurSubStrNum(y))==false) return false;
@@ -219,6 +237,14 @@ bool Display::goToStr(int strNum, int subStrNum)
     emit curStrNumChanged(strNum, subStrNum);
     emit cursorPosChanged(x,y);
     return true;
+}
+
+void Display::toggleActive(int strNum, int subStrNum)
+{
+    if(checkStrNum(strNum,subStrNum)==false) return;
+    DisplayStr* str = data.value(strNum).at(subStrNum);
+    str->setActive(!str->isActive());
+    emit strListChanged(strNum);
 }
 
 Display::~Display()

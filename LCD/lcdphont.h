@@ -21,6 +21,7 @@ public:
     bool getBitValue(int phCode,int row,int column) const;
     bool hasSymbol(int uncdValue) const;
     int getSymbCodeinPhont(int unicodeValue) const;
+    int getUnicodeValue(int phontCode) const;
     ~LCDPhont();
 private:
     void createUnicodeTable(void);

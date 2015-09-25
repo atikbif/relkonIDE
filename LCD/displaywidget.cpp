@@ -54,17 +54,11 @@ void DisplayWidget::keyPressEvent(QKeyEvent *event)
         displ.moveCursorDown();
         break;
     case Qt::Key_PageUp:
-    {
-        // номер активной подстроки в строке с курсором
-        int subStrNum = displ.getCurSubStrNum(displ.getYPosition());
-        if(subStrNum<displ.getSubStrCount(displ.getYPosition())-1) displ.goToStr(displ.getYPosition(),subStrNum+1);
-        break;}
+        displ.prevString();
+        break;
     case Qt::Key_PageDown:
-    {
-        // номер активной подстроки в строке с курсором
-        int subStrNum = displ.getCurSubStrNum(displ.getYPosition());
-        if(subStrNum>0) displ.goToStr(displ.getYPosition(),subStrNum-1);
-        break;}
+        displ.nextString();
+        break;
     case Qt::Key_Home:
         displ.moveCursorToBegin();
         break;
@@ -72,10 +66,17 @@ void DisplayWidget::keyPressEvent(QKeyEvent *event)
         displ.moveCursorToEnd();
         break;
     case Qt::Key_Enter:
+    case Qt::Key_Return:
         displ.addEmptyStrAfter(displ.getYPosition(),displ.getCurSubStrNum(displ.getYPosition()));
         break;
     case Qt::Key_Delete:
         displ.deleteSymbol();
+        break;
+    case Qt::Key_Backspace:
+        displ.backspace();
+        break;
+    case Qt::Key_Insert:
+        displ.setReplaceMode(!displ.getReplaceMode());
         break;
     default:
         QString s = event->text();
@@ -91,6 +92,7 @@ void DisplayWidget::keyPressEvent(QKeyEvent *event)
 
 void DisplayWidget::paintEvent(QPaintEvent *event)
 {
+    setFocus();
     QPainter painter(this);
     painter.save();
 
@@ -102,7 +104,7 @@ void DisplayWidget::paintEvent(QPaintEvent *event)
     painter.setRenderHint(QPainter::HighQualityAntialiasing);
     QPen penLight(Qt::lightGray);
     QPen penDark(Qt::darkGray);
-    QPen penCurs(Qt::darkRed);
+    QPen penCurs(Qt::darkGreen);
     penCurs.setWidth(3);
 
     for(int y=0;y<strCount;y++) {
@@ -128,6 +130,8 @@ void DisplayWidget::paintEvent(QPaintEvent *event)
             painter.setBrush(Qt::NoBrush);
             QRectF sRect(x*widthOneSymb+1,y*heightOneSymb+1,widthOneSymb-spaceBetwSymb,heightOneSymb-spaceBetwSymb);
             if((displ.getXPosition()==x)&&(displ.getYPosition()==y)) {
+                if(displ.getReplaceMode()==false) penCurs.setColor(Qt::darkGray);
+                    else penCurs.setColor(Qt::darkBlue);
                 painter.setPen(penCurs);
             }else painter.setPen(penDark);
             painter.drawRect(sRect);
