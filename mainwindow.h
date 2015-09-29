@@ -8,6 +8,8 @@
 #include "settingsbase.h"
 #include "Debugger/debuggerform.h"
 #include "LCD/display.h"
+#include "VarDef/varscreator.h"
+#include "LCD/lcdform.h"
 
 
 namespace Ui {
@@ -22,6 +24,8 @@ class MainWindow : public QMainWindow
     SettingsBase *settings;
     DebuggerForm *debugger;
     Display *displ;
+    LCDForm* lcd;
+    VarsCreator *varOwner;
     QThread builderThread;
 
     const QString wTitle = "RelkonIDE ";
@@ -45,6 +49,9 @@ public:
 signals:
     void startBuild(QString prPath, QString prName);
     void updateKonFileForBuilder(QStringList str);
+    void newProject(void);
+    void openProject(void);
+    void saveProject(void);
 
 private:
     Ui::MainWindow *ui;

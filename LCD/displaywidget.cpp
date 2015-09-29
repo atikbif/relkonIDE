@@ -92,7 +92,7 @@ void DisplayWidget::keyPressEvent(QKeyEvent *event)
 
 void DisplayWidget::paintEvent(QPaintEvent *event)
 {
-    setFocus();
+    //setFocus();
     QPainter painter(this);
     painter.save();
 
@@ -108,16 +108,17 @@ void DisplayWidget::paintEvent(QPaintEvent *event)
     penCurs.setWidth(3);
 
     for(int y=0;y<strCount;y++) {
+        DisplayStr curStr = displ.getString(y,displ.getCurSubStrNum(y));
         for(int x=0;x<symbInStrCount;x++) {
 
             float pixWidth = (widthOneSymb - spaceBetwSymb)/phont->getColumnCount();
             float pixHeight = (heightOneSymb - spaceBetwSymb)/phont->getRowCount();
-            int phCode = displ.getString(y,displ.getCurSubStrNum(y)).getSymbol(x);
-
+            int phCode = curStr.getSymbol(x);
             for(int pixY=0;pixY<phont->getRowCount();pixY++) {
                 for(int pixX=0;pixX<phont->getColumnCount();pixX++) {
                     if(phont->getBitValue(phCode,pixY,pixX)) {
-                        painter.setBrush(QBrush(Qt::black));
+                        if(curStr.isVarHere(x)) painter.setBrush(QBrush(Qt::blue));
+                        else painter.setBrush(QBrush(Qt::black));
                         painter.setPen(penLight);
                     }else {
                         painter.setBrush(QBrush(QColor(240,240,255)));

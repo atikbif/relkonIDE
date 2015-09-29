@@ -5,7 +5,7 @@
 
 #include <QString>
 #include <QByteArray>
-#include "varitem.h"
+#include "VarDef/varitem.h"
 
 class VarBytesValueConverter
 {

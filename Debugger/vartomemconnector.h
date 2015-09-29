@@ -3,8 +3,8 @@
 
 // установить/обновить связь ячеек памяти и идентификаторов переменных
 
-#include "idstorage.h"
-#include "varitem.h"
+#include "VarDef/idstorage.h"
+#include "VarDef/varitem.h"
 #include "memstorage.h"
 
 class VarToMemConnector

@@ -47,6 +47,7 @@ public:
     bool getVar(int num, vPatt &v) const;
     bool isActive(void) const {return active;}
     void setActive(bool value) {active=value;}
+    bool isVarHere(int pos) const;
 };
 
 #endif // DISPLAYSTR_H

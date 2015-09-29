@@ -1,13 +1,13 @@
 #include "debuggerform.h"
 #include "ui_debuggerform.h"
 
-#include "namesortiterator.h"
+#include "VarDef/namesortiterator.h"
 #include <QMenu>
 #include <QStringList>
 #include <QLineEdit>
 #include "vartomemconnector.h"
 #include "varbytesvalueconverter.h"
-#include "varparser.h"
+#include "VarDef/varparser.h"
 #include "RCompiler/rcompiler.h"
 #include <QDateTime>
 #include <QSerialPortInfo>
@@ -152,7 +152,6 @@ void DebuggerForm::clearView()
 void DebuggerForm::createTree()
 {
     ui->treeWidgetMain->clear();
-    varOwner.generateVarsTree();
     QTreeWidgetItem* item = new QTreeWidgetItem(ui->treeWidgetMain);
 
     if(varOwner.getIDList().count()) {
@@ -198,8 +197,8 @@ void DebuggerForm::treeBuilder(const QString &varID, QTreeWidgetItem &item)
     }
 }
 
-DebuggerForm::DebuggerForm(QWidget *parent) :
-    QWidget(parent),
+DebuggerForm::DebuggerForm(VarsCreator &vCr, QWidget *parent) :
+    QWidget(parent), varOwner(vCr),
     ui(new Ui::DebuggerForm)
 {
     scan = nullptr;
@@ -380,6 +379,23 @@ void DebuggerForm::on_updateButton_clicked()
     updateValuesTree();
     VarToMemConnector::updateConnection(memStor,varOwner.getIDStorage());
     update();
+}
+
+void DebuggerForm::openProject()
+{
+    on_updateButton_clicked();
+    openView();
+}
+
+void DebuggerForm::saveProject()
+{
+    saveView();
+}
+
+void DebuggerForm::newProject()
+{
+    on_updateButton_clicked();
+    clearView();
 }
 
 void DebuggerForm::updateValuesTree()

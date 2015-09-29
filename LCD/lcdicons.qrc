@@ -5,5 +5,8 @@
         <file>del_32.ico</file>
         <file>ins_16.ico</file>
         <file>paste_32.ico</file>
+        <file>apply_32.ico</file>
+        <file>left_32.ico</file>
+        <file>edit_32.ico</file>
     </qresource>
 </RCC>

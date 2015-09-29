@@ -16,6 +16,7 @@ class VarItem
     int priority;       // приоритет при опросе контроллера - влияет на частоту опроса
     volatile int memAddress;
     QString name;
+    QString comment;
     QString value;      // в текстовом виде т.к. могут быть как целые значения так и с плавающей точкой
     volatile int bitNum;         // номер бита (-1 если переменная не битовая)
     QString id;     // идентификатор переменной
@@ -56,6 +57,8 @@ public:
     virtual ~VarItem();
     bool getReadOnly() const;
     void setReadOnly(bool value);
+    void setComment(const QString& value) {comment = value;}
+    QString getComment(void) const {return comment;}
 };
 
 #endif // VARITEM_H

@@ -7,7 +7,7 @@
 #include <QXmlStreamWriter>
 #include <QMessageBox>
 #include "RCompiler/rcompiler.h"
-#include "Debugger/varitem.h"
+#include "VarDef/varitem.h"
 
 void VarParser::getVarsBlock()
 {

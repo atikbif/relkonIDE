@@ -22,12 +22,16 @@ bool DisplayStr::insertSymbol(int pos,quint8 code)
     if((pos<0)||(pos>=length)) return false;
 
     if(replaceMode) {
+        if(isVarHere(pos)) return false;
         data.remove(pos,1);
         data.insert(pos,code);
         result = true;
     }else {
         if(data.at(length-1)==0x20) {
             data.insert(pos,code);
+            foreach (vPatt* v, vList) {
+               if(v->pos >= pos) v->pos++;
+            }
             result = true;
         }
     }
@@ -39,7 +43,15 @@ void DisplayStr::deleteSymbol(int pos)
 {
     QMutexLocker locker(&mutex);
     if((pos<0)||(pos>=length)) return;
+
+    if(isVarHere(pos)) {
+        return;
+    }
+
     data.remove(pos,1);
+    foreach (vPatt* v, vList) {
+       if(v->pos>pos) v->pos--;
+    }
     data.append(spaceCode);
 }
 
@@ -58,14 +70,12 @@ bool DisplayStr::addVar(const VarPattern &vP, int pos)
         // check free space
         int i = length - 1;
         int spaceCnt = 0;
-        while(i>=0) {if(data.at(i)==0x20) spaceCnt++;else break;}
+        while(i>=0) {if(data.at(i)==0x20) spaceCnt++;else break;i--;}
         if(spaceCnt<vP.getLength()) return false;
     }else {
         data.remove(pos,vP.getLength());
     }
-    for(int i=0;i<vP.getLength();i++) {
-        data.insert(pos,spaceCode);
-    }
+    data.insert(pos,vP.getPattern());
     data.resize(length);
     vPatt* var = new vPatt(pos,vP);
     vList += var;
@@ -78,6 +88,14 @@ bool DisplayStr::getVar(int num, vPatt &v) const
     v.pos = vList.at(num)->pos;
     v.variable = vList.at(num)->variable;
     return true;
+}
+
+bool DisplayStr::isVarHere(int pos) const
+{
+    foreach (vPatt* v, vList) {
+       if((pos >= v->pos)&&(pos < v->pos+ v->variable.getLength())) return true;
+    }
+    return false;
 }
 
 DisplayStr::DisplayStr():active(true)

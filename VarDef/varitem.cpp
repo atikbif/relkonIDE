@@ -29,7 +29,7 @@ void VarItem::updateID()
     id = str;
 }
 
-VarItem::VarItem(): priority(0), memAddress(0), bitNum(-1), readOnly(false)
+VarItem::VarItem(): priority(0), memAddress(0), comment(""), bitNum(-1), readOnly(false)
 {
 
 }

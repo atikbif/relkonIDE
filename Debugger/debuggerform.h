@@ -4,11 +4,11 @@
 // класс GUI для отладчика
 
 #include <QWidget>
-#include "compositevar.h"
+#include "VarDef/compositevar.h"
 #include <QTreeWidgetItem>
-#include "idstorage.h"
-#include "varscreator.h"
-#include "namesortiterator.h"
+#include "VarDef/idstorage.h"
+#include "VarDef/varscreator.h"
+#include "VarDef/namesortiterator.h"
 #include <QHash>
 #include "memstorage.h"
 #include "Scanner/scanmanager.h"
@@ -26,7 +26,7 @@ class DebuggerForm : public QWidget
     Q_OBJECT
 
 
-    VarsCreator varOwner;
+    VarsCreator& varOwner;
     NameSortIterator* iter; // итератор для перемещения по основному дереву
     QHash<QString,QTreeWidgetItem*> idWidgetItem;   // переменные в основном GUI дереве
     QHash<QString,QTreeWidgetItem*> idActiveWidgetItem; // опрашиваемые переменные
@@ -54,7 +54,7 @@ class DebuggerForm : public QWidget
     void updateVarGUI(const QString &id);
 
 public:
-    explicit DebuggerForm(QWidget *parent = 0);
+    explicit DebuggerForm(VarsCreator& vCr, QWidget *parent = 0);
     void saveView();    // сохранить состояние отладчика в файл
     void openView();    // загрузить состояние отладчика из файла
     void clearView();
@@ -95,7 +95,9 @@ private slots:
 
 public slots:
     void on_updateButton_clicked(); // запрос обновления деревьев
-
+    void openProject(void);
+    void saveProject(void);
+    void newProject(void);
 private:
     Ui::DebuggerForm *ui;
 

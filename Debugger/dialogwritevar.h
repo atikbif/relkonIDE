@@ -4,7 +4,7 @@
 // Диалог для ввода значения переменной при записи
 
 #include <QDialog>
-#include "varitem.h"
+#include "VarDef/varitem.h"
 
 namespace Ui {
 class DialogWriteVar;

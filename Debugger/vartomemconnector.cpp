@@ -1,6 +1,6 @@
 #include "vartomemconnector.h"
 #include <QStringList>
-#include "compositevar.h"
+#include "VarDef/compositevar.h"
 
 VarToMemConnector::VarToMemConnector()
 {

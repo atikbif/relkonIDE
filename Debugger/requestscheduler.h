@@ -8,7 +8,7 @@
 #include "Protocols/request.h"
 #include <Qvector>
 #include <QMutex>
-#include "varitem.h"
+#include "VarDef/varitem.h"
 #include <QHash>
 #include <QString>
 #include <QBitArray>

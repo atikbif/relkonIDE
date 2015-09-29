@@ -8,6 +8,8 @@ VarPattern::VarPattern(const QString &vID, const QString &vPattern):
 
 bool VarPattern::checkPattern() const
 {
+    if(pattern.isEmpty()) return false;
+    if(pattern.contains(" ")) return false;
     return true;
 }
 

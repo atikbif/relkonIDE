@@ -59,20 +59,13 @@ SOURCES += main.cpp\
     Loader/ymodemthread.cpp \
     Loader/sysframreadwrite.cpp \
     Loader/sfram.cpp \
-    Debugger/varitem.cpp \
-    Debugger/compositevar.cpp \
-    Debugger/iterator.cpp \
-    Debugger/namesortiterator.cpp \
     Debugger/debuggerform.cpp \
-    Debugger/idstorage.cpp \
-    Debugger/varscreator.cpp \
     Debugger/memblock.cpp \
     Debugger/memstorage.cpp \
     Debugger/Scanner/scanmanager.cpp \
     Debugger/Scanner/plcscanner.cpp \
     Debugger/vartomemconnector.cpp \
     Debugger/varbytesvalueconverter.cpp \
-    Debugger/varparser.cpp \
     Debugger/requestscheduler.cpp \
     Debugger/debuggersettings.cpp \
     Debugger/dialogwritevar.cpp \
@@ -85,7 +78,14 @@ SOURCES += main.cpp\
     LCD/displaywidget.cpp \
     LCD/patterneditorwidget.cpp \
     LCD/lcdphont.cpp \
-    LCD/strlistwidget.cpp
+    LCD/strlistwidget.cpp \
+    VarDef/varscreator.cpp \
+    VarDef/compositevar.cpp \
+    VarDef/idstorage.cpp \
+    VarDef/iterator.cpp \
+    VarDef/namesortiterator.cpp \
+    VarDef/varitem.cpp \
+    VarDef/varparser.cpp
 
 HEADERS  += mainwindow.h \
     codeeditor.h \
@@ -130,20 +130,13 @@ HEADERS  += mainwindow.h \
     Loader/ymodemthread.h \
     Loader/sysframreadwrite.h \
     Loader/sfram.h \
-    Debugger/varitem.h \
-    Debugger/compositevar.h \
-    Debugger/iterator.h \
-    Debugger/namesortiterator.h \
     Debugger/debuggerform.h \
-    Debugger/idstorage.h \
-    Debugger/varscreator.h \
     Debugger/memblock.h \
     Debugger/memstorage.h \
     Debugger/Scanner/scanmanager.h \
     Debugger/Scanner/plcscanner.h \
     Debugger/vartomemconnector.h \
     Debugger/varbytesvalueconverter.h \
-    Debugger/varparser.h \
     Debugger/requestscheduler.h \
     Debugger/debuggersettings.h \
     Debugger/dialogwritevar.h \
@@ -156,7 +149,14 @@ HEADERS  += mainwindow.h \
     LCD/displaywidget.h \
     LCD/patterneditorwidget.h \
     LCD/lcdphont.h \
-    LCD/strlistwidget.h
+    LCD/strlistwidget.h \
+    VarDef/varscreator.h \
+    VarDef/compositevar.h \
+    VarDef/idstorage.h \
+    VarDef/iterator.h \
+    VarDef/namesortiterator.h \
+    VarDef/varitem.h \
+    VarDef/varparser.h
 
 FORMS    += mainwindow.ui \
     settingsform.ui \

@@ -7,8 +7,8 @@
 #include "patterneditorwidget.h"
 #include "strlistwidget.h"
 
-LCDForm::LCDForm(Display &d, QWidget *parent) :
-    QWidget(parent),displ(d),
+LCDForm::LCDForm(Display &d, VarsCreator &vCr, QWidget *parent) :
+    QWidget(parent),displ(d),varOwner(vCr),
     ui(new Ui::LCDForm)
 {
     ui->setupUi(this);
@@ -22,8 +22,14 @@ LCDForm::LCDForm(Display &d, QWidget *parent) :
     connect(&displ,SIGNAL(curStrNumChanged(int,int)),listWidget,SLOT(curStrNumChanged(int,int)));
 
     dW = new DisplayWidget(displ);
+    dW->setFixedHeight(dW->minimumHeight());
     layout->addWidget(dW,0,0,1,2);
-    layout->addWidget(new PatternEditorWidget(),0,2,1,2);
+    PatternEditorWidget* pEd = new PatternEditorWidget(displ,varOwner,this);
+    pEd->setFixedHeight(dW->height()*1.2);
+    connect(this,SIGNAL(newProject()),pEd,SLOT(newProject()));
+    connect(this,SIGNAL(openProject()),pEd,SLOT(openProject()));
+    connect(this,SIGNAL(saveProject()),pEd,SLOT(saveProject()));
+    layout->addWidget(pEd,0,2,1,2);
     connect(&displ,SIGNAL(cursorPosChanged(int,int)),dW,SLOT(update()));
     connect(&displ,SIGNAL(curStrNumChanged(int,int)),dW,SLOT(update()));
     connect(&displ,SIGNAL(strChanged(int,int)),dW,SLOT(update()));
@@ -32,4 +38,9 @@ LCDForm::LCDForm(Display &d, QWidget *parent) :
 LCDForm::~LCDForm()
 {
     delete ui;
+}
+
+void LCDForm::updFocus()
+{
+    dW->setFocus();
 }

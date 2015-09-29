@@ -24,7 +24,8 @@
 #include "RCompiler/rcompiler.h"
 
 #include "Debugger/debuggerform.h"
-#include "LCD/lcdform.h"
+
+
 
 QStringList MainWindow::getPrevProjects()
 {
@@ -95,8 +96,9 @@ int MainWindow::openFileByName(const QString &fName)
         }
         editor->document()->clearUndoRedoStacks();
         repaint();
-        debugger->on_updateButton_clicked();
-        debugger->openView();
+        varOwner->generateVarsTree();
+        emit openProject();
+
         QThread::msleep(500);
         on_closeInfoListButton_clicked();
         return 1;
@@ -133,7 +135,7 @@ void MainWindow::saveFileByName(const QString &fName)
             settings->setKonFileName(fName);
             settings->saveSettings();
         }
-        debugger->saveView();
+        emit saveProject();
     }
 }
 
@@ -249,14 +251,23 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->tabWidget->tabBar()->setFont(QFont("Courier",12,QFont::Normal,false));
     ui->tabWidget->addTab(editor,"Редактор");
     editor->setFocus();
+
+    varOwner = new VarsCreator();
+
     settings = new SettingsForm();
     ui->tabWidget->addTab(settings,"Настройки");
 
-    debugger = new DebuggerForm();
+    debugger = new DebuggerForm(*varOwner);
+    connect(this,SIGNAL(openProject()),debugger,SLOT(openProject()));
+    connect(this,SIGNAL(newProject()),debugger,SLOT(newProject()));
+    connect(this,SIGNAL(saveProject()),debugger,SLOT(saveProject()));
     ui->tabWidget->addTab(debugger,"Отладчик");
 
     displ = new Display();
-    LCDForm* lcd = new LCDForm(*displ);
+    lcd = new LCDForm(*displ,*varOwner);
+    connect(this,SIGNAL(newProject()),lcd,SIGNAL(newProject()));
+    connect(this,SIGNAL(openProject()),lcd,SIGNAL(openProject()));
+    connect(this,SIGNAL(saveProject()),lcd,SIGNAL(saveProject()));
     ui->tabWidget->addTab(lcd,"Пульт");
 
     /*ui->mdiArea->addSubWindow(editor);
@@ -289,6 +300,7 @@ MainWindow::~MainWindow()
     builderThread.wait();
     delete ui;
     delete displ;
+    delete varOwner;
 }
 
 void MainWindow::newFile()
@@ -318,22 +330,19 @@ void MainWindow::newFile()
     saveFileByName(dir.absolutePath()+"/project.kon");
     //
 
-    /*setWindowTitle(wTitle + " - несохранённый проект");
-
-    prDirPath = "";
-    prFileName = "";
-    QThread::msleep(1000);*/
     prChangedFlag = false;
     if(settings!=nullptr) {
         //settings->setKonFileName("");
         settings->clearSettings();
     }
     editor->document()->clearUndoRedoStacks();
+    varOwner->generateVarsTree();
+    emit newProject();
 
     //RCompiler::setInpDirName("");
     //RCompiler::setInpKonFileName("");
-    debugger->on_updateButton_clicked();
-    debugger->clearView();
+
+
 }
 
 void MainWindow::openFile()
@@ -538,6 +547,7 @@ void MainWindow::on_tabWidget_currentChanged(int index)
         srchAct->setEnabled(false);
         buildAct->setEnabled(false);
         textForSearch->setEnabled(false);
+        if(index==3) lcd->updFocus();
     }else {
         undoAct->setEnabled(true);
         redoAct->setEnabled(true);
