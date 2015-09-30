@@ -37,6 +37,7 @@ void PatternEditorWidget::treeBuilder(const QString &varID, QTreeWidgetItem &ite
 
 bool PatternEditorWidget::checkVar()
 {
+    if(curVarID.isEmpty()) return false;
     return true;
 }
 
@@ -87,9 +88,15 @@ PatternEditorWidget::PatternEditorWidget(Display &d, VarsCreator &vCr, QWidget *
     grLayout->addWidget(patternLabel,6,4,1,1);
     grLayout->addWidget(patternEdit,6,5,1,2);
 
+    isEditable = new QCheckBox("разрешить изменение с пульта");
+    grLayout->addWidget(isEditable,7,4,1,2);
+
+    isSigned = new QCheckBox("принудительная знаковость");
+    grLayout->addWidget(isSigned,8,4,1,2);
+
     QPushButton* applyButton = new QPushButton(QIcon(":/edit_32.ico"),"Вставить");
     connect(applyButton,SIGNAL(clicked()),this,SLOT(applyVar()));
-    grLayout->addWidget(applyButton,7,6,1,1);
+    grLayout->addWidget(applyButton,9,6,1,1);
 
 
     QTreeWidgetItem* item = new QTreeWidgetItem(tree);
@@ -152,6 +159,35 @@ void PatternEditorWidget::openProject()
     updateVarsTree();
 }
 
+void PatternEditorWidget::cursorPosChanged(int x, int y)
+{
+    DisplayStr str = displ.getString(y,displ.getCurSubStrNum(y));
+    if(str.isVarHere(x)) {
+        QString id = str.getVarID(x);
+        QString pattern = str.getVarPatern(x);
+        if(!id.isEmpty()) {
+            VarItem var = varOwner.getVarByID(id);
+            nameEdit->setText(varOwner.getFullNameOfVar(id).remove(QRegExp("^[^\\.]*\\.[^\\.]*\\.")));
+            typeEdit->setText(var.getDataType());
+            commentEdit->setText(var.getComment());
+            patternEdit->setText(pattern);
+            if(var.isEditable()) isEditable->setCheckState(Qt::Checked);
+                else isEditable->setCheckState(Qt::Unchecked);
+            if(var.isSigned()) isSigned->setCheckState(Qt::Checked);
+                else isSigned->setCheckState(Qt::Unchecked);
+            curVarID = id;
+        }
+    }else {
+        nameEdit->setText("");
+        typeEdit->setText("");
+        commentEdit->setText("");
+        patternEdit->setText("");
+        isEditable->setCheckState(Qt::Unchecked);
+        isSigned->setCheckState(Qt::Unchecked);
+        curVarID="";
+    }
+}
+
 void PatternEditorWidget::doubleClickedVar(QTreeWidgetItem *item, int column)
 {
     Q_UNUSED(column)
@@ -170,7 +206,13 @@ void PatternEditorWidget::applyVar()
     if(checkVar()) {
         VarPattern vp(curVarID,patternEdit->text());
         if(vp.checkPattern()) {
+            VarItem var = varOwner.getVarByID(curVarID);
+            var.setComment(commentEdit->text());
+            var.setEditable(isEditable->isChecked());
+            var.setSigned(isSigned->isChecked());
+            varOwner.updateVarByID(curVarID,var);
             displ.addVar(vp);
+            emit updFocus();
         }else {
             QMessageBox::warning(this, tr("Редактор переменных"),
                                            tr("Некорректный шаблон вывода переменной"),

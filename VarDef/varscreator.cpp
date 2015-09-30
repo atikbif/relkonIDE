@@ -381,7 +381,7 @@ void VarsCreator::addSituationNum(CompositeVar *parent)
                 var->setDataType(VarItem::uintType);
                 var->setMemAddress(memAddr.at(i)+offset);
                 var->setMemType("RAM");
-                var->setReadOnly(true);
+                var->setEditable(false);
                 sitVar->addChild(*var);
                 ids.addVar(var);
             }
@@ -474,8 +474,26 @@ bool VarsCreator::updateVarByID(QString idValue, VarItem &var)
     CompositeVar cVar;
     ids.getVarByID(idValue,cVar);
     cVar.setValue(var.getValue());
+    cVar.setComment(var.getComment());
+    cVar.setEditable(var.isEditable());
+    cVar.setSigned(var.isSigned());
     ids.setVarByID(idValue,cVar);
     return true;
+}
+
+QString VarsCreator::getFullNameOfVar(QString idValue)
+{
+    QString fName;
+    CompositeVar var;
+    ids.getVarByID(idValue,var);
+    fName = var.getName();
+    while(1) {
+        QString parID = var.getParentID();
+        if(parID.isEmpty()) break;
+        ids.getVarByID(parID,var);
+        fName = var.getName()+"."+fName;
+    }
+    return fName;
 }
 
 

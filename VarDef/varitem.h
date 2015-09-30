@@ -20,7 +20,8 @@ class VarItem
     QString value;      // в текстовом виде т.к. могут быть как целые значения так и с плавающей точкой
     volatile int bitNum;         // номер бита (-1 если переменная не битовая)
     QString id;     // идентификатор переменной
-    bool readOnly;  // только для чтения
+    bool isEdit;  // доступна для редактирования
+    bool forceSign; // принудительная знаковость
     void updateID(void);
 
 public:
@@ -55,10 +56,12 @@ public:
     void setPriority(int value) {priority = value;}
     int getPriority(void) const {return priority;}
     virtual ~VarItem();
-    bool getReadOnly() const;
-    void setReadOnly(bool value);
+    bool isEditable() const;
+    void setEditable(bool value);
     void setComment(const QString& value) {comment = value;}
     QString getComment(void) const {return comment;}
+    bool isSigned(void) const {return forceSign;}
+    void setSigned(bool value) {forceSign = value;}
 };
 
 #endif // VARITEM_H

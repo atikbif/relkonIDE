@@ -45,9 +45,12 @@ public:
     bool addVar(const VarPattern& vP, int pos);
     int getVarsCount(void) const {return vList.count();}
     bool getVar(int num, vPatt &v) const;
+    QString getVarID(int pos) const;
+    QString getVarPatern(int pos) const;
     bool isActive(void) const {return active;}
     void setActive(bool value) {active=value;}
     bool isVarHere(int pos) const;
+    bool isThisABeginningOfVar(int pos) const;
 };
 
 #endif // DISPLAYSTR_H

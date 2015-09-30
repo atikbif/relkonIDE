@@ -208,8 +208,8 @@ void Display::deleteSymbol()
 {
     if(checkStrNum(y,getCurSubStrNum(y))==false) return;
     DisplayStr* str = data.value(y).at(getCurSubStrNum(y));
+    str->deleteSymbol(x);
     emit strChanged(y,getCurSubStrNum(y));
-    return str->deleteSymbol(x);
 }
 
 void Display::backspace()
@@ -225,8 +225,9 @@ bool Display::addVar(const VarPattern &vP)
 {
     if(checkStrNum(y,getCurSubStrNum(y))==false) return false;
     DisplayStr* str = data.value(y).at(getCurSubStrNum(y));
-    emit strChanged(y,getCurSubStrNum(y));
-    return str->addVar(vP,x);
+    bool res =  str->addVar(vP,x);
+    if(res) emit strChanged(y,getCurSubStrNum(y));
+    return res;
 }
 
 bool Display::goToStr(int strNum, int subStrNum)

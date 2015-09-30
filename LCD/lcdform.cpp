@@ -20,6 +20,7 @@ LCDForm::LCDForm(Display &d, VarsCreator &vCr, QWidget *parent) :
     connect(&displ,SIGNAL(strChanged(int,int)),listWidget,SLOT(strChanged(int,int)));
     connect(&displ,SIGNAL(strListChanged(int)),listWidget,SLOT(strListChanged(int)));
     connect(&displ,SIGNAL(curStrNumChanged(int,int)),listWidget,SLOT(curStrNumChanged(int,int)));
+    connect(listWidget,SIGNAL(updFocus()),this,SLOT(updFocus()));
 
     dW = new DisplayWidget(displ);
     dW->setFixedHeight(dW->minimumHeight());
@@ -29,6 +30,8 @@ LCDForm::LCDForm(Display &d, VarsCreator &vCr, QWidget *parent) :
     connect(this,SIGNAL(newProject()),pEd,SLOT(newProject()));
     connect(this,SIGNAL(openProject()),pEd,SLOT(openProject()));
     connect(this,SIGNAL(saveProject()),pEd,SLOT(saveProject()));
+    connect(pEd,SIGNAL(updFocus()),this,SLOT(updFocus()));
+    connect(&displ,SIGNAL(cursorPosChanged(int,int)),pEd,SLOT(cursorPosChanged(int,int)));
     layout->addWidget(pEd,0,2,1,2);
     connect(&displ,SIGNAL(cursorPosChanged(int,int)),dW,SLOT(update()));
     connect(&displ,SIGNAL(curStrNumChanged(int,int)),dW,SLOT(update()));

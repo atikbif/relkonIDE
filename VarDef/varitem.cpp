@@ -13,14 +13,14 @@ const QString VarItem::floatType = "float";
 const QString VarItem::doubleType = "double";
 const QString VarItem::timeType = "time";
 
-bool VarItem::getReadOnly() const
+bool VarItem::isEditable() const
 {
-    return readOnly;
+    return isEdit;
 }
 
-void VarItem::setReadOnly(bool value)
+void VarItem::setEditable(bool value)
 {
-    readOnly = value;
+    isEdit = value;
 }
 
 void VarItem::updateID()
@@ -29,7 +29,8 @@ void VarItem::updateID()
     id = str;
 }
 
-VarItem::VarItem(): priority(0), memAddress(0), comment(""), bitNum(-1), readOnly(false)
+VarItem::VarItem(): priority(0), memAddress(0), comment(""),
+    bitNum(-1), isEdit(true), forceSign(false)
 {
 
 }

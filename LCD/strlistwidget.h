@@ -38,7 +38,7 @@ private:
     void updateList(int num);
     bool testStrNum(int strNum, int subStrNum);
 signals:
-
+    void updFocus(void);
 public slots:
     void strChanged(int strNum, int subStrNum);
     void strListChanged(int strNum);

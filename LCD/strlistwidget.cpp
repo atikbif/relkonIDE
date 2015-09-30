@@ -115,7 +115,7 @@ void StrListWidget::itemClicked(const QModelIndex &index)
            if(lists.at(i)==lWidget) {
                if(row>=0) {
                    displ.goToStr(i,row);
-
+                   emit updFocus();
                }
            }
         }

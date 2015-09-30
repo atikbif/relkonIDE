@@ -3,7 +3,7 @@
 bool SymbolData::checkXY(int strNum, int pos) const
 {
     if((strNum<0)||(strNum>=height)) return false;
-    if((pos<0)&&(pos>=width)) return false;
+    if((pos<0)||(pos>=width)) return false;
     if(strNum>=data.count()) return false;
     if(pos>=data.at(strNum).count()) return false;
     return true;

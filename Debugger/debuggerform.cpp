@@ -695,7 +695,7 @@ void DebuggerForm::on_treeWidgetWatch_customContextMenuRequested(const QPoint &p
         QString id = idActiveWidgetItem.key(item);
         if(!id.isEmpty()) {
             VarItem var = varOwner.getVarByID(id);
-            if(var.getReadOnly()==false) {
+            if(var.isEditable()) {
                 wrVar = var;
                 QMenu *menu=new QMenu(this);
                 if(var.getBitNum()>=0) {

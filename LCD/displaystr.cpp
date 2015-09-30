@@ -20,7 +20,7 @@ bool DisplayStr::insertSymbol(int pos,quint8 code)
     QMutexLocker locker(&mutex);
     bool result=false;
     if((pos<0)||(pos>=length)) return false;
-
+    if((isVarHere(pos))&&(!isThisABeginningOfVar(pos))) return false;
     if(replaceMode) {
         if(isVarHere(pos)) return false;
         data.remove(pos,1);
@@ -45,6 +45,18 @@ void DisplayStr::deleteSymbol(int pos)
     if((pos<0)||(pos>=length)) return;
 
     if(isVarHere(pos)) {
+        vPatt* vp = nullptr;
+        foreach (vPatt* v, vList) {
+           if((pos >= v->pos)&&(pos < v->pos + v->variable.getLength())) vp = v;
+        }
+        if(vp!=nullptr) {
+            data.remove(vp->pos,vp->variable.getLength());
+            data.append(QByteArray(vp->variable.getLength(),spaceCode));
+            vList.removeOne(vp);
+            foreach (vPatt* v, vList) {
+               if(v->pos >= vp->pos) v->pos-=vp->variable.getLength();
+            }
+        }
         return;
     }
 
@@ -63,16 +75,24 @@ void DisplayStr::setReplaceMode(bool value)
 bool DisplayStr::addVar(const VarPattern &vP, int pos)
 {
     QMutexLocker locker(&mutex);
+
     int endPos = pos + vP.getLength() - 1;
     if((pos<0)||(pos>=length)) return false;
     if(endPos>=length) return false;
     if(!replaceMode) {
+        if(isVarHere(pos)) return false;
         // check free space
         int i = length - 1;
         int spaceCnt = 0;
         while(i>=0) {if(data.at(i)==0x20) spaceCnt++;else break;i--;}
         if(spaceCnt<vP.getLength()) return false;
+        foreach (vPatt* v, vList) {
+           if(v->pos>pos) v->pos+=vP.getLength();
+        }
     }else {
+        for(int i=pos;i<=endPos;i++) {
+            if(isVarHere(i)) return false;
+        }
         data.remove(pos,vP.getLength());
     }
     data.insert(pos,vP.getPattern());
@@ -90,10 +110,36 @@ bool DisplayStr::getVar(int num, vPatt &v) const
     return true;
 }
 
+QString DisplayStr::getVarID(int pos) const
+{
+    foreach (vPatt* v, vList) {
+       if((pos >= v->pos)&&(pos < v->pos+ v->variable.getLength()))
+           return v->variable.getVarID();
+    }
+    return QString();
+}
+
+QString DisplayStr::getVarPatern(int pos) const
+{
+    foreach (vPatt* v, vList) {
+       if((pos >= v->pos)&&(pos < v->pos+ v->variable.getLength()))
+           return v->variable.getPattern();
+    }
+    return QString();
+}
+
 bool DisplayStr::isVarHere(int pos) const
 {
     foreach (vPatt* v, vList) {
        if((pos >= v->pos)&&(pos < v->pos+ v->variable.getLength())) return true;
+    }
+    return false;
+}
+
+bool DisplayStr::isThisABeginningOfVar(int pos) const
+{
+    foreach (vPatt* v, vList) {
+       if(pos == v->pos) return true;
     }
     return false;
 }

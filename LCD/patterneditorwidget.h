@@ -9,6 +9,7 @@
 #include <QLineEdit>
 #include "display.h"
 #include <QString>
+#include <QCheckBox>
 
 class PatternEditorWidget : public QWidget
 {
@@ -23,6 +24,8 @@ class PatternEditorWidget : public QWidget
     QLineEdit* typeEdit;
     QLineEdit* commentEdit;
     QLineEdit* patternEdit;
+    QCheckBox* isEditable;
+    QCheckBox* isSigned;
 
     QString curVarID;
 
@@ -35,11 +38,12 @@ public:
     ~PatternEditorWidget();
 
 signals:
-
+    void updFocus(void);
 public slots:
     void newProject(void);
     void saveProject(void);
     void openProject(void);
+    void cursorPosChanged(int x,int y);
     // QWidget interface
 protected:
 private slots:
