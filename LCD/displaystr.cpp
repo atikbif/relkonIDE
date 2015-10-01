@@ -20,7 +20,13 @@ bool DisplayStr::insertSymbol(int pos,quint8 code)
     QMutexLocker locker(&mutex);
     bool result=false;
     if((pos<0)||(pos>=length)) return false;
-    if((isVarHere(pos))&&(!isThisABeginningOfVar(pos))) return false;
+    if((isVarHere(pos))&&(!isThisABeginningOfVar(pos))) {
+        if(!replaceMode) {
+            pos++;
+            return true;
+        }
+        return false;
+    }
     if(replaceMode) {
         if(isVarHere(pos)) return false;
         data.remove(pos,1);
@@ -99,6 +105,38 @@ bool DisplayStr::addVar(const VarPattern &vP, int pos)
     data.resize(length);
     vPatt* var = new vPatt(pos,vP);
     vList += var;
+    return true;
+}
+
+bool DisplayStr::updVar(const VarPattern &vP, int pos)
+{
+    QMutexLocker locker(&mutex);
+    vPatt* curPattern = nullptr;
+    foreach (vPatt* v, vList) {
+        if((pos>=v->pos)&&(pos < v->pos + v->variable.getLength())) {
+            curPattern = v;
+            break;
+        }
+    }
+    if(curPattern==nullptr) return false;
+    if(vP.getLength()>curPattern->variable.getLength()) {
+        // check free space
+        int i = length - 1;
+        int spaceCnt = 0;
+        while(i>=0) {if(data.at(i)==0x20) spaceCnt++;else break;i--;}
+        if(spaceCnt<vP.getLength()-curPattern->variable.getLength()) return false;
+    }
+    int offset = vP.getLength() - curPattern->variable.getLength();
+    foreach (vPatt* v, vList) {
+       if(v->pos>curPattern->pos) v->pos+=offset;
+    }
+    vList.removeOne(curPattern);
+    data.remove(curPattern->pos,curPattern->variable.getLength());
+    data.insert(curPattern->pos,vP.getPattern());
+    if(data.count()>length) data.resize(length);
+    else while(data.count()<length) data.append(spaceCode);
+    curPattern = new vPatt(curPattern->pos,vP);
+    vList += curPattern;
     return true;
 }
 

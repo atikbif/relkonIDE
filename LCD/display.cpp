@@ -230,6 +230,19 @@ bool Display::addVar(const VarPattern &vP)
     return res;
 }
 
+bool Display::updVar(const VarPattern &vP)
+{
+    if(checkStrNum(y,getCurSubStrNum(y))==false) return false;
+    DisplayStr* str = data.value(y).at(getCurSubStrNum(y));
+    bool res = str->updVar(vP,x);
+    if(res) {
+        while((!str->isThisABeginningOfVar(x))&&(x>0)) x--;
+        emit cursorPosChanged(x,y);
+        emit strChanged(y,getCurSubStrNum(y));
+    }
+    return res;
+}
+
 bool Display::goToStr(int strNum, int subStrNum)
 {
     if(checkStrNum(y,getCurSubStrNum(y))==false) return false;
@@ -246,6 +259,39 @@ void Display::toggleActive(int strNum, int subStrNum)
     DisplayStr* str = data.value(strNum).at(subStrNum);
     str->setActive(!str->isActive());
     emit strListChanged(strNum);
+}
+
+void Display::clearDisplay()
+{
+    DisplayStr::setReplaceMode(false);
+    QList< QVector<DisplayStr*> > strings = data.values();
+    for(int i=0;i<strCount;i++) {
+        foreach (DisplayStr* str, strings[i]) {
+           delete str;
+        }
+    }
+
+    data.clear();
+    copyStrBuf = nullptr;
+
+    for(int i=0;i<strCount;i++) {
+        QVector<DisplayStr*> v;
+        DisplayStr* s = new DisplayStr();
+        v += s;
+        data.insert(i,v);
+        curStr.insert(i,0);
+    }
+
+    for(int i=0;i<getStrCount();i++) {
+        curStr.insert(i,0);
+    }
+    x=0;y=0;
+    for(int i=0;i<getStrCount();i++) {
+        emit strListChanged(i);
+        emit curStrNumChanged(i,0);
+        emit strChanged(i,0);
+    }
+    emit cursorPosChanged(0,0);
 }
 
 Display::~Display()

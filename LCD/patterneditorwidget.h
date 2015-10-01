@@ -10,6 +10,7 @@
 #include "display.h"
 #include <QString>
 #include <QCheckBox>
+#include <QPushButton>
 
 class PatternEditorWidget : public QWidget
 {
@@ -26,8 +27,11 @@ class PatternEditorWidget : public QWidget
     QLineEdit* patternEdit;
     QCheckBox* isEditable;
     QCheckBox* isSigned;
+    QPushButton* applyButton;
 
     QString curVarID;
+    int currentX;
+    int currentY;// текущие позиции курсора
 
     void treeBuilder(const QString& varID, QTreeWidgetItem &item);
     bool checkVar(void);
@@ -43,6 +47,7 @@ public slots:
     void newProject(void);
     void saveProject(void);
     void openProject(void);
+    void updTree(void);
     void cursorPosChanged(int x,int y);
     // QWidget interface
 protected:

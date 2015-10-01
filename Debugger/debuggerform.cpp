@@ -383,8 +383,7 @@ void DebuggerForm::on_updateButton_clicked()
 
 void DebuggerForm::openProject()
 {
-    on_updateButton_clicked();
-    openView();
+    updTree();
 }
 
 void DebuggerForm::saveProject()
@@ -394,8 +393,13 @@ void DebuggerForm::saveProject()
 
 void DebuggerForm::newProject()
 {
+    updTree();
+}
+
+void DebuggerForm::updTree()
+{
     on_updateButton_clicked();
-    clearView();
+    openView();
 }
 
 void DebuggerForm::updateValuesTree()
@@ -695,7 +699,7 @@ void DebuggerForm::on_treeWidgetWatch_customContextMenuRequested(const QPoint &p
         QString id = idActiveWidgetItem.key(item);
         if(!id.isEmpty()) {
             VarItem var = varOwner.getVarByID(id);
-            if(var.isEditable()) {
+            //if(var.isEditable()) {
                 wrVar = var;
                 QMenu *menu=new QMenu(this);
                 if(var.getBitNum()>=0) {
@@ -705,7 +709,7 @@ void DebuggerForm::on_treeWidgetWatch_customContextMenuRequested(const QPoint &p
                     menu->addAction(QIcon("://write_32.ico"),"Изменить",this,SLOT(writeVar()));
                 }
                 menu->popup(ui->treeWidgetWatch->viewport()->mapToGlobal(pos));
-            }
+            //}
         }
     }
 }

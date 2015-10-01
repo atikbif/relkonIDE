@@ -5,7 +5,6 @@
 #include <QGridLayout>
 #include <QHeaderView>
 #include <QLabel>
-#include <QPushButton>
 #include <QIcon>
 #include <QDesktopWidget>
 #include <QRegExp>
@@ -42,7 +41,8 @@ bool PatternEditorWidget::checkVar()
 }
 
 PatternEditorWidget::PatternEditorWidget(Display &d, VarsCreator &vCr, QWidget *parent) :
-    QWidget(parent), varOwner(vCr), displ(d)
+    QWidget(parent), varOwner(vCr), displ(d),
+    currentX(0), currentY(0)
 {
     setMinimumSize(100,100);
     iter = new NameSortIterator(vCr.getIDStorage());
@@ -66,35 +66,35 @@ PatternEditorWidget::PatternEditorWidget(Display &d, VarsCreator &vCr, QWidget *
     nameEdit = new QLineEdit();
     nameEdit->setFixedWidth(editWidth);
 
-    grLayout->addWidget(nameLabel,3,4,1,1);
-    grLayout->addWidget(nameEdit,3,5,1,2);
+    grLayout->addWidget(nameLabel,2,4,1,1);
+    grLayout->addWidget(nameEdit,2,5,1,2);
 
     QLabel* typeLabel = new QLabel("тип:");
     typeEdit = new QLineEdit();
     typeEdit->setFixedWidth(editWidth);
 
-    grLayout->addWidget(typeLabel,4,4,1,1);
-    grLayout->addWidget(typeEdit,4,5,1,2);
+    grLayout->addWidget(typeLabel,3,4,1,1);
+    grLayout->addWidget(typeEdit,3,5,1,2);
 
     QLabel* commentLabel = new QLabel("комментарий:");
     commentEdit = new QLineEdit();
     commentEdit->setFixedWidth(editWidth);
-    grLayout->addWidget(commentLabel,5,4,1,1);
-    grLayout->addWidget(commentEdit,5,5,1,2);
+    grLayout->addWidget(commentLabel,4,4,1,1);
+    grLayout->addWidget(commentEdit,4,5,1,2);
 
     QLabel* patternLabel = new QLabel("шаблон:");
     patternEdit = new QLineEdit();
     patternEdit->setFixedWidth(editWidth);
-    grLayout->addWidget(patternLabel,6,4,1,1);
-    grLayout->addWidget(patternEdit,6,5,1,2);
+    grLayout->addWidget(patternLabel,5,4,1,1);
+    grLayout->addWidget(patternEdit,5,5,1,2);
 
     isEditable = new QCheckBox("разрешить изменение с пульта");
-    grLayout->addWidget(isEditable,7,4,1,2);
+    grLayout->addWidget(isEditable,6,4,1,2);
 
     isSigned = new QCheckBox("принудительная знаковость");
-    grLayout->addWidget(isSigned,8,4,1,2);
+    grLayout->addWidget(isSigned,7,4,1,2);
 
-    QPushButton* applyButton = new QPushButton(QIcon(":/edit_32.ico"),"Вставить");
+    applyButton = new QPushButton(QIcon(":/edit_32.ico"),"Вставить");
     connect(applyButton,SIGNAL(clicked()),this,SLOT(applyVar()));
     grLayout->addWidget(applyButton,9,6,1,1);
 
@@ -144,8 +144,7 @@ PatternEditorWidget::~PatternEditorWidget()
 
 void PatternEditorWidget::newProject()
 {
-    idWidgetItem.clear();
-    updateVarsTree();
+    updTree();
 }
 
 void PatternEditorWidget::saveProject()
@@ -155,14 +154,22 @@ void PatternEditorWidget::saveProject()
 
 void PatternEditorWidget::openProject()
 {
+    updTree();
+}
+
+void PatternEditorWidget::updTree()
+{
     idWidgetItem.clear();
     updateVarsTree();
 }
 
 void PatternEditorWidget::cursorPosChanged(int x, int y)
 {
+    currentX = x;
+    currentY = y;
     DisplayStr str = displ.getString(y,displ.getCurSubStrNum(y));
     if(str.isVarHere(x)) {
+        applyButton->setText("Изменить");
         QString id = str.getVarID(x);
         QString pattern = str.getVarPatern(x);
         if(!id.isEmpty()) {
@@ -178,6 +185,7 @@ void PatternEditorWidget::cursorPosChanged(int x, int y)
             curVarID = id;
         }
     }else {
+        applyButton->setText("Вставить");
         nameEdit->setText("");
         typeEdit->setText("");
         commentEdit->setText("");
@@ -205,13 +213,30 @@ void PatternEditorWidget::applyVar()
 {
     if(checkVar()) {
         VarPattern vp(curVarID,patternEdit->text());
-        if(vp.checkPattern()) {
-            VarItem var = varOwner.getVarByID(curVarID);
-            var.setComment(commentEdit->text());
-            var.setEditable(isEditable->isChecked());
-            var.setSigned(isSigned->isChecked());
-            varOwner.updateVarByID(curVarID,var);
-            displ.addVar(vp);
+        QString dataType = varOwner.getVarByID(curVarID).getDataType();
+        if(vp.checkPattern(dataType)) {
+            DisplayStr str = displ.getString(currentY,displ.getCurSubStrNum(currentY));
+            if(str.isVarHere(currentX)) {
+                QString id = str.getVarID(currentX);
+                if(!id.isEmpty()) {
+                    if(displ.updVar(vp)) {
+                        VarItem var = varOwner.getVarByID(curVarID);
+                        var.setComment(commentEdit->text());
+                        var.setEditable(isEditable->isChecked());
+                        var.setSigned(isSigned->isChecked());
+                        varOwner.updateVarByID(curVarID,var);
+                    }
+                }
+            }else {
+                if(displ.addVar(vp)) {
+                    VarItem var = varOwner.getVarByID(curVarID);
+                    var.setComment(commentEdit->text());
+                    var.setEditable(isEditable->isChecked());
+                    var.setSigned(isSigned->isChecked());
+                    varOwner.updateVarByID(curVarID,var);
+                    applyButton->setText("Изменить");
+                }
+            }
             emit updFocus();
         }else {
             QMessageBox::warning(this, tr("Редактор переменных"),

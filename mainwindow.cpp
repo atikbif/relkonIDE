@@ -261,6 +261,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(this,SIGNAL(openProject()),debugger,SLOT(openProject()));
     connect(this,SIGNAL(newProject()),debugger,SLOT(newProject()));
     connect(this,SIGNAL(saveProject()),debugger,SLOT(saveProject()));
+    connect(this,SIGNAL(updTree()),debugger,SLOT(updTree()));
     ui->tabWidget->addTab(debugger,"Отладчик");
 
     displ = new Display();
@@ -268,6 +269,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(this,SIGNAL(newProject()),lcd,SIGNAL(newProject()));
     connect(this,SIGNAL(openProject()),lcd,SIGNAL(openProject()));
     connect(this,SIGNAL(saveProject()),lcd,SIGNAL(saveProject()));
+    connect(this,SIGNAL(updTree()),lcd,SIGNAL(updTree()));
     ui->tabWidget->addTab(lcd,"Пульт");
 
     /*ui->mdiArea->addSubWindow(editor);
@@ -576,6 +578,8 @@ void MainWindow::prWasChanged()
 
 void MainWindow::buildWithoutErrors()
 {
+    varOwner->generateVarsTree();
+    emit updTree();
     QThread::msleep(1000);
     on_closeInfoListButton_clicked();
 }

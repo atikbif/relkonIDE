@@ -47,8 +47,10 @@ public:
     void deleteSymbol(void);
     void backspace(void);
     bool addVar(const VarPattern& vP);
+    bool updVar(const VarPattern& vP);
     bool goToStr(int strNum, int subStrNum); // сделать строку активной и переместить туда курсор
     void toggleActive(int strNum, int subStrNum);
+    void clearDisplay(void);
     ~Display();
 signals:
     cursorPosChanged(int x,int y); // были изменены координаты курсора

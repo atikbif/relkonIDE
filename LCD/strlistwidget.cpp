@@ -57,7 +57,7 @@ void StrListWidget::updateList(int num)
                     strText = QString::number(subStrNum) + ") " + strText;
                     subStrNum++;
                     lists[num]->addItem(strText);
-                    lists[num]->item(i)->setTextColor(Qt::blue);
+                    lists[num]->item(i)->setTextColor(Qt::darkBlue);
                 }else {
                     lists[num]->addItem(strText);
                     lists[num]->item(i)->setTextColor(Qt::darkGray);

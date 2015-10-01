@@ -52,6 +52,7 @@ signals:
     void newProject(void);
     void openProject(void);
     void saveProject(void);
+    void updTree(void);
 
 private:
     Ui::MainWindow *ui;

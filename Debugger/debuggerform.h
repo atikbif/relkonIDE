@@ -98,6 +98,7 @@ public slots:
     void openProject(void);
     void saveProject(void);
     void newProject(void);
+    void updTree(void);
 private:
     Ui::DebuggerForm *ui;
 

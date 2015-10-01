@@ -27,8 +27,13 @@ signals:
     void newProject(void);
     void openProject(void);
     void saveProject(void);
+    void updTree(void);
 public slots:
     void updFocus(void);
+private slots:
+    void saveLCD(void);
+    void openLCD(void);
+    void newLCD(void);
 };
 
 #endif // LCDFORM_H

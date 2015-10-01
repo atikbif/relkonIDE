@@ -43,6 +43,7 @@ public:
     void deleteSymbol(int pos);
     static void setReplaceMode(bool value);
     bool addVar(const VarPattern& vP, int pos);
+    bool updVar(const VarPattern& vP, int pos);
     int getVarsCount(void) const {return vList.count();}
     bool getVar(int num, vPatt &v) const;
     QString getVarID(int pos) const;
