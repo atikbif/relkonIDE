@@ -43,14 +43,14 @@ void MainWindow::updatePrevProjects(const QStringList &prNames)
     QSettings settings("Kontel","RIDE");
     settings.setValue("/Settings/PrevProjects",prNames);
     QStringList resList = getPrevProjects();
-    ui->menu->clear();
+    ui->menuFile->clear();
 
-    ui->menu->addAction(newAct);
-    ui->menu->addAction(openAct);
-    ui->menu->addAction(saveAct);
-    ui->menu->addAction(saveAsAct);
+    ui->menuFile->addAction(newAct);
+    ui->menuFile->addAction(openAct);
+    ui->menuFile->addAction(saveAct);
+    ui->menuFile->addAction(saveAsAct);
     QMenu* recPr = new QMenu("Недавние проекты");
-    ui->menu->addMenu(recPr);
+    ui->menuFile->addMenu(recPr);
     foreach(QString name, resList) {
         //ui->menu->addAction(name,this,SLOT(openPrevProject()));
         recPr->addAction(name,this,SLOT(openPrevProject()));
@@ -222,6 +222,13 @@ MainWindow::MainWindow(QWidget *parent) :
     spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
     ui->mainToolBar->addAction(srchAct);
+
+    QAction *toTableAction = new QAction(QIcon("://table.ico"), "пульт > настройки", this);
+    QAction *fromTableAction = new QAction(QIcon("://display.ico"), "настройки > пульт", this);
+    ui->menuCmd->addAction(toTableAction);
+    ui->menuCmd->addAction(fromTableAction);
+    connect(toTableAction,SIGNAL(triggered()),this,SLOT(lcdToTable()));
+    connect(fromTableAction,SIGNAL(triggered()),this,SLOT(tableToLcd()));
 
 
     textForSearch = new QLineEdit("");
@@ -582,4 +589,46 @@ void MainWindow::buildWithoutErrors()
     emit updTree();
     QThread::msleep(1000);
     on_closeInfoListButton_clicked();
+}
+
+void MainWindow::lcdToTable()
+{
+    QStringList id;
+    QStringList pattern;
+
+    const int startSettingsAddress = 0x7B00;
+    const int stopSettingsEndAddress = 0x7EFF;
+
+    displ->getVars(id,pattern);
+    if(id.count()>0) {
+        if(id.count()==pattern.count()) {
+            for(int i=0;i<id.count();i++) {
+                QString vID = id.at(i);
+                QString vP = pattern.at(i);
+                VarItem var = varOwner->getVarByID(vID);
+                QString memType = var.getMemType();
+                if(memType==MemStorage::framMemName) {
+                    int byteCount = var.getByteCount();
+                    if(byteCount) {
+                        qulonglong value = (qulonglong)vP.toLongLong();
+                        int addr = var.getMemAddress()+byteCount-1;
+                        for(int j=0;j<byteCount;j++) {
+                            quint8 vByte = value & 0xFF;
+                            value = value >> 8;
+                            if((addr>=startSettingsAddress)&&(addr<=stopSettingsEndAddress)) {
+                                settings->updateOnyByte(addr-startSettingsAddress,vByte);
+                            }
+                            addr--;
+                        }
+                    }
+                }
+            }
+            settings->updateTable();
+        }
+    }
+}
+
+void MainWindow::tableToLcd()
+{
+
 }

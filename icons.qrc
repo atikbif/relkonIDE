@@ -13,5 +13,7 @@
         <file>write_32.ico</file>
         <file>green_32.ico</file>
         <file>red_32.ico</file>
+        <file>display.ico</file>
+        <file>table.ico</file>
     </qresource>
 </RCC>

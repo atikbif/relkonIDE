@@ -2,7 +2,7 @@
 #include <QPaintEvent>
 #include <QPainter>
 #include <QHBoxLayout>
-#include <QGridLayout>
+#include <QVBoxLayout>
 #include <QHeaderView>
 #include <QLabel>
 #include <QIcon>
@@ -47,8 +47,11 @@ PatternEditorWidget::PatternEditorWidget(Display &d, VarsCreator &vCr, QWidget *
     setMinimumSize(100,100);
     iter = new NameSortIterator(vCr.getIDStorage());
 
-    QGridLayout* grLayout = new QGridLayout(this);
-    setLayout(grLayout);
+    //QGridLayout* grLayout = new QGridLayout(this);
+    //setLayout(grLayout);
+
+    QVBoxLayout* vLayout = new QVBoxLayout(this);
+
 
     tree = new QTreeWidget();
 
@@ -57,46 +60,41 @@ PatternEditorWidget::PatternEditorWidget(Display &d, VarsCreator &vCr, QWidget *
     QStringList header;
     header << "имя" << "тип";
     tree->setHeaderLabels(header);
-    grLayout->addWidget(tree,0,0,10,4);
-
-    QDesktopWidget desk;
-    int editWidth = desk.availableGeometry().width()*0.15;
+    vLayout->addWidget(tree,100);
 
     QLabel* nameLabel = new QLabel("имя:");
     nameEdit = new QLineEdit();
-    nameEdit->setFixedWidth(editWidth);
+    nameEdit->setEnabled(false);
 
-    grLayout->addWidget(nameLabel,2,4,1,1);
-    grLayout->addWidget(nameEdit,2,5,1,2);
+    vLayout->addWidget(nameLabel,1);
+    vLayout->addWidget(nameEdit,1);
 
     QLabel* typeLabel = new QLabel("тип:");
     typeEdit = new QLineEdit();
-    typeEdit->setFixedWidth(editWidth);
+    typeEdit->setEnabled(false);
 
-    grLayout->addWidget(typeLabel,3,4,1,1);
-    grLayout->addWidget(typeEdit,3,5,1,2);
+    vLayout->addWidget(typeLabel);
+    vLayout->addWidget(typeEdit);
 
     QLabel* commentLabel = new QLabel("комментарий:");
     commentEdit = new QLineEdit();
-    commentEdit->setFixedWidth(editWidth);
-    grLayout->addWidget(commentLabel,4,4,1,1);
-    grLayout->addWidget(commentEdit,4,5,1,2);
+    vLayout->addWidget(commentLabel);
+    vLayout->addWidget(commentEdit);
 
     QLabel* patternLabel = new QLabel("шаблон:");
     patternEdit = new QLineEdit();
-    patternEdit->setFixedWidth(editWidth);
-    grLayout->addWidget(patternLabel,5,4,1,1);
-    grLayout->addWidget(patternEdit,5,5,1,2);
+    vLayout->addWidget(patternLabel);
+    vLayout->addWidget(patternEdit);
 
     isEditable = new QCheckBox("разрешить изменение с пульта");
-    grLayout->addWidget(isEditable,6,4,1,2);
+    vLayout->addWidget(isEditable);
 
     isSigned = new QCheckBox("принудительная знаковость");
-    grLayout->addWidget(isSigned,7,4,1,2);
+    vLayout->addWidget(isSigned);
 
-    applyButton = new QPushButton(QIcon(":/edit_32.ico"),"Вставить");
+    applyButton = new QPushButton(QIcon(":/edit_32.ico"),"Добавить переменную");
     connect(applyButton,SIGNAL(clicked()),this,SLOT(applyVar()));
-    grLayout->addWidget(applyButton,9,6,1,1);
+    vLayout->addWidget(applyButton);
 
 
     QTreeWidgetItem* item = new QTreeWidgetItem(tree);
@@ -109,14 +107,15 @@ PatternEditorWidget::PatternEditorWidget(Display &d, VarsCreator &vCr, QWidget *
         }
     }
 
-    QString style = "QTreeWidget::item:!selected "
+    /*QString style = "QTreeWidget::item:!selected "
        "{ border: 1px solid gainsboro; border-left: none; border-top: none; }";
 
     tree->setStyleSheet(style);
-    tree->setStyleSheet(style);
+    tree->setStyleSheet(style);*/
 
     tree->setItemExpanded(item,true);
     tree->header()->resizeSections(QHeaderView::ResizeToContents);
+
 
     setFocusPolicy(Qt::ClickFocus);
 }
@@ -169,7 +168,7 @@ void PatternEditorWidget::cursorPosChanged(int x, int y)
     currentY = y;
     DisplayStr str = displ.getString(y,displ.getCurSubStrNum(y));
     if(str.isVarHere(x)) {
-        applyButton->setText("Изменить");
+        applyButton->setText("Изменить переменную");
         QString id = str.getVarID(x);
         QString pattern = str.getVarPatern(x);
         if(!id.isEmpty()) {
@@ -185,7 +184,7 @@ void PatternEditorWidget::cursorPosChanged(int x, int y)
             curVarID = id;
         }
     }else {
-        applyButton->setText("Вставить");
+        applyButton->setText("Добавить переменную");
         nameEdit->setText("");
         typeEdit->setText("");
         commentEdit->setText("");
@@ -217,16 +216,12 @@ void PatternEditorWidget::applyVar()
         if(vp.checkPattern(dataType)) {
             DisplayStr str = displ.getString(currentY,displ.getCurSubStrNum(currentY));
             if(str.isVarHere(currentX)) {
-                QString id = str.getVarID(currentX);
-                if(!id.isEmpty()) {
-                    if(displ.updVar(vp)) {
-                        VarItem var = varOwner.getVarByID(curVarID);
-                        var.setComment(commentEdit->text());
-                        var.setEditable(isEditable->isChecked());
-                        var.setSigned(isSigned->isChecked());
-                        varOwner.updateVarByID(curVarID,var);
-                    }
-                }
+                VarItem var = varOwner.getVarByID(curVarID);
+                var.setComment(commentEdit->text());
+                var.setEditable(isEditable->isChecked());
+                var.setSigned(isSigned->isChecked());
+                varOwner.updateVarByID(curVarID,var);
+                displ.updVar(vp);
             }else {
                 if(displ.addVar(vp)) {
                     VarItem var = varOwner.getVarByID(curVarID);

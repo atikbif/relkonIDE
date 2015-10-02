@@ -132,7 +132,7 @@
      <height>21</height>
     </rect>
    </property>
-   <widget class="QMenu" name="menu">
+   <widget class="QMenu" name="menuFile">
     <property name="title">
      <string>Файл</string>
     </property>
@@ -145,7 +145,13 @@
     </widget>
     <addaction name="menuNew"/>
    </widget>
-   <addaction name="menu"/>
+   <widget class="QMenu" name="menuCmd">
+    <property name="title">
+     <string>Команды</string>
+    </property>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menuCmd"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <attribute name="toolBarArea">

@@ -313,6 +313,11 @@ void SettingsForm::openSettings()
     }
 }
 
+void SettingsForm::updateTable()
+{
+    printFactorySettings();
+}
+
 void SettingsForm::readFromBin(const QByteArray inpData)
 {
     if(inpData.count()>=settingsSize) {

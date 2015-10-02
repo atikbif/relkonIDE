@@ -62,6 +62,7 @@ public:
     QString getComment(void) const {return comment;}
     bool isSigned(void) const {return forceSign;}
     void setSigned(bool value) {forceSign = value;}
+    int getByteCount(void);
 };
 
 #endif // VARITEM_H

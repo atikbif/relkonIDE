@@ -29,6 +29,7 @@ public:
     void clearSettings(void);
     void saveSettings(void);    // сохранить настройки в файл
     void openSettings(void);    // прочитать настройки из файла
+    void updateTable(void);
 
 
 private slots:

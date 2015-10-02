@@ -15,6 +15,16 @@ void SettingsBase::clearSettings()
     sdOn = false;
 }
 
+void SettingsBase::updateOnyByte(int addr, quint8 value)
+{
+    if((addr>=0)&&(addr<factorySettingsAmount)) fSettings[addr] = value;
+}
+
+void SettingsBase::updateTable()
+{
+
+}
+
 SettingsBase::SettingsBase(QWidget *parent) : QWidget(parent)
 {
     clearSettings();

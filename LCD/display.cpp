@@ -1,4 +1,5 @@
 #include "display.h"
+#include <QStringList>
 
 bool Display::checkStrNum(int strNum, int subStrNum)
 {
@@ -292,6 +293,21 @@ void Display::clearDisplay()
         emit strChanged(i,0);
     }
     emit cursorPosChanged(0,0);
+}
+
+void Display::getVars(QStringList &id, QStringList &pattern)
+{
+    for(int i=0;i<getStrCount();i++) {
+        for(int j=0;j<getSubStrCount(i);j++) {
+            DisplayStr s = getString(i,j);
+            for(int k=0;k<s.getVarsCount();k++) {
+                vPatt vp;
+                s.getVar(k,vp);
+                id << vp.variable.getVarID();
+                pattern << vp.variable.getPattern();
+            }
+        }
+    }
 }
 
 Display::~Display()

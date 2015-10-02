@@ -47,6 +47,8 @@ public:
     void setKonFileName(const QString &fName) {konFileName=fName;}
     virtual void saveSettings(void)=0;  // сохранение настроек в файл
     virtual void openSettings(void)=0;  // чтение настроек из файла
+    void updateOnyByte(int addr,quint8 value);
+    virtual void updateTable(void);
 
 signals:
     void writeToPLC(QByteArray binData);    // запрос записи данных в ПЛК

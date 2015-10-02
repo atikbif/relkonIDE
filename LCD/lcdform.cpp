@@ -19,7 +19,7 @@ LCDForm::LCDForm(Display &d, VarsCreator &vCr, QWidget *parent) :
     this->setLayout(layout);
 
     StrListWidget* listWidget = new StrListWidget(displ);
-    layout->addWidget(listWidget,1,0,1,4);
+    layout->addWidget(listWidget,1,0,1,8);
     connect(&displ,SIGNAL(strChanged(int,int)),listWidget,SLOT(strChanged(int,int)));
     connect(&displ,SIGNAL(strListChanged(int)),listWidget,SLOT(strListChanged(int)));
     connect(&displ,SIGNAL(curStrNumChanged(int,int)),listWidget,SLOT(curStrNumChanged(int,int)));
@@ -27,16 +27,16 @@ LCDForm::LCDForm(Display &d, VarsCreator &vCr, QWidget *parent) :
 
     dW = new DisplayWidget(displ);
     dW->setFixedHeight(dW->minimumHeight());
-    layout->addWidget(dW,0,0,1,2);
+    layout->addWidget(dW,0,1,1,6);
     PatternEditorWidget* pEd = new PatternEditorWidget(displ,varOwner,this);
-    pEd->setFixedHeight(dW->height()*1.2);
+    //pEd->setFixedHeight(listWidget->height());
     connect(this,SIGNAL(newProject()),pEd,SLOT(newProject()));
     connect(this,SIGNAL(openProject()),pEd,SLOT(openProject()));
     connect(this,SIGNAL(saveProject()),pEd,SLOT(saveProject()));
     connect(this,SIGNAL(updTree()),pEd,SLOT(updTree()));
     connect(pEd,SIGNAL(updFocus()),this,SLOT(updFocus()));
     connect(&displ,SIGNAL(cursorPosChanged(int,int)),pEd,SLOT(cursorPosChanged(int,int)));
-    layout->addWidget(pEd,0,2,1,2);
+    layout->addWidget(pEd,0,8,2,1);
     connect(&displ,SIGNAL(cursorPosChanged(int,int)),dW,SLOT(update()));
     connect(&displ,SIGNAL(curStrNumChanged(int,int)),dW,SLOT(update()));
     connect(&displ,SIGNAL(strChanged(int,int)),dW,SLOT(update()));
@@ -98,6 +98,8 @@ void LCDForm::saveLCD()
                     xmlWriter.writeAttribute("pattern",vp.variable.getPattern());
                     VarItem var = varOwner.getVarByID(vp.variable.getVarID());
                     xmlWriter.writeAttribute("comment",var.getComment());
+                    xmlWriter.writeAttribute("sign",var.isSigned()?"1":"0");
+                    xmlWriter.writeAttribute("edit",var.isEditable()?"1":"0");
                     xmlWriter.writeEndElement();
                 }
 
@@ -177,6 +179,8 @@ void LCDForm::openLCD()
                                QString id = ce.attribute("id");
                                QString pattern = ce.attribute("pattern");
                                QString comment = ce.attribute("comment");
+                               QString isEd = ce.attribute("edit");
+                               QString isSign = ce.attribute("sign");
                                int posValue = pos.toInt();
                                VarPattern vp(id,pattern);
                                displ.setCursor(posValue,strNumValue);
@@ -186,6 +190,10 @@ void LCDForm::openLCD()
                                displ.addVar(vp);
                                VarItem var = varOwner.getVarByID(id);
                                var.setComment(comment);
+                               if(isEd=="1") var.setEditable(true);
+                                else var.setEditable(false);
+                               if(isSign=="1") var.setSigned(true);
+                                else var.setSigned(false);
                                varOwner.updateVarByID(id,var);
                            }
                        }

@@ -51,6 +51,7 @@ public:
     bool goToStr(int strNum, int subStrNum); // сделать строку активной и переместить туда курсор
     void toggleActive(int strNum, int subStrNum);
     void clearDisplay(void);
+    void getVars(QStringList &id, QStringList &pattern);
     ~Display();
 signals:
     cursorPosChanged(int x,int y); // были изменены координаты курсора

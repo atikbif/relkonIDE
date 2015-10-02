@@ -86,6 +86,9 @@ private slots:
     void prWasChanged(void);
     void buildWithoutErrors(void);
 
+    void lcdToTable(void);
+    void tableToLcd(void);
+
 public slots:
     void addMessageToInfoList(const QString &message);
 

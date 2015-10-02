@@ -23,6 +23,22 @@ void VarItem::setEditable(bool value)
     isEdit = value;
 }
 
+int VarItem::getByteCount()
+{
+    if(dataType==charType) return 1;
+    if(dataType==ucharType) return 1;
+    if(dataType==shortType) return 2;
+    if(dataType==ushortType) return 2;
+    if(dataType==intType) return 4;
+    if(dataType==uintType) return 4;
+    if(dataType==longType) return 4;
+    if(dataType==ulongType) return 4;
+    if(dataType==longLongType) return 8;
+    if(dataType==floatType) return 4;
+    if(dataType==doubleType) return 8;
+    return 0;
+}
+
 void VarItem::updateID()
 {
     QString str = name+memType+dataType+QString::number(memAddress)+QString::number(bitNum);

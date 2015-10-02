@@ -13,8 +13,8 @@ public:
     explicit VarPattern(const QString &vID, const QString &vPattern);
     bool checkPattern(const QString& dataType) const;    // проверяет корректность шаблона
     int getLength(void) const {return pattern.length();}    // возвращает длину шаблона
-    const QString getVarID(void) const {return varId;}
-    const QString getPattern(void) const {return pattern;}
+    QString getVarID(void) const {return varId;}
+    QString getPattern(void) const {return pattern;}
     ~VarPattern();
 };
 
