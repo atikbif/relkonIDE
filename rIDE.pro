@@ -85,7 +85,9 @@ SOURCES += main.cpp\
     VarDef/iterator.cpp \
     VarDef/namesortiterator.cpp \
     VarDef/varitem.cpp \
-    VarDef/varparser.cpp
+    VarDef/varparser.cpp \
+    LCD/ccodecreator.cpp \
+    LCD/pultvardefinition.cpp
 
 HEADERS  += mainwindow.h \
     codeeditor.h \
@@ -156,7 +158,9 @@ HEADERS  += mainwindow.h \
     VarDef/iterator.h \
     VarDef/namesortiterator.h \
     VarDef/varitem.h \
-    VarDef/varparser.h
+    VarDef/varparser.h \
+    LCD/ccodecreator.h \
+    LCD/pultvardefinition.h
 
 FORMS    += mainwindow.ui \
     settingsform.ui \

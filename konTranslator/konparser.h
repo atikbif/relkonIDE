@@ -5,6 +5,7 @@
 #include "textblock.h"
 #include "konprocess.h"
 #include "abstractchfilesfactory.h"
+#include "LCD/display.h"
 
 class KonParser
 {
@@ -22,9 +23,10 @@ class KonParser
     int createVarBlock(void);
     int createInitBlock(void);
     int createProcessBlock(void);
+    const Display& lcd;
 
 public:
-    KonParser();
+    explicit KonParser(const Display& d);
     void setCHFactory(AbstractCHFilesFactory* factory);
     void parse(void);
     const QStringList &getErrors(void) const;

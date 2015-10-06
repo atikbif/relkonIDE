@@ -4,6 +4,7 @@
 #include "chgenerator.h"
 #include "moduleio.h"
 #include <QTextStream>
+#include "LCD/display.h"
 
 class FreeRtosGenerator: public CHGenerator
 {
@@ -15,7 +16,7 @@ class FreeRtosGenerator: public CHGenerator
     int curPrNum=1;
     int curSitSpeed=1;
 public:
-    FreeRtosGenerator();
+    explicit FreeRtosGenerator(const Display& d);
     QStringList getFileNames();
     int createFiles(TextBlock &varBlock,TextBlock &initBlock,QVector<KonProcess> &prBlock);
 private:

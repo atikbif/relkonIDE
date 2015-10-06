@@ -7,7 +7,7 @@
 #include <QDateTime>
 #include <QApplication>
 
-KonParser::KonParser()
+KonParser::KonParser(const Display &d):lcd(d)
 {
     factory = nullptr;
 }
@@ -161,7 +161,7 @@ void KonParser::parse()
     createInitBlock();
     createProcessBlock();
     if(factory != nullptr) {
-        CHGenerator* generator = factory->createCHGenerator();
+        CHGenerator* generator = factory->createCHGenerator(lcd);
         generator->createFiles(varBlock,initBlock,prBlock);
         parsingErrors.clear();
         parsingErrors = generator->getErrors();

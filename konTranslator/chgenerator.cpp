@@ -1,6 +1,7 @@
 #include "chgenerator.h"
 
-CHGenerator::CHGenerator()
+CHGenerator::CHGenerator(const Display &d):
+    lcd(d)
 {
 }
 

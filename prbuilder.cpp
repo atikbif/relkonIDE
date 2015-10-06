@@ -5,7 +5,7 @@
 #include "konTranslator/freertosfactory.h"
 #include <QApplication>
 #include <QRegExp>
-#include "Debugger/varparser.h"
+#include "VarDef/varparser.h"
 
 
 int PrBuilder::convertStrNum(int cStrNum)
@@ -51,8 +51,8 @@ void PrBuilder::removeBuildFiles(const QString & prPath, const QString &prName)
     }
 }
 
-PrBuilder::PrBuilder(QObject *parent) :
-    QObject(parent)
+PrBuilder::PrBuilder(const Display &d, QObject *parent) :
+    QObject(parent),lcd(d)
 {
 }
 
@@ -90,7 +90,7 @@ void PrBuilder::buildRequest(QString prPath, QString prName)
             return;
         }
 
-        KonParser parser;
+        KonParser parser(lcd);
         FreeRtosFactory factory;
         parser.setCHFactory(&factory);
         parser.parse();

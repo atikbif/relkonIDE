@@ -3,8 +3,9 @@
 #include <QDir>
 #include <QFile>
 #include <QTextStream>
+#include <LCD/ccodecreator.h>
 
-FreeRtosGenerator::FreeRtosGenerator(): CHGenerator()
+FreeRtosGenerator::FreeRtosGenerator(const Display &d): CHGenerator(d)
 {
 }
 
@@ -479,7 +480,8 @@ void FreeRtosGenerator::createFcuC()
     out << "#include \"fc_u.h\"\n";
     out << "#include \"additional.h\"\n";
     out << "extern unsigned long sd_fl;\n";
-    out << "const unsigned short S4_max = 1;\n";
+    out << "const unsigned short S4_max = " + QString::number(lcd.getSubStrCount(lcd.getStrCount()-1)) + ";\n";
+
     out << "\n";
 
     // matchbox defenition
@@ -606,7 +608,13 @@ void FreeRtosGenerator::createFcuC()
     }
     out << "}\n";
 
-    out << "\n";
+    QStringList pultData = CCodeCreator::getText(lcd);
+
+    foreach (QString str, pultData) {
+       out << str;
+    }
+
+    /*out << "\n";
     out << "const unsigned char str1[][20] = {{0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20}};\n";
     out << "const unsigned char str2[][20] = {{0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20}};\n";
     out << "const unsigned char str3[][20] = {{0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20}};\n";
@@ -615,7 +623,8 @@ void FreeRtosGenerator::createFcuC()
     out << "void print_var(void)\n";
     out << "{\n";
     out << "    \n";
-    out << "}\n";
+    out << "}\n";*/
+
 
     file.close();
 }

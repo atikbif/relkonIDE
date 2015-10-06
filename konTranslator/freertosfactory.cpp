@@ -5,7 +5,7 @@ FreeRtosFactory::FreeRtosFactory(): AbstractCHFilesFactory()
 {
 }
 
-CHGenerator *FreeRtosFactory::createCHGenerator()
+CHGenerator *FreeRtosFactory::createCHGenerator(const Display &d)
 {
-    return new FreeRtosGenerator();
+    return new FreeRtosGenerator(d);
 }

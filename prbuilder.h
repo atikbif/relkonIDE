@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QStringList>
+#include "LCD/display.h"
 
 class PrBuilder : public QObject
 {
@@ -10,10 +11,11 @@ class PrBuilder : public QObject
     bool newBuild = false;
     QStringList konFile;
     int convertStrNum(int cStrNum);
+    const Display& lcd;
 
     void removeBuildFiles(const QString & prPath, const QString &prName);
 public:
-    explicit PrBuilder(QObject *parent = 0);
+    explicit PrBuilder(const Display& d, QObject *parent = 0);
 signals:
     void printMessage(const QString &str);
     void buildIsFinished(void);

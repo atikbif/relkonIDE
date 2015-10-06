@@ -288,7 +288,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     setWindowState(Qt::WindowMaximized);
 
-    PrBuilder *buildProc = new PrBuilder;
+    PrBuilder *buildProc = new PrBuilder(*displ);
     buildProc->moveToThread(&builderThread);
     connect(&builderThread, SIGNAL(finished()), buildProc, SLOT(deleteLater()));
     connect(this, SIGNAL(startBuild(QString,QString)), buildProc, SLOT(buildRequest(QString,QString)));

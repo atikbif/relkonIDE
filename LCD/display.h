@@ -5,6 +5,7 @@
 #include <QVector>
 #include <QHash>
 #include <QObject>
+#include "pultvardefinition.h"
 
 // класс дисплея
 
@@ -33,7 +34,7 @@ public:
     void moveCursorToEnd(void);
     void nextString(void);
     void prevString(void);
-    const DisplayStr getString(int strNum, int subStrNum);
+    DisplayStr getString(int strNum, int subStrNum) const;
     const DisplayStr getCursorString(void);  // вернуть строку, на которую указывает курсор
     int getCurSubStrNum(int strNum) const;
     bool getReplaceMode(void) const {return DisplayStr::getReplaceMode();}
@@ -52,6 +53,7 @@ public:
     void toggleActive(int strNum, int subStrNum);
     void clearDisplay(void);
     void getVars(QStringList &id, QStringList &pattern);
+    void getVarDefinitions(QVector<PultVarDefinition>& varList,int strNum) const;
     ~Display();
 signals:
     cursorPosChanged(int x,int y); // были изменены координаты курсора
