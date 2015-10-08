@@ -47,13 +47,13 @@ public:
     bool insertSymbol(quint8 code);
     void deleteSymbol(void);
     void backspace(void);
-    bool addVar(const VarPattern& vP);
-    bool updVar(const VarPattern& vP);
+    bool addVar(PultVarDefinition &vP);
+    bool updVar(PultVarDefinition& vP);
     bool goToStr(int strNum, int subStrNum); // сделать строку активной и переместить туда курсор
     void toggleActive(int strNum, int subStrNum);
     void clearDisplay(void);
-    void getVars(QStringList &id, QStringList &pattern);
-    void getVarDefinitions(QVector<PultVarDefinition>& varList,int strNum) const;
+    void getVars(QVector<PultVarDefinition> &vars);
+    void getVarDefinitions(QVector<PultVarDefinition>& varList, int strNum, int subStrNum) const;
     ~Display();
 signals:
     cursorPosChanged(int x,int y); // были изменены координаты курсора

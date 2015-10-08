@@ -40,7 +40,8 @@ public:
     VarItem getVarByID(QString idValue);
     bool updateVarByID(QString idValue, VarItem &var);
     IDStorage& getIDStorage() {return ids;}
-    QString getFullNameOfVar(QString idValue);
+    QString getFullNameOfVar(const QString& idValue);
+    QString getPultNameOfVar(const QString& idValue);
     ~VarsCreator();
 
 signals:

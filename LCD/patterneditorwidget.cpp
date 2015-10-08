@@ -168,20 +168,36 @@ void PatternEditorWidget::cursorPosChanged(int x, int y)
     currentY = y;
     DisplayStr str = displ.getString(y,displ.getCurSubStrNum(y));
     if(str.isVarHere(x)) {
+        PultVarDefinition cursVarDef;
+        str.getVarInPos(x,cursVarDef);
         applyButton->setText("Изменить переменную");
-        QString id = str.getVarID(x);
-        QString pattern = str.getVarPatern(x);
+        QString id = cursVarDef.getId();
+        QString pattern = cursVarDef.getPattern();
         if(!id.isEmpty()) {
             VarItem var = varOwner.getVarByID(id);
+
+            if(var.getBitNum()!=-1) {
+                isEditable->setCheckState(Qt::Unchecked);
+                isSigned->setCheckState(Qt::Unchecked);
+                isEditable->setEnabled(false);
+                isSigned->setEnabled(false);
+            }else {
+                isEditable->setEnabled(true);
+                isSigned->setEnabled(true);
+
+                if(cursVarDef.getIsEditable()) isEditable->setCheckState(Qt::Checked);
+                    else isEditable->setCheckState(Qt::Unchecked);
+                if(cursVarDef.getForceSign()) isSigned->setCheckState(Qt::Checked);
+                    else isSigned->setCheckState(Qt::Unchecked);
+            }
+
             nameEdit->setText(varOwner.getFullNameOfVar(id).remove(QRegExp("^[^\\.]*\\.[^\\.]*\\.")));
-            typeEdit->setText(var.getDataType());
+            typeEdit->setText(cursVarDef.getDataType());
             commentEdit->setText(var.getComment());
             patternEdit->setText(pattern);
-            if(var.isEditable()) isEditable->setCheckState(Qt::Checked);
-                else isEditable->setCheckState(Qt::Unchecked);
-            if(var.isSigned()) isSigned->setCheckState(Qt::Checked);
-                else isSigned->setCheckState(Qt::Unchecked);
+
             curVarID = id;
+            curDef = cursVarDef;
         }
     }else {
         applyButton->setText("Добавить переменную");
@@ -211,12 +227,37 @@ void PatternEditorWidget::doubleClickedVar(QTreeWidgetItem *item, int column)
 void PatternEditorWidget::applyVar()
 {
     if(checkVar()) {
-        VarPattern vp(curVarID,patternEdit->text());
+        VarItem var = varOwner.getVarByID(curVarID);
+
+        if(var.getBitNum()!=-1) {
+            isEditable->setCheckState(Qt::Unchecked);
+            isSigned->setCheckState(Qt::Unchecked);
+            isEditable->setEnabled(false);
+            isSigned->setEnabled(false);
+        }else {
+            isEditable->setEnabled(true);
+            isSigned->setEnabled(true);
+        }
+
+        PultVarDefinition vp;
+        vp.setId(curVarID);
+        vp.setPattern(patternEdit->text());
+        vp.setDataType(var.getDataType());
+        vp.setName(varOwner.getPultNameOfVar(curVarID));
+        vp.setForceSign(isSigned->isChecked());
+        vp.setIsEditable(isEditable->isChecked());
+        QRegExp eeExp("^EE(\\d+)");
+        if(eeExp.indexIn(var.getName()) != -1) {
+            int num = eeExp.cap(1).toInt();
+            vp.setIsEEVar(true);
+            vp.setEEposInSettingsTable(num);
+        }else {
+            vp.setIsEEVar(false);
+        }
         QString dataType = varOwner.getVarByID(curVarID).getDataType();
-        if(vp.checkPattern(dataType)) {
+        if(VarPattern::checkPattern(vp.getPattern(),dataType)) {
             DisplayStr str = displ.getString(currentY,displ.getCurSubStrNum(currentY));
             if(str.isVarHere(currentX)) {
-                VarItem var = varOwner.getVarByID(curVarID);
                 var.setComment(commentEdit->text());
                 var.setEditable(isEditable->isChecked());
                 var.setSigned(isSigned->isChecked());
@@ -224,7 +265,6 @@ void PatternEditorWidget::applyVar()
                 displ.updVar(vp);
             }else {
                 if(displ.addVar(vp)) {
-                    VarItem var = varOwner.getVarByID(curVarID);
                     var.setComment(commentEdit->text());
                     var.setEditable(isEditable->isChecked());
                     var.setSigned(isSigned->isChecked());

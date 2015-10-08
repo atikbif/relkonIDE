@@ -34,9 +34,10 @@ QStringList CCodeCreator::getText(const Display &d)
 
     for(int i=0;i<d.getStrCount();i++) {
         code << "\tswitch(_Sys.S" + QString::number(i+1) + ")\n\t{\n";
-        QVector<PultVarDefinition> varList;
-        d.getVarDefinitions(varList,i);
+
         for(int j=0;j<d.getSubStrCount(i);j++) {
+            QVector<PultVarDefinition> varList;
+            d.getVarDefinitions(varList,i,j);
             QString prVarsStr;
             foreach (PultVarDefinition vDef, varList) {
                if(vDef.getSubStrNum()==j) {
@@ -60,29 +61,35 @@ QStringList CCodeCreator::getText(const Display &d)
                            if(pos>=d.getLength()) pos--;
                            varPat.remove(QRegExp("^[+\\-]"));
                        }
+                       int fractionLength = 0;
+                       QRegExp frExp("\\.(\\d+)$");
+                       if(frExp.indexIn(varPat) != -1) fractionLength = frExp.cap(1).length();
+                       varPat.remove(".");
                        if(varTypeStr.contains("float")||(varTypeStr.contains("double"))) {
                            prVarsStr += "\t\t\tprint_float("+vDef.getName()+"," +
-                                   QString::number(i+1) + "," + QString::number(pos) +
+                                   QString::number(i+1) + "," + QString::number(pos+1) +
                                    "," + QString::number(varPat.length()) +
-                                   ",0);\n";
+                                   "," + QString::number(fractionLength) + ");\n";
                        }else {
                            if(vDef.getIsEditable()) {
                                 if(vDef.getIsEEVar()) {
                                     prVarsStr += "\t\t\tprint_edit_ee(" + QString::number(vDef.getEEposInSettingsTable()) +
-                                            "," + QString::number(i+1) + "," + QString::number(pos) +
+                                            "," + QString::number(i+1) + "," + QString::number(pos+1) +
                                             "," + QString::number(varPat.length()) +
-                                            ",0," + QString::number(varTypeNum) + ");\n";
+                                            "," + QString::number(fractionLength) + "," +
+                                            QString::number(varTypeNum) + ");\n";
                                 }else {
                                     prVarsStr += "\t\t\tprint_edit(&" + vDef.getName()+"," +
-                                            QString::number(i+1) + "," + QString::number(pos) +
+                                            QString::number(i+1) + "," + QString::number(pos+1) +
                                             "," + QString::number(varPat.length()) +
-                                            ",0," + QString::number(varTypeNum) + ");\n";
+                                            "," + QString::number(fractionLength) + "," +
+                                            QString::number(varTypeNum) + ");\n";
                                 }
                            }else {
                                prVarsStr += "\t\t\tprint_long("+vDef.getName()+"," +
-                                       QString::number(i+1) + "," + QString::number(pos) +
+                                       QString::number(i+1) + "," + QString::number(pos+1) +
                                        "," + QString::number(varPat.length()) +
-                                       ",0);\n";
+                                       "," + QString::number(fractionLength) + ");\n";
                            }
 
                        }

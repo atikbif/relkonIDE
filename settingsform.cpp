@@ -22,11 +22,13 @@ void SettingsForm::printFactorySettings()
             if((num%amountOfByte==0)&&(num<factorySettingsAmount)) {
                 unsigned long value = fSettings[num];
                 if((amountOfByte>=2)&&(num+1<factorySettingsAmount)) {
-                    value = value*256 + fSettings[num+1];
+                    value += (unsigned long)fSettings[num+1] << 8;
                 }
                 if((amountOfByte>=4)&&(num+3<factorySettingsAmount)) {
-                    value = value*256 + fSettings[num+2];
-                    value = value*256 + fSettings[num+3];
+                    value += (unsigned long)fSettings[num+2] << 8;
+                    value += (unsigned long)fSettings[num+3] << 8;
+                    //value = value + (unsigned long)fSettings[num+2]*256;
+                    //value = value + (unsigned long)fSettings[num+3]*256;
                 }
                 ui->tableWidget->item(i,j)->setBackground(QColor(251,251,251));
                 ui->tableWidget->item(i,j)->setToolTip(QString::number(num));
@@ -409,16 +411,16 @@ void SettingsForm::on_tableWidget_itemChanged(QTableWidgetItem *item)
                 }else if(ui->radioButtonTwoBytes->isChecked()) {
                     if(value>0xFFFF) value=0;
                     if(num+1<factorySettingsAmount) {
-                        fSettings[num] = (value >> 8) & 0xFF;
-                        fSettings[num+1] = value & 0xFF;
+                        fSettings[num+1] = (value >> 8) & 0xFF;
+                        fSettings[num] = value & 0xFF;
                     }
                 }else if(ui->radioButtonFourBytes->isChecked()) {
                     if(value>0xFFFFFFFF) value=0;
                     if(num+3<factorySettingsAmount) {
-                        fSettings[num] = (value>>24)&0xFF;
-                        fSettings[num+1] = (value>>16)&0xFF;
-                        fSettings[num+2] = (value>>8)&0xFF;
-                        fSettings[num+3] = value & 0xFF;
+                        fSettings[num+3] = (value>>24)&0xFF;
+                        fSettings[num+2] = (value>>16)&0xFF;
+                        fSettings[num+1] = (value>>8)&0xFF;
+                        fSettings[num] = value & 0xFF;
                     }
                 }
                 item->setText(QString::number(value));

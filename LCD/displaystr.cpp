@@ -1,4 +1,5 @@
 #include "displaystr.h"
+#include <QRegExp>
 
 bool DisplayStr::replaceMode = false;
 
@@ -35,8 +36,8 @@ bool DisplayStr::insertSymbol(int pos,quint8 code)
     }else {
         if(data.at(length-1)==0x20) {
             data.insert(pos,code);
-            foreach (vPatt* v, vList) {
-               if(v->pos >= pos) v->pos++;
+            foreach (PultVarDefinition* v, vList) {
+               if(v->getPosInStr() >= pos) v->setPosInStr(v->getPosInStr()+1);
             }
             result = true;
         }
@@ -51,24 +52,24 @@ void DisplayStr::deleteSymbol(int pos)
     if((pos<0)||(pos>=length)) return;
 
     if(isVarHere(pos)) {
-        vPatt* vp = nullptr;
-        foreach (vPatt* v, vList) {
-           if((pos >= v->pos)&&(pos < v->pos + v->variable.getLength())) vp = v;
+        PultVarDefinition* vp = nullptr;
+        foreach (PultVarDefinition* v, vList) {
+           if((pos >= v->getPosInStr())&&(pos < v->getPosInStr() + v->getPattern().length())) vp = v;
         }
         if(vp!=nullptr) {
-            data.remove(vp->pos,vp->variable.getLength());
-            data.append(QByteArray(vp->variable.getLength(),spaceCode));
+            data.remove(vp->getPosInStr(),vp->getPattern().length());
+            data.append(QByteArray(vp->getPattern().length(),spaceCode));
             vList.removeOne(vp);
-            foreach (vPatt* v, vList) {
-               if(v->pos >= vp->pos) v->pos-=vp->variable.getLength();
+            foreach (PultVarDefinition* v, vList) {
+               if(v->getPosInStr() >= vp->getPosInStr()) v->setPosInStr(v->getPosInStr()-vp->getPattern().length());
             }
         }
         return;
     }
 
     data.remove(pos,1);
-    foreach (vPatt* v, vList) {
-       if(v->pos>pos) v->pos--;
+    foreach (PultVarDefinition* v, vList) {
+       if(v->getPosInStr()>pos) v->setPosInStr(v->getPosInStr()-1);
     }
     data.append(spaceCode);
 }
@@ -78,11 +79,14 @@ void DisplayStr::setReplaceMode(bool value)
     replaceMode = value;
 }
 
-bool DisplayStr::addVar(const VarPattern &vP, int pos)
+bool DisplayStr::addVar(const PultVarDefinition &vDef)
 {
     QMutexLocker locker(&mutex);
 
-    int endPos = pos + vP.getLength() - 1;
+    int pos = vDef.getPosInStr();
+    int patternLength = vDef.getPattern().length();
+
+    int endPos = pos + patternLength - 1;
     if((pos<0)||(pos>=length)) return false;
     if(endPos>=length) return false;
     if(!replaceMode) {
@@ -91,93 +95,128 @@ bool DisplayStr::addVar(const VarPattern &vP, int pos)
         int i = length - 1;
         int spaceCnt = 0;
         while(i>=0) {if(data.at(i)==0x20) spaceCnt++;else break;i--;}
-        if(spaceCnt<vP.getLength()) return false;
-        foreach (vPatt* v, vList) {
-           if(v->pos>pos) v->pos+=vP.getLength();
+        if(spaceCnt<patternLength) return false;
+        // сдвиг переменных, находящихся правее указанной позиции
+        foreach (PultVarDefinition* vd, vList) {
+           if(vd->getPosInStr() > pos) vd->setPosInStr(vd->getPosInStr()+patternLength);
         }
     }else {
         for(int i=pos;i<=endPos;i++) {
             if(isVarHere(i)) return false;
         }
-        data.remove(pos,vP.getLength());
+        data.remove(pos,patternLength);
     }
-    data.insert(pos,vP.getPattern());
+    QString pat = vDef.getPattern();
+    pat.replace(QRegExp("[\\-+]")," ");
+    data.insert(pos,pat);
     data.resize(length);
-    vPatt* var = new vPatt(pos,vP);
-    vList += var;
+    PultVarDefinition* varDef = new PultVarDefinition();
+    varDef->setPosInStr(pos);
+    varDef->setPattern(vDef.getPattern());
+    varDef->setId(vDef.getId());
+    varDef->setName(vDef.getName());
+    varDef->setDataType(vDef.getDataType());
+    varDef->setForceSign(vDef.getForceSign());
+    varDef->setIsEditable(vDef.getIsEditable());
+    varDef->setIsEEVar(vDef.getIsEEVar());
+    vList += varDef;
     return true;
 }
 
-bool DisplayStr::updVar(const VarPattern &vP, int pos)
+bool DisplayStr::updVar(const PultVarDefinition &vDef)
 {
     QMutexLocker locker(&mutex);
-    vPatt* curPattern = nullptr;
-    foreach (vPatt* v, vList) {
-        if((pos>=v->pos)&&(pos < v->pos + v->variable.getLength())) {
-            curPattern = v;
+    int pos = vDef.getPosInStr();
+    int patternLength = vDef.getPattern().length();
+    PultVarDefinition* curVarDef = nullptr;
+    foreach (PultVarDefinition* vd, vList) {
+        if((pos>=vd->getPosInStr())&&(pos < vd->getPosInStr() + patternLength)) {
+            curVarDef = vd;
             break;
         }
     }
-    if(curPattern==nullptr) return false;
-    if(vP.getLength()>curPattern->variable.getLength()) {
+    if(curVarDef==nullptr) return false;
+    if(patternLength>curVarDef->getPattern().length()) {
         // check free space
         int i = length - 1;
         int spaceCnt = 0;
         while(i>=0) {if(data.at(i)==0x20) spaceCnt++;else break;i--;}
-        if(spaceCnt<vP.getLength()-curPattern->variable.getLength()) return false;
+        if(spaceCnt<patternLength-curVarDef->getPattern().length()) return false;
     }
-    int offset = vP.getLength() - curPattern->variable.getLength();
-    foreach (vPatt* v, vList) {
-       if(v->pos>curPattern->pos) v->pos+=offset;
+    int offset = patternLength - curVarDef->getPattern().length();
+    // смещение переменных справа при изменении длины шаблона
+    if(offset!=0) foreach (PultVarDefinition* vd, vList) {
+       if(vd->getPosInStr()>curVarDef->getPosInStr()) vd->setPosInStr(vd->getPosInStr()+offset);
     }
-    vList.removeOne(curPattern);
-    data.remove(curPattern->pos,curPattern->variable.getLength());
-    data.insert(curPattern->pos,vP.getPattern());
+    vList.removeOne(curVarDef);
+    data.remove(curVarDef->getPosInStr(),curVarDef->getPattern().length());
+    QString pat=vDef.getPattern();
+    pat.replace(QRegExp("[\\-+]")," ");
+    data.insert(curVarDef->getPosInStr(),pat);
     if(data.count()>length) data.resize(length);
     else while(data.count()<length) data.append(spaceCode);
-    curPattern = new vPatt(curPattern->pos,vP);
-    vList += curPattern;
+    pos = curVarDef->getPosInStr();
+    curVarDef = new PultVarDefinition();
+    curVarDef->setPosInStr(pos);
+    curVarDef->setPattern(vDef.getPattern());
+    curVarDef->setId(vDef.getId());
+    curVarDef->setName(vDef.getName());
+    curVarDef->setDataType(vDef.getDataType());
+    curVarDef->setForceSign(vDef.getForceSign());
+    curVarDef->setIsEditable(vDef.getIsEditable());
+    curVarDef->setIsEEVar(vDef.getIsEEVar());
+    vList += curVarDef;
     return true;
 }
 
-bool DisplayStr::getVar(int num, vPatt &v) const
+bool DisplayStr::getVar(int num, PultVarDefinition &vd) const
 {
     if((num<0)||(num>=getVarsCount())) return false;
-    v.pos = vList.at(num)->pos;
-    v.variable = vList.at(num)->variable;
+    vd = *vList.at(num);
     return true;
+}
+
+bool DisplayStr::getVarInPos(int pos, PultVarDefinition &vd) const
+{
+    foreach (PultVarDefinition* v, vList) {
+       if((pos >= v->getPosInStr())&&(pos < v->getPosInStr()+ v->getPattern().length())) {
+           vd = *v;
+           return true;
+       }
+    }
+    return false;
 }
 
 QString DisplayStr::getVarID(int pos) const
 {
-    foreach (vPatt* v, vList) {
-       if((pos >= v->pos)&&(pos < v->pos+ v->variable.getLength()))
-           return v->variable.getVarID();
+    foreach (PultVarDefinition* v, vList) {
+       if((pos >= v->getPosInStr())&&(pos < v->getPosInStr()+ v->getPattern().length()))
+           return v->getId();
     }
     return QString();
 }
 
 QString DisplayStr::getVarPatern(int pos) const
 {
-    foreach (vPatt* v, vList) {
-       if((pos >= v->pos)&&(pos < v->pos+ v->variable.getLength()))
-           return v->variable.getPattern();
+    foreach (PultVarDefinition* v, vList) {
+       if((pos >= v->getPosInStr())&&(pos < v->getPosInStr()+ v->getPattern().length()))
+           return v->getPattern();
     }
     return QString();
 }
 
 bool DisplayStr::isVarHere(int pos) const
 {
-    foreach (vPatt* v, vList) {
-       if((pos >= v->pos)&&(pos < v->pos+ v->variable.getLength())) return true;
+    foreach (PultVarDefinition* v, vList) {
+       if((pos >= v->getPosInStr())&&(pos < v->getPosInStr()+ v->getPattern().length())) return true;
     }
     return false;
 }
 
 bool DisplayStr::isThisABeginningOfVar(int pos) const
 {
-    foreach (vPatt* v, vList) {
-       if(pos == v->pos) return true;
+    foreach (PultVarDefinition* v, vList) {
+       if(pos == v->getPosInStr()) return true;
     }
     return false;
 }
@@ -189,12 +228,12 @@ DisplayStr::DisplayStr():active(true)
 
 DisplayStr::DisplayStr(const DisplayStr &s)
 {
-    foreach (vPatt* ptr, vList) {delete ptr;}
+    foreach (PultVarDefinition* ptr, vList) {delete ptr;}
     vList.clear();
     for(int i=0;i<s.getVarsCount();i++) {
-        vPatt v;
+        PultVarDefinition v;
         s.getVar(i,v);
-        vPatt* copyPattern = new vPatt(v);
+        PultVarDefinition* copyPattern = new PultVarDefinition(v);
         vList += copyPattern;
     }
     data = s.getString();
@@ -204,12 +243,12 @@ DisplayStr::DisplayStr(const DisplayStr &s)
 DisplayStr &DisplayStr::operator=(const DisplayStr &s)
 {
     if (this != &s) {
-        foreach (vPatt* ptr, vList) {delete ptr;}
+        foreach (PultVarDefinition* ptr, vList) {delete ptr;}
         vList.clear();
         for(int i=0;i<s.getVarsCount();i++) {
-            vPatt v;
+            PultVarDefinition v;
             s.getVar(i,v);
-            vPatt* copyPattern = new vPatt(v);
+            PultVarDefinition* copyPattern = new PultVarDefinition(v);
             vList += copyPattern;
         }
         data = s.getString();
@@ -220,7 +259,7 @@ DisplayStr &DisplayStr::operator=(const DisplayStr &s)
 
 DisplayStr::~DisplayStr()
 {
-    foreach (vPatt* ptr, vList) {
+    foreach (PultVarDefinition* ptr, vList) {
        delete ptr;
     }
 }

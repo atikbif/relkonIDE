@@ -556,7 +556,10 @@ void MainWindow::on_tabWidget_currentChanged(int index)
         srchAct->setEnabled(false);
         buildAct->setEnabled(false);
         textForSearch->setEnabled(false);
-        if(index==3) lcd->updFocus();
+        if(index==3) {
+            lcd->updFocus();
+            buildAct->setEnabled(true);
+        }
     }else {
         undoAct->setEnabled(true);
         redoAct->setEnabled(true);
@@ -593,38 +596,36 @@ void MainWindow::buildWithoutErrors()
 
 void MainWindow::lcdToTable()
 {
-    QStringList id;
-    QStringList pattern;
 
     const int startSettingsAddress = 0x7B00;
     const int stopSettingsEndAddress = 0x7EFF;
 
-    displ->getVars(id,pattern);
-    if(id.count()>0) {
-        if(id.count()==pattern.count()) {
-            for(int i=0;i<id.count();i++) {
-                QString vID = id.at(i);
-                QString vP = pattern.at(i);
-                VarItem var = varOwner->getVarByID(vID);
-                QString memType = var.getMemType();
-                if(memType==MemStorage::framMemName) {
-                    int byteCount = var.getByteCount();
-                    if(byteCount) {
-                        qulonglong value = (qulonglong)vP.toLongLong();
-                        int addr = var.getMemAddress()+byteCount-1;
-                        for(int j=0;j<byteCount;j++) {
-                            quint8 vByte = value & 0xFF;
-                            value = value >> 8;
-                            if((addr>=startSettingsAddress)&&(addr<=stopSettingsEndAddress)) {
-                                settings->updateOnyByte(addr-startSettingsAddress,vByte);
-                            }
-                            addr--;
+    QVector<PultVarDefinition> vars;
+    displ->getVars(vars);
+
+    if(vars.count()>0) {
+        for(int i=0;i<vars.count();i++) {
+            QString vID = vars.at(i).getId();
+            QString vP = vars.at(i).getPattern();
+            VarItem var = varOwner->getVarByID(vID);
+            QString memType = var.getMemType();
+            if(memType==MemStorage::framMemName) {
+                int byteCount = var.getByteCount();
+                if(byteCount) {
+                    qulonglong value = (qulonglong)vP.toLongLong();
+                    int addr = var.getMemAddress();
+                    for(int j=0;j<byteCount;j++) {
+                        quint8 vByte = value & 0xFF;
+                        value = value >> 8;
+                        if((addr>=startSettingsAddress)&&(addr<=stopSettingsEndAddress)) {
+                            settings->updateOnyByte(addr-startSettingsAddress,vByte);
                         }
+                        addr++;
                     }
                 }
             }
-            settings->updateTable();
         }
+        settings->updateTable();
     }
 }
 

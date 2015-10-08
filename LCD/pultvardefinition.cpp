@@ -101,6 +101,16 @@ void PultVarDefinition::setEEposInSettingsTable(int value)
 {
     EEposInSettingsTable = value;
 }
+
+QString PultVarDefinition::getId() const
+{
+    return id;
+}
+
+void PultVarDefinition::setId(const QString &value)
+{
+    id = value;
+}
 PultVarDefinition::PultVarDefinition():
     pattern(""),name(""),dataType(""),strNum(0),
     subStrNum(0),posInStr(0),isEditable(false),

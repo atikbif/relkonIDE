@@ -222,20 +222,22 @@ void Display::backspace()
     }
 }
 
-bool Display::addVar(const VarPattern &vP)
+bool Display::addVar(PultVarDefinition &vP)
 {
     if(checkStrNum(y,getCurSubStrNum(y))==false) return false;
     DisplayStr* str = data.value(y).at(getCurSubStrNum(y));
-    bool res =  str->addVar(vP,x);
+    vP.setPosInStr(x);
+    bool res =  str->addVar(vP);
     if(res) emit strChanged(y,getCurSubStrNum(y));
     return res;
 }
 
-bool Display::updVar(const VarPattern &vP)
+bool Display::updVar(PultVarDefinition &vP)
 {
     if(checkStrNum(y,getCurSubStrNum(y))==false) return false;
     DisplayStr* str = data.value(y).at(getCurSubStrNum(y));
-    bool res = str->updVar(vP,x);
+    vP.setPosInStr(x);
+    bool res = str->updVar(vP);
     if(res) {
         while((!str->isThisABeginningOfVar(x))&&(x>0)) x--;
         emit cursorPosChanged(x,y);
@@ -295,83 +297,28 @@ void Display::clearDisplay()
     emit cursorPosChanged(0,0);
 }
 
-void Display::getVars(QStringList &id, QStringList &pattern)
+void Display::getVars(QVector<PultVarDefinition>& vars)
 {
     for(int i=0;i<getStrCount();i++) {
         for(int j=0;j<getSubStrCount(i);j++) {
             DisplayStr s = getString(i,j);
             for(int k=0;k<s.getVarsCount();k++) {
-                vPatt vp;
+                PultVarDefinition vp;
                 s.getVar(k,vp);
-                id << vp.variable.getVarID();
-                pattern << vp.variable.getPattern();
+                vars << vp;
             }
         }
     }
 }
 
-void Display::getVarDefinitions(QVector<PultVarDefinition> &varList,int strNum) const
+void Display::getVarDefinitions(QVector<PultVarDefinition> &varList,int strNum,int subStrNum) const
 {
     varList.clear();
-    if(strNum == 1) {
-        PultVarDefinition v1;
-        v1.setName("test");
-        v1.setDataType("unsigned char");
-        v1.setPattern("123");
-        v1.setStrNum(1);
-        v1.setSubStrNum(0);
-
-        PultVarDefinition v2;
-        v2.setName("test2");
-        v2.setDataType("unsigned char");
-        v2.setPattern("12345");
-        v2.setStrNum(1);
-        v2.setSubStrNum(3);
-        v2.setIsEditable(true);
-
-        PultVarDefinition v3;
-        v3.setName("test3");
-        v3.setDataType("double");
-        v3.setPattern("1345");
-        v3.setStrNum(1);
-        v3.setSubStrNum(2);
-
-        PultVarDefinition v4;
-        v4.setName("test4");
-        v4.setDataType("double");
-        v4.setPattern("1345");
-        v4.setStrNum(1);
-        v4.setSubStrNum(0);
-        v4.setPosInStr(10);
-
-        PultVarDefinition v5;
-        v5.setName("test5");
-        v5.setDataType("unsigned short");
-        v5.setPattern("1345");
-        v5.setStrNum(1);
-        v5.setSubStrNum(1);
-        v5.setForceSign(true);
-        v5.setIsEEVar(true);
-        v5.setEEposInSettingsTable(5);
-
-        PultVarDefinition v6;
-        v6.setName("test6");
-        v6.setDataType("unsigned long");
-        v6.setPattern("1345");
-        v6.setStrNum(1);
-        v6.setSubStrNum(1);
-        v6.setForceSign(true);
-        v6.setIsEEVar(true);
-        v6.setEEposInSettingsTable(5);
-        v6.setIsEditable(true);
-        v6.setPosInStr(12);
-
-        varList += v1;
-        varList += v2;
-        varList += v3;
-        varList += v4;
-        varList += v5;
-        varList += v6;
+    DisplayStr s = getString(strNum,subStrNum);
+    for(int j=0;j<s.getVarsCount();j++) {
+        PultVarDefinition v;
+        s.getVar(j,v);
+        varList += v;
     }
 }
 

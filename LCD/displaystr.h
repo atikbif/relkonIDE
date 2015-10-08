@@ -7,23 +7,11 @@
 #include "varpattern.h"
 #include <QVector>
 #include <QMutexLocker>
-
-struct vPatt{
-    int pos;
-    VarPattern variable;
-    vPatt(int vPos, const VarPattern &v):pos(vPos),variable(v)
-    {
-
-    }
-    vPatt():pos(0),variable(VarPattern("",""))
-    {
-
-    }
-};
+#include "pultvardefinition.h"
 
 class DisplayStr
 {
-    QVector<vPatt*> vList;  // список переменных
+    QVector<PultVarDefinition*> vList;  // список переменных
     static const int length=20; // длина строки
     static const quint8 spaceCode = 0x20;
     QByteArray data;
@@ -43,9 +31,12 @@ public:
     void deleteSymbol(int pos);
     static void setReplaceMode(bool value);
     bool addVar(const VarPattern& vP, int pos);
+    bool addVar(const PultVarDefinition& vDef);
     bool updVar(const VarPattern& vP, int pos);
+    bool updVar(const PultVarDefinition& vDef);
     int getVarsCount(void) const {return vList.count();}
-    bool getVar(int num, vPatt &v) const;
+    bool getVar(int num, PultVarDefinition &vd) const;
+    bool getVarInPos(int pos, PultVarDefinition &vd) const;
     QString getVarID(int pos) const;
     QString getVarPatern(int pos) const;
     bool isActive(void) const {return active;}

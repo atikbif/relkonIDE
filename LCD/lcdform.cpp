@@ -90,13 +90,13 @@ void LCDForm::saveLCD()
                     xmlWriter.writeEndElement();
                 }
                 for(int n=0;n<str.getVarsCount();n++) {
-                    vPatt vp;
+                    PultVarDefinition vp;
                     str.getVar(n,vp);
                     xmlWriter.writeStartElement("var");
-                    xmlWriter.writeAttribute("pos",QString::number(vp.pos));
-                    xmlWriter.writeAttribute("id",vp.variable.getVarID());
-                    xmlWriter.writeAttribute("pattern",vp.variable.getPattern());
-                    VarItem var = varOwner.getVarByID(vp.variable.getVarID());
+                    xmlWriter.writeAttribute("pos",QString::number(vp.getPosInStr()));
+                    xmlWriter.writeAttribute("id",vp.getId());
+                    xmlWriter.writeAttribute("pattern",vp.getPattern());
+                    VarItem var = varOwner.getVarByID(vp.getId());
                     xmlWriter.writeAttribute("comment",var.getComment());
                     xmlWriter.writeAttribute("sign",var.isSigned()?"1":"0");
                     xmlWriter.writeAttribute("edit",var.isEditable()?"1":"0");
@@ -182,19 +182,47 @@ void LCDForm::openLCD()
                                QString isEd = ce.attribute("edit");
                                QString isSign = ce.attribute("sign");
                                int posValue = pos.toInt();
-                               VarPattern vp(id,pattern);
+
+                               VarItem var = varOwner.getVarByID(id);
+                               if(var.getBitNum()!=-1) {
+                                   var.setEditable(false);
+                                   var.setSigned(false);
+                               }else {
+                                   if(isEd=="1") var.setEditable(true);
+                                    else var.setEditable(false);
+                                   if(isSign=="1") var.setSigned(true);
+                                    else var.setSigned(false);
+                               }
+                               var.setComment(comment);
+
+                               varOwner.updateVarByID(id,var);
+
+                               PultVarDefinition vp;
+                               vp.setId(id);
+                               vp.setPattern(pattern);
+                               vp.setDataType(var.getDataType());
+                               vp.setName(varOwner.getPultNameOfVar(id));
+                               vp.setIsEditable(var.isEditable());
+                               vp.setForceSign(var.isSigned());
+
+                               QRegExp eeExp("^EE(\\d+)");
+                               if(eeExp.indexIn(var.getName()) != -1) {
+                                   int num = eeExp.cap(1).toInt();
+                                   vp.setIsEEVar(true);
+                                   vp.setEEposInSettingsTable(num);
+                               }else {
+                                   vp.setIsEEVar(false);
+                               }
+
                                displ.setCursor(posValue,strNumValue);
-                               for(int i=0;i<vp.getLength();i++) {
+                               for(int i=0;i<vp.getPattern().length();i++) {
                                    displ.deleteSymbol();
                                }
+
+
                                displ.addVar(vp);
-                               VarItem var = varOwner.getVarByID(id);
-                               var.setComment(comment);
-                               if(isEd=="1") var.setEditable(true);
-                                else var.setEditable(false);
-                               if(isSign=="1") var.setSigned(true);
-                                else var.setSigned(false);
-                               varOwner.updateVarByID(id,var);
+
+
                            }
                        }
                     }

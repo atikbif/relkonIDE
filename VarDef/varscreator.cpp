@@ -481,7 +481,7 @@ bool VarsCreator::updateVarByID(QString idValue, VarItem &var)
     return true;
 }
 
-QString VarsCreator::getFullNameOfVar(QString idValue)
+QString VarsCreator::getFullNameOfVar(const QString &idValue)
 {
     QString fName;
     CompositeVar var;
@@ -494,6 +494,132 @@ QString VarsCreator::getFullNameOfVar(QString idValue)
         fName = var.getName()+"."+fName;
     }
     return fName;
+}
+
+QString VarsCreator::getPultNameOfVar(const QString &idValue)
+{
+    QString pultVarName;
+    CompositeVar var;
+    ids.getVarByID(idValue,var);
+    while(1) {
+        QString fName = var.getName();
+        QString parID = var.getParentID();
+        if(parID.isEmpty()) {
+            pultVarName = fName + pultVarName;
+            break;
+        }
+        ids.getVarByID(parID,var);
+
+        QString parName = var.getName();
+        if(parName.contains(QRegExp("^AI$"))) {
+            QRegExp numExp("\\d+$");
+            if(numExp.indexIn(fName) != -1) {
+                int adcNum = numExp.cap().toInt();
+                if((adcNum>=1)&&(adcNum<=8)) {
+                    return "_Sys_ADC["+QString::number(adcNum-1)+"]";
+                }
+            }
+
+        }else if(parName.contains(QRegExp("^AO$"))) {
+            QRegExp numExp("\\d+$");
+            if(numExp.indexIn(fName) != -1) {
+                int dacNum = numExp.cap().toInt();
+                if((dacNum>=1)&&(dacNum<=4)) {
+                    return "_Sys_DAC["+QString::number(dacNum-1)+"]";
+                }
+            }
+        }else if(parName.contains(QRegExp("^IN"))) {
+            QRegExp numExp("\\d+$");
+            if(numExp.indexIn(parName) != -1) {
+                int bitNum = fName.toInt();
+                int inNum = numExp.cap().toInt();
+                if((inNum>=0)&&(inNum<=3)) {
+                    return "(*(iostruct*)&_Sys_IN["+QString::number(inNum)+"]).bit"+QString::number(bitNum);
+                }else if(inNum>=4) {
+                    return "(*(iostruct*)&IN["+QString::number(inNum-4)+"]).bit"+QString::number(bitNum);
+                }
+            }
+        }else if(parName.contains(QRegExp("^DIN"))) {
+            QRegExp numExp("\\d+$");
+            if(numExp.indexIn(parName) != -1) {
+                int bitNum = fName.toInt();
+                int dinNum = numExp.cap().toInt();
+                if((dinNum>=4)&&(dinNum<=5)) {
+                    return "(*(iostruct*)&_Sys_IN["+QString::number(dinNum)+"]).bit"+QString::number(bitNum);
+                }
+            }
+        }else if(parName.contains(QRegExp("^OUT"))) {
+            QRegExp numExp("\\d+$");
+            if(numExp.indexIn(parName) != -1) {
+                int bitNum = fName.toInt();
+                int outNum = numExp.cap().toInt();
+                if((outNum>=0)&&(outNum<=3)) {
+                    return "(*(iostruct*)&_Sys_OUT["+QString::number(outNum)+"]).bit"+QString::number(bitNum);
+                }else if(outNum>=4)
+                    return "(*(iostruct*)&OUT["+QString::number(outNum-4)+"]).bit"+QString::number(bitNum);
+                }
+        }else if(parName.contains(QRegExp("^DOUT"))) {
+            QRegExp numExp("\\d+$");
+            if(numExp.indexIn(parName) != -1) {
+                int bitNum = fName.toInt();
+                int doutNum = numExp.cap().toInt();
+                if((doutNum>=0)&&(doutNum<=3)) {
+                    return "(*(iostruct*)&_Sys_OUT["+QString::number(doutNum)+"]).bit"+QString::number(bitNum);
+                }
+            }
+        }else if(parName.contains(QRegExp("^ADC"))) {
+            QRegExp numExp("\\d+$");
+            if(numExp.indexIn(fName) != -1) {
+                return fName;
+            }
+        }else if(parName.contains(QRegExp("^DAC"))) {
+            QRegExp numExp("\\d+$");
+            if(numExp.indexIn(fName) != -1) {
+                return fName;
+            }
+        }else if(parName.contains(QRegExp("^char$"))) {
+            QRegExp memExp("^MEM(\\d+)$");
+            QRegExp eeExp("^EE(\\d+)$");
+            if(memExp.indexIn(fName) != -1) {
+                return "mem" + memExp.cap(1);
+            }else if(eeExp.indexIn(fName) != -1) {
+                return fName;
+            }
+        }else if(parName.contains(QRegExp("^short$"))) {
+            QRegExp memExp("^MEM(\\d+)i$");
+            QRegExp eeExp("^EE(\\d+)i$");
+            if(memExp.indexIn(fName) != -1) {
+                return "mem" + memExp.cap(1)+"i";
+            }else if(eeExp.indexIn(fName) != -1) {
+                return fName;
+            }
+        }else if(parName.contains(QRegExp("^long$"))) {
+            QRegExp memExp("^MEM(\\d+)l$");
+            QRegExp eeExp("^EE(\\d+)l$");
+            if(memExp.indexIn(fName) != -1) {
+                return "mem" + memExp.cap(1)+"l";
+            }else if(eeExp.indexIn(fName) != -1) {
+                return fName;
+            }
+        }else if(parName.contains(QRegExp("^SIT$"))) {
+            QRegExp sitExp("^Proc(\\d+)$");
+            if(sitExp.indexIn(fName) != -1) {
+                QString sNum = sitExp.cap(1);
+                return "_Sys4x_p"+sNum+".SIT";
+            }
+        }
+
+        if(var.getDataType()=="архив") {
+            fName = "[" + fName + "]";
+        }else if(var.getDataType()=="структура") {
+            fName = "." + fName;
+        }else {
+            pultVarName = fName + pultVarName;
+            break;
+        }
+        pultVarName = fName + pultVarName;
+    }
+    return pultVarName;
 }
 
 

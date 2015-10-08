@@ -2,13 +2,12 @@
 #include <QRegExp>
 #include "VarDef/varitem.h"
 
-VarPattern::VarPattern(const QString &vID, const QString &vPattern):
-    varId(vID),pattern(vPattern)
+VarPattern::VarPattern()
 {
 
 }
 
-bool VarPattern::checkPattern(const QString& dataType) const
+bool VarPattern::checkPattern(const QString &pattern, const QString& dataType)
 {
     const int maxLength = 7;
     if(pattern.isEmpty()) return false;

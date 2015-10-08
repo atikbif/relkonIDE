@@ -29,6 +29,7 @@ class PatternEditorWidget : public QWidget
     QCheckBox* isSigned;
     QPushButton* applyButton;
 
+    PultVarDefinition curDef;
     QString curVarID;
     int currentX;
     int currentY;// текущие позиции курсора

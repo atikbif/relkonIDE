@@ -8,6 +8,7 @@ class PultVarDefinition
     QString pattern;
     QString name;
     QString dataType;
+    QString id;
     int strNum;
     int subStrNum;
     int posInStr;
@@ -38,6 +39,8 @@ public:
     void setIsEEVar(bool value);
     int getEEposInSettingsTable() const;
     void setEEposInSettingsTable(int value);
+    QString getId() const;
+    void setId(const QString &value);
 };
 
 #endif // PULTVARDEFINITION_H
