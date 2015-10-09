@@ -94,12 +94,12 @@ void LCDForm::saveLCD()
                     str.getVar(n,vp);
                     xmlWriter.writeStartElement("var");
                     xmlWriter.writeAttribute("pos",QString::number(vp.getPosInStr()));
-                    xmlWriter.writeAttribute("id",vp.getId());
+                    xmlWriter.writeAttribute("name",vp.getName());
                     xmlWriter.writeAttribute("pattern",vp.getPattern());
                     VarItem var = varOwner.getVarByID(vp.getId());
                     xmlWriter.writeAttribute("comment",var.getComment());
-                    xmlWriter.writeAttribute("sign",var.isSigned()?"1":"0");
-                    xmlWriter.writeAttribute("edit",var.isEditable()?"1":"0");
+                    xmlWriter.writeAttribute("sign",vp.getForceSign()?"1":"0");
+                    xmlWriter.writeAttribute("edit",vp.getIsEditable()?"1":"0");
                     xmlWriter.writeEndElement();
                 }
 
@@ -176,34 +176,37 @@ void LCDForm::openLCD()
                                displ.insertSymbol(code);
                            }else if(ce.nodeName()=="var") {
                                QString pos = ce.attribute("pos");
-                               QString id = ce.attribute("id");
+                               QString vName = ce.attribute("name");
                                QString pattern = ce.attribute("pattern");
                                QString comment = ce.attribute("comment");
                                QString isEd = ce.attribute("edit");
                                QString isSign = ce.attribute("sign");
                                int posValue = pos.toInt();
 
-                               VarItem var = varOwner.getVarByID(id);
-                               if(var.getBitNum()!=-1) {
-                                   var.setEditable(false);
-                                   var.setSigned(false);
-                               }else {
-                                   if(isEd=="1") var.setEditable(true);
-                                    else var.setEditable(false);
-                                   if(isSign=="1") var.setSigned(true);
-                                    else var.setSigned(false);
-                               }
-                               var.setComment(comment);
+                               QString vID = varOwner.getSimilarID(vName);
 
-                               varOwner.updateVarByID(id,var);
-
+                               VarItem var = varOwner.getVarByID(vID);
                                PultVarDefinition vp;
-                               vp.setId(id);
+
+                               if(!vID.isEmpty()) {
+                                   var.setComment(comment);
+                                   varOwner.updateVarByID(vID,var);
+                                   vp.setDataType(var.getDataType());
+                                   if(var.getBitNum()!=-1) {
+                                       isEd="0";
+                                       isSign="0";
+                                   }
+                                   vp.setIsExist(true);
+                               }else {
+                                   vp.setDataType("неизвестен");
+                                   vp.setIsExist(false);
+                               }
+
+                               vp.setId(vID);
                                vp.setPattern(pattern);
-                               vp.setDataType(var.getDataType());
-                               vp.setName(varOwner.getPultNameOfVar(id));
-                               vp.setIsEditable(var.isEditable());
-                               vp.setForceSign(var.isSigned());
+                               vp.setName(vName);
+                               vp.setIsEditable(isEd=="1"?true:false);
+                               vp.setForceSign(isSign=="1"?true:false);
 
                                QRegExp eeExp("^EE(\\d+)");
                                if(eeExp.indexIn(var.getName()) != -1) {
@@ -218,11 +221,7 @@ void LCDForm::openLCD()
                                for(int i=0;i<vp.getPattern().length();i++) {
                                    displ.deleteSymbol();
                                }
-
-
                                displ.addVar(vp);
-
-
                            }
                        }
                     }

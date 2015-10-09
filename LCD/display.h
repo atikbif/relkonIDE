@@ -6,6 +6,7 @@
 #include <QHash>
 #include <QObject>
 #include "pultvardefinition.h"
+#include "VarDef/varscreator.h"
 
 // класс дисплея
 
@@ -18,6 +19,7 @@ class Display: public QObject
     DisplayStr* copyStrBuf; // указатель на скопированную строку
     int x, y; // координаты курсора
     bool checkStrNum(int strNum, int subStrNum);
+    void updVarDefinition(int strNum, int subStrNum,int VarNum, PultVarDefinition &vd);
 public:
     explicit Display(QObject *parent = 0);
     int getStrCount() const {return strCount;}
@@ -54,6 +56,7 @@ public:
     void clearDisplay(void);
     void getVars(QVector<PultVarDefinition> &vars);
     void getVarDefinitions(QVector<PultVarDefinition>& varList, int strNum, int subStrNum) const;
+    void updateDefinitions(VarsCreator &varOwner);
     ~Display();
 signals:
     cursorPosChanged(int x,int y); // были изменены координаты курсора

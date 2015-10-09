@@ -16,6 +16,8 @@ class PultVarDefinition
     bool forceSign;
     bool isEEVar;
     int EEposInSettingsTable;
+    bool isExist;
+    bool isTime;
 public:
     PultVarDefinition();
     ~PultVarDefinition();
@@ -41,6 +43,8 @@ public:
     void setEEposInSettingsTable(int value);
     QString getId() const;
     void setId(const QString &value);
+    bool getIsExist() const;
+    void setIsExist(bool value);
 };
 
 #endif // PULTVARDEFINITION_H

@@ -111,10 +111,21 @@ void PultVarDefinition::setId(const QString &value)
 {
     id = value;
 }
+
+bool PultVarDefinition::getIsExist() const
+{
+    return isExist;
+}
+
+void PultVarDefinition::setIsExist(bool value)
+{
+    isExist = value;
+}
 PultVarDefinition::PultVarDefinition():
     pattern(""),name(""),dataType(""),strNum(0),
     subStrNum(0),posInStr(0),isEditable(false),
-    forceSign(false), isEEVar(false),EEposInSettingsTable(0)
+    forceSign(false), isEEVar(false),EEposInSettingsTable(0),
+    isExist(false), isTime(false)
 {
 
 }

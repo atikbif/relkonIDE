@@ -10,6 +10,14 @@ bool Display::checkStrNum(int strNum, int subStrNum)
     return false;
 }
 
+void Display::updVarDefinition(int strNum, int subStrNum, int VarNum, PultVarDefinition &vd)
+{
+    if(checkStrNum(strNum,subStrNum)) {
+        QVector<DisplayStr*> v = data.value(strNum);
+        v[subStrNum]->updVarDefinition(VarNum,vd);
+    }
+}
+
 Display::Display(QObject *parent):QObject(parent),copyStrBuf(nullptr),x(0),y(0)
 {
     for(int i=0;i<strCount;i++) {
@@ -319,6 +327,35 @@ void Display::getVarDefinitions(QVector<PultVarDefinition> &varList,int strNum,i
         PultVarDefinition v;
         s.getVar(j,v);
         varList += v;
+    }
+}
+
+// изменения описания переменной в связи с перекомпиляцией
+// возможно изменение адреса или типа данных
+void Display::updateDefinitions(VarsCreator &varOwner)
+{
+    for(int i=0;i<getStrCount();i++) {
+        for(int j=0;j<getSubStrCount(i);j++) {
+            DisplayStr s = getString(i,j);
+            for(int k=0;k<s.getVarsCount();k++) {
+                PultVarDefinition vp;
+                s.getVar(k,vp);
+                QString id = vp.getId();
+                if(varOwner.checkID(id)==false) {
+                    QString updID = varOwner.getSimilarID(vp.getName());
+                    if(updID.isEmpty()) {
+                        vp.setIsExist(false);
+                        updVarDefinition(i,j,k,vp);
+                    }else {
+                        vp.setIsExist(true);
+                        vp.setId(updID);
+                        VarItem var = varOwner.getVarByID(updID);
+                        vp.setDataType(var.getDataType());
+                        updVarDefinition(i,j,k,vp);
+                    }
+                }
+            }
+        }
     }
 }
 

@@ -117,7 +117,16 @@ void DisplayWidget::paintEvent(QPaintEvent *event)
             for(int pixY=0;pixY<phont->getRowCount();pixY++) {
                 for(int pixX=0;pixX<phont->getColumnCount();pixX++) {
                     if(phont->getBitValue(phCode,pixY,pixX)) {
-                        if(curStr.isVarHere(x)) painter.setBrush(QBrush(Qt::blue));
+                        if(curStr.isVarHere(x)) {
+                            PultVarDefinition vd;
+                            curStr.getVarInPos(x,vd);
+                            if(vd.getIsExist()) {
+                                painter.setBrush(QBrush(Qt::blue));
+                            }else {
+                                painter.setBrush(QBrush(Qt::red));
+                            }
+
+                        }
                         else painter.setBrush(QBrush(Qt::black));
                         painter.setPen(penLight);
                     }else {

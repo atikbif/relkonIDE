@@ -556,6 +556,9 @@ void MainWindow::on_tabWidget_currentChanged(int index)
         srchAct->setEnabled(false);
         buildAct->setEnabled(false);
         textForSearch->setEnabled(false);
+        if(index==2) {
+            debugger->tabChanged();
+        }
         if(index==3) {
             lcd->updFocus();
             buildAct->setEnabled(true);
@@ -589,7 +592,10 @@ void MainWindow::prWasChanged()
 void MainWindow::buildWithoutErrors()
 {
     varOwner->generateVarsTree();
+
     emit updTree();
+    displ->updateDefinitions(*varOwner);
+    displ->cursorPosChanged(displ->getXPosition(),displ->getYPosition());
     QThread::msleep(1000);
     on_closeInfoListButton_clicked();
 }

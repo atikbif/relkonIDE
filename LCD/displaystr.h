@@ -36,6 +36,7 @@ public:
     bool updVar(const PultVarDefinition& vDef);
     int getVarsCount(void) const {return vList.count();}
     bool getVar(int num, PultVarDefinition &vd) const;
+    void updVarDefinition(int num, PultVarDefinition &vd);
     bool getVarInPos(int pos, PultVarDefinition &vd) const;
     QString getVarID(int pos) const;
     QString getVarPatern(int pos) const;
@@ -43,6 +44,8 @@ public:
     void setActive(bool value) {active=value;}
     bool isVarHere(int pos) const;
     bool isThisABeginningOfVar(int pos) const;
+    bool getHasNonexistentVars() const;
+    void setHasNonexistentVars(bool value);
 };
 
 #endif // DISPLAYSTR_H

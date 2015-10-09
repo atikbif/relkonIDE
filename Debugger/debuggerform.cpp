@@ -149,6 +149,11 @@ void DebuggerForm::clearView()
     }
 }
 
+void DebuggerForm::tabChanged()
+{
+    on_tabWidget_currentChanged(ui->tabWidget->currentIndex());
+}
+
 void DebuggerForm::createTree()
 {
     ui->treeWidgetMain->clear();

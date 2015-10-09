@@ -79,11 +79,26 @@ QStringList CCodeCreator::getText(const Display &d)
                                             "," + QString::number(fractionLength) + "," +
                                             QString::number(varTypeNum) + ");\n";
                                 }else {
-                                    prVarsStr += "\t\t\tprint_edit(&" + vDef.getName()+"," +
-                                            QString::number(i+1) + "," + QString::number(pos+1) +
-                                            "," + QString::number(varPat.length()) +
-                                            "," + QString::number(fractionLength) + "," +
-                                            QString::number(varTypeNum) + ");\n";
+                                    if(vDef.getName().contains("sysTime_")) {
+                                        int tCode = -1;
+                                        if(vDef.getName().contains("sec")) tCode=0;
+                                        else if(vDef.getName().contains("min")) tCode=1;
+                                        else if(vDef.getName().contains("hour")) tCode=2;
+                                        else if(vDef.getName().contains("date")) tCode=3;
+                                        else if(vDef.getName().contains("month")) tCode=4;
+                                        else if(vDef.getName().contains("year")) tCode=5;
+                                        if(tCode != -1) {
+                                            prVarsStr += "\t\tprint_time(" +
+                                                QString::number(i+1) + "," + QString::number(pos+1) +
+                                                "," + QString::number(tCode) + ");\n";
+                                        }
+                                    }else {
+                                        prVarsStr += "\t\t\tprint_edit(&" + vDef.getName()+"," +
+                                                QString::number(i+1) + "," + QString::number(pos+1) +
+                                                "," + QString::number(varPat.length()) +
+                                                "," + QString::number(fractionLength) + "," +
+                                                QString::number(varTypeNum) + ");\n";
+                                    }
                                 }
                            }else {
                                prVarsStr += "\t\t\tprint_long("+vDef.getName()+"," +

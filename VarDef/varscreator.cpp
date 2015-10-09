@@ -4,6 +4,7 @@
 #include <QDomDocument>
 #include <QFile>
 #include "varparser.h"
+#include "Debugger/memstorage.h"
 
 void VarsCreator::addVarToTree(const QDomElement &e, CompositeVar *var, CompositeVar *parent)
 {
@@ -82,6 +83,7 @@ void VarsCreator::createSysVars(CompositeVar* parent)
     addFactorySettings(parent);
     addDispVar(parent);
     addSituationNum(parent);
+    addTimeVars(parent);
 }
 
 void VarsCreator::addDiscrInputs(CompositeVar *parent)
@@ -390,6 +392,63 @@ void VarsCreator::addSituationNum(CompositeVar *parent)
     }
 }
 
+void VarsCreator::addTimeVars(CompositeVar *parent)
+{
+    CompositeVar* tVar = new CompositeVar();
+    tVar->setName("TIME");
+
+    CompositeVar* secVar = new CompositeVar();
+    secVar->setName("sec");
+    secVar->setDataType(VarItem::ucharType);
+    secVar->setMemType(MemStorage::timeMemName);
+    secVar->setEditable(false);
+    tVar->addChild(*secVar);
+    ids.addVar(secVar);
+
+    CompositeVar* minVar = new CompositeVar();
+    minVar->setName("min");
+    minVar->setDataType(VarItem::ucharType);
+    minVar->setMemType(MemStorage::timeMemName);
+    minVar->setEditable(false);
+    tVar->addChild(*minVar);
+    ids.addVar(minVar);
+
+    CompositeVar* hourVar = new CompositeVar();
+    hourVar->setName("hour");
+    hourVar->setDataType(VarItem::ucharType);
+    hourVar->setMemType(MemStorage::timeMemName);
+    hourVar->setEditable(false);
+    tVar->addChild(*hourVar);
+    ids.addVar(hourVar);
+
+    CompositeVar* dateVar = new CompositeVar();
+    dateVar->setName("date");
+    dateVar->setDataType(VarItem::ucharType);
+    dateVar->setMemType(MemStorage::timeMemName);
+    dateVar->setEditable(false);
+    tVar->addChild(*dateVar);
+    ids.addVar(dateVar);
+
+    CompositeVar* monthVar = new CompositeVar();
+    monthVar->setName("month");
+    monthVar->setDataType(VarItem::ucharType);
+    monthVar->setMemType(MemStorage::timeMemName);
+    monthVar->setEditable(false);
+    tVar->addChild(*monthVar);
+    ids.addVar(monthVar);
+
+    CompositeVar* yearVar = new CompositeVar();
+    yearVar->setName("year");
+    yearVar->setDataType(VarItem::ucharType);
+    yearVar->setMemType(MemStorage::timeMemName);
+    yearVar->setEditable(false);
+    tVar->addChild(*yearVar);
+    ids.addVar(yearVar);
+
+    parent->addChild(*tVar);
+    ids.addVar(tVar);
+}
+
 VarsCreator::VarsCreator(QObject *parent) : QObject(parent)
 {
     iter = nullptr;
@@ -607,6 +666,8 @@ QString VarsCreator::getPultNameOfVar(const QString &idValue)
                 QString sNum = sitExp.cap(1);
                 return "_Sys4x_p"+sNum+".SIT";
             }
+        }else if(parName.contains(QRegExp("^TIME$"))) {
+            return "sysTime_"+fName;
         }
 
         if(var.getDataType()=="архив") {
@@ -620,6 +681,20 @@ QString VarsCreator::getPultNameOfVar(const QString &idValue)
         pultVarName = fName + pultVarName;
     }
     return pultVarName;
+}
+
+QString VarsCreator::getSimilarID(const QString &pultNameOfVar)
+{
+    QString resID="";
+    QStringList varsID = getIDList();
+    foreach (QString id, varsID) {
+       QString curVarPultName = getPultNameOfVar(id);
+       if(curVarPultName==pultNameOfVar) {
+           resID = id;
+           break;
+       }
+    }
+    return resID;
 }
 
 

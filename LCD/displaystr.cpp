@@ -119,6 +119,7 @@ bool DisplayStr::addVar(const PultVarDefinition &vDef)
     varDef->setForceSign(vDef.getForceSign());
     varDef->setIsEditable(vDef.getIsEditable());
     varDef->setIsEEVar(vDef.getIsEEVar());
+    varDef->setIsExist(vDef.getIsExist());
     vList += varDef;
     return true;
 }
@@ -130,7 +131,7 @@ bool DisplayStr::updVar(const PultVarDefinition &vDef)
     int patternLength = vDef.getPattern().length();
     PultVarDefinition* curVarDef = nullptr;
     foreach (PultVarDefinition* vd, vList) {
-        if((pos>=vd->getPosInStr())&&(pos < vd->getPosInStr() + patternLength)) {
+        if((pos>=vd->getPosInStr())&&(pos < vd->getPosInStr() + vd->getPattern().length())) {
             curVarDef = vd;
             break;
         }
@@ -165,6 +166,7 @@ bool DisplayStr::updVar(const PultVarDefinition &vDef)
     curVarDef->setForceSign(vDef.getForceSign());
     curVarDef->setIsEditable(vDef.getIsEditable());
     curVarDef->setIsEEVar(vDef.getIsEEVar());
+    curVarDef->setIsExist(vDef.getIsExist());
     vList += curVarDef;
     return true;
 }
@@ -174,6 +176,15 @@ bool DisplayStr::getVar(int num, PultVarDefinition &vd) const
     if((num<0)||(num>=getVarsCount())) return false;
     vd = *vList.at(num);
     return true;
+}
+
+void DisplayStr::updVarDefinition(int num, PultVarDefinition &vd)
+{
+    if((num<0)||(num>=getVarsCount())) return;
+    PultVarDefinition* ptr = vList.at(num);
+    delete ptr;
+    ptr = new PultVarDefinition(vd);
+    vList[num] = ptr;
 }
 
 bool DisplayStr::getVarInPos(int pos, PultVarDefinition &vd) const

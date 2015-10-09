@@ -32,6 +32,7 @@ class VarsCreator : public QObject
     void addFactorySettings(CompositeVar* parent);
     void addDispVar(CompositeVar* parent);
     void addSituationNum(CompositeVar* parent);
+    void addTimeVars(CompositeVar* parent);
 public:
     explicit VarsCreator(QObject *parent = 0);
     void generateVarsTree(void);
@@ -42,6 +43,7 @@ public:
     IDStorage& getIDStorage() {return ids;}
     QString getFullNameOfVar(const QString& idValue);
     QString getPultNameOfVar(const QString& idValue);
+    QString getSimilarID(const QString& pultNameOfVar);
     ~VarsCreator();
 
 signals:

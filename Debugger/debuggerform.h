@@ -58,6 +58,7 @@ public:
     void saveView();    // сохранить состояние отладчика в файл
     void openView();    // загрузить состояние отладчика из файла
     void clearView();
+    void tabChanged();
     ~DebuggerForm();
 
 private slots:
