@@ -98,10 +98,10 @@ void Display::prevString()
 
 DisplayStr Display::getString(int strNum, int subStrNum) const
 {
-    DisplayStr *str = nullptr;
     if((strNum>=0)&&(strNum<strCount)) {
         QVector<DisplayStr*> v = data.value(strNum);
         if(subStrNum<v.count()) {
+            DisplayStr *str = nullptr;
             str = v.at(subStrNum);
             return (*str);
         }
@@ -281,7 +281,7 @@ void Display::clearDisplay()
            delete str;
         }
     }
-
+    setReplaceMode(false);
     data.clear();
     copyStrBuf = nullptr;
 

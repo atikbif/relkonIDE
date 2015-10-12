@@ -66,6 +66,7 @@ private:
     QAction* openAct;
     QAction* saveAct;
     QAction* saveAsAct;
+    QAction *importPultAct;
 
 private slots:
     void newFile(void);
@@ -88,6 +89,7 @@ private slots:
 
     void lcdToTable(void);
     void tableToLcd(void);
+    void importPult(void);
 
 public slots:
     void addMessageToInfoList(const QString &message);

@@ -110,16 +110,8 @@ bool DisplayStr::addVar(const PultVarDefinition &vDef)
     pat.replace(QRegExp("[\\-+]")," ");
     data.insert(pos,pat);
     data.resize(length);
-    PultVarDefinition* varDef = new PultVarDefinition();
+    PultVarDefinition* varDef = new PultVarDefinition(vDef);
     varDef->setPosInStr(pos);
-    varDef->setPattern(vDef.getPattern());
-    varDef->setId(vDef.getId());
-    varDef->setName(vDef.getName());
-    varDef->setDataType(vDef.getDataType());
-    varDef->setForceSign(vDef.getForceSign());
-    varDef->setIsEditable(vDef.getIsEditable());
-    varDef->setIsEEVar(vDef.getIsEEVar());
-    varDef->setIsExist(vDef.getIsExist());
     vList += varDef;
     return true;
 }
@@ -157,16 +149,8 @@ bool DisplayStr::updVar(const PultVarDefinition &vDef)
     if(data.count()>length) data.resize(length);
     else while(data.count()<length) data.append(spaceCode);
     pos = curVarDef->getPosInStr();
-    curVarDef = new PultVarDefinition();
+    curVarDef = new PultVarDefinition(vDef);
     curVarDef->setPosInStr(pos);
-    curVarDef->setPattern(vDef.getPattern());
-    curVarDef->setId(vDef.getId());
-    curVarDef->setName(vDef.getName());
-    curVarDef->setDataType(vDef.getDataType());
-    curVarDef->setForceSign(vDef.getForceSign());
-    curVarDef->setIsEditable(vDef.getIsEditable());
-    curVarDef->setIsEEVar(vDef.getIsEEVar());
-    curVarDef->setIsExist(vDef.getIsExist());
     vList += curVarDef;
     return true;
 }

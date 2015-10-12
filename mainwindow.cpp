@@ -47,6 +47,7 @@ void MainWindow::updatePrevProjects(const QStringList &prNames)
 
     ui->menuFile->addAction(newAct);
     ui->menuFile->addAction(openAct);
+    ui->menuFile->addAction(importPultAct);
     ui->menuFile->addAction(saveAct);
     ui->menuFile->addAction(saveAsAct);
     QMenu* recPr = new QMenu("Недавние проекты");
@@ -195,6 +196,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     newAct = new QAction(QIcon("://new_32.ico"), "Новый проект", this);
     openAct = new QAction(QIcon("://open_32.ico"), "Открыть", this);
+    importPultAct = new QAction(QIcon("://import_pult.ico"), "Загрузить пульт версии 6.x",this);
     saveAct = new QAction(QIcon("://save_32.ico"), "Сохранить", this);
     saveAsAct = new QAction(QIcon("://save_32.ico"), "Сохранить как", this);
     undoAct = new QAction(QIcon("://undo_32.ico"), "Отменить операцию", this);
@@ -212,6 +214,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(buildAct, SIGNAL(triggered()), this, SLOT(buildPr()));
     connect(toPlcAct, SIGNAL(triggered()), this, SLOT(projectToPlc()));
     connect(saveAsAct,SIGNAL(triggered()), this, SLOT(saveAsFile()));
+    connect(importPultAct,SIGNAL(triggered()), this, SLOT(importPult()));
 
     ui->mainToolBar->addAction(newAct);
     ui->mainToolBar->addAction(openAct);
@@ -224,11 +227,11 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->mainToolBar->addAction(srchAct);
 
     QAction *toTableAction = new QAction(QIcon("://table.ico"), "пульт > настройки", this);
-    QAction *fromTableAction = new QAction(QIcon("://display.ico"), "настройки > пульт", this);
+    //QAction *fromTableAction = new QAction(QIcon("://display.ico"), "настройки > пульт", this);
     ui->menuCmd->addAction(toTableAction);
-    ui->menuCmd->addAction(fromTableAction);
+    //ui->menuCmd->addAction(fromTableAction);
     connect(toTableAction,SIGNAL(triggered()),this,SLOT(lcdToTable()));
-    connect(fromTableAction,SIGNAL(triggered()),this,SLOT(tableToLcd()));
+    //connect(fromTableAction,SIGNAL(triggered()),this,SLOT(tableToLcd()));
 
 
     textForSearch = new QLineEdit("");
@@ -618,6 +621,8 @@ void MainWindow::lcdToTable()
             if(memType==MemStorage::framMemName) {
                 int byteCount = var.getByteCount();
                 if(byteCount) {
+                    vP.remove(".");
+                    vP.remove(",");
                     qulonglong value = (qulonglong)vP.toLongLong();
                     int addr = var.getMemAddress();
                     for(int j=0;j<byteCount;j++) {
@@ -638,4 +643,119 @@ void MainWindow::lcdToTable()
 void MainWindow::tableToLcd()
 {
 
+}
+
+void MainWindow::importPult()
+{
+    QStringList prevProjects = getPrevProjects();
+    QString path = "/";
+    if(prevProjects.count()) {
+        if(QFile::exists(prevProjects.at(0))) {
+            QFileInfo fInfo(prevProjects.at(0));
+            path = fInfo.absolutePath();
+        }
+    }
+    QString fName = QFileDialog::getOpenFileName(this, tr("Импорт пульта"),
+                                                    path,
+                                                    tr("Relkon 6.x Pult (*.plt )"));
+    if(!fName.isEmpty()) {
+        QDomDocument doc("pult");
+        QFile file(fName);
+        if (!file.open(QIODevice::ReadOnly)) return;
+        if (!doc.setContent(&file)) {
+            return;
+        }
+        QDomNodeList rows = doc.elementsByTagName("Views");
+        if(rows.count()==4) {
+            displ->clearDisplay();
+            LCDPhont ph = lcd->getPhont();
+            for(int i=0;i<rows.count();i++) {
+                QDomNode n = rows.item(i);
+                if(!n.toElement().isNull()) {
+                    QDomNodeList views = n.childNodes();
+                    for(int j=0;j<views.count();j++) {
+                        displ->addEmptyStrAfter(i,displ->getSubStrCount(i)-1);
+                        QDomNode vn = views.item(j);
+                        QDomElement ve = vn.toElement();
+                        if(!ve.isNull()) {
+                            QString strText = ve.attribute("Text");
+                            QString enFlag = ve.attribute("Enabled");
+                            if((!strText.isEmpty())&&(!enFlag.isEmpty())) {
+                                displ->setCursor(0,i);
+                                for(int k=0;k<displ->getLength();k++) {
+
+                                    if(k<strText.length()) {
+                                        int unicodeValue = strText.at(k).unicode();
+                                        displ->insertSymbol(ph.getSymbCodeinPhont(unicodeValue));
+                                    }
+
+                                }
+                            }
+                            if(enFlag=="false") displ->toggleActive(i,j);
+                            QDomNodeList varsParent = vn.childNodes();
+                            if(varsParent.count()==1) {
+                                QDomNode vp = varsParent.item(0);
+                                QDomNodeList vars = vp.childNodes();
+
+                                if(vars.count()) {
+                                    displ->setReplaceMode(true);
+                                    for(int y=0;y<vars.count();y++) {
+                                        QDomNode varNode = vars.item(y);
+                                        QDomElement varElement = varNode.toElement();
+                                        if(!varElement.isNull()) {
+                                            QString varName = varElement.attribute("Name");
+                                            QString varSign = varElement.attribute("HasSign");
+                                            QString varReadOnly = varElement.attribute("ReadOnly");
+                                            QString varPos = varElement.attribute("Position");
+                                            QString varPattern = varElement.attribute("Mask");
+                                            if(!varName.isEmpty()) {
+
+
+
+                                                PultVarDefinition vDef;
+                                                varPattern.replace(',','.');
+                                                vDef.setIsEditable(varReadOnly=="true"?false:true);
+                                                vDef.setPattern(varPattern);
+                                                vDef.setPosInStr(varPos.toInt());
+                                                vDef.setForceSign(varSign=="true"?true:false);
+                                                vDef.setStrNum(i);
+                                                vDef.setSubStrNum(j);
+                                                displ->setCursor(varPos.toInt(),i);
+
+                                                if(varName=="DATE") varName="sysTime_date";
+                                                if(varName=="MONTH") varName="sysTime_month";
+                                                if(varName=="YEAR") varName="sysTime_year";
+                                                if(varName=="HOUR") varName="sysTime_hour";
+                                                if(varName=="MIN") varName="sysTime_min";
+                                                if(varName=="SEC") varName="sysTime_sec";
+
+                                                QRegExp eeExp("^EE(\\d+)");
+                                                if(eeExp.indexIn(varName) != -1) {
+                                                    int num = eeExp.cap(1).toInt();
+                                                    vDef.setIsEEVar(true);
+                                                    vDef.setEEposInSettingsTable(num);
+                                                }else {
+                                                    vDef.setIsEEVar(false);
+                                                }
+
+                                                vDef.setName(varName);
+
+                                                displ->addVar(vDef);
+
+                                            }
+                                        }
+                                    }
+                                    displ->setReplaceMode(false);
+                                }
+                            }
+                        }
+                    }
+                }
+                displ->deleteStr(i,0);
+            }
+            displ->setCursor(0,0);
+        }else {
+            QMessageBox::warning(this,"Импортирование пульта","Некорректный формат файла.\n");
+        }
+    }
 }

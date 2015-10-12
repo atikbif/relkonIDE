@@ -45,7 +45,7 @@ void StrListWidget::updateList(int num)
     if((num>=0)&&(num<lists.count())) {
         if(num<displ.getStrCount()) {
             lists[num]->clear();
-            int subStrNum = 1;
+            int subStrNum = 0;
             for(int i=0;i<displ.getSubStrCount(num);i++) {
                 DisplayStr str = displ.getString(num,i);
                 QString strText;

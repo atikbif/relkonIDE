@@ -19,6 +19,7 @@ class LCDForm : public QWidget
 
 public:
     explicit LCDForm(Display& d,VarsCreator& vCr, QWidget *parent = 0);
+    const LCDPhont& getPhont(void) const {return dW->getPhont();}
     ~LCDForm();
 
 private:

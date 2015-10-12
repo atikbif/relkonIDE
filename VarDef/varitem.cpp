@@ -23,7 +23,7 @@ void VarItem::setEditable(bool value)
     isEdit = value;
 }
 
-int VarItem::getByteCount()
+int VarItem::getByteCount() const
 {
     if(dataType==charType) return 1;
     if(dataType==ucharType) return 1;

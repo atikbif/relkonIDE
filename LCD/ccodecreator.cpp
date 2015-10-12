@@ -40,7 +40,7 @@ QStringList CCodeCreator::getText(const Display &d)
             d.getVarDefinitions(varList,i,j);
             QString prVarsStr;
             foreach (PultVarDefinition vDef, varList) {
-               if(vDef.getSubStrNum()==j) {
+               //if(vDef.getSubStrNum()==j) {
                    if(!vDef.getName().isEmpty()) {
                        QString varTypeStr = vDef.getDataType();
                        if(vDef.getForceSign()) varTypeStr.remove("unsigned ");
@@ -65,6 +65,7 @@ QStringList CCodeCreator::getText(const Display &d)
                        QRegExp frExp("\\.(\\d+)$");
                        if(frExp.indexIn(varPat) != -1) fractionLength = frExp.cap(1).length();
                        varPat.remove(".");
+                       varPat.remove(",");
                        if(varTypeStr.contains("float")||(varTypeStr.contains("double"))) {
                            prVarsStr += "\t\t\tprint_float("+vDef.getName()+"," +
                                    QString::number(i+1) + "," + QString::number(pos+1) +
@@ -109,7 +110,7 @@ QStringList CCodeCreator::getText(const Display &d)
 
                        }
                    }
-               }
+               //}
             }
             if(!prVarsStr.isEmpty()) {
                 prVarsStr = "\t\tcase " + QString::number(j) + ":\n" + prVarsStr + "\t\tbreak;\n";

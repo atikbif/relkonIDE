@@ -270,7 +270,9 @@ void PatternEditorWidget::applyVar()
 
         PultVarDefinition vp;
         vp.setId(curVarID);
-        vp.setPattern(patternEdit->text());
+        QString pText = patternEdit->text();
+        pText.replace(',','.');
+        vp.setPattern(pText);
         vp.setDataType(var.getDataType());
         vp.setName(varOwner.getPultNameOfVar(curVarID));
         vp.setForceSign(isSigned->isChecked());

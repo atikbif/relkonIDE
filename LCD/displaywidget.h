@@ -15,6 +15,7 @@ class DisplayWidget : public QWidget
     Display& displ;
 public:
     explicit DisplayWidget(Display& d, QWidget *parent = 0);
+    const LCDPhont&  getPhont(void) const {return *phont;}
     ~DisplayWidget();
 
 signals:

@@ -51,7 +51,7 @@ bool LCDPhont::hasSymbol(int uncdValue) const
 int LCDPhont::getSymbCodeinPhont(int unicodeValue) const
 {
     if(hasSymbol(unicodeValue)) return uncdTable.value(unicodeValue);
-    return 0;
+    return 0x20;
 }
 
 int LCDPhont::getUnicodeValue(int phontCode) const
