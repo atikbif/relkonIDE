@@ -92,9 +92,17 @@ PatternEditorWidget::PatternEditorWidget(Display &d, VarsCreator &vCr, QWidget *
     isSigned = new QCheckBox("принудительная знаковость");
     vLayout->addWidget(isSigned);
 
+    QHBoxLayout* hButtonLayout = new QHBoxLayout() ;
     applyButton = new QPushButton(QIcon(":/edit_32.ico"),"Добавить переменную");
     connect(applyButton,SIGNAL(clicked()),this,SLOT(applyVar()));
-    vLayout->addWidget(applyButton);
+
+    QWidget* spacer = new QWidget();
+    spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    hButtonLayout->addWidget(spacer);
+    hButtonLayout->addWidget(applyButton);
+    vLayout->addLayout(hButtonLayout);
+
+    //vLayout->addWidget(applyButton);
 
 
     QTreeWidgetItem* item = new QTreeWidgetItem(tree);

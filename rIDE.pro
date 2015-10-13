@@ -10,6 +10,13 @@ QT       += serialport
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
+RC_ICONS = R.ico
+VERSION = 1.0.0.1
+QMAKE_TARGET_COMPANY = Kontel Co
+QMAKE_TARGET_PRODUCT = RIDE
+QMAKE_TARGET_DESCRIPTION = Relkon IDE
+QMAKE_TARGET_COPYRIGHT = Kontel
+
 TARGET = rIDE
 TEMPLATE = app
 
@@ -87,7 +94,8 @@ SOURCES += main.cpp\
     VarDef/varitem.cpp \
     VarDef/varparser.cpp \
     LCD/ccodecreator.cpp \
-    LCD/pultvardefinition.cpp
+    LCD/pultvardefinition.cpp \
+    dialogeditguisettings.cpp
 
 HEADERS  += mainwindow.h \
     codeeditor.h \
@@ -160,7 +168,8 @@ HEADERS  += mainwindow.h \
     VarDef/varitem.h \
     VarDef/varparser.h \
     LCD/ccodecreator.h \
-    LCD/pultvardefinition.h
+    LCD/pultvardefinition.h \
+    dialogeditguisettings.h
 
 FORMS    += mainwindow.ui \
     settingsform.ui \
@@ -169,7 +178,8 @@ FORMS    += mainwindow.ui \
     Loader/sysframreadwrite.ui \
     Debugger/debuggerform.ui \
     Debugger/dialogwritevar.ui \
-    LCD/lcdform.ui
+    LCD/lcdform.ui \
+    dialogeditguisettings.ui
 
 RESOURCES += \
     icons.qrc \

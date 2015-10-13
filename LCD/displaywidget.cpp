@@ -13,8 +13,9 @@ DisplayWidget::DisplayWidget(Display &d, QWidget *parent) : QWidget(parent),
     const QString phontFileName = "lcd_phont.rph";
     phont = new LCDPhont(phontFileName);
     QDesktopWidget desk;
-    int minH = desk.availableGeometry().height()*0.2;
-    setMinimumSize(100,minH);
+    //int height = desk.availableGeometry().height()*0.2;
+    //int width = height * 3.2;
+    //setFixedSize(width,height);
     setFocusPolicy(Qt::ClickFocus);
     setFocus();
 }
@@ -97,7 +98,6 @@ void DisplayWidget::paintEvent(QPaintEvent *event)
     painter.save();
 
     QRect rect = event->rect();
-
     float widthOneSymb = ((float)rect.width()-1)/symbInStrCount;
     float heightOneSymb = ((float)rect.height()-1)/strCount;
 
@@ -150,4 +150,5 @@ void DisplayWidget::paintEvent(QPaintEvent *event)
 
     painter.restore();
 }
+
 

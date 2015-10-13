@@ -24,13 +24,15 @@
 #include "RCompiler/rcompiler.h"
 
 #include "Debugger/debuggerform.h"
+#include <QFontDialog>
+#include "dialogeditguisettings.h"
 
 
 
 QStringList MainWindow::getPrevProjects()
 {
     QStringList res;
-    QSettings settings("Kontel","RIDE");
+    QSettings settings;//("Kontel","RIDE");
     res = settings.value("/Settings/PrevProjects",QStringList()).toStringList();
     res.removeDuplicates();
     if(res.count()>maxAmountOfPrevProjects) res = res.mid(0,maxAmountOfPrevProjects);
@@ -40,7 +42,7 @@ QStringList MainWindow::getPrevProjects()
 
 void MainWindow::updatePrevProjects(const QStringList &prNames)
 {
-    QSettings settings("Kontel","RIDE");
+    QSettings settings;//("Kontel","RIDE");
     settings.setValue("/Settings/PrevProjects",prNames);
     QStringList resList = getPrevProjects();
     ui->menuFile->clear();
@@ -204,6 +206,7 @@ MainWindow::MainWindow(QWidget *parent) :
     srchAct = new QAction(QIcon("://srch_32.ico"), "Искать текст", this);
     buildAct = new QAction(QIcon("://build_32.ico"), "Собрать проект", this);
     toPlcAct = new QAction(QIcon("://toPLC_32.ico"), "Загрузить проект в контроллер", this);
+    editGUI = new QAction(QIcon("://config.ico"), "Настройки среды", this);
 
     connect(newAct, SIGNAL(triggered()), this, SLOT(newFile()));
     connect(openAct, SIGNAL(triggered()), this, SLOT(openFile()));
@@ -215,6 +218,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(toPlcAct, SIGNAL(triggered()), this, SLOT(projectToPlc()));
     connect(saveAsAct,SIGNAL(triggered()), this, SLOT(saveAsFile()));
     connect(importPultAct,SIGNAL(triggered()), this, SLOT(importPult()));
+    connect(editGUI,SIGNAL(triggered()),this,SLOT(editIDESettings()));
 
     ui->mainToolBar->addAction(newAct);
     ui->mainToolBar->addAction(openAct);
@@ -233,6 +237,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(toTableAction,SIGNAL(triggered()),this,SLOT(lcdToTable()));
     //connect(fromTableAction,SIGNAL(triggered()),this,SLOT(tableToLcd()));
 
+    ui->menuEdit->addAction(editGUI);
+
 
     textForSearch = new QLineEdit("");
     textForSearch->setSizePolicy(QSizePolicy::Minimum,QSizePolicy::Minimum);
@@ -250,8 +256,11 @@ MainWindow::MainWindow(QWidget *parent) :
     }
 
     connect(textForSearch,SIGNAL(returnPressed()),this,SLOT(searchText()));
+    QSettings sysSettings;
+    QString edFontName = sysSettings.value("/Settings/edFontName","Courier").toString();
+    int edFontSize = sysSettings.value("Settings/edFontSize",10).toInt();
 
-    QFont font("Courier",10,QFont::Normal,false);
+    QFont font(edFontName,edFontSize,QFont::Normal,false);
     const int tabWidth = 4;  // 4 characters
     QFontMetrics metrics(font);
     editor->setTabStopWidth(tabWidth * metrics.width(' '));
@@ -758,4 +767,10 @@ void MainWindow::importPult()
             QMessageBox::warning(this,"Импортирование пульта","Некорректный формат файла.\n");
         }
     }
+}
+
+void MainWindow::editIDESettings()
+{
+    DialogEditGUISettings dialog;
+    dialog.exec();
 }

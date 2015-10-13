@@ -9,6 +9,7 @@
 #include <QFile>
 #include "RCompiler/rcompiler.h"
 #include <QXmlStreamWriter>
+#include <QDesktopWidget>
 
 LCDForm::LCDForm(Display &d, VarsCreator &vCr, QWidget *parent) :
     QWidget(parent),displ(d),varOwner(vCr),
@@ -26,10 +27,13 @@ LCDForm::LCDForm(Display &d, VarsCreator &vCr, QWidget *parent) :
     connect(listWidget,SIGNAL(updFocus()),this,SLOT(updFocus()));
 
     dW = new DisplayWidget(displ);
-    dW->setFixedHeight(dW->minimumHeight());
+    QDesktopWidget desk;
+    int height = desk.availableGeometry().height()*0.25;
+
+    dW->setMinimumHeight(height);
     layout->addWidget(dW,0,1,1,6);
     PatternEditorWidget* pEd = new PatternEditorWidget(displ,varOwner,this);
-    //pEd->setFixedHeight(listWidget->height());
+    pEd->setFixedWidth((float)height*1.5);
     connect(this,SIGNAL(newProject()),pEd,SLOT(newProject()));
     connect(this,SIGNAL(openProject()),pEd,SLOT(openProject()));
     connect(this,SIGNAL(saveProject()),pEd,SLOT(saveProject()));

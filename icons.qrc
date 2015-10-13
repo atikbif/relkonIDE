@@ -16,5 +16,6 @@
         <file>display.ico</file>
         <file>table.ico</file>
         <file>import_pult.ico</file>
+        <file>config.ico</file>
     </qresource>
 </RCC>

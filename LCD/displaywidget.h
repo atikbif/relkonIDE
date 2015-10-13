@@ -27,6 +27,7 @@ protected:
     void mousePressEvent(QMouseEvent *event);
     void keyPressEvent(QKeyEvent *event);
     void paintEvent(QPaintEvent *event);
+
 };
 
 #endif // DISPLAYWIDGET_H
