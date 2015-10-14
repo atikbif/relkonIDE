@@ -18,6 +18,10 @@ class DisplayStr
     static bool replaceMode;
     mutable QMutex mutex;   // для поддержки работы в многопоточном приложении
     bool active;  // активное/пассивное состояние строки
+
+    static bool checkPosition(int pos);  // проверка корректности значения pos
+    int getFreeSpace(void) const;   // возвращает количество пробелов в конце строки
+
 public:
     DisplayStr();
     DisplayStr(const DisplayStr &s);
@@ -30,9 +34,7 @@ public:
     bool insertSymbol(int pos, quint8 code);
     void deleteSymbol(int pos);
     static void setReplaceMode(bool value);
-    bool addVar(const VarPattern& vP, int pos);
     bool addVar(const PultVarDefinition& vDef);
-    bool updVar(const VarPattern& vP, int pos);
     bool updVar(const PultVarDefinition& vDef);
     int getVarsCount(void) const {return vList.count();}
     bool getVar(int num, PultVarDefinition &vd) const;
@@ -44,8 +46,6 @@ public:
     void setActive(bool value) {active=value;}
     bool isVarHere(int pos) const;
     bool isThisABeginningOfVar(int pos) const;
-    bool getHasNonexistentVars() const;
-    void setHasNonexistentVars(bool value);
 };
 
 #endif // DISPLAYSTR_H

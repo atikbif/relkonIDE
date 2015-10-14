@@ -190,7 +190,9 @@ bool Display::deleteStr(int strNum, int subStrNum)
     if(checkStrNum(strNum,subStrNum)==false) return false;
     QVector<DisplayStr*> subStrings = data.value(strNum);
     if(subStrings.count()==1) return false;
+    DisplayStr *ptr = subStrings.at(subStrNum);
     subStrings.remove(subStrNum);
+    delete ptr;
     data.insert(strNum,subStrings);
     if(subStrNum>=subStrings.count()) subStrNum--;
     curStr.insert(strNum,subStrNum);
@@ -283,6 +285,7 @@ void Display::clearDisplay()
     }
     setReplaceMode(false);
     data.clear();
+    if(copyStrBuf != nullptr) delete copyStrBuf;
     copyStrBuf = nullptr;
 
     for(int i=0;i<strCount;i++) {
@@ -293,9 +296,6 @@ void Display::clearDisplay()
         curStr.insert(i,0);
     }
 
-    for(int i=0;i<getStrCount();i++) {
-        curStr.insert(i,0);
-    }
     x=0;y=0;
     for(int i=0;i<getStrCount();i++) {
         emit strListChanged(i);
@@ -305,7 +305,7 @@ void Display::clearDisplay()
     emit cursorPosChanged(0,0);
 }
 
-void Display::getVars(QVector<PultVarDefinition>& vars)
+void Display::getVars(QVector<PultVarDefinition> &vars)
 {
     for(int i=0;i<getStrCount();i++) {
         for(int j=0;j<getSubStrCount(i);j++) {
@@ -344,10 +344,10 @@ void Display::updateDefinitions(VarsCreator &varOwner)
                 if(varOwner.checkID(id)==false) {
                     QString updID = varOwner.getSimilarID(vp.getName());
                     if(updID.isEmpty()) {
-                        vp.setIsExist(false);
+                        vp.setExist(false);
                         updVarDefinition(i,j,k,vp);
                     }else {
-                        vp.setIsExist(true);
+                        vp.setExist(true);
                         vp.setId(updID);
                         VarItem var = varOwner.getVarByID(updID);
                         vp.setDataType(var.getDataType());

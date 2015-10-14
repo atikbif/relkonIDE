@@ -102,7 +102,7 @@ int MainWindow::openFileByName(const QString &fName)
         varOwner->generateVarsTree();
         emit openProject();
 
-        QThread::msleep(500);
+        //QThread::msleep(500);
         on_closeInfoListButton_clicked();
         return 1;
     }
@@ -310,7 +310,7 @@ MainWindow::MainWindow(QWidget *parent) :
     builderThread.start();
 
     newFile();
-    QThread::msleep(1000);
+    //QThread::msleep(1000);
     prChangedFlag = false;
     connect(editor,SIGNAL(textChanged()),this,SLOT(prWasChanged()));
 }
@@ -608,7 +608,7 @@ void MainWindow::buildWithoutErrors()
     emit updTree();
     displ->updateDefinitions(*varOwner);
     displ->cursorPosChanged(displ->getXPosition(),displ->getYPosition());
-    QThread::msleep(1000);
+    //QThread::msleep(1000);
     on_closeInfoListButton_clicked();
 }
 
@@ -723,12 +723,10 @@ void MainWindow::importPult()
 
                                                 PultVarDefinition vDef;
                                                 varPattern.replace(',','.');
-                                                vDef.setIsEditable(varReadOnly=="true"?false:true);
+                                                vDef.setEditable(varReadOnly=="true"?false:true);
                                                 vDef.setPattern(varPattern);
                                                 vDef.setPosInStr(varPos.toInt());
                                                 vDef.setForceSign(varSign=="true"?true:false);
-                                                vDef.setStrNum(i);
-                                                vDef.setSubStrNum(j);
                                                 displ->setCursor(varPos.toInt(),i);
 
                                                 if(varName=="DATE") varName="sysTime_date";
@@ -741,10 +739,10 @@ void MainWindow::importPult()
                                                 QRegExp eeExp("^EE(\\d+)");
                                                 if(eeExp.indexIn(varName) != -1) {
                                                     int num = eeExp.cap(1).toInt();
-                                                    vDef.setIsEEVar(true);
+                                                    vDef.setEEVar(true);
                                                     vDef.setEEposInSettingsTable(num);
                                                 }else {
-                                                    vDef.setIsEEVar(false);
+                                                    vDef.setEEVar(false);
                                                 }
 
                                                 vDef.setName(varName);

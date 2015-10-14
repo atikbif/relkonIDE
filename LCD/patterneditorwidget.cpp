@@ -115,11 +115,11 @@ PatternEditorWidget::PatternEditorWidget(Display &d, VarsCreator &vCr, QWidget *
         }
     }
 
-    /*QString style = "QTreeWidget::item:!selected "
+    QString style = "QTreeWidget::item:!selected "
        "{ border: 1px solid gainsboro; border-left: none; border-top: none; }";
 
     tree->setStyleSheet(style);
-    tree->setStyleSheet(style);*/
+    tree->setStyleSheet(style);
 
     tree->setItemExpanded(item,true);
     tree->header()->resizeSections(QHeaderView::ResizeToContents);
@@ -146,7 +146,7 @@ void PatternEditorWidget::updateVarsTree()
 
 PatternEditorWidget::~PatternEditorWidget()
 {
-
+    delete iter;
 }
 
 void PatternEditorWidget::newProject()
@@ -181,7 +181,7 @@ void PatternEditorWidget::cursorPosChanged(int x, int y)
         str.getVarInPos(x,cursVarDef);
         applyButton->setText("Изменить переменную");
         QString pattern = cursVarDef.getPattern();
-        if(cursVarDef.getIsExist()) {
+        if(cursVarDef.isExist()) {
             QString id = cursVarDef.getId();
             if(!id.isEmpty()) {
                 VarItem var = varOwner.getVarByID(id);
@@ -202,7 +202,7 @@ void PatternEditorWidget::cursorPosChanged(int x, int y)
                         isEditable->setEnabled(true);
                         isSigned->setEnabled(true);
 
-                        if(cursVarDef.getIsEditable()) isEditable->setCheckState(Qt::Checked);
+                        if(cursVarDef.isEditable()) isEditable->setCheckState(Qt::Checked);
                             else isEditable->setCheckState(Qt::Unchecked);
                         if(cursVarDef.getForceSign()) isSigned->setCheckState(Qt::Checked);
                             else isSigned->setCheckState(Qt::Unchecked);
@@ -284,15 +284,15 @@ void PatternEditorWidget::applyVar()
         vp.setDataType(var.getDataType());
         vp.setName(varOwner.getPultNameOfVar(curVarID));
         vp.setForceSign(isSigned->isChecked());
-        vp.setIsEditable(isEditable->isChecked());
-        vp.setIsExist(true);
+        vp.setEditable(isEditable->isChecked());
+        vp.setExist(true);
         QRegExp eeExp("^EE(\\d+)");
         if(eeExp.indexIn(var.getName()) != -1) {
             int num = eeExp.cap(1).toInt();
-            vp.setIsEEVar(true);
+            vp.setEEVar(true);
             vp.setEEposInSettingsTable(num);
         }else {
-            vp.setIsEEVar(false);
+            vp.setEEVar(false);
         }
         QString dataType = varOwner.getVarByID(curVarID).getDataType();
         if(VarPattern::checkPattern(vp.getPattern(),dataType)) {

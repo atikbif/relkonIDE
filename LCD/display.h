@@ -1,14 +1,14 @@
 #ifndef DISPLAY_H
 #define DISPLAY_H
 
+// хранит данные дисплея и предоставляет набор операций для их изменения
+
 #include "displaystr.h"
 #include <QVector>
 #include <QHash>
 #include <QObject>
 #include "pultvardefinition.h"
 #include "VarDef/varscreator.h"
-
-// класс дисплея
 
 class Display: public QObject
 {
@@ -55,7 +55,7 @@ public:
     void toggleActive(int strNum, int subStrNum);
     void clearDisplay(void);
     void getVars(QVector<PultVarDefinition> &vars);
-    void getVarDefinitions(QVector<PultVarDefinition>& varList, int strNum, int subStrNum) const;
+    void getVarDefinitions(QVector<PultVarDefinition> &varList, int strNum, int subStrNum) const;
     void updateDefinitions(VarsCreator &varOwner);
     ~Display();
 signals:

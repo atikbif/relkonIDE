@@ -2,6 +2,8 @@
 #include <QFile>
 #include <QDataStream>
 
+const QString LCDPhont::defName = "lcd_phont.rph";
+
 LCDPhont::LCDPhont(const QString &fName):rowCount(0),
     columnCount(0),symbCount(0)
 {

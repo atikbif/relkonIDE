@@ -103,7 +103,7 @@ void LCDForm::saveLCD()
                     VarItem var = varOwner.getVarByID(vp.getId());
                     xmlWriter.writeAttribute("comment",var.getComment());
                     xmlWriter.writeAttribute("sign",vp.getForceSign()?"1":"0");
-                    xmlWriter.writeAttribute("edit",vp.getIsEditable()?"1":"0");
+                    xmlWriter.writeAttribute("edit",vp.isEditable()?"1":"0");
                     xmlWriter.writeEndElement();
                 }
 
@@ -200,25 +200,25 @@ void LCDForm::openLCD()
                                        isEd="0";
                                        isSign="0";
                                    }
-                                   vp.setIsExist(true);
+                                   vp.setExist(true);
                                }else {
                                    vp.setDataType("неизвестен");
-                                   vp.setIsExist(false);
+                                   vp.setExist(false);
                                }
 
                                vp.setId(vID);
                                vp.setPattern(pattern);
                                vp.setName(vName);
-                               vp.setIsEditable(isEd=="1"?true:false);
+                               vp.setEditable(isEd=="1"?true:false);
                                vp.setForceSign(isSign=="1"?true:false);
 
                                QRegExp eeExp("^EE(\\d+)");
                                if(eeExp.indexIn(var.getName()) != -1) {
                                    int num = eeExp.cap(1).toInt();
-                                   vp.setIsEEVar(true);
+                                   vp.setEEVar(true);
                                    vp.setEEposInSettingsTable(num);
                                }else {
-                                   vp.setIsEEVar(false);
+                                   vp.setEEVar(false);
                                }
 
                                displ.setCursor(posValue,strNumValue);

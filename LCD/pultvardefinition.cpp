@@ -31,26 +31,6 @@ void PultVarDefinition::setDataType(const QString &value)
     dataType = value;
 }
 
-int PultVarDefinition::getStrNum() const
-{
-    return strNum;
-}
-
-void PultVarDefinition::setStrNum(int value)
-{
-    strNum = value;
-}
-
-int PultVarDefinition::getSubStrNum() const
-{
-    return subStrNum;
-}
-
-void PultVarDefinition::setSubStrNum(int value)
-{
-    subStrNum = value;
-}
-
 int PultVarDefinition::getPosInStr() const
 {
     return posInStr;
@@ -62,14 +42,14 @@ void PultVarDefinition::setPosInStr(int value)
 }
 
 
-bool PultVarDefinition::getIsEditable() const
+bool PultVarDefinition::isEditable() const
 {
-    return isEditable;
+    return isEdit;
 }
 
-void PultVarDefinition::setIsEditable(bool value)
+void PultVarDefinition::setEditable(bool value)
 {
-    isEditable = value;
+    isEdit = value;
 }
 
 bool PultVarDefinition::getForceSign() const
@@ -82,14 +62,14 @@ void PultVarDefinition::setForceSign(bool value)
     forceSign = value;
 }
 
-bool PultVarDefinition::getIsEEVar() const
+bool PultVarDefinition::isEEVar() const
 {
-    return isEEVar;
+    return isEE;
 }
 
-void PultVarDefinition::setIsEEVar(bool value)
+void PultVarDefinition::setEEVar(bool value)
 {
-    isEEVar = value;
+    isEE = value;
 }
 
 int PultVarDefinition::getEEposInSettingsTable() const
@@ -112,20 +92,19 @@ void PultVarDefinition::setId(const QString &value)
     id = value;
 }
 
-bool PultVarDefinition::getIsExist() const
+bool PultVarDefinition::isExist() const
 {
-    return isExist;
+    return isItExist;
 }
 
-void PultVarDefinition::setIsExist(bool value)
+void PultVarDefinition::setExist(bool value)
 {
-    isExist = value;
+    isItExist = value;
 }
 PultVarDefinition::PultVarDefinition():
-    pattern(""),name(""),dataType(""),strNum(0),
-    subStrNum(0),posInStr(0),isEditable(false),
-    forceSign(false), isEEVar(false),EEposInSettingsTable(0),
-    isExist(false), isTime(false)
+    pattern(""),name(""),dataType(""),posInStr(0),isEdit(false),
+    forceSign(false), isEE(false),EEposInSettingsTable(0),
+    isItExist(false)
 {
 
 }

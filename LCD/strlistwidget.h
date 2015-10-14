@@ -1,6 +1,8 @@
 #ifndef STRLISTWIDGET_H
 #define STRLISTWIDGET_H
 
+// виджет списков строк
+
 #include <QWidget>
 #include "display.h"
 #include <QListWidget>
@@ -36,9 +38,9 @@ public:
     ~StrListWidget();
 private:
     void updateList(int num);
-    bool testStrNum(int strNum, int subStrNum);
+    bool testStrNum(int strNum, int subStrNum); // проверка корректности вх. параметров
 signals:
-    void updFocus(void);
+    void updFocus(void);    // необходимо передать фокус виджету дисплея
 public slots:
     void strChanged(int strNum, int subStrNum);
     void strListChanged(int strNum);

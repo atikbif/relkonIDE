@@ -12,7 +12,7 @@ bool VarPattern::checkPattern(const QString &pattern, const QString& dataType)
     const int maxLength = 7;
     if(pattern.isEmpty()) return false;
     if(pattern.contains(" ")) return false;
-    QRegExp rExp("^[-+]?\\d+[\\.,]?\\d*$");
+    QRegExp rExp("^[\\-+]?\\d+[\\.,]?\\d*$");
     if(rExp.indexIn(pattern,0)!=-1) {
         QString edPattern = pattern;
         edPattern.replace(',','.');

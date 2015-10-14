@@ -12,7 +12,7 @@ int DisplayStr::getSymbol(int pos) const
 {
     QMutexLocker locker(&mutex);
     quint8 res = 0;
-    if((pos>=0)&&(pos<length)) res = data.at(pos);
+    if(checkPosition(pos)) res = data.at(pos);
     return res;
 }
 
@@ -20,54 +20,64 @@ bool DisplayStr::insertSymbol(int pos,quint8 code)
 {
     QMutexLocker locker(&mutex);
     bool result=false;
-    if((pos<0)||(pos>=length)) return false;
+    if(!checkPosition(pos)) return false;
     if((isVarHere(pos))&&(!isThisABeginningOfVar(pos))) {
         if(!replaceMode) {
+            // смещается курсор вправо без вставки символа
             pos++;
             return true;
         }
-        return false;
+        return false; // в режиме замещения невозможно выполнить операцию
     }
     if(replaceMode) {
         if(isVarHere(pos)) return false;
+        // заменить символ
         data.remove(pos,1);
         data.insert(pos,code);
         result = true;
     }else {
-        if(data.at(length-1)==0x20) {
+        // проверка свободного места для вставки символа со сдвигом строки
+        if(data.at(length-1)==spaceCode) {
             data.insert(pos,code);
+            // сдвиг всех переменных правее заданной позиции
             foreach (PultVarDefinition* v, vList) {
                if(v->getPosInStr() >= pos) v->setPosInStr(v->getPosInStr()+1);
             }
             result = true;
         }
     }
-    data.resize(length);
+    data.resize(length);// отсечь лишние символы (сдвинутые)
     return result;
 }
 
 void DisplayStr::deleteSymbol(int pos)
 {
     QMutexLocker locker(&mutex);
-    if((pos<0)||(pos>=length)) return;
+    if(!checkPosition(pos)) return;
 
     if(isVarHere(pos)) {
         PultVarDefinition* vp = nullptr;
+        // поиск переменной
         foreach (PultVarDefinition* v, vList) {
            if((pos >= v->getPosInStr())&&(pos < v->getPosInStr() + v->getPattern().length())) vp = v;
         }
         if(vp!=nullptr) {
+            // удаление шаблона переменной
             data.remove(vp->getPosInStr(),vp->getPattern().length());
             data.append(QByteArray(vp->getPattern().length(),spaceCode));
+            // удаление переменной из списка
             vList.removeOne(vp);
+            // сдвиг переменных правее заданной позиции влево
             foreach (PultVarDefinition* v, vList) {
                if(v->getPosInStr() >= vp->getPosInStr()) v->setPosInStr(v->getPosInStr()-vp->getPattern().length());
             }
+            delete vp;  // очистка памяти
         }
         return;
     }
-
+    // удалить один символ
     data.remove(pos,1);
+    // сдвинуть переменные
     foreach (PultVarDefinition* v, vList) {
        if(v->getPosInStr()>pos) v->setPosInStr(v->getPosInStr()-1);
     }
@@ -85,16 +95,14 @@ bool DisplayStr::addVar(const PultVarDefinition &vDef)
 
     int pos = vDef.getPosInStr();
     int patternLength = vDef.getPattern().length();
-
     int endPos = pos + patternLength - 1;
-    if((pos<0)||(pos>=length)) return false;
+
+    if(!checkPosition(pos)) return false;
     if(endPos>=length) return false;
     if(!replaceMode) {
         if(isVarHere(pos)) return false;
         // check free space
-        int i = length - 1;
-        int spaceCnt = 0;
-        while(i>=0) {if(data.at(i)==0x20) spaceCnt++;else break;i--;}
+        int spaceCnt = getFreeSpace();
         if(spaceCnt<patternLength) return false;
         // сдвиг переменных, находящихся правее указанной позиции
         foreach (PultVarDefinition* vd, vList) {
@@ -131,9 +139,7 @@ bool DisplayStr::updVar(const PultVarDefinition &vDef)
     if(curVarDef==nullptr) return false;
     if(patternLength>curVarDef->getPattern().length()) {
         // check free space
-        int i = length - 1;
-        int spaceCnt = 0;
-        while(i>=0) {if(data.at(i)==0x20) spaceCnt++;else break;i--;}
+        int spaceCnt = getFreeSpace();
         if(spaceCnt<patternLength-curVarDef->getPattern().length()) return false;
     }
     int offset = patternLength - curVarDef->getPattern().length();
@@ -149,6 +155,7 @@ bool DisplayStr::updVar(const PultVarDefinition &vDef)
     if(data.count()>length) data.resize(length);
     else while(data.count()<length) data.append(spaceCode);
     pos = curVarDef->getPosInStr();
+    delete curVarDef;
     curVarDef = new PultVarDefinition(vDef);
     curVarDef->setPosInStr(pos);
     vList += curVarDef;
@@ -216,6 +223,20 @@ bool DisplayStr::isThisABeginningOfVar(int pos) const
     return false;
 }
 
+bool DisplayStr::checkPosition(int pos)
+{
+    if((pos<0)||(pos>=length)) return false;
+    return true;
+}
+
+int DisplayStr::getFreeSpace() const
+{
+    int spaceCnt = 0;
+    int i = length - 1;
+    while(i>=0) {if(data.at(i)==spaceCode) spaceCnt++;else break;i--;}
+    return spaceCnt;
+}
+
 DisplayStr::DisplayStr():active(true)
 {
     data.fill(spaceCode,length);
@@ -223,6 +244,7 @@ DisplayStr::DisplayStr():active(true)
 
 DisplayStr::DisplayStr(const DisplayStr &s)
 {
+    mutex.lock();
     foreach (PultVarDefinition* ptr, vList) {delete ptr;}
     vList.clear();
     for(int i=0;i<s.getVarsCount();i++) {
@@ -233,10 +255,12 @@ DisplayStr::DisplayStr(const DisplayStr &s)
     }
     data = s.getString();
     active = s.isActive();
+    mutex.unlock();
 }
 
 DisplayStr &DisplayStr::operator=(const DisplayStr &s)
 {
+    mutex.lock();
     if (this != &s) {
         foreach (PultVarDefinition* ptr, vList) {delete ptr;}
         vList.clear();
@@ -249,6 +273,7 @@ DisplayStr &DisplayStr::operator=(const DisplayStr &s)
         data = s.getString();
         active = s.isActive();
     }
+    mutex.unlock();
     return *this;
 }
 

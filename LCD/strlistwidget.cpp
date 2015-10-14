@@ -8,8 +8,7 @@
 StrListWidget::StrListWidget(Display &d, QWidget *parent) : QWidget(parent),
     displ(d)
 {
-    const QString phontFileName = "lcd_phont.rph";
-    phont = new LCDPhont(phontFileName);
+    phont = new LCDPhont();
     QHBoxLayout* layout = new QHBoxLayout(this);
     for(int i=0;i<displ.getStrCount();i++) {
         lists += new QListWidget();
@@ -37,7 +36,10 @@ StrListWidget::StrListWidget(Display &d, QWidget *parent) : QWidget(parent),
 
 StrListWidget::~StrListWidget()
 {
-
+    delete phont;
+    foreach (QListWidget *ptr, lists) {
+       delete ptr;
+    }
 }
 
 void StrListWidget::updateList(int num)
@@ -62,7 +64,6 @@ void StrListWidget::updateList(int num)
                     lists[num]->addItem(strText);
                     lists[num]->item(i)->setTextColor(Qt::darkGray);
                 }
-
             }
         }
     }

@@ -10,12 +10,8 @@
 DisplayWidget::DisplayWidget(Display &d, QWidget *parent) : QWidget(parent),
     displ(d)
 {
-    const QString phontFileName = "lcd_phont.rph";
-    phont = new LCDPhont(phontFileName);
-    QDesktopWidget desk;
-    //int height = desk.availableGeometry().height()*0.2;
-    //int width = height * 3.2;
-    //setFixedSize(width,height);
+    phont = new LCDPhont();
+    symbInStrCount = d.getLength();
     setFocusPolicy(Qt::ClickFocus);
     setFocus();
 }
@@ -93,7 +89,6 @@ void DisplayWidget::keyPressEvent(QKeyEvent *event)
 
 void DisplayWidget::paintEvent(QPaintEvent *event)
 {
-    //setFocus();
     QPainter painter(this);
     painter.save();
 
@@ -120,7 +115,7 @@ void DisplayWidget::paintEvent(QPaintEvent *event)
                         if(curStr.isVarHere(x)) {
                             PultVarDefinition vd;
                             curStr.getVarInPos(x,vd);
-                            if(vd.getIsExist()) {
+                            if(vd.isExist()) {
                                 painter.setBrush(QBrush(Qt::blue));
                             }else {
                                 painter.setBrush(QBrush(Qt::red));
