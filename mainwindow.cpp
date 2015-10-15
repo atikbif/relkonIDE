@@ -411,6 +411,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     varOwner = new VarsCreator();
     settings = new SettingsForm();
+    connect(this,SIGNAL(wrSysFram()),settings,SLOT(writeSysFram()));
+    connect(this,SIGNAL(rdSysFram()),settings,SLOT(readSysFram()));
     ui->tabWidget->addTab(settings,"Настройки");
 
     createDebugger();
@@ -641,6 +643,28 @@ void MainWindow::closeEvent(QCloseEvent *event)
 {
     if(saveWarning()==0) event->ignore();
     else event->accept();
+}
+
+void MainWindow::keyPressEvent(QKeyEvent *event)
+{
+    switch(event->key()) {
+    case Qt::Key_F5:
+        if(buildAct->isEnabled()) {
+            buildPr();
+        }
+        break;
+    case Qt::Key_F7:
+        if(toPlcAct->isEnabled()) {
+            projectToPlc();
+        }
+        break;
+    case Qt::Key_F8:
+        emit wrSysFram();
+        break;
+    case Qt::Key_F9:
+        emit rdSysFram();
+        break;
+    }
 }
 
 void MainWindow::on_closeInfoListButton_clicked()

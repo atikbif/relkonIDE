@@ -63,6 +63,8 @@ signals:
     void openProject(void);
     void saveProject(void);
     void updTree(void);
+    void wrSysFram(void);
+    void rdSysFram(void);
 
 private:
     Ui::MainWindow *ui;
@@ -108,6 +110,10 @@ public slots:
 
 protected:
      void closeEvent(QCloseEvent *event);
+
+     // QWidget interface
+protected:
+     void keyPressEvent(QKeyEvent *event);
 };
 
 #endif // MAINWINDOW_H

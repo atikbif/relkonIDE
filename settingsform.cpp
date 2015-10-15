@@ -392,6 +392,16 @@ void SettingsForm::readFromBin(const QByteArray inpData)
     }
 }
 
+void SettingsForm::writeSysFram()
+{
+    on_pushButtonToPLC_clicked();
+}
+
+void SettingsForm::readSysFram()
+{
+    on_pushButtonFromPLC_clicked();
+}
+
 void SettingsForm::on_tableWidget_itemChanged(QTableWidgetItem *item)
 {
     if(item->backgroundColor()==Qt::gray) item->setText("-");

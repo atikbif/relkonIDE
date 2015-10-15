@@ -41,6 +41,8 @@ private slots:
 
 public slots:
     void readFromBin(const QByteArray inpData); // прочитать настройки из бинарного массива
+    void writeSysFram(void);
+    void readSysFram(void);
 
 private:
     Ui::SettingsForm *ui;

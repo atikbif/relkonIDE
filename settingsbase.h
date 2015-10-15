@@ -55,6 +55,8 @@ signals:
     void readFromPLC(void); // запрос чтения данных их ПЛК (результат ожидается в слоте readFromBin)
 public slots:
     virtual void readFromBin(const QByteArray inpData)=0;   // чтение настрое из бинарного массива
+    virtual void writeSysFram(void) {}
+    virtual void readSysFram(void) {}
 };
 
 #endif // SETTINGSBASE_H
