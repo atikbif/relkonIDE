@@ -42,6 +42,16 @@ class MainWindow : public QMainWindow
 
     bool prChangedFlag = false;
 
+    QString getFileNameForPultImport(void);
+    void insertVar(QDomElement &e, int strNum);
+    void insertTextData(const QString &txt, int strNum, const LCDPhont &ph);
+    void insertStr(QDomNodeList &views, int strNum, int subStrNum, const LCDPhont &ph);
+    void createToolbar(void);
+    void setEditorPhont(void);
+    void createDebugger(void);
+    void createDisplay(void);
+    void createBuilder(void);
+
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();

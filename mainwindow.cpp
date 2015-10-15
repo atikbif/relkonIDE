@@ -177,25 +177,106 @@ int MainWindow::saveWarning()
     return 1;
 }
 
-MainWindow::MainWindow(QWidget *parent) :
-    QMainWindow(parent),
-    ui(new Ui::MainWindow)
+QString MainWindow::getFileNameForPultImport()
 {
-    ui->setupUi(this);
+    QStringList prevProjects = getPrevProjects();
+    QString path = "/";
+    if(prevProjects.count()) {
+        if(QFile::exists(prevProjects.at(0))) {
+            QFileInfo fInfo(prevProjects.at(0));
+            path = fInfo.absolutePath();
+        }
+    }
+    QString fName = QFileDialog::getOpenFileName(this, tr("Импорт пульта"),
+                                                    path,
+                                                    tr("Relkon 6.x Pult (*.plt )"));
+    return fName;
+}
 
-    ui->listWidget->setVisible(false);
-    ui->closeInfoListButton->setVisible(false);
-    ui->infoLabel->setVisible(false);
-    ui->horizontalSpacer->changeSize(0,0, QSizePolicy::Fixed, QSizePolicy::Fixed);
+void MainWindow::insertVar(QDomElement &e, int strNum)
+{
+    if(!e.isNull()) {
+        QString varName = e.attribute("Name");
+        QString varSign = e.attribute("HasSign");
+        QString varReadOnly = e.attribute("ReadOnly");
+        QString varPos = e.attribute("Position");
+        QString varPattern = e.attribute("Mask");
+        if(!varName.isEmpty()) {
+            PultVarDefinition vDef;
+            varPattern.replace(',','.');
+            vDef.setEditable(varReadOnly=="true"?false:true);
+            vDef.setPattern(varPattern);
+            vDef.setPosInStr(varPos.toInt());
+            vDef.setForceSign(varSign=="true"?true:false);
+            displ->setCursor(varPos.toInt(),strNum);
 
-    setWindowTitle(wTitle + " - несохранённый проект");
-    prDirPath="";
-    prFileName="";
+            if(varName=="DATE") varName="sysTime_date";
+            if(varName=="MONTH") varName="sysTime_month";
+            if(varName=="YEAR") varName="sysTime_year";
+            if(varName=="HOUR") varName="sysTime_hour";
+            if(varName=="MIN") varName="sysTime_min";
+            if(varName=="SEC") varName="sysTime_sec";
 
-    editor = new CodeEditor(this);
-    Highlighter* highlighter = new Highlighter(editor->document());
-    Q_UNUSED(highlighter);
+            QRegExp eeExp("^EE(\\d+)");
+            if(eeExp.indexIn(varName) != -1) {
+                int num = eeExp.cap(1).toInt();
+                vDef.setEEVar(true);
+                vDef.setEEposInSettingsTable(num);
+            }else {
+                vDef.setEEVar(false);
+            }
 
+            vDef.setName(varName);
+
+            displ->addVar(vDef);
+        }
+    }
+}
+
+void MainWindow::insertTextData(const QString &txt, int strNum, const LCDPhont &ph)
+{
+    displ->setCursor(0,strNum);
+    for(int k=0;k<displ->getLength();k++) {
+
+        if(k<txt.length()) {
+            int unicodeValue = txt.at(k).unicode();
+            displ->insertSymbol(ph.getSymbCodeinPhont(unicodeValue));
+        }
+    }
+}
+
+void MainWindow::insertStr(QDomNodeList &views, int strNum, int subStrNum, const LCDPhont &ph)
+{
+    displ->addEmptyStrAfter(strNum,displ->getSubStrCount(strNum)-1);
+    QDomNode vn = views.item(subStrNum);
+    QDomElement ve = vn.toElement();
+    if(!ve.isNull()) {
+        QString strText = ve.attribute("Text");
+        QString enFlag = ve.attribute("Enabled");
+        if((!strText.isEmpty())&&(!enFlag.isEmpty())) {
+            insertTextData(strText,strNum,ph);
+        }
+        if(enFlag=="false") displ->toggleActive(strNum,subStrNum);
+        QDomNodeList varsParent = vn.childNodes();
+        if(varsParent.count()==1) {
+            QDomNode vp = varsParent.item(0);
+            QDomNodeList vars = vp.childNodes();
+
+            if(vars.count()) {
+                displ->setReplaceMode(true);
+                for(int y=0;y<vars.count();y++) {
+                    QDomNode varNode = vars.item(y);
+                    QDomElement varElement = varNode.toElement();
+                    insertVar(varElement,strNum);
+                }
+                displ->setReplaceMode(false);
+            }
+        }
+    }
+}
+
+void MainWindow::createToolbar()
+{
     newAct = new QAction(QIcon("://new_32.ico"), "Новый проект", this);
     openAct = new QAction(QIcon("://open_32.ico"), "Открыть", this);
     importPultAct = new QAction(QIcon("://import_pult.ico"), "Загрузить пульт версии 6.x",this);
@@ -236,7 +317,6 @@ MainWindow::MainWindow(QWidget *parent) :
     //ui->menuCmd->addAction(fromTableAction);
     connect(toTableAction,SIGNAL(triggered()),this,SLOT(lcdToTable()));
     //connect(fromTableAction,SIGNAL(triggered()),this,SLOT(tableToLcd()));
-
     ui->menuEdit->addAction(editGUI);
 
 
@@ -248,14 +328,10 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->mainToolBar->addSeparator();
     ui->mainToolBar->addAction(toPlcAct);
     ui->mainToolBar->addWidget(spacer);
+}
 
-    QStringList prNames = getPrevProjects();
-    if(prNames.count()) {
-        updatePrevProjects(prNames);
-
-    }
-
-    connect(textForSearch,SIGNAL(returnPressed()),this,SLOT(searchText()));
+void MainWindow::setEditorPhont()
+{
     QSettings sysSettings;
     QString edFontName = sysSettings.value("/Settings/edFontName","Courier").toString();
     int edFontSize = sysSettings.value("Settings/edFontSize",10).toInt();
@@ -265,24 +341,20 @@ MainWindow::MainWindow(QWidget *parent) :
     QFontMetrics metrics(font);
     editor->setTabStopWidth(tabWidth * metrics.width(' '));
     editor->setFont(font);
+}
 
-    ui->tabWidget->clear();
-    ui->tabWidget->tabBar()->setFont(QFont("Courier",12,QFont::Normal,false));
-    ui->tabWidget->addTab(editor,"Редактор");
-    editor->setFocus();
-
-    varOwner = new VarsCreator();
-
-    settings = new SettingsForm();
-    ui->tabWidget->addTab(settings,"Настройки");
-
+void MainWindow::createDebugger()
+{
     debugger = new DebuggerForm(*varOwner);
     connect(this,SIGNAL(openProject()),debugger,SLOT(openProject()));
     connect(this,SIGNAL(newProject()),debugger,SLOT(newProject()));
     connect(this,SIGNAL(saveProject()),debugger,SLOT(saveProject()));
     connect(this,SIGNAL(updTree()),debugger,SLOT(updTree()));
     ui->tabWidget->addTab(debugger,"Отладчик");
+}
 
+void MainWindow::createDisplay()
+{
     displ = new Display();
     lcd = new LCDForm(*displ,*varOwner);
     connect(this,SIGNAL(newProject()),lcd,SIGNAL(newProject()));
@@ -290,16 +362,10 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(this,SIGNAL(saveProject()),lcd,SIGNAL(saveProject()));
     connect(this,SIGNAL(updTree()),lcd,SIGNAL(updTree()));
     ui->tabWidget->addTab(lcd,"Пульт");
+}
 
-    /*ui->mdiArea->addSubWindow(editor);
-    ui->mdiArea->addSubWindow(debugger);
-    ui->mdiArea->addSubWindow(settings);
-    ui->mdiArea->tileSubWindows();//setViewMode(QMdiArea::TabbedView);
-    */
-
-
-    setWindowState(Qt::WindowMaximized);
-
+void MainWindow::createBuilder()
+{
     PrBuilder *buildProc = new PrBuilder(*displ);
     buildProc->moveToThread(&builderThread);
     connect(&builderThread, SIGNAL(finished()), buildProc, SLOT(deleteLater()));
@@ -308,7 +374,57 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(buildProc, SIGNAL(printMessage(QString)), this, SLOT(addMessageToInfoList(QString)));
     connect(buildProc, SIGNAL(buildIsOk()),this,SLOT(buildWithoutErrors()));
     builderThread.start();
+}
 
+MainWindow::MainWindow(QWidget *parent) :
+    QMainWindow(parent),
+    ui(new Ui::MainWindow)
+{
+    ui->setupUi(this);
+
+    ui->listWidget->setVisible(false);
+    ui->closeInfoListButton->setVisible(false);
+    ui->infoLabel->setVisible(false);
+    ui->horizontalSpacer->changeSize(0,0, QSizePolicy::Fixed, QSizePolicy::Fixed);
+
+    setWindowTitle(wTitle + " - несохранённый проект");
+    prDirPath="";
+    prFileName="";
+
+    editor = new CodeEditor(this);
+    Highlighter* highlighter = new Highlighter(editor->document());
+    Q_UNUSED(highlighter);
+    setEditorPhont();
+
+    createToolbar();
+
+    QStringList prNames = getPrevProjects();
+    if(prNames.count()) {
+        updatePrevProjects(prNames);
+    }
+    connect(textForSearch,SIGNAL(returnPressed()),this,SLOT(searchText()));
+
+    ui->tabWidget->clear();
+    ui->tabWidget->tabBar()->setFont(QFont("Courier",12,QFont::Normal,false));
+    ui->tabWidget->addTab(editor,"Редактор");
+    editor->setFocus();
+
+    varOwner = new VarsCreator();
+    settings = new SettingsForm();
+    ui->tabWidget->addTab(settings,"Настройки");
+
+    createDebugger();
+
+    createDisplay();
+
+    /*ui->mdiArea->addSubWindow(editor);
+    ui->mdiArea->addSubWindow(debugger);
+    ui->mdiArea->addSubWindow(settings);
+    ui->mdiArea->tileSubWindows();//setViewMode(QMdiArea::TabbedView);
+    */
+
+    setWindowState(Qt::WindowMaximized);
+    createBuilder();
     newFile();
     //QThread::msleep(1000);
     prChangedFlag = false;
@@ -656,17 +772,7 @@ void MainWindow::tableToLcd()
 
 void MainWindow::importPult()
 {
-    QStringList prevProjects = getPrevProjects();
-    QString path = "/";
-    if(prevProjects.count()) {
-        if(QFile::exists(prevProjects.at(0))) {
-            QFileInfo fInfo(prevProjects.at(0));
-            path = fInfo.absolutePath();
-        }
-    }
-    QString fName = QFileDialog::getOpenFileName(this, tr("Импорт пульта"),
-                                                    path,
-                                                    tr("Relkon 6.x Pult (*.plt )"));
+    QString fName = getFileNameForPultImport();
     if(!fName.isEmpty()) {
         QDomDocument doc("pult");
         QFile file(fName);
@@ -683,79 +789,7 @@ void MainWindow::importPult()
                 if(!n.toElement().isNull()) {
                     QDomNodeList views = n.childNodes();
                     for(int j=0;j<views.count();j++) {
-                        displ->addEmptyStrAfter(i,displ->getSubStrCount(i)-1);
-                        QDomNode vn = views.item(j);
-                        QDomElement ve = vn.toElement();
-                        if(!ve.isNull()) {
-                            QString strText = ve.attribute("Text");
-                            QString enFlag = ve.attribute("Enabled");
-                            if((!strText.isEmpty())&&(!enFlag.isEmpty())) {
-                                displ->setCursor(0,i);
-                                for(int k=0;k<displ->getLength();k++) {
-
-                                    if(k<strText.length()) {
-                                        int unicodeValue = strText.at(k).unicode();
-                                        displ->insertSymbol(ph.getSymbCodeinPhont(unicodeValue));
-                                    }
-
-                                }
-                            }
-                            if(enFlag=="false") displ->toggleActive(i,j);
-                            QDomNodeList varsParent = vn.childNodes();
-                            if(varsParent.count()==1) {
-                                QDomNode vp = varsParent.item(0);
-                                QDomNodeList vars = vp.childNodes();
-
-                                if(vars.count()) {
-                                    displ->setReplaceMode(true);
-                                    for(int y=0;y<vars.count();y++) {
-                                        QDomNode varNode = vars.item(y);
-                                        QDomElement varElement = varNode.toElement();
-                                        if(!varElement.isNull()) {
-                                            QString varName = varElement.attribute("Name");
-                                            QString varSign = varElement.attribute("HasSign");
-                                            QString varReadOnly = varElement.attribute("ReadOnly");
-                                            QString varPos = varElement.attribute("Position");
-                                            QString varPattern = varElement.attribute("Mask");
-                                            if(!varName.isEmpty()) {
-
-
-
-                                                PultVarDefinition vDef;
-                                                varPattern.replace(',','.');
-                                                vDef.setEditable(varReadOnly=="true"?false:true);
-                                                vDef.setPattern(varPattern);
-                                                vDef.setPosInStr(varPos.toInt());
-                                                vDef.setForceSign(varSign=="true"?true:false);
-                                                displ->setCursor(varPos.toInt(),i);
-
-                                                if(varName=="DATE") varName="sysTime_date";
-                                                if(varName=="MONTH") varName="sysTime_month";
-                                                if(varName=="YEAR") varName="sysTime_year";
-                                                if(varName=="HOUR") varName="sysTime_hour";
-                                                if(varName=="MIN") varName="sysTime_min";
-                                                if(varName=="SEC") varName="sysTime_sec";
-
-                                                QRegExp eeExp("^EE(\\d+)");
-                                                if(eeExp.indexIn(varName) != -1) {
-                                                    int num = eeExp.cap(1).toInt();
-                                                    vDef.setEEVar(true);
-                                                    vDef.setEEposInSettingsTable(num);
-                                                }else {
-                                                    vDef.setEEVar(false);
-                                                }
-
-                                                vDef.setName(varName);
-
-                                                displ->addVar(vDef);
-
-                                            }
-                                        }
-                                    }
-                                    displ->setReplaceMode(false);
-                                }
-                            }
-                        }
+                        insertStr(views,i,j,ph);
                     }
                 }
                 displ->deleteStr(i,0);

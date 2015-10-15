@@ -11,6 +11,110 @@
 #include <QXmlStreamWriter>
 #include <QDesktopWidget>
 
+void LCDForm::createEmptyStrings(QDomDocument &doc)
+{
+    QDomNodeList subStrCounts = doc.elementsByTagName("SubstringsCount");
+    for(int i=0;i<subStrCounts.count();i++) {
+        QDomNode n = subStrCounts.item(i);
+        QDomElement e = n.toElement();
+        if(!e.isNull()) {
+            QString num = e.attribute("num");
+            QString count = e.attribute("count");
+            bool res = false;
+            int numValue = num.toInt(&res);
+            if(res) {
+                int countValue = count.toInt(&res);
+                if(res) {
+                    if((numValue>=0)&&(numValue<displ.getStrCount())) {
+                        if(countValue>0) {
+                            while(displ.getSubStrCount(numValue)<countValue) {
+                                displ.addEmptyStrBefore(numValue,0);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+void LCDForm::insertSymbol(QDomElement &e, int strNum)
+{
+    QString num = e.attribute("num");
+    QString symbData = e.attribute("data");
+    int pos = num.toInt();
+    int code = symbData.toInt();
+    displ.setCursor(pos,strNum);
+    displ.insertSymbol(code);
+}
+
+void LCDForm::insertVar(QDomElement &e, int strNum)
+{
+    QString pos = e.attribute("pos");
+    QString vName = e.attribute("name");
+    QString pattern = e.attribute("pattern");
+    QString comment = e.attribute("comment");
+    QString isEd = e.attribute("edit");
+    QString isSign = e.attribute("sign");
+    int posValue = pos.toInt();
+
+    QString vID = varOwner.getSimilarID(vName);
+
+    VarItem var = varOwner.getVarByID(vID);
+    PultVarDefinition vp;
+
+    if(!vID.isEmpty()) {
+        var.setComment(comment);
+        varOwner.updateVarByID(vID,var);
+        vp.setDataType(var.getDataType());
+        if(var.getBitNum()!=-1) {
+            isEd="0";
+            isSign="0";
+        }
+        vp.setExist(true);
+    }else {
+        vp.setDataType("неизвестен");
+        vp.setExist(false);
+    }
+
+    vp.setId(vID);
+    vp.setPattern(pattern);
+    vp.setName(vName);
+    vp.setEditable(isEd=="1"?true:false);
+    vp.setForceSign(isSign=="1"?true:false);
+
+    QRegExp eeExp("^EE(\\d+)");
+    if(eeExp.indexIn(var.getName()) != -1) {
+        int num = eeExp.cap(1).toInt();
+        vp.setEEVar(true);
+        vp.setEEposInSettingsTable(num);
+    }else {
+        vp.setEEVar(false);
+    }
+
+    displ.setCursor(posValue,strNum);
+    for(int i=0;i<vp.getPattern().length();i++) {
+        displ.deleteSymbol();
+    }
+    displ.addVar(vp);
+}
+
+void LCDForm::printStr(QDomNode &n, int strNum)
+{
+    QDomNodeList children = n.childNodes();
+    for(int chNum=0;chNum<children.count();chNum++) {
+       QDomNode child = children.item(chNum);
+       QDomElement ce = child.toElement();
+       if(!ce.isNull()) {
+           if(ce.nodeName()=="symbol") {
+               insertSymbol(ce,strNum);
+           }else if(ce.nodeName()=="var") {
+               insertVar(ce,strNum);
+           }
+       }
+    }
+}
+
 LCDForm::LCDForm(Display &d, VarsCreator &vCr, QWidget *parent) :
     QWidget(parent),displ(d),varOwner(vCr),
     ui(new Ui::LCDForm)
@@ -53,6 +157,7 @@ LCDForm::LCDForm(Display &d, VarsCreator &vCr, QWidget *parent) :
 LCDForm::~LCDForm()
 {
     delete ui;
+    delete dW;
 }
 
 void LCDForm::updFocus()
@@ -127,29 +232,9 @@ void LCDForm::openLCD()
     if (!doc.setContent(&file)) {
         return;
     }
-    QDomNodeList subStrCounts = doc.elementsByTagName("SubstringsCount");
-    for(int i=0;i<subStrCounts.count();i++) {
-        QDomNode n = subStrCounts.item(i);
-        QDomElement e = n.toElement();
-        if(!e.isNull()) {
-            QString num = e.attribute("num");
-            QString count = e.attribute("count");
-            bool res = false;
-            int numValue = num.toInt(&res);
-            if(res) {
-                int countValue = count.toInt(&res);
-                if(res) {
-                    if((numValue>=0)&&(numValue<displ.getStrCount())) {
-                        if(countValue>0) {
-                            while(displ.getSubStrCount(numValue)<countValue) {
-                                displ.addEmptyStrBefore(numValue,0);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
+
+    createEmptyStrings(doc);
+
     QDomNodeList strings = doc.elementsByTagName("string");
     for(int i=0;i<strings.count();i++) {
         QDomNode n = strings.item(i);
@@ -166,69 +251,7 @@ void LCDForm::openLCD()
                     bool actFl = displ.getString(strNumValue,subStrNumValue).isActive();
                     if(actFl!=isActive) displ.toggleActive(strNumValue,subStrNumValue);
                     displ.goToStr(strNumValue,subStrNumValue);
-                    QDomNodeList children = n.childNodes();
-                    for(int chNum=0;chNum<children.count();chNum++) {
-                       QDomNode child = children.item(chNum);
-                       QDomElement ce = child.toElement();
-                       if(!ce.isNull()) {
-                           if(ce.nodeName()=="symbol") {
-                               QString num = ce.attribute("num");
-                               QString symbData = ce.attribute("data");
-                               int pos = num.toInt();
-                               int code = symbData.toInt();
-                               displ.setCursor(pos,strNumValue);
-                               displ.insertSymbol(code);
-                           }else if(ce.nodeName()=="var") {
-                               QString pos = ce.attribute("pos");
-                               QString vName = ce.attribute("name");
-                               QString pattern = ce.attribute("pattern");
-                               QString comment = ce.attribute("comment");
-                               QString isEd = ce.attribute("edit");
-                               QString isSign = ce.attribute("sign");
-                               int posValue = pos.toInt();
-
-                               QString vID = varOwner.getSimilarID(vName);
-
-                               VarItem var = varOwner.getVarByID(vID);
-                               PultVarDefinition vp;
-
-                               if(!vID.isEmpty()) {
-                                   var.setComment(comment);
-                                   varOwner.updateVarByID(vID,var);
-                                   vp.setDataType(var.getDataType());
-                                   if(var.getBitNum()!=-1) {
-                                       isEd="0";
-                                       isSign="0";
-                                   }
-                                   vp.setExist(true);
-                               }else {
-                                   vp.setDataType("неизвестен");
-                                   vp.setExist(false);
-                               }
-
-                               vp.setId(vID);
-                               vp.setPattern(pattern);
-                               vp.setName(vName);
-                               vp.setEditable(isEd=="1"?true:false);
-                               vp.setForceSign(isSign=="1"?true:false);
-
-                               QRegExp eeExp("^EE(\\d+)");
-                               if(eeExp.indexIn(var.getName()) != -1) {
-                                   int num = eeExp.cap(1).toInt();
-                                   vp.setEEVar(true);
-                                   vp.setEEposInSettingsTable(num);
-                               }else {
-                                   vp.setEEVar(false);
-                               }
-
-                               displ.setCursor(posValue,strNumValue);
-                               for(int i=0;i<vp.getPattern().length();i++) {
-                                   displ.deleteSymbol();
-                               }
-                               displ.addVar(vp);
-                           }
-                       }
-                    }
+                    printStr(n,strNumValue);
                 }
             }
         }

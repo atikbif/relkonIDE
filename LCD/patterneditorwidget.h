@@ -34,8 +34,18 @@ class PatternEditorWidget : public QWidget
     int currentX;
     int currentY;// текущие позиции курсора
 
-    void treeBuilder(const QString& varID, QTreeWidgetItem &item);
+    void treeBuilder(const QString &varID, QTreeWidgetItem &item);
     bool checkVar(void);
+    void bitVarState(void); // состояние элементов виджета при выборе битовой переменной
+    void timeVarState(void);    // состояние элементов виджета при переменной времени
+    void unexistVar(PultVarDefinition &vDef); // вывод данных по ненайденной в проекте переменной
+    void showEditAndSign(PultVarDefinition &vDef);  // вывод параметров редактирования и прин. знаковости
+    void showVar(PultVarDefinition &vDef, const QString &comment); // имя, тип, комментарий, шаблон
+    void noVar(void);
+    PultVarDefinition getVar(VarItem &var); // вернуть описание переменной по установленным параметрам
+    void updVar(VarItem &var);  // обновить переменную
+    void createWidgets(void);
+    void fillVarsTree(void);    // заполнить дерево переменных
 
 public:
     explicit PatternEditorWidget(Display& d, VarsCreator &vCr, QWidget *parent = 0);

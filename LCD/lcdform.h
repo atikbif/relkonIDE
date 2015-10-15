@@ -17,6 +17,11 @@ class LCDForm : public QWidget
     Display& displ;
     VarsCreator& varOwner;
 
+    void createEmptyStrings(QDomDocument &doc);
+    void insertSymbol(QDomElement &e, int strNum);
+    void insertVar(QDomElement &e, int strNum);
+    void printStr(QDomNode &n, int strNum);
+
 public:
     explicit LCDForm(Display& d,VarsCreator& vCr, QWidget *parent = 0);
     const LCDPhont& getPhont(void) const {return dW->getPhont();}

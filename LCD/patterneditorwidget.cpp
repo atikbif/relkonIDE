@@ -40,21 +40,100 @@ bool PatternEditorWidget::checkVar()
     return true;
 }
 
-PatternEditorWidget::PatternEditorWidget(Display &d, VarsCreator &vCr, QWidget *parent) :
-    QWidget(parent), varOwner(vCr), displ(d),
-    currentX(0), currentY(0)
+void PatternEditorWidget::bitVarState()
 {
-    setMinimumSize(100,100);
-    iter = new NameSortIterator(vCr.getIDStorage());
+    isEditable->setCheckState(Qt::Unchecked);
+    isSigned->setCheckState(Qt::Unchecked);
+    isEditable->setEnabled(false);
+    isSigned->setEnabled(false);
+}
 
-    //QGridLayout* grLayout = new QGridLayout(this);
-    //setLayout(grLayout);
+void PatternEditorWidget::timeVarState()
+{
+    isEditable->setCheckState(Qt::Checked);
+    isSigned->setCheckState(Qt::Unchecked);
+    isEditable->setEnabled(false);
+    isSigned->setEnabled(false);
+    patternEdit->setEnabled(false);
+}
 
+void PatternEditorWidget::unexistVar(PultVarDefinition &vDef)
+{
+    nameEdit->setText(vDef.getName());
+    typeEdit->setText(vDef.getDataType());
+    commentEdit->setText("");
+    patternEdit->setText(vDef.getPattern());
+    curDef = vDef;
+    curVarID = "";
+}
+
+void PatternEditorWidget::showEditAndSign(PultVarDefinition &vDef)
+{
+    isEditable->setEnabled(true);
+    isSigned->setEnabled(true);
+
+    if(vDef.isEditable()) isEditable->setCheckState(Qt::Checked);
+        else isEditable->setCheckState(Qt::Unchecked);
+    if(vDef.getForceSign()) isSigned->setCheckState(Qt::Checked);
+    else isSigned->setCheckState(Qt::Unchecked);
+}
+
+void PatternEditorWidget::showVar(PultVarDefinition &vDef, const QString &comment)
+{
+    nameEdit->setText(varOwner.getFullNameOfVar(vDef.getId()).remove(QRegExp("^[^\\.]*\\.[^\\.]*\\.")));
+    typeEdit->setText(vDef.getDataType());
+    commentEdit->setText(comment);
+    patternEdit->setText(vDef.getPattern());
+}
+
+void PatternEditorWidget::noVar()
+{
+    applyButton->setText("Добавить переменную");
+    nameEdit->setText("");
+    typeEdit->setText("");
+    commentEdit->setText("");
+    patternEdit->setText("");
+    isEditable->setCheckState(Qt::Unchecked);
+    isSigned->setCheckState(Qt::Unchecked);
+    curVarID="";
+}
+
+PultVarDefinition PatternEditorWidget::getVar(VarItem &var)
+{
+    PultVarDefinition vp;
+    vp.setId(curVarID);
+    QString pText = patternEdit->text();
+    pText.replace(',','.');
+    vp.setPattern(pText);
+    vp.setDataType(var.getDataType());
+    vp.setName(varOwner.getPultNameOfVar(curVarID));
+    vp.setForceSign(isSigned->isChecked());
+    vp.setEditable(isEditable->isChecked());
+    vp.setExist(true);
+    QRegExp eeExp("^EE(\\d+)");
+    if(eeExp.indexIn(var.getName()) != -1) {
+        int num = eeExp.cap(1).toInt();
+        vp.setEEVar(true);
+        vp.setEEposInSettingsTable(num);
+    }else {
+        vp.setEEVar(false);
+    }
+    return vp;
+}
+
+void PatternEditorWidget::updVar(VarItem &var)
+{
+    var.setComment(commentEdit->text());
+    var.setEditable(isEditable->isChecked());
+    var.setSigned(isSigned->isChecked());
+    varOwner.updateVarByID(curVarID,var);
+}
+
+void PatternEditorWidget::createWidgets()
+{
     QVBoxLayout* vLayout = new QVBoxLayout(this);
 
-
     tree = new QTreeWidget();
-
     connect(tree,SIGNAL(itemDoubleClicked(QTreeWidgetItem*,int)),this,SLOT(doubleClickedVar(QTreeWidgetItem*,int)));
 
     QStringList header;
@@ -101,10 +180,10 @@ PatternEditorWidget::PatternEditorWidget(Display &d, VarsCreator &vCr, QWidget *
     hButtonLayout->addWidget(spacer);
     hButtonLayout->addWidget(applyButton);
     vLayout->addLayout(hButtonLayout);
+}
 
-    //vLayout->addWidget(applyButton);
-
-
+void PatternEditorWidget::fillVarsTree()
+{
     QTreeWidgetItem* item = new QTreeWidgetItem(tree);
 
     if(varOwner.getIDList().count()) {
@@ -120,11 +199,19 @@ PatternEditorWidget::PatternEditorWidget(Display &d, VarsCreator &vCr, QWidget *
 
     tree->setStyleSheet(style);
     tree->setStyleSheet(style);
-
     tree->setItemExpanded(item,true);
     tree->header()->resizeSections(QHeaderView::ResizeToContents);
+}
 
+PatternEditorWidget::PatternEditorWidget(Display &d, VarsCreator &vCr, QWidget *parent) :
+    QWidget(parent), varOwner(vCr), displ(d),
+    currentX(0), currentY(0)
+{
+    setMinimumSize(100,100);
+    iter = new NameSortIterator(vCr.getIDStorage());
 
+    createWidgets();
+    fillVarsTree();
     setFocusPolicy(Qt::ClickFocus);
 }
 
@@ -180,63 +267,23 @@ void PatternEditorWidget::cursorPosChanged(int x, int y)
         PultVarDefinition cursVarDef;
         str.getVarInPos(x,cursVarDef);
         applyButton->setText("Изменить переменную");
-        QString pattern = cursVarDef.getPattern();
         if(cursVarDef.isExist()) {
             QString id = cursVarDef.getId();
             if(!id.isEmpty()) {
                 VarItem var = varOwner.getVarByID(id);
 
                 if(var.getBitNum()!=-1) {
-                    isEditable->setCheckState(Qt::Unchecked);
-                    isSigned->setCheckState(Qt::Unchecked);
-                    isEditable->setEnabled(false);
-                    isSigned->setEnabled(false);
+                    bitVarState();
                 }else {
-                    if(cursVarDef.getName().contains("sysTime_")) {
-                        isEditable->setCheckState(Qt::Checked);
-                        isSigned->setCheckState(Qt::Unchecked);
-                        isEditable->setEnabled(false);
-                        isSigned->setEnabled(false);
-                        patternEdit->setEnabled(false);
-                    }else {
-                        isEditable->setEnabled(true);
-                        isSigned->setEnabled(true);
-
-                        if(cursVarDef.isEditable()) isEditable->setCheckState(Qt::Checked);
-                            else isEditable->setCheckState(Qt::Unchecked);
-                        if(cursVarDef.getForceSign()) isSigned->setCheckState(Qt::Checked);
-                            else isSigned->setCheckState(Qt::Unchecked);
-                    }
+                    if(cursVarDef.getName().contains("sysTime_")) {timeVarState();}
+                    else {showEditAndSign(cursVarDef);}
                 }
-
-                nameEdit->setText(varOwner.getFullNameOfVar(id).remove(QRegExp("^[^\\.]*\\.[^\\.]*\\.")));
-                typeEdit->setText(cursVarDef.getDataType());
-                commentEdit->setText(var.getComment());
-                patternEdit->setText(pattern);
-
+                showVar(cursVarDef,var.getComment());
                 curVarID = id;
                 curDef = cursVarDef;
             }
-        }else {
-            nameEdit->setText(cursVarDef.getName());
-            typeEdit->setText(cursVarDef.getDataType());
-            commentEdit->setText("");
-            patternEdit->setText(pattern);
-            curDef = cursVarDef;
-            curVarID = "";
-        }
-
-
-    }else {
-        applyButton->setText("Добавить переменную");
-        nameEdit->setText("");
-        typeEdit->setText("");
-        commentEdit->setText("");
-        patternEdit->setText("");
-        isEditable->setCheckState(Qt::Unchecked);
-        isSigned->setCheckState(Qt::Unchecked);
-        curVarID="";
-    }
+        }else {unexistVar(cursVarDef);}
+    }else {noVar();}
 }
 
 void PatternEditorWidget::doubleClickedVar(QTreeWidgetItem *item, int column)
@@ -258,57 +305,26 @@ void PatternEditorWidget::applyVar()
         VarItem var = varOwner.getVarByID(curVarID);
         patternEdit->setEnabled(true);
         if(var.getBitNum()!=-1) {
-            isEditable->setCheckState(Qt::Unchecked);
-            isSigned->setCheckState(Qt::Unchecked);
-            isEditable->setEnabled(false);
-            isSigned->setEnabled(false);
+            bitVarState();
         }else {
             isEditable->setEnabled(true);
             isSigned->setEnabled(true);
-
             if(varOwner.getPultNameOfVar(curVarID).contains("sysTime_")) {
-                isEditable->setCheckState(Qt::Checked);
-                isSigned->setCheckState(Qt::Unchecked);
-                isEditable->setEnabled(false);
-                isSigned->setEnabled(false);
+                timeVarState();
                 patternEdit->setText("11");
-                patternEdit->setEnabled(false);
             }
         }
 
-        PultVarDefinition vp;
-        vp.setId(curVarID);
-        QString pText = patternEdit->text();
-        pText.replace(',','.');
-        vp.setPattern(pText);
-        vp.setDataType(var.getDataType());
-        vp.setName(varOwner.getPultNameOfVar(curVarID));
-        vp.setForceSign(isSigned->isChecked());
-        vp.setEditable(isEditable->isChecked());
-        vp.setExist(true);
-        QRegExp eeExp("^EE(\\d+)");
-        if(eeExp.indexIn(var.getName()) != -1) {
-            int num = eeExp.cap(1).toInt();
-            vp.setEEVar(true);
-            vp.setEEposInSettingsTable(num);
-        }else {
-            vp.setEEVar(false);
-        }
+        PultVarDefinition vp = getVar(var);
         QString dataType = varOwner.getVarByID(curVarID).getDataType();
         if(VarPattern::checkPattern(vp.getPattern(),dataType)) {
             DisplayStr str = displ.getString(currentY,displ.getCurSubStrNum(currentY));
             if(str.isVarHere(currentX)) {
-                var.setComment(commentEdit->text());
-                var.setEditable(isEditable->isChecked());
-                var.setSigned(isSigned->isChecked());
-                varOwner.updateVarByID(curVarID,var);
+                updVar(var);
                 displ.updVar(vp);
             }else {
                 if(displ.addVar(vp)) {
-                    var.setComment(commentEdit->text());
-                    var.setEditable(isEditable->isChecked());
-                    var.setSigned(isSigned->isChecked());
-                    varOwner.updateVarByID(curVarID,var);
+                    updVar(var);
                     applyButton->setText("Изменить");
                 }
             }
