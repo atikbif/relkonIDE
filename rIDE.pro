@@ -17,6 +17,8 @@ QMAKE_TARGET_PRODUCT = RIDE
 QMAKE_TARGET_DESCRIPTION = Relkon IDE
 QMAKE_TARGET_COPYRIGHT = Kontel
 
+DEFINES += APP_VERSION=\\\"$$VERSION\\\"
+
 TARGET = rIDE
 TEMPLATE = app
 
@@ -95,7 +97,9 @@ SOURCES += main.cpp\
     VarDef/varparser.cpp \
     LCD/ccodecreator.cpp \
     LCD/pultvardefinition.cpp \
-    dialogeditguisettings.cpp
+    dialogeditguisettings.cpp \
+    Help/helpbrowser.cpp \
+    Help/aboutdialog.cpp
 
 HEADERS  += mainwindow.h \
     codeeditor.h \
@@ -169,7 +173,9 @@ HEADERS  += mainwindow.h \
     VarDef/varparser.h \
     LCD/ccodecreator.h \
     LCD/pultvardefinition.h \
-    dialogeditguisettings.h
+    dialogeditguisettings.h \
+    Help/helpbrowser.h \
+    Help/aboutdialog.h
 
 FORMS    += mainwindow.ui \
     settingsform.ui \
@@ -179,7 +185,8 @@ FORMS    += mainwindow.ui \
     Debugger/debuggerform.ui \
     Debugger/dialogwritevar.ui \
     LCD/lcdform.ui \
-    dialogeditguisettings.ui
+    dialogeditguisettings.ui \
+    Help/aboutdialog.ui
 
 RESOURCES += \
     icons.qrc \

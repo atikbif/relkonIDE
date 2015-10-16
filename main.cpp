@@ -18,6 +18,7 @@ int main(int argc, char *argv[])
     QFont font(systFontName,systFontSize,QFont::Normal,false);
     //font.setFamily(font.defaultFamily());
     a.setFont(font);
+    a.setApplicationVersion(APP_VERSION);
 
     MainWindow w;
     w.show();

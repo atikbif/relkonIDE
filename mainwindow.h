@@ -10,6 +10,7 @@
 #include "LCD/display.h"
 #include "VarDef/varscreator.h"
 #include "LCD/lcdform.h"
+#include "Help/helpbrowser.h"
 
 
 namespace Ui {
@@ -26,6 +27,7 @@ class MainWindow : public QMainWindow
     Display *displ;
     LCDForm* lcd;
     VarsCreator *varOwner;
+    HelpBrowser *helpBr;
     QThread builderThread;
 
     const QString wTitle = "RelkonIDE ";
@@ -51,6 +53,7 @@ class MainWindow : public QMainWindow
     void createDebugger(void);
     void createDisplay(void);
     void createBuilder(void);
+    void createHelp(void);
 
 public:
     explicit MainWindow(QWidget *parent = 0);
@@ -80,6 +83,8 @@ private:
     QAction* saveAsAct;
     QAction *importPultAct;
     QAction *editGUI;
+    QAction *helpBrAct;
+
 
 private slots:
     void newFile(void);
@@ -92,6 +97,8 @@ private slots:
     void buildPr(void);
     void projectToPlc(void);
     void on_closeInfoListButton_clicked();
+    void viewHelp(void);
+    void viewAboutWindow(void);
 
     void on_listWidget_doubleClicked(const QModelIndex &index);
 

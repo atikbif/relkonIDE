@@ -83,6 +83,7 @@ void PLCScanner::scanProcess()
     int cmdCnt=0;   // счётчик для периодического включения системных запросов
     QSerialPort port;
     forever{
+        QThread::msleep(1);
         mutex.lock();
         if(finishCmd) { // завершение процесса
             port.close();

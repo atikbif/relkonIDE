@@ -17,5 +17,10 @@
         <file>table.ico</file>
         <file>import_pult.ico</file>
         <file>config.ico</file>
+        <file>help.ico</file>
+        <file>home.ico</file>
+        <file>left.ico</file>
+        <file>right.ico</file>
+        <file>about.ico</file>
     </qresource>
 </RCC>

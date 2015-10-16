@@ -26,6 +26,7 @@
 #include "Debugger/debuggerform.h"
 #include <QFontDialog>
 #include "dialogeditguisettings.h"
+#include "Help/aboutdialog.h"
 
 
 
@@ -376,6 +377,18 @@ void MainWindow::createBuilder()
     builderThread.start();
 }
 
+void MainWindow::createHelp()
+{
+    helpBrAct = new QAction(QIcon("://help.ico"), "Меню", this);
+    ui->menuHelp->addAction(helpBrAct);
+    QAction *aboutAction = new QAction(QIcon("://about.ico"), "О программе", this);
+    connect(aboutAction,SIGNAL(triggered()),this,SLOT(viewAboutWindow()));
+    ui->menuHelp->addAction(aboutAction);
+
+    helpBr = new HelpBrowser(QApplication::applicationDirPath()+"/Doc","index.html");
+    connect(helpBrAct,SIGNAL(triggered()),this,SLOT(viewHelp()));
+}
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -427,6 +440,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     setWindowState(Qt::WindowMaximized);
     createBuilder();
+    createHelp();
     newFile();
     //QThread::msleep(1000);
     prChangedFlag = false;
@@ -440,6 +454,7 @@ MainWindow::~MainWindow()
     delete ui;
     delete displ;
     delete varOwner;
+    delete helpBr;
 }
 
 void MainWindow::newFile()
@@ -673,6 +688,18 @@ void MainWindow::on_closeInfoListButton_clicked()
     ui->closeInfoListButton->setVisible(false);
     ui->infoLabel->setVisible(false);
     ui->horizontalSpacer->changeSize(0,0, QSizePolicy::Fixed, QSizePolicy::Fixed);
+}
+
+void MainWindow::viewHelp()
+{
+    helpBr->show();
+    helpBr->goHome();
+}
+
+void MainWindow::viewAboutWindow()
+{
+    AboutDialog dialog;
+    dialog.exec();
 }
 
 void MainWindow::on_listWidget_doubleClicked(const QModelIndex &index)
