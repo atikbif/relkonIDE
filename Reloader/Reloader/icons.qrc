@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file>main.ico</file>
+        <file>srch_32.ico</file>
+    </qresource>
+</RCC>
