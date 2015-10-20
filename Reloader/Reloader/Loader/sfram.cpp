@@ -78,10 +78,10 @@ void sFram::startWrite(QByteArray data)
             req.setWrData(wrData);
             errFlag = true;
             for(int j=0;j<3;j++) {
-                if(cmd->execute(req,port)==true) {errFlag=false;break;}
                 mutex.lock();
                 if(stopCmd) {port.close();mutex.unlock();return;}
                 mutex.unlock();
+                if(cmd->execute(req,port)==true) {errFlag=false;break;}
             }
             if(errFlag){
                 emit error("Ошибка записи FRAM памяти контроллера");

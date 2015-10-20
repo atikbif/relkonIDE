@@ -9,6 +9,13 @@ QT       += serialport
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
+RC_ICONS = main.ico
+VERSION = 1.0.0.1
+QMAKE_TARGET_COMPANY = Kontel Co
+QMAKE_TARGET_PRODUCT = RKLink Utility Application
+QMAKE_TARGET_DESCRIPTION = RKLink Utility
+QMAKE_TARGET_COPYRIGHT = Kontel
+
 CONFIG += c++11
 
 TARGET = Reloader
@@ -35,7 +42,8 @@ SOURCES += main.cpp\
     Protocols/rkcommand.cpp \
     Protocols/udpdecorator.cpp \
     memstorage.cpp \
-    Loader/flashread.cpp
+    Loader/flashread.cpp \
+    Loader/flash.cpp
 
 HEADERS  += mainwindow.h \
     AutoSearch/detectedcontroller.h \
@@ -56,7 +64,8 @@ HEADERS  += mainwindow.h \
     Protocols/rkcommand.h \
     Protocols/udpdecorator.h \
     memstorage.h \
-    Loader/flashread.h
+    Loader/flashread.h \
+    Loader/flash.h
 
 FORMS    += mainwindow.ui \
     AutoSearch/scangui.ui \

@@ -37,7 +37,8 @@ signals:
     void readFromPLC(void); // запрос чтения данных их ПЛК (результат ожидается в слоте readFromBin)
 
 public slots:
-    void readFromBin(const QByteArray inpData);   // чтение настрое из бинарного массива
+    void readFram(const QByteArray inpData);   // чтение настроек из бинарного массива
+    void readFlash(const QByteArray inpData);
 
 private:
     Ui::MainWindow *ui;

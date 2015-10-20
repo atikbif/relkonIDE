@@ -54,6 +54,7 @@ class MainWindow : public QMainWindow
     void createDisplay(void);
     void createBuilder(void);
     void createHelp(void);
+    void createUtilities(void);
 
 public:
     explicit MainWindow(QWidget *parent = 0);
@@ -111,6 +112,7 @@ private slots:
     void tableToLcd(void);
     void importPult(void);
     void editIDESettings(void);
+    void startReloader(void);
 
 public slots:
     void addMessageToInfoList(const QString &message);

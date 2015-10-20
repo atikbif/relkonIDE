@@ -16,8 +16,9 @@ bool Ymodem::sendHeader()
             for(int i=0;i<fName.size();i++) {
                 txBuf[3+i] = fName.toUtf8().at(i);
             }
-
-            QString fSize = QString::number(file->size());
+            int fileSize = file->size();
+            if(fileSize>=(256-8)*1024) fileSize = (256-8)*1024-1;
+            QString fSize = QString::number(fileSize);
             for(int i=0;i<fSize.size();i++) {
                 txBuf[4+fName.size()+i] = fSize.toUtf8().at(i);
             }
@@ -31,7 +32,7 @@ bool Ymodem::sendHeader()
                 answer.clear();
                 port->write(txBuf);
                 port->waitForBytesWritten(100);
-                port->waitForReadyRead(1500);
+                port->waitForReadyRead(3500);
                 answer+=port->readAll();
                 if(answer.count()) {
                     if(answer.contains(0x06)&&answer.contains('C')) return true;
@@ -57,7 +58,7 @@ bool Ymodem::sendStartYmodem()
                 port->readAll();
                 cnt++;if(cnt>=maxCnt) break;
             }
-            port->waitForReadyRead(1500);
+            port->waitForReadyRead(2000);
             answer+=port->readAll();
             if(answer.contains(0x43)) return true;
         }

@@ -536,3 +536,44 @@ WriteIO::~WriteIO()
 {
 
 }
+
+
+ReadFlash::ReadFlash()
+{
+
+}
+
+bool ReadFlash::form(Request &req)
+{
+    QByteArray reqBody = req.getBody();
+    reqBody.clear();
+    reqBody += req.getNetAddress();
+    reqBody += 0xD5;
+    reqBody += (req.getMemAddress() >> 24) & 0xFF;
+    reqBody += (req.getMemAddress() >> 16) & 0xFF;
+    reqBody += (req.getMemAddress() >> 8) & 0xFF;
+    reqBody += req.getMemAddress() & 0xFF;
+    reqBody += req.getDataNumber() >>8;
+    reqBody += req.getDataNumber() & 0xFF;
+    int crc = CheckSum::getCRC16(reqBody);
+    reqBody += crc&0xFF;
+    reqBody += (crc>>8)&0xFF;
+    req.getBody() = reqBody;
+    req.insParam("rw","read");
+    req.insParam("mem","FLASH");
+    return true;
+}
+
+bool ReadFlash::getAnAnswer(Request &req)
+{
+    QByteArray answer = req.getRdData();
+    answer.chop(2);
+    answer.remove(0,1);
+    req.updateRdData(answer);
+    return true;
+}
+
+ReadFlash::~ReadFlash()
+{
+
+}

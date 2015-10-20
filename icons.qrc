@@ -22,5 +22,6 @@
         <file>left.ico</file>
         <file>right.ico</file>
         <file>about.ico</file>
+        <file>reloader.ico</file>
     </qresource>
 </RCC>

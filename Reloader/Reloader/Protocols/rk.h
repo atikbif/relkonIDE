@@ -84,6 +84,16 @@ namespace RkProtocol {
         ~ReadRam();
     };
 
+    class ReadFlash: public RkCommand
+    {
+    public:
+        ReadFlash();
+        CommandInterface* clone(void) {return new ReadFlash();}
+        bool form(Request &req);
+        bool getAnAnswer(Request &req);
+        ~ReadFlash();
+    };
+
     class ReadDispRam: public RkCommand
     {
     public:

@@ -9,6 +9,7 @@
 #include "Loader/sysframreadwrite.h"
 #include <QDataStream>
 #include <QByteArray>
+#include <Loader/flashread.h>
 
 
 void MainWindow::createCOMPortList()
@@ -40,6 +41,7 @@ void MainWindow::on_pushButtonSearch_clicked()
         DetectedController* plc = &DetectedController::Instance();
         if(plc->getBootMode()) {
             QMessageBox::warning(this,"системные настройки контроллера","Контроллер ожидает загрузки программы.\n");
+            ui->comboBoxComPorts->setCurrentText(plc->getUartName());
         }
         else {
             ui->comboBoxComPorts->setCurrentText(plc->getUartName());
@@ -129,7 +131,11 @@ void MainWindow::on_pushButtonReadProgr_clicked()
         DetectedController* plc = &DetectedController::Instance();
         if(plc->getBootMode()) QMessageBox::warning(this,"Чтение кода программы","Контроллер ожидает загрузки программы.\nЧтение невозможно.");
         else{
-
+            FlashRead loader(this);
+            connect(this,SIGNAL(readFromPLC()),&loader,SLOT(startReadProcess()));
+            connect(&loader,SIGNAL(readOK(QByteArray)),this,SLOT(readFlash(QByteArray)));
+            emit readFromPLC();
+            loader.exec();
         }
     }
 }
@@ -144,14 +150,30 @@ void MainWindow::on_pushButtonReadSFRAM_clicked()
         else{
             SysFramReadWrite loader(this);
             connect(this,SIGNAL(readFromPLC()),&loader,SLOT(startReadProcess()));
-            connect(&loader,SIGNAL(readOK(QByteArray)),this,SLOT(readFromBin(QByteArray)));
+            connect(&loader,SIGNAL(readOK(QByteArray)),this,SLOT(readFram(QByteArray)));
             emit readFromPLC();
             loader.exec();
         }
     }
 }
 
-void MainWindow::readFromBin(const QByteArray inpData)
+void MainWindow::readFlash(const QByteArray inpData)
+{
+    QString fName = QFileDialog::getSaveFileName(this, tr("Сохранение кода программы"),
+                                                    progrPath,
+                                                    tr("(*.bin )"));
+    if(fName.isEmpty()) return;
+    QFile* file = new QFile(fName);
+    if(file->open(QIODevice::WriteOnly)) {
+        file->write(inpData);
+        file->flush();
+        file->close();
+        progrPath = QFileInfo(*file).absolutePath();
+    }
+    delete file;
+}
+
+void MainWindow::readFram(const QByteArray inpData)
 {
     QString fName = QFileDialog::getSaveFileName(this, tr("Сохранение системных настроек"),
                                                     sframPath,
@@ -168,6 +190,7 @@ void MainWindow::readFromBin(const QByteArray inpData)
         stream << progAddr;
         stream << inpData;
         sFile->close();
+        sframPath = QFileInfo(*sFile).absolutePath();
     }
     delete sFile;
 }

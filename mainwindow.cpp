@@ -27,6 +27,7 @@
 #include <QFontDialog>
 #include "dialogeditguisettings.h"
 #include "Help/aboutdialog.h"
+#include <QProcess>
 
 
 
@@ -389,6 +390,13 @@ void MainWindow::createHelp()
     connect(helpBrAct,SIGNAL(triggered()),this,SLOT(viewHelp()));
 }
 
+void MainWindow::createUtilities()
+{
+    QAction *act = new QAction(QIcon("://reloader.ico"), "Загрузчик", this);
+    ui->menuUtil->addAction(act);
+    connect(act,SIGNAL(triggered()),this,SLOT(startReloader()));
+}
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -441,6 +449,7 @@ MainWindow::MainWindow(QWidget *parent) :
     setWindowState(Qt::WindowMaximized);
     createBuilder();
     createHelp();
+    createUtilities();
     newFile();
     //QThread::msleep(1000);
     prChangedFlag = false;
@@ -856,4 +865,19 @@ void MainWindow::editIDESettings()
 {
     DialogEditGUISettings dialog;
     dialog.exec();
+}
+
+void MainWindow::startReloader()
+{
+
+    QString path = QApplication::applicationDirPath() + "/Reloader.exe";
+    if(QFile::exists(path)) {
+        QProcess* loader = new QProcess;
+        connect(loader, SIGNAL(finished(int)), loader, SLOT(deleteLater()));
+        loader->start(path);
+    }else {
+        activateInfoPanel();
+        addMessageToInfoList("error: Ошибка открытия файла " + path);
+    }
+
 }
