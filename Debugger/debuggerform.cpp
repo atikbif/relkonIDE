@@ -20,6 +20,8 @@
 #include <QGridLayout>
 #include <QTimer>
 #include <QSlider>
+#include <QProcess>
+#include <QTextCodec>
 
 
 void DebuggerForm::saveView()
@@ -303,28 +305,25 @@ void DebuggerForm::on_treeWidgetWatch_itemDoubleClicked(QTreeWidgetItem *item, i
 
 void DebuggerForm::on_startButton_clicked()
 {
+    DebuggerSettings settings;
+    settings.setPortName(ui->comboBoxCOM->currentText());
+    settings.setProtocol(ui->comboBoxProtocol->currentText());
+    settings.setBaudrate(ui->comboBoxSpeed->currentText().toInt());
+    settings.setNetAddress(ui->spinBoxNetAddress->value());
+    settings.setIpAddress(ui->lineEditIP->text());
+    settings.setUdpFlag(ui->radioButtonUDP->isChecked());
+    scan->setDebSettings(settings);
 
-    if(ui->radioButtonUDP->isChecked()) {
-        QMessageBox::warning(this,"Ограничение отладчика","В данный момент работа по протоколу UDP не доступна.\n");
-    }else {
-        DebuggerSettings settings;
-        settings.setPortName(ui->comboBoxCOM->currentText());
-        settings.setProtocol(ui->comboBoxProtocol->currentText());
-        settings.setBaudrate(ui->comboBoxSpeed->currentText().toInt());
-        settings.setNetAddress(ui->spinBoxNetAddress->value());
-        scan->setDebSettings(settings);
+    ui->tabWidgetCanal->setEnabled(false);
+    ui->pushButtonTimeWrite->setEnabled(true);
+    ui->radioButtonCOM->setEnabled(false);
+    ui->radioButtonUDP->setEnabled(false);
+    ui->spinBoxNetAddress->setEnabled(false);
+    ui->stopButton->setEnabled(true);
+    ui->startButton->setEnabled(false);
 
-        ui->tabWidgetCanal->setEnabled(false);
-        ui->pushButtonTimeWrite->setEnabled(true);
-        ui->radioButtonCOM->setEnabled(false);
-        ui->radioButtonUDP->setEnabled(false);
-        ui->spinBoxNetAddress->setEnabled(false);
-        ui->stopButton->setEnabled(true);
-        ui->startButton->setEnabled(false);
-
-        scan->setScheduler(&scheduler);
-        scan->startDebugger();
-    }
+    scan->setScheduler(&scheduler);
+    scan->startDebugger();
 }
 
 void DebuggerForm::on_stopButton_clicked()
@@ -812,5 +811,35 @@ void DebuggerForm::on_tabWidget_currentChanged(int index)
             scheduler.addReadOperation(var);
         }
         scheduler.schedule();
+    }
+}
+
+
+void DebuggerForm::on_pushButtonPing_clicked()
+{
+    QString ip = ui->lineEditIP->text();
+    QRegExp exp("^(\\d{1,3})\\.(\\d{1,3}).(\\d{1,3}).(\\d{1,3})");
+    if(exp.indexIn(ip)!=-1) {
+        ip = QString::number(exp.cap(1).toInt()) +
+            "." + QString::number(exp.cap(2).toInt()) +
+            "." + QString::number(exp.cap(3).toInt()) +
+            "." + QString::number(exp.cap(4).toInt());
+    }else ip="";
+    if(!ip.isEmpty()) {
+        QProcess pingProcess;
+        QString exec = "ping";
+        QStringList params;
+        params << "-n" << "1" << ip;
+        pingProcess.start(exec,params,QIODevice::ReadOnly);
+        pingProcess.waitForFinished(-1);
+
+        QTextCodec *codec = QTextCodec::codecForName("CP866");
+        QString p_stdout = codec->toUnicode(pingProcess.readAllStandardOutput());
+        QString p_stderr = codec->toUnicode(pingProcess.readAllStandardError());
+
+
+        QMessageBox::information(this,"PING",p_stdout + "\n" + p_stderr);
+    }else {
+        QMessageBox::warning(this,"Ошибка ввода","Некорректный IP адрес");
     }
 }

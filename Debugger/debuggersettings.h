@@ -27,6 +27,7 @@ class DebuggerSettings
     udpData udpSettings;
     int netAddress;
     static const int defaultUDPPortNum = 12144;
+    bool udpFlag;
 public:
     DebuggerSettings();
     const comData getComSettings(void) const {return comSettings;}
@@ -34,10 +35,13 @@ public:
     void setPortName(const QString &pName) {comSettings.portName = pName;}
     void setBaudrate(int value) {comSettings.baudrate = value;}
     void setProtocol(const QString &protocol) {comSettings.protocol = protocol;}
-    void setIpAddress(const QString &addr) {udpSettings.ipAddress = addr;}
+    void setIpAddress(const QString &addr);
     ~DebuggerSettings();
     int getNetAddress() const;
     void setNetAddress(int value);
+    bool getUdpFlag() const;
+    void setUdpFlag(bool value);
+    static int getDefaultUDPPortNum();
 };
 
 #endif // DEBUGGERSETTINGS_H

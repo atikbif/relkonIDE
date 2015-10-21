@@ -10,7 +10,8 @@
 #include "Debugger/debuggersettings.h"
 #include <QString>
 #include "Protocols/request.h"
-#include <QSerialPort>
+//#include <QSerialPort>
+#include <QIODevice>
 
 class PLCScanner : public QObject
 {
@@ -23,8 +24,9 @@ class PLCScanner : public QObject
     DebuggerSettings settings;          // настройки канала связи отладчика (UDP,COM)
     int cntCorrect,cntError;            // счётчики успешных и ошибочных запросов
     QString reqToHexStr(Request &req);  // преобразование запроса и ответа в текст для отображения в логе
-    void startReq(QSerialPort &port);   // системные запросы, не зависящие от планировщика (время ПЛК)
+    void startReq(QIODevice &port);   // системные запросы, не зависящие от планировщика (время ПЛК)
     static const int sysReqPeriod = 10; // периодичность включения системных запросов
+    bool isUdp;
 public:
     explicit PLCScanner(QObject *parent = 0);
     ~PLCScanner();

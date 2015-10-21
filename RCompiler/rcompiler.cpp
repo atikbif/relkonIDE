@@ -3,7 +3,6 @@
 #include <QProcess>
 #include <QDir>
 #include <QRegExp>
-#include "Debugger/varparser.h"
 
 const QString RCompiler::dirOutName = "/obj";
 const QString RCompiler::dirBuildName = "/build";

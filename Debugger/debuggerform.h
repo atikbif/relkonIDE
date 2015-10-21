@@ -94,6 +94,9 @@ private slots:
     // переключение между вкладками отладчика
     void on_tabWidget_currentChanged(int index);
 
+
+    void on_pushButtonPing_clicked();
+
 public slots:
     void on_updateButton_clicked(); // запрос обновления деревьев
     void openProject(void);

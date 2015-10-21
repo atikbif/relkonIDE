@@ -1,8 +1,11 @@
 #include "plcscanner.h"
 #include <QThread>
 #include "Protocols/asciidecorator.h"
+#include "Protocols/udpdecorator.h"
 #include <QDateTime>
 #include "Protocols/rk.h"
+#include <QSerialPort>
+#include <QUdpSocket>
 
 using namespace RkProtocol;
 
@@ -33,7 +36,7 @@ QString PLCScanner::reqToHexStr(Request &req)
     return message;
 }
 
-void PLCScanner::startReq(QSerialPort &port)
+void PLCScanner::startReq(QIODevice &port)
 {
     // чтение времени
     CommandInterface* cmd = new ReadTime();
@@ -42,7 +45,8 @@ void PLCScanner::startReq(QSerialPort &port)
         req.setNetAddress(settings.getNetAddress());
         req.setMemAddress(0);
         req.setDataNumber(7);
-        if(settings.getComSettings().protocol=="ASCII") cmd = new AsciiDecorator(cmd);
+        if(isUdp) cmd = new UdpDecorator(cmd);
+        else if(settings.getComSettings().protocol=="ASCII") cmd = new AsciiDecorator(cmd);
         req.setNetAddress(settings.getNetAddress());
         if(cmd->execute(req,port)) {
             emit updateCorrectRequestCnt(++cntCorrect);
@@ -71,6 +75,7 @@ PLCScanner::PLCScanner(QObject *parent) : QObject(parent)
     scheduler = nullptr;
     cntCorrect = 0;
     cntError = 0;
+    isUdp = true;
 }
 
 PLCScanner::~PLCScanner()
@@ -82,11 +87,19 @@ void PLCScanner::scanProcess()
 {
     int cmdCnt=0;   // счётчик для периодического включения системных запросов
     QSerialPort port;
+    QUdpSocket udp;
+
     forever{
+        isUdp = settings.getUdpFlag();
         QThread::msleep(1);
         mutex.lock();
         if(finishCmd) { // завершение процесса
-            port.close();
+            if(!isUdp)  {
+                port.close();
+            }else {
+                udp.disconnectFromHost();
+                udp.close();
+            }
             startCmd=false;
             stopCmd=false;
             finishCmd=false;
@@ -94,19 +107,35 @@ void PLCScanner::scanProcess()
             break;
         }
         if(startCmd) {
-            // открытие порта если он закрыт
-            if(!port.isOpen()) {
-                port.setPortName(settings.getComSettings().portName);
-                port.setBaudRate(settings.getComSettings().baudrate);
-                if(!port.open(QSerialPort::ReadWrite)) {
-                    // ошибка открытия порта
-                    emit addMessage(QDateTime::currentDateTime().time().toString() + ": невозможно открыть порт " + port.portName());
-                    QThread::msleep(1000);
+            if(!isUdp) {
+                // открытие порта если он закрыт
+                if(!port.isOpen()) {
+                    port.setPortName(settings.getComSettings().portName);
+                    port.setBaudRate(settings.getComSettings().baudrate);
+                    if(!port.open(QSerialPort::ReadWrite)) {
+                        // ошибка открытия порта
+                        emit addMessage(QDateTime::currentDateTime().time().toString() + ": невозможно открыть порт " + port.portName());
+                        QThread::msleep(1000);
+                    }
+                    cmdCnt=0;
                 }
-                cmdCnt=0;
+            }else {
+                if(!udp.isOpen()) {
+                    QString ipAddr = settings.getUdpSettings().ipAddress;
+                    if(ipAddr.contains(QRegExp("^\\d{1,3}\\.\\d{1,3}.\\d{1,3}.\\d{1,3}"))) {
+                        if(udp.state()==QAbstractSocket::UnconnectedState) {
+                            //udp.bind(QHostAddress(ipAddr),settings.getDefaultUDPPortNum());
+                            udp.connectToHost(ipAddr,settings.getDefaultUDPPortNum());
+                            udp.waitForConnected();
+                        }
+                    }
+                    udp.open(QIODevice::ReadWrite);
+                }
             }
             if(stopCmd) {   // приостановить опрос
-                port.close();
+                    port.close();
+                    udp.disconnectFromHost();
+                    udp.close();
                 stopCmd=false;
                 startCmd=false;
                 mutex.unlock();
@@ -114,15 +143,18 @@ void PLCScanner::scanProcess()
             else {
                 // опрос контроллера
                 mutex.unlock();
-                QThread::msleep(1);
-                if((scheduler!=nullptr)&&(port.isOpen())) {
+                if((scheduler!=nullptr)&&(((port.isOpen())&&(!isUdp)) || (isUdp)) ) {
                     // получение команды и запроса от планировщика
                     CommandInterface* cmd = scheduler->getCmd();
+                    QIODevice *ptr = nullptr;
+                    if(isUdp) ptr = &udp;else ptr = &port;
                     if(cmd!=nullptr) {
                         Request req = scheduler->getReq();
-                        if(settings.getComSettings().protocol=="ASCII") cmd = new AsciiDecorator(cmd);
+                        if(isUdp) cmd = new UdpDecorator(cmd);
+                        else if(settings.getComSettings().protocol=="ASCII") cmd = new AsciiDecorator(cmd);
                         req.setNetAddress(settings.getNetAddress());
-                        if(cmd->execute(req,port)) {
+
+                        if(cmd->execute(req,*ptr)) {
                             emit updateCorrectRequestCnt(++cntCorrect);
                             // обновление памяти по результатам чтения
                             if(req.hasKey("mem") && req.hasKey("rw") && req.getParam("rw")=="read") {
@@ -135,7 +167,7 @@ void PLCScanner::scanProcess()
                     // переместить планировщик на следущие команду и запрос
                     scheduler->moveToNext();
                     // периодический вызов системных команд
-                    if(cmdCnt==0) startReq(port);
+                    if(cmdCnt==0) startReq(*ptr);
                     cmdCnt++;if(cmdCnt>=sysReqPeriod) cmdCnt=0;
                     delete cmd;
                 }
@@ -155,6 +187,7 @@ void PLCScanner::stopScanCmd()
 {
     QMutexLocker locker(&mutex);
     stopCmd = true;
+
 }
 
 void PLCScanner::finishProcess()

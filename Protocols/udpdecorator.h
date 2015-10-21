@@ -11,6 +11,10 @@ public:
     bool checkAnAnswer(Request &req);
     bool getAnAnswer(Request &req);
     ~UdpDecorator();
+
+    // CommandInterface interface
+public:
+    bool execute(Request &req, QIODevice &io);
 };
 
 #endif // UDPDECORATOR_H
