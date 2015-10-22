@@ -3,6 +3,25 @@
 #include <QStringList>
 #include "compositevar.h"
 
+bool NameSortIterator::lessThan(const QString &s1, const QString &s2)
+{
+    QRegExp exp("^([^\\d]*)(\\d+)([^\\d]*)");
+    if(exp.indexIn(s1)!=-1) {
+        QString beg1 = exp.cap(1).toLower();
+        int v1 = exp.cap(2).toInt();
+        QString end1 = exp.cap(3).toLower();
+        if(exp.indexIn(s2)!=-1) {
+            QString beg2 = exp.cap(1).toLower();
+            int v2 = exp.cap(2).toInt();
+            QString end2 = exp.cap(3).toLower();
+            if((beg1==beg2)&&(end1==end2)) {
+                return v1<v2;
+            }
+        }
+    }
+    return s1.toLower() < s2.toLower();
+}
+
 void NameSortIterator::createCash(const QString &varID)
 {
     cash.clear();
@@ -23,7 +42,8 @@ void NameSortIterator::createCash(const QString &varID)
                 }
                 QStringList varNames = vars.keys();
                 varNames.removeDuplicates();
-                varNames.sort();
+                qSort(varNames.begin(),varNames.end(),lessThan);
+                //varNames.sort();
                 int curId=0;
                 foreach (QString vName, varNames) {
                    QStringList varsByName = vars.values(vName);

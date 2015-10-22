@@ -18,6 +18,7 @@ class NameSortIterator : public Iterator
 
     void createCash(const QString& varID); // создаёт отсортированный список sibling переменных
     bool testCashState();   // проверяет корректность кэшированного списка переменных
+    static bool lessThan(const QString &s1, const QString &s2);
 public:
     NameSortIterator(IDStorage &idStor);
     bool next();
