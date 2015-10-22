@@ -468,11 +468,15 @@ void DebuggerForm::buildDIO()
         if(i<4) name = "IN"+QString::number(i);
         else name = "DIN" + QString::number(i);
         QGroupBox *boxIn = addDIO(name,BitIO::inputStartAddress + i,8);
+        boxIn->setCheckable(true);
+        connect(boxIn,SIGNAL(toggled(bool)),this,SLOT(boxToggled(bool)));
         grLayout->addWidget(boxIn,1,i+1);
 
         if(i<4) name = "OUT"+QString::number(i);
         else name = "DOUT" + QString::number(i);
         QGroupBox *boxOut = addDIO(name,BitIO::outputStartAddress + i,8);
+        boxOut->setCheckable(true);
+        connect(boxOut,SIGNAL(toggled(bool)),this,SLOT(boxToggled(bool)));
         grLayout->addWidget(boxOut,2,i+1);
     }
     // модули Matchbox
@@ -480,10 +484,16 @@ void DebuggerForm::buildDIO()
         QString name;
         name = "IN"+QString::number(i+4);
         QGroupBox *boxIn = addDIO(name,BitIO::mmbInputStartAddress + i,4);
+        boxIn->setCheckable(true);
+        connect(boxIn,SIGNAL(toggled(bool)),this,SLOT(boxToggled(bool)));
+        boxIn->setChecked(false);
         grLayout->addWidget(boxIn,3+(i/6)*2,(i%6)+1);
 
         name = "OUT"+QString::number(i+4);
         QGroupBox *boxOut = addDIO(name,BitIO::mmbOutputStartAddress + i,4);
+        boxOut->setCheckable(true);
+        connect(boxOut,SIGNAL(toggled(bool)),this,SLOT(boxToggled(bool)));
+        boxOut->setChecked(false);
         grLayout->addWidget(boxOut,4+(i/6)*2,(i%6)+1);
     }
     client->setLayout(grLayout);
@@ -531,7 +541,7 @@ QGroupBox *DebuggerForm::addAIO(const QString &grName, const QString &ioName, in
         connect(slider,SIGNAL(sliderReleased()),this,SLOT(anInOutClicked()));
         QLineEdit *number = new QLineEdit();
         number->setStyleSheet("border: 2px solid gray;"
-                              "border-radius: 10px;"
+                              "border-radius: 5px;"
                               "padding: 0 8px;"
                               "background: #e0e0f0;");
         number->setReadOnly(true);
@@ -559,16 +569,31 @@ void DebuggerForm::buildAIO()
     QWidget *clientAn = new QWidget(this);
     QVBoxLayout *vLayoutAn= new QVBoxLayout(clientAn);
 
+    adc8bit = new QCheckBox("  АЦП - 8 бит");
+    adc8bit->setChecked(true);
+    vLayoutAn->addWidget(adc8bit);
+
     QGroupBox *boxAdc = addAIO("ADC1..8","ADC",AnIO::inputStartAddress,1,8);
+    boxAdc->setCheckable(true);
+    connect(boxAdc,SIGNAL(toggled(bool)),this,SLOT(boxToggled(bool)));
     vLayoutAn->addWidget(boxAdc);
 
     QGroupBox *boxDac = addAIO("DAC1..4","DAC",AnIO::outputStartAddress,1,4);
+    boxDac->setCheckable(true);
+    connect(boxDac,SIGNAL(toggled(bool)),this,SLOT(boxToggled(bool)));
+    boxDac->setChecked(false);
     vLayoutAn->addWidget(boxDac);
 
     QGroupBox *boxAdcMmb = addAIO("Matchbox ADC","ADC",AnIO::mmbInputStartAddress,9,136);
+    boxAdcMmb->setCheckable(true);
+    connect(boxAdcMmb,SIGNAL(toggled(bool)),this,SLOT(boxToggled(bool)));
+    boxAdcMmb->setChecked(false);
     vLayoutAn->addWidget(boxAdcMmb);
 
     QGroupBox *boxDacMmb = addAIO("Matchbox DAC","DAC",AnIO::mmbOutputStartAddress,5,68);
+    boxDacMmb->setCheckable(true);
+    connect(boxDacMmb,SIGNAL(toggled(bool)),this,SLOT(boxToggled(bool)));
+    boxDacMmb->setChecked(false);
     vLayoutAn->addWidget(boxDacMmb);
 
     clientAn->setLayout(vLayoutAn);
@@ -605,7 +630,9 @@ void DebuggerForm::updateIOVarGUI(const QString &id)
                 quint16 value = (quint8)data[1];
                 value = (value<<8) | ((quint8)data[0]);
                 QString txtValue = QString::number(value);
-                if(ptr->getName().contains("ADC")) txtValue+=":"+QString::number(value>>8);
+                if(adc8bit->isChecked()) {
+                   if(ptr->getName().contains("ADC")) txtValue = QString::number(value>>8);
+                }
                 ptr->getLcdNum()->setText(txtValue);
                 if(!ptr->getSlider()->hasFocus()) ptr->getSlider()->setValue(value);
             }
@@ -841,5 +868,19 @@ void DebuggerForm::on_pushButtonPing_clicked()
         QMessageBox::information(this,"PING",p_stdout + "\n" + p_stderr);
     }else {
         QMessageBox::warning(this,"Ошибка ввода","Некорректный IP адрес");
+    }
+}
+
+void DebuggerForm::boxToggled(bool fl)
+{
+    QGroupBox *box = dynamic_cast<QGroupBox*>(sender());
+    if(box!=nullptr) {
+        QObjectList childs = box->children();
+        foreach (QObject *ob, childs) {
+           QWidget *w = dynamic_cast<QWidget*>(ob);
+           if(w!=nullptr) {
+               w->setVisible(fl);
+           }
+        }
     }
 }

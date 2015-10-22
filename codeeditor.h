@@ -20,7 +20,7 @@ class CodeEditor : public QPlainTextEdit
     void scanBlocksNums(void);
 
 public:
-    CodeEditor(QWidget *parent = 0);
+    explicit CodeEditor(QWidget *parent = 0);
     void toggleFolding(QTextBlock &block);
 
     void lineNumberAreaPaintEvent(QPaintEvent *event);
@@ -50,7 +50,7 @@ private:
 class LineNumberArea : public QWidget
 {
 public:
-    LineNumberArea(CodeEditor *editor) : QWidget(editor) {
+    explicit LineNumberArea(CodeEditor *editor) : QWidget(editor) {
         codeEditor = editor;
     }
 
@@ -72,7 +72,7 @@ class EditorLayout : public QPlainTextDocumentLayout
     Q_OBJECT
 
 public:
-    EditorLayout(QTextDocument *document) : QPlainTextDocumentLayout(document) {
+    explicit EditorLayout(QTextDocument *document) : QPlainTextDocumentLayout(document) {
     }
 
     void emitDocumentSizeChanged() {
@@ -84,7 +84,7 @@ class BlockInfo : public QTextBlockUserData
 {
     QString descr;
 public:
-    BlockInfo(QString description) : QTextBlockUserData(), descr(description) {
+    explicit BlockInfo(QString description) : QTextBlockUserData(), descr(description) {
     }
 
     const QString getDescription() {

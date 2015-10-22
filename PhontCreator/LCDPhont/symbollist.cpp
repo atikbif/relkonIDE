@@ -39,7 +39,7 @@ bool SymbolList::setData(const QModelIndex &index, const QVariant &value, int ro
     if(!index.isValid()) return false;
     switch (role) {
     case Qt::EditRole:
-        sList[index.row()] = (SymbolData*)(value.value<void*>());
+        sList[index.row()] = static_cast<SymbolData*>(value.value<void*>());
         break;
     }
     return true;

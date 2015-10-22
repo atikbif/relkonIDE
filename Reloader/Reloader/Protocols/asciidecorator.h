@@ -8,7 +8,7 @@
 class AsciiDecorator : public CommandDecorator
 {
 public:
-    AsciiDecorator(CommandInterface* cmd);
+    explicit AsciiDecorator(CommandInterface* cmd);
     bool form(Request &req);
     bool waitAnAnswer(Request &req, QIODevice &io);
     bool checkAnAnswer(Request &req);

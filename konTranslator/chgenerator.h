@@ -12,7 +12,7 @@ protected:
     QStringList errorList;
     const Display& lcd;
 public:
-    CHGenerator(const Display& d);
+    explicit CHGenerator(const Display& d);
     virtual QStringList getFileNames(void) = 0;
     virtual int createFiles(TextBlock &varBlock,TextBlock &initBlock,QVector<KonProcess> &prBlock)=0;
 

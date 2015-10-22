@@ -98,7 +98,7 @@ void MainWindow::saveFile()
             for(int i=0;i<sModel->rowCount();i++) {
                 QModelIndex idx = sModel->index(i);
                 QVariant v = sModel->data(idx);
-                SymbolData* ptr = (SymbolData*)(v.value<void*>());
+                SymbolData* ptr = static_cast<SymbolData*>(v.value<void*>());
                 out << ptr->getCode();
                 out << ptr->getData();
             }

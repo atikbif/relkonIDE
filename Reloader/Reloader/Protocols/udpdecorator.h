@@ -6,7 +6,7 @@
 class UdpDecorator : public CommandDecorator
 {
 public:
-    UdpDecorator(CommandInterface *cmd);
+    explicit UdpDecorator(CommandInterface *cmd);
     bool waitAnAnswer(Request &req, QIODevice &io);
     bool checkAnAnswer(Request &req);
     bool getAnAnswer(Request &req);

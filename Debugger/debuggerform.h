@@ -16,6 +16,7 @@
 #include "bitio.h"
 #include "anio.h"
 #include <QGroupBox>
+#include <QCheckBox>
 
 namespace Ui {
 class DebuggerForm;
@@ -38,6 +39,7 @@ class DebuggerForm : public QWidget
     RequestScheduler scheduler; // планировщик запросов
 
     VarItem wrVar;      // переменная для записи
+    QCheckBox *adc8bit;
 
 
     void createTree();
@@ -96,6 +98,8 @@ private slots:
 
 
     void on_pushButtonPing_clicked();
+
+    void boxToggled(bool fl);
 
 public slots:
     void on_updateButton_clicked(); // запрос обновления деревьев

@@ -15,7 +15,7 @@ class LeftVerticalWidget : public QWidget
     QMap<QString, QList<int> > inpData;
     QList<QWidget*> wList;
 public:
-    LeftVerticalWidget(QWidget *parent=0);
+    explicit LeftVerticalWidget(QWidget *parent=0);
     void updateData(const QString &label, const QList<int> inp);
 protected slots:
     void getSignalFromChild(QString code,int value);

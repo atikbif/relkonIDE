@@ -20,7 +20,7 @@ class NameSortIterator : public Iterator
     bool testCashState();   // проверяет корректность кэшированного списка переменных
     static bool lessThan(const QString &s1, const QString &s2);
 public:
-    NameSortIterator(IDStorage &idStor);
+    explicit NameSortIterator(IDStorage &idStor);
     bool next();
     bool first();   // перейти к первому элементу текущего среза
     bool isNode();  // имеет потомков

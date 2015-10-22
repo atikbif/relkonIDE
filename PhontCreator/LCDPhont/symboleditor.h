@@ -9,13 +9,8 @@ class SymbolEditor : public QWidget
 {
     Q_OBJECT
     SymbolData* sData;
-    int width,height;
     static const int space = 2;
 public:
-    int getHeight(void) const {return height;}
-    int getWidth(void) const {return width;}
-    void setHeight(int value);
-    void setWidth(int value);
     void setData(const SymbolData &sd);
     explicit SymbolEditor(QWidget *parent = 0);
     ~SymbolEditor();

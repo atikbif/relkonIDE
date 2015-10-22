@@ -3,16 +3,6 @@
 #include <QPaintEvent>
 #include <QPainter>
 
-void SymbolEditor::setHeight(int value)
-{
-    if(value>0) height = value;
-}
-
-void SymbolEditor::setWidth(int value)
-{
-    if(value>0) width = value;
-}
-
 void SymbolEditor::setData(const SymbolData &sd)
 {
     if(sData) delete sData;
@@ -35,7 +25,8 @@ void SymbolEditor::newSymbol(const QModelIndex &index)
 {
     if(!index.isValid()) return;
     QVariant v = index.data();
-    setData(*((SymbolData*)(v.value<void*>())));
+    SymbolData *ptr = static_cast<SymbolData*>(v.value<void*>());
+    setData(*ptr);
 }
 
 void SymbolEditor::mousePressEvent(QMouseEvent *event)

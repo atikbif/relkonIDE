@@ -22,7 +22,7 @@ void SymbolDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option
     }
 
     void *v = index.data().value<void*>();
-    SymbolData* s = (SymbolData*)(v);
+    SymbolData* s = static_cast<SymbolData*>(v);
     QImage image(s->getWidth(),s->getHeight(),QImage::Format_Mono);
     image.fill(Qt::black);
     for(int i=0;i<s->getHeight();i++) {
