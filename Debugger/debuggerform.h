@@ -100,6 +100,8 @@ private slots:
     void on_pushButtonPing_clicked();
 
     void boxToggled(bool fl);
+    void openInputs(void);
+    void saveInputs(void);
 
 public slots:
     void on_updateButton_clicked(); // запрос обновления деревьев

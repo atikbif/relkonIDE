@@ -143,6 +143,7 @@ void PLCScanner::scanProcess()
             else {
                 // опрос контроллера
                 mutex.unlock();
+                //QThread::currentThread()->msleep(5);
                 if((scheduler!=nullptr)&&(((port.isOpen())&&(!isUdp)) || (isUdp)) ) {
                     // получение команды и запроса от планировщика
                     CommandInterface* cmd = scheduler->getCmd();
@@ -160,7 +161,9 @@ void PLCScanner::scanProcess()
                             if(req.hasKey("mem") && req.hasKey("rw") && req.getParam("rw")=="read") {
                                 emit updateBlock(req.getParam("mem"),req.getMemAddress(),req.getRdData());
                             }
-                        }else emit updateErrorRequestCnt(++cntError);
+                        } else
+                        emit updateErrorRequestCnt(++cntError);
+
                         // вывод сообщения в лог
                         emit addMessage(reqToHexStr(req));
                     }

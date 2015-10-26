@@ -23,6 +23,10 @@
 #include <QProcess>
 #include <QTextCodec>
 
+#include <QFileDialog>
+#include <QFileInfo>
+#include <QDataStream>
+
 
 void DebuggerForm::saveView()
 {
@@ -224,6 +228,9 @@ DebuggerForm::DebuggerForm(VarsCreator &vCr, QWidget *parent) :
     updateComPortList();
     ui->treeWidgetWatch->setContextMenuPolicy(Qt::CustomContextMenu);
     ui->comboBoxSpeed->setCurrentText("115200");
+    //ui->updateButton->setVisible(false);
+    connect(ui->pushButtonOpenInp,SIGNAL(clicked(bool)),this,SLOT(openInputs()));
+    connect(ui->pushButtonSaveInp,SIGNAL(clicked(bool)),this,SLOT(saveInputs()));
 
     buildIO();
 
@@ -358,6 +365,7 @@ void DebuggerForm::updateCorrErrAnswerCount(int cnt, bool correctFlag)
 
 void DebuggerForm::getMessageFromDebugProcess(QString message)
 {
+    if(!ui->textBrowserRequests->isEnabled()) return;
     QString txt = ui->textBrowserRequests->toPlainText();
     QStringList sList = txt.split("\n");
     if(sList.count()>5) {
@@ -692,8 +700,13 @@ void DebuggerForm::on_pushButtonAutoSearch_clicked()
 
 void DebuggerForm::on_checkBoxLog_clicked()
 {
-    if(ui->checkBoxLog->isChecked()) ui->textBrowserRequests->setVisible(true);
-    else ui->textBrowserRequests->setVisible(false);
+//    if(ui->checkBoxLog->isChecked()) ui->textBrowserRequests->setVisible(true);
+//    else ui->textBrowserRequests->setVisible(false);
+    if(ui->checkBoxLog->isChecked()) ui->textBrowserRequests->setEnabled(true);
+    else {
+        ui->textBrowserRequests->setEnabled(false);
+        //ui->textBrowserRequests->clear();
+    }
 }
 
 void DebuggerForm::on_pushButtonTimeWrite_clicked()
@@ -882,5 +895,110 @@ void DebuggerForm::boxToggled(bool fl)
                w->setVisible(fl);
            }
         }
+    }
+}
+
+void DebuggerForm::openInputs()
+{
+    if(!scan->isWorking()) {
+        QMessageBox::information(this,"сообщение","Необходимо предварительно запустить отладчик");
+    }else {
+        QString  konFileName = RCompiler::getKonFileName();
+        QString path = QFileInfo(konFileName).absoluteDir().absolutePath();
+        QString fName;
+        fName = QFileDialog::getOpenFileName(this, tr("Загрузить состояния входов"),
+                                                        path,
+                                                        tr("SnapShot file (*.inp )"));
+        if(!fName.isEmpty()) {
+            QFile file(fName);
+            if (file.open(QIODevice::ReadOnly)) {
+                QDataStream stream(&file);
+                stream.setVersion(QDataStream::Qt_5_4);
+                QByteArray diData,diDataCur;
+                QByteArray aiData,aiDataCur;
+                QByteArray mdiData,mdiDataCur;
+                QByteArray maiData,maiDataCur;
+                stream >> diData;
+                stream >> aiData;
+                stream >> mdiData;
+                stream >> maiData;
+
+                diDataCur = memStor.getData(MemStorage::ioMemName,0x00,5);
+                for(int i=0;i<diData.count();i++) {
+                    if(diDataCur.at(i)!=diData.at(i)) {
+                        VarItem var;
+                        var.setValue(QString::number(diData.at(i)));
+                        var.setDataType(VarItem::ucharType);
+                        var.setMemAddress(0x00 + i);
+                        var.setMemType(MemStorage::ioMemName);
+                        var.setPriority(1);
+                        scheduler.addWriteOperation(var);
+                    }
+                }
+                aiDataCur = memStor.getData(MemStorage::ioMemName,0x0C,16);
+                for(int i=0;i<aiData.count();i++) {
+                    if(aiDataCur.at(i)!=aiData.at(i)) {
+                        VarItem var;
+                        var.setValue(QString::number(aiData.at(i)));
+                        var.setDataType(VarItem::ucharType);
+                        var.setMemAddress(0x0C + i);
+                        var.setMemType(MemStorage::ioMemName);
+                        var.setPriority(1);
+                        scheduler.addWriteOperation(var);
+                    }
+                }
+                mdiDataCur = memStor.getData(MemStorage::ioMemName,0x24,32);
+                for(int i=0;i<mdiData.count();i++) {
+                    if(mdiDataCur.at(i)!=mdiData.at(i)) {
+                        VarItem var;
+                        var.setValue(QString::number(mdiData.at(i)));
+                        var.setDataType(VarItem::ucharType);
+                        var.setMemAddress(0x24 + i);
+                        var.setMemType(MemStorage::ioMemName);
+                        var.setPriority(1);
+                        scheduler.addWriteOperation(var);
+                    }
+                }
+                maiDataCur = memStor.getData(MemStorage::ioMemName,0x64,256);
+                for(int i=0;i<maiData.count();i++) {
+                    if(maiDataCur.at(i)!=maiData.at(i)) {
+                        VarItem var;
+                        var.setValue(QString::number(maiData.at(i)));
+                        var.setDataType(VarItem::ucharType);
+                        var.setMemAddress(0x64 + i);
+                        var.setMemType(MemStorage::ioMemName);
+                        var.setPriority(1);
+                        scheduler.addWriteOperation(var);
+                    }
+                }
+                file.close();
+            }else QMessageBox::warning(this,"Предупреждение","Не удалось открыть файл");
+        }
+    }
+}
+
+void DebuggerForm::saveInputs()
+{
+    QByteArray diData = memStor.getData(MemStorage::ioMemName,0x00,5);
+    QByteArray aiData = memStor.getData(MemStorage::ioMemName,0x0C,16);
+    QByteArray mdiData = memStor.getData(MemStorage::ioMemName,0x24,32);
+    QByteArray maiData = memStor.getData(MemStorage::ioMemName,0x64,256);
+    QString  konFileName = RCompiler::getKonFileName();
+    QString path = QFileInfo(konFileName).absoluteDir().absolutePath();
+    QString fName;
+    fName = QFileDialog::getSaveFileName(this, tr("Сохранение состояния входов"),
+                                                    path,
+                                                    tr("SnapShot file (*.inp )"));
+    if(!fName.isEmpty()) {
+        QFile file(fName);
+        if (file.open(QIODevice::WriteOnly)) {
+            QDataStream stream(&file);
+            stream.setVersion(QDataStream::Qt_5_4);
+            stream << diData;
+            stream << aiData;
+            stream << mdiData;
+            stream << maiData;
+            file.close();
+        }else QMessageBox::warning(this,"Предупреждение","Не удалось сохранить файл");
     }
 }

@@ -11,14 +11,27 @@ bool CommandInterface::execute(Request &req, QIODevice &io)
 {
     form(req);
     if(io.isOpen()) {
-        io.readAll();
+        if(io.waitForReadyRead(1)) io.readAll();
         io.write(req.getBody());
-        QSerialPort &port = dynamic_cast<QSerialPort&>(io);
-        if(&port != nullptr) {
-            port.flush();
-            int waitWritePause = (req.getBody().count()*12000.0)/port.baudRate();
+        QIODevice *ptr = &io;
+        QSerialPort *port = dynamic_cast<QSerialPort*>(ptr);
+        if(port != nullptr) {
+            port->flush();
+            /*int waitWritePause = 0;
+            int cnt = req.getBody().count();
+            switch(port->baudRate()) {
+                case QSerialPort::Baud4800 :waitWritePause = cnt*2;break;
+                case QSerialPort::Baud9600 :waitWritePause = cnt;break;
+                case QSerialPort::Baud19200 :waitWritePause = cnt/2;break;
+                case QSerialPort::Baud38400 :waitWritePause = cnt/4;break;
+                case QSerialPort::Baud57600 :waitWritePause = cnt/6;break;
+                case QSerialPort::Baud115200 :waitWritePause = cnt/12;break;
+                default: waitWritePause = cnt;break;
+            }*/
+
+            int waitWritePause = (req.getBody().count()*12000)/port->baudRate();
             waitWritePause+=10;
-            QThread::currentThread()->msleep(waitWritePause);
+            QThread::msleep(waitWritePause);
         }
         if(waitAnAnswer(req,io)) {
             req.setAnswerData(req.getRdData());

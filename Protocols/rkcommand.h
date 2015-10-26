@@ -9,6 +9,7 @@
 
 class RkCommand : public CommandInterface
 {
+    static const int maxCnt = 500; // ограничение ожидания ответа при длительном входящем потоке данных
 public:
     RkCommand();
     bool waitAnAnswer(Request &req, QIODevice &io);
