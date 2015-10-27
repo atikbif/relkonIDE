@@ -113,6 +113,7 @@ private slots:
     void importPult(void);
     void editIDESettings(void);
     void startReloader(void);
+    void loadSysFramRelk6(void);
 
 public slots:
     void addMessageToInfoList(const QString &message);

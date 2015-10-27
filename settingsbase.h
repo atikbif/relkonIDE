@@ -49,6 +49,7 @@ public:
     virtual void openSettings(void)=0;  // чтение настроек из файла
     void updateOnyByte(int addr,quint8 value);
     virtual void updateTable(void);
+    static int getCount(void) {return factorySettingsAmount;}
 
 signals:
     void writeToPLC(QByteArray binData);    // запрос записи данных в ПЛК

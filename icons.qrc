@@ -23,5 +23,6 @@
         <file>right.ico</file>
         <file>about.ico</file>
         <file>reloader.ico</file>
+        <file>database.ico</file>
     </qresource>
 </RCC>

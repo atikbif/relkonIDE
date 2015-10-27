@@ -319,6 +319,9 @@ void MainWindow::createToolbar()
     //ui->menuCmd->addAction(fromTableAction);
     connect(toTableAction,SIGNAL(triggered()),this,SLOT(lcdToTable()));
     //connect(fromTableAction,SIGNAL(triggered()),this,SLOT(tableToLcd()));
+    QAction *openSysFramFromRelkon6 = new QAction(QIcon("://database.ico"), "Загрузить зав. установки из Relkon 6.x", this);
+    connect(openSysFramFromRelkon6,SIGNAL(triggered(bool)),this,SLOT(loadSysFramRelk6()));
+    ui->menuCmd->addAction(openSysFramFromRelkon6);
     ui->menuEdit->addAction(editGUI);
 
 
@@ -880,4 +883,49 @@ void MainWindow::startReloader()
         addMessageToInfoList("error: Ошибка открытия файла " + path);
     }
 
+}
+
+void MainWindow::loadSysFramRelk6()
+{
+    QStringList prevProjects = getPrevProjects();
+    QString path = "/";
+    if(prevProjects.count()) {
+        if(QFile::exists(prevProjects.at(0))) {
+            QFileInfo fInfo(prevProjects.at(0));
+            path = fInfo.absolutePath();
+        }
+    }
+    QString fName = QFileDialog::getOpenFileName(this, tr("Импорт зав. установок"),
+                                                    path,
+                                                    tr("Relkon 6.x project (*.rp6 )"));
+    if(!fName.isEmpty()) {
+        QDomDocument doc;
+        QFile file(fName);
+        if(file.open(QIODevice::ReadOnly)) {
+            bool updFlag = false;
+            if(doc.setContent(&file)) {
+                QDomNodeList vars = doc.elementsByTagName("ControllerVar");
+                for(int i=0;i<vars.count();i++) {
+                    QDomNode n = vars.item(i);
+                    QDomElement e = n.toElement();
+                    if(!e.isNull()) {
+                        QString name = e.attribute("Name");
+                        QString value = e.attribute("Value");
+                        QRegExp exp("^EE(\\d+)$");
+                        if(exp.indexIn(name)!=-1) {
+                            int num = exp.cap(1).toInt();
+                            unsigned char ucValue = value.toUInt();
+                            if(num<SettingsBase::getCount()) {
+                                settings->updateOnyByte(num,ucValue);
+                                updFlag = true;
+                            }
+                        }
+                    }
+                }
+                if(updFlag) settings->updateTable();
+                else QMessageBox::information(this,"Сообщение","Не найдено данных для обновления");
+            }
+            file.close();
+        }else QMessageBox::information(this,"Ошибка","Не удалось открыть файл");
+    }
 }
