@@ -24,5 +24,11 @@
         <file>about.ico</file>
         <file>reloader.ico</file>
         <file>database.ico</file>
+        <file>contract.ico</file>
+        <file>expand.ico</file>
+        <file>info.ico</file>
+        <file>Search.ico</file>
+        <file>readData.png</file>
+        <file>writeData.png</file>
     </qresource>
 </RCC>

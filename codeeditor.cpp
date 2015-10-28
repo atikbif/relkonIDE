@@ -187,6 +187,40 @@ void CodeEditor::getCmdFromChildWidget(QString code, int value)
     scanBlocksNums();
 }
 
+void CodeEditor::foldAll()
+{
+    QTextBlock block = document()->findBlockByNumber(0);
+    while(block.isValid()) {
+        QRegExp rExp1("\\s*#PROCESS\\s+\\d+\\b");
+        QRegExp rExp2("\\s*#DATA\\b");
+        if(block.text().contains(rExp1) || block.text().contains(rExp2)) {
+            if(block.next().isValid()) {
+                if(block.next().isVisible()) {
+                    toggleFolding(block);
+                }
+            }
+        }
+        block = block.next();
+    }
+}
+
+void CodeEditor::unfoldAll()
+{
+    QTextBlock block = document()->findBlockByNumber(0);
+    while(block.isValid()) {
+        QRegExp rExp1("\\s*#PROCESS\\s+\\d+\\b");
+        QRegExp rExp2("\\s*#DATA\\b");
+        if(block.text().contains(rExp1) || block.text().contains(rExp2)) {
+            if(block.next().isValid()) {
+                if(!block.next().isVisible()) {
+                    toggleFolding(block);
+                }
+            }
+        }
+        block = block.next();
+    }
+}
+
 /* сворачивание/разворачивание текстового блока */
 void CodeEditor::toggleFolding(QTextBlock &block)
 {

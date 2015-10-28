@@ -51,9 +51,11 @@ void MainWindow::updatePrevProjects(const QStringList &prNames)
 
     ui->menuFile->addAction(newAct);
     ui->menuFile->addAction(openAct);
-    ui->menuFile->addAction(importPultAct);
     ui->menuFile->addAction(saveAct);
     ui->menuFile->addAction(saveAsAct);
+    QMenu *impMenu = ui->menuFile->addMenu("Import");
+    impMenu->addAction(importPultAct);
+    impMenu->addAction(openSysFramFromRelkon6);
     QMenu* recPr = new QMenu("Недавние проекты");
     ui->menuFile->addMenu(recPr);
     foreach(QString name, resList) {
@@ -84,6 +86,7 @@ int MainWindow::openFileByName(const QString &fName)
         editor->setDisabled(true);
         editor->appendPlainText(in.readAll());
         editor->setEnabled(true);
+        editor->foldAll();
 
         QTextCursor tmpCursor = editor->textCursor();
         tmpCursor.setVisualNavigation(true);
@@ -100,12 +103,14 @@ int MainWindow::openFileByName(const QString &fName)
             settings->openSettings();
         }
         editor->document()->clearUndoRedoStacks();
+
         repaint();
         varOwner->generateVarsTree();
         emit openProject();
 
         //QThread::msleep(500);
         on_closeInfoListButton_clicked();
+
         return 1;
     }
     addMessageToInfoList(QDateTime::currentDateTime().time().toString() + " :error - Ошибка открытия файла");
@@ -146,7 +151,7 @@ void MainWindow::saveFileByName(const QString &fName)
 
 void MainWindow::activateInfoPanel()
 {
-    ui->listWidget->clear();
+    //ui->listWidget->clear();
     ui->listWidget->setVisible(true);
     ui->closeInfoListButton->setVisible(true);
     ui->horizontalSpacer->changeSize(1,1, QSizePolicy::Expanding, QSizePolicy::Fixed);
@@ -287,8 +292,8 @@ void MainWindow::createToolbar()
     undoAct = new QAction(QIcon("://undo_32.ico"), "Отменить операцию", this);
     redoAct = new QAction(QIcon("://redo_32.ico"), "Повторить отменённую операцию", this);
     srchAct = new QAction(QIcon("://srch_32.ico"), "Искать текст", this);
-    buildAct = new QAction(QIcon("://build_32.ico"), "Собрать проект", this);
-    toPlcAct = new QAction(QIcon("://toPLC_32.ico"), "Загрузить проект в контроллер", this);
+    buildAct = new QAction(QIcon("://build_32.ico"), "Собрать проект F5", this);
+    toPlcAct = new QAction(QIcon("://toPLC_32.ico"), "Загрузить проект в контроллер F7", this);
     editGUI = new QAction(QIcon("://config.ico"), "Настройки среды", this);
 
     connect(newAct, SIGNAL(triggered()), this, SLOT(newFile()));
@@ -315,14 +320,22 @@ void MainWindow::createToolbar()
 
     QAction *toTableAction = new QAction(QIcon("://table.ico"), "пульт > настройки", this);
     //QAction *fromTableAction = new QAction(QIcon("://display.ico"), "настройки > пульт", this);
-    ui->menuCmd->addAction(toTableAction);
+
     //ui->menuCmd->addAction(fromTableAction);
     connect(toTableAction,SIGNAL(triggered()),this,SLOT(lcdToTable()));
     //connect(fromTableAction,SIGNAL(triggered()),this,SLOT(tableToLcd()));
-    QAction *openSysFramFromRelkon6 = new QAction(QIcon("://database.ico"), "Загрузить зав. установки из Relkon 6.x", this);
-    connect(openSysFramFromRelkon6,SIGNAL(triggered(bool)),this,SLOT(loadSysFramRelk6()));
-    ui->menuCmd->addAction(openSysFramFromRelkon6);
-    ui->menuEdit->addAction(editGUI);
+    ui->menuCmd->addAction(buildAct);
+    ui->menuCmd->addAction(toPlcAct);
+    QAction *wrSettings = new QAction(QIcon("://writeData.png"),"Записать настройки F8",this);
+    QAction *rdSettings = new QAction(QIcon("://readData.png"),"Прочитать настройки F9",this);
+    connect(wrSettings,SIGNAL(triggered(bool)),this,SIGNAL(wrSysFram()));
+    connect(rdSettings,SIGNAL(triggered(bool)),this,SIGNAL(rdSysFram()));
+    ui->menuCmd->addAction(wrSettings);
+    ui->menuCmd->addAction(rdSettings);
+    ui->menuCmd->addAction(toTableAction);
+
+
+
 
 
     textForSearch = new QLineEdit("");
@@ -422,6 +435,23 @@ MainWindow::MainWindow(QWidget *parent) :
 
     createToolbar();
 
+    openSysFramFromRelkon6 = new QAction(QIcon("://database.ico"), "Загрузить зав. установки из Relkon 6.x", this);
+    connect(openSysFramFromRelkon6,SIGNAL(triggered(bool)),this,SLOT(loadSysFramRelk6()));
+
+    QAction *foldAction = new QAction(QIcon("://contract.ico"),"свернуть всё",this);
+    connect(foldAction,SIGNAL(triggered(bool)),editor,SLOT(foldAll()));
+    QAction *unfoldAction = new QAction(QIcon("://expand.ico"),"развернуть всё",this);
+    connect(unfoldAction,SIGNAL(triggered(bool)),editor,SLOT(unfoldAll()));
+    QAction *searchAct = new QAction(QIcon("://Search.ico"),"Поиск/Замена ...",this);
+    connect(searchAct,SIGNAL(triggered(bool)),this,SLOT(searchText()));
+    ui->menuEdit->addAction(searchAct);
+    ui->menuEdit->addAction(foldAction);
+    ui->menuEdit->addAction(unfoldAction);
+    QAction *sysMessAction = new QAction(QIcon("://info.ico"),"Системные сообщения", this);
+    connect(sysMessAction,SIGNAL(triggered(bool)),this,SLOT(activateInfoPanel()));
+    ui->menuEdit->addAction(sysMessAction);
+    ui->menuEdit->addAction(editGUI);
+
     QStringList prNames = getPrevProjects();
     if(prNames.count()) {
         updatePrevProjects(prNames);
@@ -432,6 +462,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->tabWidget->tabBar()->setFont(QFont("Courier",12,QFont::Normal,false));
     ui->tabWidget->addTab(editor,"Редактор");
     editor->setFocus();
+
 
     varOwner = new VarsCreator();
     settings = new SettingsForm();
@@ -623,6 +654,7 @@ void MainWindow::searchText()
 void MainWindow::buildPr()
 {
     saveFile();
+    ui->listWidget->clear();
     activateInfoPanel();
 
     if(ui->listWidget->isVisible()) {

@@ -36,6 +36,9 @@ private slots:
     void updateLineNumberArea(const QRect &rect, int dy);
     void scanFolding(void);
     void getCmdFromChildWidget(QString code,int value);
+public slots:
+    void foldAll(void);
+    void unfoldAll(void);
 
 
 private:

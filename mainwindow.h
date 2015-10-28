@@ -39,7 +39,7 @@ class MainWindow : public QMainWindow
     void updatePrevProjects(const QStringList &prNames);
     int openFileByName(const QString &fName);
     void saveFileByName(const QString &fName);
-    void activateInfoPanel(void);
+
     int saveWarning(void);
 
     bool prChangedFlag = false;
@@ -85,6 +85,7 @@ private:
     QAction *importPultAct;
     QAction *editGUI;
     QAction *helpBrAct;
+    QAction *openSysFramFromRelkon6;
 
 
 private slots:
@@ -114,6 +115,8 @@ private slots:
     void editIDESettings(void);
     void startReloader(void);
     void loadSysFramRelk6(void);
+    void activateInfoPanel(void);
+
 
 public slots:
     void addMessageToInfoList(const QString &message);

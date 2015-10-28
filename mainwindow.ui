@@ -160,7 +160,7 @@
    </widget>
    <widget class="QMenu" name="menuCmd">
     <property name="title">
-     <string>Инструменты</string>
+     <string>Проект</string>
     </property>
    </widget>
    <widget class="QMenu" name="menuUtil">
