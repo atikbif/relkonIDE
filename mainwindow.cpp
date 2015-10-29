@@ -637,12 +637,24 @@ void MainWindow::searchCmd(const SearchData &sData)
     if(sData.getSearchRegion()==SearchData::BACKWARD) flags |= QTextDocument::FindBackward;
 
     QTextCursor highlightCursor = editor->textCursor();
-
-    highlightCursor = editor->document()->find(sData.getSearchText(), highlightCursor, flags);
+    highlightCursor = editor->document()->find(sData.getSearchText() , highlightCursor, flags);
     while(!highlightCursor.isNull()) {
         int blNum = highlightCursor.blockNumber();
-        QString strText = QString::number(blNum+1) + ": " + editor->document()->findBlockByNumber(blNum).text();
-        sList << strText;
+        QString strText = editor->document()->findBlockByNumber(blNum).text();
+        if(sData.getWholeWord()) {
+            QString exprStr = strText;
+            QString searchText = sData.getSearchText();
+            if(!sData.getCaseSensivity()) {
+                exprStr = exprStr.toLower();
+                searchText = searchText.toLower();
+            }
+            QRegExp exp("\\b"+ searchText + "\\b");
+            if(exp.indexIn(exprStr)==-1) strText="";
+        }
+        if(!strText.isEmpty()) {
+            strText = QString::number(blNum+1) + ": " + strText;
+            sList << strText;
+        }
         highlightCursor = editor->document()->find(sData.getSearchText(), highlightCursor, flags);
     }
     emit searchRes(sList);

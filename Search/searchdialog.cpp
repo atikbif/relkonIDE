@@ -46,6 +46,7 @@ void SearchDialog::on_pushButtonSearch_clicked()
         sData.setSearchRegion(ui->radioButtonForward->isChecked()?SearchData::FORWARD:SearchData::BACKWARD);
         emit startSearch(sData);
     }
+    ui->listWidget->setFocus();
 }
 
 void SearchDialog::on_pushButtonReplace_clicked()
@@ -53,6 +54,7 @@ void SearchDialog::on_pushButtonReplace_clicked()
     if(!ui->lineEditReplace->text().isEmpty()) {
         emit replace(ui->lineEditReplace->text());
     }
+    ui->listWidget->setFocus();
 }
 
 void SearchDialog::on_listWidget_itemDoubleClicked(QListWidgetItem *item)
@@ -76,15 +78,18 @@ void SearchDialog::keyPressEvent(QKeyEvent *event)
     case Qt::Key_H:
         if(event->modifiers()==Qt::ControlModifier)
             on_pushButtonReplace_clicked();
+        ui->listWidget->setFocus();
         break;
     case Qt::Key_F:
         if(event->modifiers()==Qt::ControlModifier)
             on_pushButtonSearch_clicked();
+        ui->listWidget->setFocus();
         break;
     case Qt::Key_Return:
         QListWidgetItem *item = ui->listWidget->currentItem();
         if(item!=nullptr) on_listWidget_itemDoubleClicked(item);
+        ui->listWidget->setFocus();
         break;
     }
-    ui->listWidget->setFocus();
+
 }
