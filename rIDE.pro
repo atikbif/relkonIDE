@@ -100,7 +100,9 @@ SOURCES += main.cpp\
     LCD/pultvardefinition.cpp \
     dialogeditguisettings.cpp \
     Help/helpbrowser.cpp \
-    Help/aboutdialog.cpp
+    Help/aboutdialog.cpp \
+    Search/searchdialog.cpp \
+    Search/searchdata.cpp
 
 HEADERS  += mainwindow.h \
     codeeditor.h \
@@ -176,7 +178,9 @@ HEADERS  += mainwindow.h \
     LCD/pultvardefinition.h \
     dialogeditguisettings.h \
     Help/helpbrowser.h \
-    Help/aboutdialog.h
+    Help/aboutdialog.h \
+    Search/searchdialog.h \
+    Search/searchdata.h
 
 FORMS    += mainwindow.ui \
     settingsform.ui \
@@ -187,7 +191,8 @@ FORMS    += mainwindow.ui \
     Debugger/dialogwritevar.ui \
     LCD/lcdform.ui \
     dialogeditguisettings.ui \
-    Help/aboutdialog.ui
+    Help/aboutdialog.ui \
+    Search/searchdialog.ui
 
 RESOURCES += \
     icons.qrc \

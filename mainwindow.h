@@ -11,6 +11,7 @@
 #include "VarDef/varscreator.h"
 #include "LCD/lcdform.h"
 #include "Help/helpbrowser.h"
+#include "Search/searchdata.h"
 
 
 namespace Ui {
@@ -69,10 +70,10 @@ signals:
     void updTree(void);
     void wrSysFram(void);
     void rdSysFram(void);
+    void searchRes(const QStringList &sList);
 
 private:
     Ui::MainWindow *ui;
-    QLineEdit* textForSearch;
     QAction* undoAct;
     QAction* redoAct;
     QAction* srchAct;
@@ -96,6 +97,9 @@ private slots:
     void undo(void);
     void redo(void);
     void searchText(void);
+    void searchCmd(const SearchData &sData);
+    void goToStr(int strNum, const SearchData &sData);
+    void replaceTxt(const QString &newTxt);
     void buildPr(void);
     void projectToPlc(void);
     void on_closeInfoListButton_clicked();

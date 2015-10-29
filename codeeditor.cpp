@@ -2,6 +2,7 @@
 #include <QPainter>
 #include <QTextBlock>
 #include "leftverticalwidget.h"
+#include <QPalette>
 
 
 /* определение и сохранение номеров текстовых блоков и их координат по вертикали */
@@ -45,6 +46,12 @@ CodeEditor::CodeEditor(QWidget *parent): QPlainTextEdit(parent)
     highlightCurrentLine();
     scanBlocksNums();
     scanFolding();
+
+    QPalette p = palette();
+    p.setColor(QPalette::Highlight, QColor("black"));
+    p.setColor(QPalette::HighlightedText, QColor("yellow"));
+    setPalette(p);
+
 }
 
 void CodeEditor::lineNumberAreaPaintEvent(QPaintEvent *event)

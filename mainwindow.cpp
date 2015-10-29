@@ -28,6 +28,7 @@
 #include "dialogeditguisettings.h"
 #include "Help/aboutdialog.h"
 #include <QProcess>
+#include "Search/searchdialog.h"
 
 
 
@@ -334,13 +335,6 @@ void MainWindow::createToolbar()
     ui->menuCmd->addAction(rdSettings);
     ui->menuCmd->addAction(toTableAction);
 
-
-
-
-
-    textForSearch = new QLineEdit("");
-    textForSearch->setSizePolicy(QSizePolicy::Minimum,QSizePolicy::Minimum);
-    ui->mainToolBar->addWidget(textForSearch);
     ui->mainToolBar->addSeparator();
     ui->mainToolBar->addAction(buildAct);
     ui->mainToolBar->addSeparator();
@@ -442,9 +436,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(foldAction,SIGNAL(triggered(bool)),editor,SLOT(foldAll()));
     QAction *unfoldAction = new QAction(QIcon("://expand.ico"),"развернуть всё",this);
     connect(unfoldAction,SIGNAL(triggered(bool)),editor,SLOT(unfoldAll()));
-    QAction *searchAct = new QAction(QIcon("://Search.ico"),"Поиск/Замена ...",this);
-    connect(searchAct,SIGNAL(triggered(bool)),this,SLOT(searchText()));
-    ui->menuEdit->addAction(searchAct);
+    ui->menuEdit->addAction(srchAct);
     ui->menuEdit->addAction(foldAction);
     ui->menuEdit->addAction(unfoldAction);
     QAction *sysMessAction = new QAction(QIcon("://info.ico"),"Системные сообщения", this);
@@ -456,7 +448,6 @@ MainWindow::MainWindow(QWidget *parent) :
     if(prNames.count()) {
         updatePrevProjects(prNames);
     }
-    connect(textForSearch,SIGNAL(returnPressed()),this,SLOT(searchText()));
 
     ui->tabWidget->clear();
     ui->tabWidget->tabBar()->setFont(QFont("Courier",12,QFont::Normal,false));
@@ -626,28 +617,75 @@ void MainWindow::redo()
 
 void MainWindow::searchText()
 {
+    if(SearchDialog::getCnt()==0) {
+        SearchDialog *dialog = new SearchDialog(this);
+        connect(dialog,SIGNAL(finished(int)),dialog,SLOT(deleteLater()));
+        connect(dialog,SIGNAL(startSearch(SearchData)),this,SLOT(searchCmd(SearchData)));
+        connect(this,SIGNAL(searchRes(QStringList)),dialog,SLOT(getResult(QStringList)));
+        connect(dialog,SIGNAL(goToStr(int,SearchData)),this,SLOT(goToStr(int,SearchData)));
+        connect(dialog,SIGNAL(replace(QString)),this,SLOT(replaceTxt(QString)));
+        dialog->show();
+    }
+}
+
+void MainWindow::searchCmd(const SearchData &sData)
+{
+    QStringList sList;
+    QTextDocument::FindFlags flags;
+    if(sData.getCaseSensivity()) flags |= QTextDocument::FindCaseSensitively;
+    if(sData.getWholeWord()) flags |= QTextDocument::FindWholeWords;
+    if(sData.getSearchRegion()==SearchData::BACKWARD) flags |= QTextDocument::FindBackward;
+
     QTextCursor highlightCursor = editor->textCursor();
 
-    highlightCursor = editor->document()->find(textForSearch->text(), highlightCursor, QTextDocument::FindWholeWords);
+    highlightCursor = editor->document()->find(sData.getSearchText(), highlightCursor, flags);
+    while(!highlightCursor.isNull()) {
+        int blNum = highlightCursor.blockNumber();
+        QString strText = QString::number(blNum+1) + ": " + editor->document()->findBlockByNumber(blNum).text();
+        sList << strText;
+        highlightCursor = editor->document()->find(sData.getSearchText(), highlightCursor, flags);
+    }
+    emit searchRes(sList);
+}
 
-    if (!highlightCursor.isNull()) {
-        QTextCursor startPosCursor = highlightCursor;
-        highlightCursor.movePosition(QTextCursor::WordRight,
-                            QTextCursor::KeepAnchor);
-
-        QTextBlock block = startPosCursor.block();
-        if(!block.isVisible()) {
-            while(!block.isVisible()) {
-                block = block.previous();
-                if(block.isValid()) {
-                    if(block.isVisible()) {
-                        editor->toggleFolding(block);
-                        break;
-                    }
+void MainWindow::goToStr(int strNum, const SearchData &sData)
+{
+    QTextBlock bl = editor->document()->findBlockByNumber(strNum);
+    QTextBlock block = bl;
+    if(!block.isVisible()) {
+        while(!block.isVisible()) {
+            block = block.previous();
+            if(block.isValid()) {
+                if(block.isVisible()) {
+                    editor->toggleFolding(block);
+                    break;
                 }
             }
         }
-        editor->setTextCursor(startPosCursor);
+    }
+    QTextCursor highlightCursor(bl);
+    editor->setTextCursor(highlightCursor);
+    QTextDocument::FindFlags flags;
+    if(sData.getCaseSensivity()) flags |= QTextDocument::FindCaseSensitively;
+    if(sData.getWholeWord()) flags |= QTextDocument::FindWholeWords;
+    highlightCursor = editor->document()->find(sData.getSearchText(), highlightCursor, flags);
+    if (!highlightCursor.isNull()) {
+        int blNum = highlightCursor.blockNumber();
+        if(blNum==strNum) {
+            QTextCursor startPosCursor = highlightCursor;
+            highlightCursor.movePosition(QTextCursor::WordRight,
+                                QTextCursor::KeepAnchor);
+            editor->setTextCursor(startPosCursor);
+        }
+    }
+
+}
+
+void MainWindow::replaceTxt(const QString &newTxt)
+{
+    QTextCursor curs = editor->textCursor();
+    if(!curs.selectedText().isEmpty()) {
+        curs.insertText(newTxt);
     }
 }
 
@@ -778,7 +816,6 @@ void MainWindow::on_tabWidget_currentChanged(int index)
         redoAct->setEnabled(false);
         srchAct->setEnabled(false);
         buildAct->setEnabled(false);
-        textForSearch->setEnabled(false);
         if(index==2) {
             debugger->tabChanged();
         }
@@ -791,7 +828,6 @@ void MainWindow::on_tabWidget_currentChanged(int index)
         redoAct->setEnabled(true);
         srchAct->setEnabled(true);
         buildAct->setEnabled(true);
-        textForSearch->setEnabled(true);
     }
 }
 
