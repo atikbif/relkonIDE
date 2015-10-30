@@ -25,6 +25,7 @@ public:
 
     void lineNumberAreaPaintEvent(QPaintEvent *event);
     int lineNumberAreaWidth();
+    QString getSelectedText(void);
 
 protected:
     void resizeEvent(QResizeEvent *event);

@@ -191,17 +191,20 @@ void DebuggerForm::treeBuilder(const QString &varID, QTreeWidgetItem &item)
         if(iter->down()){
             for(int i=0;i<iter->getItemCount();i++) {
                 QString curPos = iter->currentID();
-                QTreeWidgetItem* curItem = new QTreeWidgetItem(&item);
-                curItem->setText(0,varOwner.getVarByID(curPos).getName());
-                curItem->setText(1,varOwner.getVarByID(curPos).getDataType());
-                if(item.toolTip(0).isEmpty())
-                curItem->setToolTip(0,item.text(0)+"."+curItem->text(0));
-                else curItem->setToolTip(0,item.toolTip(0)+"."+curItem->text(0));
-                if(iter->isNode()) {
-                    treeBuilder(curPos,*curItem);
-                    iter->goToID(curPos);
+                QString name = varOwner.getVarByID(curPos).getName();
+                if(name!="TIME") {
+                    QTreeWidgetItem* curItem = new QTreeWidgetItem(&item);
+                    curItem->setText(0,name);
+                    curItem->setText(1,varOwner.getVarByID(curPos).getDataType());
+                    if(item.toolTip(0).isEmpty())
+                    curItem->setToolTip(0,item.text(0)+"."+curItem->text(0));
+                    else curItem->setToolTip(0,item.toolTip(0)+"."+curItem->text(0));
+                    if(iter->isNode()) {
+                        treeBuilder(curPos,*curItem);
+                        iter->goToID(curPos);
+                    }
+                    else idWidgetItem.insert(curPos,curItem);
                 }
-                else idWidgetItem.insert(curPos,curItem);
                 iter->next();
             }
         }
@@ -233,7 +236,8 @@ DebuggerForm::DebuggerForm(VarsCreator &vCr, QWidget *parent) :
     connect(ui->pushButtonSaveInp,SIGNAL(clicked(bool)),this,SLOT(saveInputs()));
 
     buildIO();
-
+    ui->lineEditTime->setInputMask("99:99:99    99:99:99");
+    ui->lineEditTime->setText("00:00:00 01:01:00");
 }
 
 DebuggerForm::~DebuggerForm()
@@ -381,6 +385,7 @@ void DebuggerForm::getMessageFromDebugProcess(QString message)
 
 void DebuggerForm::getTimeStr(QString timeStr)
 {
+    if(!ui->lineEditTime->hasFocus())
     ui->lineEditTime->setText(timeStr);
 }
 
@@ -1000,5 +1005,50 @@ void DebuggerForm::saveInputs()
             stream << maiData;
             file.close();
         }else QMessageBox::warning(this,"Предупреждение","Не удалось сохранить файл");
+    }
+}
+
+void DebuggerForm::on_lineEditTime_returnPressed()
+{
+    VarItem var;
+    var.setMemAddress(0);
+    var.setMemType(MemStorage::timeMemName);
+    var.setDataType(VarItem::timeType);
+
+    QString timeStr = ui->lineEditTime->text();
+    QRegExp exp("^(\\d\\d):(\\d\\d):(\\d\\d)[\\t\\s]+(\\d\\d):(\\d\\d):(\\d\\d)");
+    if(exp.indexIn(timeStr)!=-1) {
+        int hours = exp.cap(1).toInt();
+        int mins = exp.cap(2).toInt();
+        int secs = exp.cap(3).toInt();
+        int date = exp.cap(4).toInt();
+        int month = exp.cap(5).toInt();
+        int year = exp.cap(6).toInt();
+        if((hours<0)||(hours>23)) hours = 0;
+        if((mins<0)||(mins>59)) mins = 0;
+        if((secs<0)||(secs>59)) secs = 0;
+        if((date<1)||(date>31)) date = 1;
+        if((month<1)||(month>12)) month=1;
+        if((year<0)||(year>99)) year=0;
+
+        QByteArray timeData;
+
+        timeData += secs;
+        timeData += mins;
+        timeData += hours;
+        timeData += 1;// day of week
+        timeData += date;
+        timeData += month;
+        timeData += year;
+
+        QString strData;
+        for(int i=0;i<timeData.count();i++) {
+           // приведение данных к формату ПЛК
+           unsigned char tmp = timeData.at(i)%10 + ((timeData.at(i)/10)<<4);
+           strData += QString::number(tmp) + " ";
+        }
+        var.setValue(strData);
+        scheduler.addWriteOperation(var);
+        ui->treeWidgetWatch->setFocus();
     }
 }

@@ -103,6 +103,8 @@ private slots:
     void openInputs(void);
     void saveInputs(void);
 
+    void on_lineEditTime_returnPressed();
+
 public slots:
     void on_updateButton_clicked(); // запрос обновления деревьев
     void openProject(void);

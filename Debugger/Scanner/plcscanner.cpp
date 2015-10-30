@@ -56,7 +56,16 @@ void PLCScanner::startReq(QIODevice &port)
             QString minStr = QString::number(mins);if(minStr.size()<2) minStr = "0"+minStr;
             int hours = (req.getRdData().at(2) & 0x0F) + 10*(req.getRdData().at(2)>>4);
             QString hourStr = QString::number(hours);if(hourStr.size()<2) hourStr = "0"+hourStr;
-            QString plcTime = hourStr + ":" + minStr + ":" + secStr;
+
+            int date = (req.getRdData().at(4) & 0x0F) + 10*(req.getRdData().at(4)>>4);
+            QString dateStr = QString::number(date);if(dateStr.size()<2) dateStr = "0"+dateStr;
+            int month = (req.getRdData().at(5) & 0x0F) + 10*(req.getRdData().at(5)>>4);
+            QString monthStr = QString::number(month);if(monthStr.size()<2) monthStr = "0"+monthStr;
+            int year = (req.getRdData().at(6) & 0x0F) + 10*(req.getRdData().at(6)>>4);
+            QString yearStr = QString::number(year);if(yearStr.size()<2) yearStr = "0"+yearStr;
+
+            QString plcTime = hourStr + ":" + minStr + ":" + secStr +
+                    "   " + dateStr+":"+monthStr+":"+yearStr;
             emit updateTimeStr(plcTime);
         }else
         {

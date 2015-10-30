@@ -157,8 +157,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>98</width>
-            <height>28</height>
+            <width>682</width>
+            <height>509</height>
            </rect>
           </property>
          </widget>
@@ -180,8 +180,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>98</width>
-            <height>28</height>
+            <width>271</width>
+            <height>509</height>
            </rect>
           </property>
          </widget>
@@ -549,7 +549,7 @@
                </sizepolicy>
               </property>
               <property name="readOnly">
-               <bool>true</bool>
+               <bool>false</bool>
               </property>
              </widget>
             </item>
@@ -565,7 +565,7 @@
                </sizepolicy>
               </property>
               <property name="text">
-               <string>Синхр.</string>
+               <string>Синхр. с ПК</string>
               </property>
              </widget>
             </item>

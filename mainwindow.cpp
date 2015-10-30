@@ -618,7 +618,7 @@ void MainWindow::redo()
 void MainWindow::searchText()
 {
     if(SearchDialog::getCnt()==0) {
-        SearchDialog *dialog = new SearchDialog(this);
+        SearchDialog *dialog = new SearchDialog(editor->getSelectedText(),this);
         connect(dialog,SIGNAL(finished(int)),dialog,SLOT(deleteLater()));
         connect(dialog,SIGNAL(startSearch(SearchData)),this,SLOT(searchCmd(SearchData)));
         connect(this,SIGNAL(searchRes(QStringList)),dialog,SLOT(getResult(QStringList)));
@@ -774,6 +774,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
         emit rdSysFram();
         break;
     }
+
 }
 
 void MainWindow::on_closeInfoListButton_clicked()

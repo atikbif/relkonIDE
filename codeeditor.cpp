@@ -52,6 +52,7 @@ CodeEditor::CodeEditor(QWidget *parent): QPlainTextEdit(parent)
     p.setColor(QPalette::HighlightedText, QColor("yellow"));
     setPalette(p);
 
+    //setCenterOnScroll(true);
 }
 
 void CodeEditor::lineNumberAreaPaintEvent(QPaintEvent *event)
@@ -71,6 +72,12 @@ int CodeEditor::lineNumberAreaWidth()
 
     int space = 3 + fontMetrics().width(QLatin1Char('9')) * (digits+2);
     return space;
+}
+
+QString CodeEditor::getSelectedText()
+{
+    QTextCursor curs = textCursor();
+    return curs.selectedText();
 }
 
 void CodeEditor::resizeEvent(QResizeEvent *event)

@@ -14,9 +14,10 @@ class SearchDialog : public QDialog
 {
     Q_OBJECT
     static int cnt;
+    static QStringList hist;
 public:
     static int getCnt(void) {return cnt;}
-    explicit SearchDialog(QWidget *parent = 0);
+    explicit SearchDialog(QString inp="",QWidget *parent = 0);
     ~SearchDialog();
 signals:
     void startSearch(const SearchData &sInfo);
@@ -30,6 +31,7 @@ private slots:
     void on_pushButtonReplace_clicked();
 
     void on_listWidget_itemDoubleClicked(QListWidgetItem *item);
+
 
 private:
     Ui::SearchDialog *ui;

@@ -2,11 +2,11 @@
 #include "ui_searchdialog.h"
 #include <QMessageBox>
 #include <QKeyEvent>
-#include <QClipboard>
 
 int SearchDialog::cnt = 0;
+QStringList SearchDialog::hist = QStringList();
 
-SearchDialog::SearchDialog(QWidget *parent) :
+SearchDialog::SearchDialog(QString inp, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::SearchDialog)
 {
@@ -14,8 +14,17 @@ SearchDialog::SearchDialog(QWidget *parent) :
     ui->radioButtonForward->setChecked(true);
     cnt++;
     ui->listWidget->setFocus();
-    QClipboard *clipboard = QApplication::clipboard();
-    ui->lineEditSearch->setText(clipboard->text());
+
+    QListIterator<QString> itr (hist);
+    itr.toBack();
+    while(itr.hasPrevious()) {
+        QString current = itr.previous();
+        ui->comboBoxSearch->addItem(current);
+    }
+    if(!inp.isEmpty()) {
+        ui->comboBoxSearch->setCurrentText(inp);
+    }
+    ui->comboBoxSearch->setInsertPolicy(QComboBox::InsertAtTop);
 }
 
 SearchDialog::~SearchDialog()
@@ -37,16 +46,21 @@ void SearchDialog::getResult(const QStringList &list)
 
 void SearchDialog::on_pushButtonSearch_clicked()
 {
-    if(!ui->lineEditSearch->text().isEmpty()) {
+    if(!ui->comboBoxSearch->currentText().isEmpty()) {
+        hist.removeAll(ui->comboBoxSearch->currentText());
+        hist.append(ui->comboBoxSearch->currentText());
+        //ui->comboBoxSearch->insertItem(0,ui->comboBoxSearch->currentText());
         SearchData sData;
-        sData.setSearchText(ui->lineEditSearch->text());
+        sData.setSearchText(ui->comboBoxSearch->currentText());
         sData.setReplaceText("");
         sData.setCaseSensivity(ui->checkBoxCaseSens->isChecked());
         sData.setWholeWord(ui->checkBoxWholeWord->isChecked());
         sData.setSearchRegion(ui->radioButtonForward->isChecked()?SearchData::FORWARD:SearchData::BACKWARD);
         emit startSearch(sData);
+        QListWidgetItem *item = ui->listWidget->currentItem();
+        if(item!=nullptr) on_listWidget_itemDoubleClicked(item);
+        ui->listWidget->setFocus();
     }
-    ui->listWidget->setFocus();
 }
 
 void SearchDialog::on_pushButtonReplace_clicked()
@@ -60,7 +74,7 @@ void SearchDialog::on_pushButtonReplace_clicked()
 void SearchDialog::on_listWidget_itemDoubleClicked(QListWidgetItem *item)
 {
     SearchData sData;
-    sData.setSearchText(ui->lineEditSearch->text());
+    sData.setSearchText(ui->comboBoxSearch->currentText());
     sData.setReplaceText("");
     sData.setCaseSensivity(ui->checkBoxCaseSens->isChecked());
     sData.setWholeWord(ui->checkBoxWholeWord->isChecked());
@@ -86,6 +100,10 @@ void SearchDialog::keyPressEvent(QKeyEvent *event)
         ui->listWidget->setFocus();
         break;
     case Qt::Key_Return:
+        if(ui->comboBoxSearch->hasFocus()) {
+            on_pushButtonSearch_clicked();
+            ui->listWidget->setFocus();
+        }
         QListWidgetItem *item = ui->listWidget->currentItem();
         if(item!=nullptr) on_listWidget_itemDoubleClicked(item);
         ui->listWidget->setFocus();
@@ -93,3 +111,4 @@ void SearchDialog::keyPressEvent(QKeyEvent *event)
     }
 
 }
+

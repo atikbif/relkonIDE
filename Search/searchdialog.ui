@@ -18,15 +18,21 @@
     <normaloff>:/srch_32.ico</normaloff>:/srch_32.ico</iconset>
   </property>
   <layout class="QGridLayout" name="gridLayout_2">
-   <item row="0" column="0">
-    <widget class="QLineEdit" name="lineEditSearch"/>
-   </item>
    <item row="0" column="1">
     <widget class="QPushButton" name="pushButtonSearch">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <property name="text">
-      <string>Найти (Ctrl + F)</string>
+      <string>Найти (Ctrl+F)</string>
      </property>
     </widget>
+   </item>
+   <item row="0" column="3">
+    <widget class="QLineEdit" name="lineEditReplace"/>
    </item>
    <item row="0" column="2">
     <spacer name="horizontalSpacer_3">
@@ -41,17 +47,17 @@
      </property>
     </spacer>
    </item>
-   <item row="0" column="3">
-    <widget class="QLineEdit" name="lineEditReplace"/>
+   <item row="3" column="0" colspan="5">
+    <widget class="QListWidget" name="listWidget"/>
    </item>
    <item row="0" column="4">
     <widget class="QPushButton" name="pushButtonReplace">
      <property name="text">
-      <string>Заменить (Ctrl + H)</string>
+      <string>Заменить (Ctrl+H)</string>
      </property>
     </widget>
    </item>
-   <item row="1" column="0" colspan="5">
+   <item row="2" column="0" colspan="5">
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
       <string/>
@@ -101,8 +107,18 @@
      </layout>
     </widget>
    </item>
-   <item row="2" column="0" colspan="5">
-    <widget class="QListWidget" name="listWidget"/>
+   <item row="0" column="0">
+    <widget class="QComboBox" name="comboBoxSearch">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+       <horstretch>1</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="editable">
+      <bool>true</bool>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>
