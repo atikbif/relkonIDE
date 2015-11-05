@@ -43,7 +43,7 @@ bool ScanUART::scan(QSerialPort &port)
                     CommandInterface* cmdGetName = new GetCanName();
                     if(contr->getAsciiMode()) cmdGetName = new AsciiDecorator(cmdGetName);
                     if(cmdGetName->execute(req,port)) {
-                        contr->setCanName(QString(req.getRdData()));
+                        contr->setCanName(QString(req.getRdData()).remove("Canal:"));
                     }
                     delete cmdGetName;
                 }
