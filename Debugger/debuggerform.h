@@ -17,6 +17,7 @@
 #include "anio.h"
 #include <QGroupBox>
 #include <QCheckBox>
+#include "memviewdescription.h"
 
 namespace Ui {
 class DebuggerForm;
@@ -26,6 +27,9 @@ class DebuggerForm : public QWidget
 {
     Q_OBJECT
 
+    static const unsigned char memViewRowCount = 15;
+    static const unsigned char memViewColumnCount = 30;
+    MemViewDescription *memView;
 
     VarsCreator& varOwner;
     NameSortIterator* iter; // итератор для перемещения по основному дереву
@@ -41,7 +45,8 @@ class DebuggerForm : public QWidget
     VarItem wrVar;      // переменная для записи
     QCheckBox *adc8bit;
 
-
+    void clearMemViewTable(void);
+    void updateMemViewRequests(void);
     void createTree();
     void updateTrees();
     void treeBuilder(const QString& varID, QTreeWidgetItem &item);// построение дерева с узла/переменной с идентификатором varID
@@ -54,6 +59,8 @@ class DebuggerForm : public QWidget
     void buildAIO(void);
     void updateIOVarGUI(const QString &id);
     void updateVarGUI(const QString &id);
+    void updateMemVarGUI(const QString &id);
+
 
 public:
     explicit DebuggerForm(VarsCreator& vCr, QWidget *parent = 0);
@@ -104,6 +111,11 @@ private slots:
     void saveInputs(void);
 
     void on_lineEditTime_returnPressed();
+
+    void on_lineEditMemStartAddr_textChanged(const QString &arg1);
+
+    void on_comboBoxMemType_currentIndexChanged(const QString &arg1);
+    void memViewCellPressed(int r, int c);
 
 public slots:
     void on_updateButton_clicked(); // запрос обновления деревьев

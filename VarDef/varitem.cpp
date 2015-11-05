@@ -41,8 +41,48 @@ int VarItem::getByteCount() const
 
 void VarItem::updateID()
 {
-    QString str = name+memType+dataType+QString::number(memAddress)+QString::number(bitNum);
+    QString str = name+":"+memType+":"+dataType+":"+QString::number(memAddress)+":"+QString::number(bitNum);
     id = str;
+}
+
+QString VarItem::getNameFromID(const QString &id)
+{
+    const int namePos  = 0;
+    QStringList sList = id.split(":");
+    if(sList.count()>=1) return sList.at(namePos);
+    return QString();
+}
+
+QString VarItem::getMemTypeFromID(const QString &id)
+{
+    const int memTypePos  = 1;
+    QStringList sList = id.split(":");
+    if(sList.count()>=2) return sList.at(memTypePos);
+    return QString();
+}
+
+QString VarItem::getVarTypeFromID(const QString &id)
+{
+    const int varTypePos  = 2;
+    QStringList sList = id.split(":");
+    if(sList.count()>=3) return sList.at(varTypePos);
+    return QString();
+}
+
+int VarItem::getMemAddressFromID(const QString &id)
+{
+    const int memAddrPos  = 3;
+    QStringList sList = id.split(":");
+    if(sList.count()>=3) return sList.at(memAddrPos).toInt();
+    return -1;
+}
+
+int VarItem::getBitNumFromID(const QString &id)
+{
+    const int bitPos  = 4;
+    QStringList sList = id.split(":");
+    if(sList.count()>=4) return sList.at(bitPos).toInt();
+    return -1;
 }
 
 VarItem::VarItem(): priority(0), memAddress(0), comment(""),

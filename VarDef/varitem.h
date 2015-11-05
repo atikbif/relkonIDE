@@ -39,6 +39,12 @@ public:
     static const QString doubleType;
     static const QString timeType;
 
+    static QString getNameFromID(const QString &id);
+    static QString getMemTypeFromID(const QString &id);
+    static QString getVarTypeFromID(const QString &id);
+    static int getMemAddressFromID(const QString &id);
+    static int getBitNumFromID(const QString &id);
+
     VarItem();
     const QString& getName() const {return name;}
     void setName(const QString &varName) {name=varName;updateID();}

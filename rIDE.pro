@@ -102,7 +102,8 @@ SOURCES += main.cpp\
     Help/helpbrowser.cpp \
     Help/aboutdialog.cpp \
     Search/searchdialog.cpp \
-    Search/searchdata.cpp
+    Search/searchdata.cpp \
+    Debugger/memviewdescription.cpp
 
 HEADERS  += mainwindow.h \
     codeeditor.h \
@@ -180,7 +181,8 @@ HEADERS  += mainwindow.h \
     Help/helpbrowser.h \
     Help/aboutdialog.h \
     Search/searchdialog.h \
-    Search/searchdata.h
+    Search/searchdata.h \
+    Debugger/memviewdescription.h
 
 FORMS    += mainwindow.ui \
     settingsform.ui \

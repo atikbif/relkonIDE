@@ -160,6 +160,51 @@ void DebuggerForm::tabChanged()
     on_tabWidget_currentChanged(ui->tabWidget->currentIndex());
 }
 
+void DebuggerForm::clearMemViewTable()
+{
+    disconnect(ui->tableWidgetMem,SIGNAL(cellChanged(int,int)),this,SLOT(memViewCellPressed(int,int)));
+    for(int r=0;r<memViewRowCount;r++) {
+        for(int c=0;c<memViewColumnCount;c++) {
+            ui->tableWidgetMem->setItem(r,c,new QTableWidgetItem("   "));
+        }
+    }
+    ui->tableWidgetMem->resizeColumnsToContents();
+    connect(ui->tableWidgetMem,SIGNAL(cellChanged(int,int)),this,SLOT(memViewCellPressed(int,int)));
+}
+
+void DebuggerForm::updateMemViewRequests()
+{
+    scheduler.clear();
+    QString startAddr = ui->lineEditMemStartAddr->text();
+    startAddr = startAddr.toLower();
+    startAddr.remove("0x");
+    bool convRes = false;
+    int addr = startAddr.toInt(&convRes,16);
+    clearMemViewTable();
+    if(convRes) {
+        int maxAddr = addr + memViewColumnCount*memViewRowCount;
+        QString memType;
+        if(memView->getMemType()==MemViewDescription::FRAM) {
+            memType = MemStorage::framMemName;
+            if(!memView->checkAddress(maxAddr)) maxAddr = MemStorage::framMemSize;
+        }
+        if(memView->getMemType()==MemViewDescription::RAM) {
+            memType = MemStorage::ramMemName;
+            if(!memView->checkAddress(maxAddr)) maxAddr = MemStorage::ramMemSize;
+        }
+        for(int i=addr;i<maxAddr;i++) {
+            VarItem var;
+            var.setDataType(VarItem::ucharType);
+            var.setMemType(memType);
+            var.setPriority(1);
+            var.setMemAddress(i);
+            scheduler.addReadOperation(var);
+            memStor.connectCellToID(memType,i,var.getID());
+        }
+    }
+    scheduler.schedule();
+}
+
 void DebuggerForm::createTree()
 {
     ui->treeWidgetMain->clear();
@@ -218,6 +263,10 @@ DebuggerForm::DebuggerForm(VarsCreator &vCr, QWidget *parent) :
     scan = nullptr;
     iter = nullptr;
     ui->setupUi(this);
+
+    memView = new MemViewDescription(memViewRowCount,memViewColumnCount);
+    memView->setMemType(MemViewDescription::FRAM);
+
     ui->tabWidget->tabBar()->setFont(QFont("Courier",12,QFont::Normal,false));
     iter = new NameSortIterator(varOwner.getIDStorage());
     ui->treeWidgetWatch->sortByColumn(0, Qt::AscendingOrder);
@@ -238,6 +287,10 @@ DebuggerForm::DebuggerForm(VarsCreator &vCr, QWidget *parent) :
     buildIO();
     ui->lineEditTime->setInputMask("99:99:99    99:99:99");
     ui->lineEditTime->setText("00:00:00 01:01:00");
+
+    ui->tableWidgetMem->setRowCount(memViewRowCount);
+    ui->tableWidgetMem->setColumnCount(memViewColumnCount);
+    clearMemViewTable();
 }
 
 DebuggerForm::~DebuggerForm()
@@ -357,6 +410,8 @@ void DebuggerForm::updateMemory(QStringList ids)
             updateIOVarGUI(id);
         }else if(ui->tabWidget->currentIndex()==0) {
             updateVarGUI(id);
+        }else if(ui->tabWidget->currentIndex()==2) {
+            updateMemVarGUI(id);
         }
     }
 }
@@ -676,6 +731,73 @@ void DebuggerForm::updateVarGUI(const QString &id)
     }
 }
 
+void DebuggerForm::updateMemVarGUI(const QString &id)
+{
+    if(VarItem::getVarTypeFromID(id)!=VarItem::ucharType) return;
+    if(VarItem::getBitNumFromID(id)!=-1) return;
+    QString memtype = VarItem::getMemTypeFromID(id);
+    if(!memtype.toLower().contains(ui->comboBoxMemType->currentText().toLower())) return;
+
+    int curAddr = VarItem::getMemAddressFromID(id);
+
+    QString addrStr = ui->lineEditMemStartAddr->text();
+    addrStr = addrStr.toLower();
+    addrStr.remove("0x");
+    bool res = false;
+    int startAddr = ui->lineEditMemStartAddr->text().toInt(&res,16);
+    if(res) {
+        int tabLastAddress = startAddr + memViewRowCount*memViewColumnCount - 1;
+        if((curAddr>=startAddr)&&(curAddr<=tabLastAddress)) {
+            if(memView->checkAddress(curAddr)) {
+                int num = curAddr - startAddr;
+                int row = num/memViewColumnCount;
+                int col = num%memViewColumnCount;
+                if((row<memViewRowCount)&&(col<memViewColumnCount)) {
+                    QByteArray data = memStor.getData(memtype,curAddr,1);
+                    if(data.count()) {
+                        int value = (unsigned char)data.at(0);
+
+                        QTableWidgetItem *item = ui->tableWidgetMem->item(row,col);
+                        if(item!=nullptr) {
+                            disconnect(ui->tableWidgetMem,SIGNAL(cellChanged(int,int)),this,SLOT(memViewCellPressed(int,int)));
+                            item->setText(QString::number(value));
+                            item->setTextColor(Qt::darkBlue);
+                            connect(ui->tableWidgetMem,SIGNAL(cellChanged(int,int)),this,SLOT(memViewCellPressed(int,int)));
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+void DebuggerForm::memViewCellPressed(int r, int c)
+{
+    QTableWidgetItem *item = ui->tableWidgetMem->item(r,c);
+    if(item!=nullptr) {
+        QString addrStr = ui->lineEditMemStartAddr->text();
+        addrStr = addrStr.toLower();
+        addrStr.remove("0x");
+        bool res = false;
+        int startAddr = ui->lineEditMemStartAddr->text().toInt(&res,16);
+        if(res) {
+            int curAddr = startAddr + r*memViewColumnCount + c;
+            QString memType;
+            if(memView->getMemType()==MemViewDescription::FRAM) memType = MemStorage::framMemName;
+            if(memView->getMemType()==MemViewDescription::RAM) memType = MemStorage::ramMemName;
+            int value = item->text().toInt();
+            VarItem var;
+            var.setDataType(VarItem::ucharType);
+            var.setMemType(memType);
+            var.setMemAddress(curAddr);
+            var.setValue(QString::number(value));
+            scheduler.addWriteOperation(var);
+            ui->treeWidgetWatch->setFocus();
+        }
+
+    }
+}
+
 void DebuggerForm::on_pushButtonCOMUpdate_clicked()
 {
     updateComPortList();
@@ -856,6 +978,9 @@ void DebuggerForm::on_tabWidget_currentChanged(int index)
             scheduler.addReadOperation(var);
         }
         scheduler.schedule();
+    }else if(index==2) {    // память
+        updateMemViewRequests();
+        clearMemViewTable();
     }
 }
 
@@ -1051,4 +1176,19 @@ void DebuggerForm::on_lineEditTime_returnPressed()
         scheduler.addWriteOperation(var);
         ui->treeWidgetWatch->setFocus();
     }
+}
+
+void DebuggerForm::on_lineEditMemStartAddr_textChanged(const QString &arg1)
+{
+    Q_UNUSED(arg1)
+    updateMemViewRequests();
+    clearMemViewTable();
+}
+
+void DebuggerForm::on_comboBoxMemType_currentIndexChanged(const QString &arg1)
+{
+    if(arg1.toLower()=="fram") memView->setMemType(MemViewDescription::FRAM);
+    if(arg1.toLower()=="ram") memView->setMemType(MemViewDescription::RAM);
+    updateMemViewRequests();
+    clearMemViewTable();
 }
