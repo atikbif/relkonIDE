@@ -118,6 +118,7 @@ private slots:
     void importPult(void);
     void editIDESettings(void);
     void startReloader(void);
+    void startMMBConfig(void);
     void loadSysFramRelk6(void);
     void activateInfoPanel(void);
 

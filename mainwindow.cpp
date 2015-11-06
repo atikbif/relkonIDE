@@ -402,9 +402,12 @@ void MainWindow::createHelp()
 
 void MainWindow::createUtilities()
 {
-    QAction *act = new QAction(QIcon("://reloader.ico"), "Загрузчик", this);
-    ui->menuUtil->addAction(act);
-    connect(act,SIGNAL(triggered()),this,SLOT(startReloader()));
+    QAction *actR = new QAction(QIcon("://reloader.ico"), "Загрузчик", this);
+    ui->menuUtil->addAction(actR);
+    connect(actR,SIGNAL(triggered()),this,SLOT(startReloader()));
+    QAction *actMMB = new QAction(QIcon("://mmb.ico"), "Настройка Matchbox", this);
+    ui->menuUtil->addAction(actMMB);
+    connect(actMMB,SIGNAL(triggered()),this,SLOT(startMMBConfig()));
 }
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -964,6 +967,19 @@ void MainWindow::startReloader()
         addMessageToInfoList("error: Ошибка открытия файла " + path);
     }
 
+}
+
+void MainWindow::startMMBConfig()
+{
+    QString path = QApplication::applicationDirPath() + "/mmbSettings.exe";
+    if(QFile::exists(path)) {
+        QProcess* mmb = new QProcess;
+        connect(mmb, SIGNAL(finished(int)), mmb, SLOT(deleteLater()));
+        mmb->start(path);
+    }else {
+        activateInfoPanel();
+        addMessageToInfoList("error: Ошибка открытия файла " + path);
+    }
 }
 
 void MainWindow::loadSysFramRelk6()
