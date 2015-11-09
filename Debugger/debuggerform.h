@@ -38,12 +38,14 @@ class DebuggerForm : public QWidget
     QMultiHash<int,BitIO*> ioHash;  // адрес - переменная (для вкладки входов/выходов)
     QMultiHash<int,AnIO*> anIoHash; // адрес - переменная
     QHash<QString,QLineEdit*> ioComments;   // название входа - комментарий
+    QHash<QString,bool> ioCheck;    // название группы входов - состояние (свёрнута/развёрнута)
     MemStorage memStor; // хранилище памяти
     ScanManager* scan;  // управление процессом опроса
     RequestScheduler scheduler; // планировщик запросов
 
     VarItem wrVar;      // переменная для записи
     QCheckBox *adc8bit;
+    QVector<QGroupBox*> ioBoxes;
 
     void clearMemViewTable(void);
     void updateMemViewRequests(void);
@@ -54,6 +56,7 @@ class DebuggerForm : public QWidget
     void updateComPortList(void);
     void buildIO(void); // построение вкладки входов/выходов
     void buildDIO(void);
+    void updateIOFoldedState(void);
     QGroupBox* addDIO(const QString & name, int startAddress, int bitCnt);
     QGroupBox* addAIO(const QString &grName, const QString &ioName, int addr, int startNum, int endNum);
     void buildAIO(void);

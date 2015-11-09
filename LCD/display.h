@@ -13,6 +13,7 @@
 class Display: public QObject
 {
     Q_OBJECT
+    bool changed;
     const static int strCount = 4;  // количество строк в дисплее
     QHash<int, QVector<DisplayStr*> > data; // номер строки, массив подстрок
     QHash<int, int> curStr; // номер строки, номер активной подстроки
@@ -22,6 +23,8 @@ class Display: public QObject
     void updVarDefinition(int strNum, int subStrNum,int VarNum, PultVarDefinition &vd);
 public:
     explicit Display(QObject *parent = 0);
+    void setChanged(bool value) {changed = value;}
+    bool getChanged(void) const {return changed;}
     int getStrCount() const {return strCount;}
     int getLength(void) const {return DisplayStr::getLength();}
     bool setCursor(int xPos, int yPos);

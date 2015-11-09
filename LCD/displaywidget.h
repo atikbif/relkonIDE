@@ -16,9 +16,18 @@ class DisplayWidget : public QWidget
     int symbInStrCount;
 
     Display& displ;
+    struct {
+        int strNum;
+        int startPos;
+        int stopPos;
+        int prevXPos;
+        QByteArray copyData;
+    }selection;
+
 public:
     explicit DisplayWidget(Display& d, QWidget *parent = 0);
     const LCDPhont&  getPhont(void) const {return *phont;}
+    void destroySelection(void);
     ~DisplayWidget();
 
     // QWidget interface
@@ -27,6 +36,17 @@ protected:
     void keyPressEvent(QKeyEvent *event);
     void paintEvent(QPaintEvent *event);
 
+
+    // QWidget interface
+protected:
+    void mouseMoveEvent(QMouseEvent *event);
+
+    // QWidget interface
+protected:
+
+    // QWidget interface
+protected:
+    void contextMenuEvent(QContextMenuEvent *event);
 };
 
 #endif // DISPLAYWIDGET_H

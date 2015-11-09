@@ -161,7 +161,7 @@ void MainWindow::activateInfoPanel()
 
 int MainWindow::saveWarning()
 {
-    if(prChangedFlag) {
+    if(prChangedFlag || displ->getChanged()) {
         QMessageBox msgBox(this);
         msgBox.setText("Проект был изменён");
         msgBox.setInformativeText("Вы хотите сохранить изменения?");
@@ -515,6 +515,8 @@ void MainWindow::newFile()
 
     // - путь по умолчанию
     QDir dir(QApplication::applicationDirPath()+"/newProject");
+    dir.removeRecursively();
+
     if(!dir.exists()) {
         dir.mkdir(".");
     }
@@ -760,6 +762,9 @@ void MainWindow::closeEvent(QCloseEvent *event)
 void MainWindow::keyPressEvent(QKeyEvent *event)
 {
     switch(event->key()) {
+    case Qt::Key_F:
+        if (QApplication::keyboardModifiers() && Qt::ControlModifier) searchText();
+        break;
     case Qt::Key_F5:
         if(buildAct->isEnabled()) {
             buildPr();
@@ -831,7 +836,7 @@ void MainWindow::on_tabWidget_currentChanged(int index)
         undoAct->setEnabled(false);
         redoAct->setEnabled(false);
         srchAct->setEnabled(false);
-        buildAct->setEnabled(false);
+        //buildAct->setEnabled(false);
         if(index==2) {
             debugger->tabChanged();
         }
@@ -999,8 +1004,9 @@ void MainWindow::loadSysFramRelk6()
         QDomDocument doc;
         QFile file(fName);
         if(file.open(QIODevice::ReadOnly)) {
-            bool updFlag = false;
+
             if(doc.setContent(&file)) {
+                bool updFlag = false;
                 QDomNodeList vars = doc.elementsByTagName("ControllerVar");
                 for(int i=0;i<vars.count();i++) {
                     QDomNode n = vars.item(i);

@@ -217,6 +217,7 @@ void LCDForm::saveLCD()
         }
         xmlWriter.writeEndElement();
         file.close();
+        displ.setChanged(false);
     }
 }
 
@@ -260,9 +261,11 @@ void LCDForm::openLCD()
         displ.goToStr(i,0);
     }
     displ.setCursor(0,0);
+    displ.setChanged(false);
 }
 
 void LCDForm::newLCD()
 {
     displ.clearDisplay();
+    displ.setChanged(false);
 }

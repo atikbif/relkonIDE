@@ -66,6 +66,15 @@ void DebuggerForm::saveView()
            xmlWriter.writeEndElement();
         }
         xmlWriter.writeEndElement();
+        // состояние групп входов/выходов (свёрнуты-развёрнуты)
+        foreach (QGroupBox *box, ioBoxes) {
+            QString ioGrName = box->title();
+            xmlWriter.writeStartElement("ioGrState");
+            xmlWriter.writeAttribute("name",ioGrName);
+            QString st = (box->isChecked())?"unfolded":"folded";
+            xmlWriter.writeAttribute("state",st);
+            xmlWriter.writeEndElement();
+        }
 
         xmlWriter.writeEndElement();
         file.close();
@@ -143,6 +152,19 @@ void DebuggerForm::openView()
             }
         }
     }
+
+    // разбор свёрнутости групп входов/выходов
+    QDomNodeList ioGrSt= doc.elementsByTagName("ioGrState");
+    ioCheck.clear();
+    for(int i=0;i<ioGrSt.count();i++) {
+        QDomNode n = ioGrSt.item(i);
+        QDomElement e = n.toElement();
+        if(!e.isNull()) {
+            QString name = e.attribute("name");
+            QString st = e.attribute("state");
+            ioCheck.insert(name,st=="unfolded"?true:false);
+        }
+    }
 }
 
 void DebuggerForm::clearView()
@@ -153,6 +175,16 @@ void DebuggerForm::clearView()
     foreach (QLineEdit* ptr, ioComments.values()) {
        ptr->setText("");
     }
+    ioCheck.clear();
+    ioCheck.insert("IN0",true);
+    ioCheck.insert("IN1",true);
+    ioCheck.insert("IN2",true);
+    ioCheck.insert("IN3",true);
+    ioCheck.insert("OUT0",true);
+    ioCheck.insert("OUT1",true);
+    ioCheck.insert("OUT2",true);
+    ioCheck.insert("OUT3",true);
+    ioCheck.insert("ADC1..8",true);
 }
 
 void DebuggerForm::tabChanged()
@@ -456,6 +488,7 @@ void DebuggerForm::on_updateButton_clicked()
 void DebuggerForm::openProject()
 {
     updTree();
+    updateIOFoldedState();
 }
 
 void DebuggerForm::saveProject()
@@ -466,6 +499,8 @@ void DebuggerForm::saveProject()
 void DebuggerForm::newProject()
 {
     updTree();
+    clearView();
+    updateIOFoldedState();
 }
 
 void DebuggerForm::updTree()
@@ -536,14 +571,20 @@ void DebuggerForm::buildDIO()
         if(i<4) name = "IN"+QString::number(i);
         else name = "DIN" + QString::number(i);
         QGroupBox *boxIn = addDIO(name,BitIO::inputStartAddress + i,8);
+        ioBoxes+=boxIn;
         boxIn->setCheckable(true);
+        //ioCheck.insert(name,true);
+        //boxIn->setChecked(true);
         connect(boxIn,SIGNAL(toggled(bool)),this,SLOT(boxToggled(bool)));
         grLayout->addWidget(boxIn,1,i+1);
 
         if(i<4) name = "OUT"+QString::number(i);
         else name = "DOUT" + QString::number(i);
         QGroupBox *boxOut = addDIO(name,BitIO::outputStartAddress + i,8);
+        ioBoxes+=boxOut;
         boxOut->setCheckable(true);
+        //ioCheck.insert(name,true);
+        //boxOut->setChecked(true);
         connect(boxOut,SIGNAL(toggled(bool)),this,SLOT(boxToggled(bool)));
         grLayout->addWidget(boxOut,2,i+1);
     }
@@ -552,20 +593,33 @@ void DebuggerForm::buildDIO()
         QString name;
         name = "IN"+QString::number(i+4);
         QGroupBox *boxIn = addDIO(name,BitIO::mmbInputStartAddress + i,4);
+        ioBoxes+=boxIn;
         boxIn->setCheckable(true);
         connect(boxIn,SIGNAL(toggled(bool)),this,SLOT(boxToggled(bool)));
-        boxIn->setChecked(false);
+        //boxIn->setChecked(false);
         grLayout->addWidget(boxIn,3+(i/6)*2,(i%6)+1);
 
         name = "OUT"+QString::number(i+4);
         QGroupBox *boxOut = addDIO(name,BitIO::mmbOutputStartAddress + i,4);
+        ioBoxes+=boxOut;
         boxOut->setCheckable(true);
         connect(boxOut,SIGNAL(toggled(bool)),this,SLOT(boxToggled(bool)));
-        boxOut->setChecked(false);
+        //boxOut->setChecked(false);
         grLayout->addWidget(boxOut,4+(i/6)*2,(i%6)+1);
     }
     client->setLayout(grLayout);
     ui->scrollArea->setWidget(client);
+}
+
+void DebuggerForm::updateIOFoldedState()
+{
+    foreach (QGroupBox *box, ioBoxes) {
+       QString name = box->title();
+       if(ioCheck.keys().contains(name)) {
+           bool res = ioCheck.value(name);
+           box->setChecked(res);
+       }else box->setChecked(false);
+    }
 }
 
 QGroupBox *DebuggerForm::addDIO(const QString &name, int startAddress, int bitCnt)
@@ -642,23 +696,27 @@ void DebuggerForm::buildAIO()
     vLayoutAn->addWidget(adc8bit);
 
     QGroupBox *boxAdc = addAIO("ADC1..8","ADC",AnIO::inputStartAddress,1,8);
+    ioBoxes+=boxAdc;
     boxAdc->setCheckable(true);
     connect(boxAdc,SIGNAL(toggled(bool)),this,SLOT(boxToggled(bool)));
     vLayoutAn->addWidget(boxAdc);
 
     QGroupBox *boxDac = addAIO("DAC1..4","DAC",AnIO::outputStartAddress,1,4);
+    ioBoxes+=boxDac;
     boxDac->setCheckable(true);
     connect(boxDac,SIGNAL(toggled(bool)),this,SLOT(boxToggled(bool)));
     boxDac->setChecked(false);
     vLayoutAn->addWidget(boxDac);
 
     QGroupBox *boxAdcMmb = addAIO("Matchbox ADC","ADC",AnIO::mmbInputStartAddress,9,136);
+    ioBoxes += boxAdcMmb;
     boxAdcMmb->setCheckable(true);
     connect(boxAdcMmb,SIGNAL(toggled(bool)),this,SLOT(boxToggled(bool)));
     boxAdcMmb->setChecked(false);
     vLayoutAn->addWidget(boxAdcMmb);
 
     QGroupBox *boxDacMmb = addAIO("Matchbox DAC","DAC",AnIO::mmbOutputStartAddress,5,68);
+    ioBoxes += boxDacMmb;
     boxDacMmb->setCheckable(true);
     connect(boxDacMmb,SIGNAL(toggled(bool)),this,SLOT(boxToggled(bool)));
     boxDacMmb->setChecked(false);

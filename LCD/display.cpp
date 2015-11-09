@@ -18,7 +18,7 @@ void Display::updVarDefinition(int strNum, int subStrNum, int VarNum, PultVarDef
     }
 }
 
-Display::Display(QObject *parent):QObject(parent),copyStrBuf(nullptr),x(0),y(0)
+Display::Display(QObject *parent):QObject(parent),changed(false),copyStrBuf(nullptr),x(0),y(0)
 {
     for(int i=0;i<strCount;i++) {
         QVector<DisplayStr*> v;
@@ -134,6 +134,7 @@ void Display::setReplaceMode(bool value)
 
 bool Display::addEmptyStrBefore(int strNum, int subStrNum)
 {
+    changed = true;
     if(checkStrNum(strNum,subStrNum)==false) return false;
     DisplayStr* str = new DisplayStr();
     QVector<DisplayStr*> subStrings = data.value(strNum);
@@ -149,6 +150,7 @@ bool Display::addEmptyStrBefore(int strNum, int subStrNum)
 
 bool Display::addEmptyStrAfter(int strNum, int subStrNum)
 {
+    changed = true;
     if(checkStrNum(strNum,subStrNum)==false) return false;
     DisplayStr* str = new DisplayStr();
     QVector<DisplayStr*> subStrings = data.value(strNum);
@@ -172,6 +174,7 @@ bool Display::copyStrToBuffer(int strNum, int subStrNum)
 
 bool Display::pasteStrFromBuffer(int strNum, int subStrNum)
 {
+    changed = true;
     if(checkStrNum(strNum,subStrNum)==false) return false;
     if(copyStrBuf==nullptr) return false;
     QVector<DisplayStr*> subStrings = data.value(strNum);
@@ -187,6 +190,7 @@ bool Display::pasteStrFromBuffer(int strNum, int subStrNum)
 
 bool Display::deleteStr(int strNum, int subStrNum)
 {
+    changed = true;
     if(checkStrNum(strNum,subStrNum)==false) return false;
     QVector<DisplayStr*> subStrings = data.value(strNum);
     if(subStrings.count()==1) return false;
@@ -205,6 +209,7 @@ bool Display::deleteStr(int strNum, int subStrNum)
 
 bool Display::insertSymbol(quint8 code)
 {
+    changed = true;
     if(checkStrNum(y,getCurSubStrNum(y))==false) return false;
     DisplayStr* str = data.value(y).at(getCurSubStrNum(y));
     if(str->insertSymbol(x,code)==true) {
@@ -217,6 +222,7 @@ bool Display::insertSymbol(quint8 code)
 
 void Display::deleteSymbol()
 {
+    changed = true;
     if(checkStrNum(y,getCurSubStrNum(y))==false) return;
     DisplayStr* str = data.value(y).at(getCurSubStrNum(y));
     str->deleteSymbol(x);
@@ -234,6 +240,7 @@ void Display::backspace()
 
 bool Display::addVar(PultVarDefinition &vP)
 {
+    changed = true;
     if(checkStrNum(y,getCurSubStrNum(y))==false) return false;
     DisplayStr* str = data.value(y).at(getCurSubStrNum(y));
     vP.setPosInStr(x);
@@ -244,6 +251,7 @@ bool Display::addVar(PultVarDefinition &vP)
 
 bool Display::updVar(PultVarDefinition &vP)
 {
+    changed = true;
     if(checkStrNum(y,getCurSubStrNum(y))==false) return false;
     DisplayStr* str = data.value(y).at(getCurSubStrNum(y));
     vP.setPosInStr(x);
@@ -276,6 +284,7 @@ void Display::toggleActive(int strNum, int subStrNum)
 
 void Display::clearDisplay()
 {
+    changed = true;
     DisplayStr::setReplaceMode(false);
     QList< QVector<DisplayStr*> > strings = data.values();
     for(int i=0;i<strCount;i++) {

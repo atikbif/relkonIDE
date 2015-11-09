@@ -2,7 +2,7 @@
 #include "memstorage.h"
 
 MemViewDescription::MemViewDescription(int r, int c):
-    memType(RAM), rowCount(r), colCount(c)
+    memType(RAM), startAddr(0), rowCount(r), colCount(c)
 {
 
 }
