@@ -103,7 +103,8 @@ SOURCES += main.cpp\
     Help/aboutdialog.cpp \
     Search/searchdialog.cpp \
     Search/searchdata.cpp \
-    Debugger/memviewdescription.cpp
+    Debugger/memviewdescription.cpp \
+    Debugger/aninpslider.cpp
 
 HEADERS  += mainwindow.h \
     codeeditor.h \
@@ -182,7 +183,8 @@ HEADERS  += mainwindow.h \
     Help/aboutdialog.h \
     Search/searchdialog.h \
     Search/searchdata.h \
-    Debugger/memviewdescription.h
+    Debugger/memviewdescription.h \
+    Debugger/aninpslider.h
 
 FORMS    += mainwindow.ui \
     settingsform.ui \

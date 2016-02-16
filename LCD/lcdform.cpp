@@ -132,10 +132,15 @@ LCDForm::LCDForm(Display &d, VarsCreator &vCr, QWidget *parent) :
 
     dW = new DisplayWidget(displ);
     QDesktopWidget desk;
-    int height = desk.availableGeometry().height()*0.25;
+    int height = desk.availableGeometry().height()*0.2;
 
-    dW->setMinimumHeight(height);
-    layout->addWidget(dW,0,1,1,6);
+
+
+    //dW->setMinimumHeight(height);
+    dW->setFixedHeight(height);
+    dW->setFixedWidth(height*2.5);
+
+    layout->addWidget(dW,0,0,1,8);
     PatternEditorWidget* pEd = new PatternEditorWidget(displ,varOwner,this);
     pEd->setFixedWidth((float)height*1.5);
     connect(this,SIGNAL(newProject()),pEd,SLOT(newProject()));

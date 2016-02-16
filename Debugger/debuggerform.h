@@ -18,6 +18,7 @@
 #include <QGroupBox>
 #include <QCheckBox>
 #include "memviewdescription.h"
+#include <QKeyEvent>
 
 namespace Ui {
 class DebuggerForm;
@@ -105,6 +106,8 @@ private slots:
     void anInOutClicked();  // команда на запись аналогового входа/выхода
     // переключение между вкладками отладчика
     void on_tabWidget_currentChanged(int index);
+    // 8 bit mode changed
+    void adc8bitChanged(void);
 
 
     void on_pushButtonPing_clicked();

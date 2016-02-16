@@ -95,7 +95,7 @@ int MainWindow::openFileByName(const QString &fName)
         editor->setTextCursor(tmpCursor);
         file.close();
         addMessageToInfoList(QDateTime::currentDateTime().time().toString() + " :Файл успешно открыт");
-        setWindowTitle(wTitle + " - " + fName);
+        setWindowTitle("(" + prFileName+") " + wTitle + " - " + fName);
         RCompiler::setInpDirName(fInfo.dir().path());
         RCompiler::setInpKonFileName(fInfo.fileName());
         if(settings!=nullptr) {
@@ -138,7 +138,8 @@ void MainWindow::saveFileByName(const QString &fName)
             out << "\r\n";
         }
         file.close();
-        setWindowTitle(wTitle + " - " + fName);
+        //setWindowTitle(wTitle + " - " + fName);
+        setWindowTitle("(" + prFileName+") " + wTitle + " - " + fName);
         RCompiler::setInpDirName(fInfo.dir().path());
         RCompiler::setInpKonFileName(fInfo.fileName());
         prChangedFlag = false;

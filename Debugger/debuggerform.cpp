@@ -26,6 +26,7 @@
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QDataStream>
+#include "aninpslider.h"
 
 
 void DebuggerForm::saveView()
@@ -323,6 +324,7 @@ DebuggerForm::DebuggerForm(VarsCreator &vCr, QWidget *parent) :
     ui->tableWidgetMem->setRowCount(memViewRowCount);
     ui->tableWidgetMem->setColumnCount(memViewColumnCount);
     clearMemViewTable();
+    on_checkBoxLog_clicked();
 }
 
 DebuggerForm::~DebuggerForm()
@@ -657,10 +659,14 @@ QGroupBox *DebuggerForm::addAIO(const QString &grName, const QString &ioName, in
     for(int i=startNum;i<=endNum;i++) {
         QHBoxLayout *hLayout = new QHBoxLayout();
         QLabel *name = new QLabel(ioName+QString::number(i)+":");
-        QSlider *slider = new QSlider(Qt::Horizontal);
+        //QSlider *slider = new QSlider(Qt::Horizontal);
+        AnInpSlider *slider = new AnInpSlider();
+        slider->setOrientation(Qt::Horizontal);
         slider->setMaximum(65535);
         slider->setMinimum(0);
-        connect(slider,SIGNAL(sliderReleased()),this,SLOT(anInOutClicked()));
+        //connect(slider,SIGNAL(sliderReleased()),this,SLOT(anInOutClicked()));
+        connect(slider,SIGNAL(valueChanged(int)),this,SLOT(anInOutClicked()));
+
         QLineEdit *number = new QLineEdit();
         number->setStyleSheet("border: 2px solid gray;"
                               "border-radius: 5px;"
@@ -693,6 +699,7 @@ void DebuggerForm::buildAIO()
 
     adc8bit = new QCheckBox("  АЦП - 8 бит");
     adc8bit->setChecked(true);
+    connect(adc8bit,SIGNAL(clicked(bool)),this,SLOT(adc8bitChanged()));
     vLayoutAn->addWidget(adc8bit);
 
     QGroupBox *boxAdc = addAIO("ADC1..8","ADC",AnIO::inputStartAddress,1,8);
@@ -1039,6 +1046,16 @@ void DebuggerForm::on_tabWidget_currentChanged(int index)
     }else if(index==2) {    // память
         updateMemViewRequests();
         clearMemViewTable();
+    }
+}
+
+void DebuggerForm::adc8bitChanged()
+{
+    QList<AnIO*> aios = anIoHash.values();
+    foreach(AnIO* aio, aios) {
+        QSlider* sl = aio->getSlider();
+        AnInpSlider* anSl = dynamic_cast<AnInpSlider*>(sl);
+        if(anSl!=nullptr) anSl->setEightBit(adc8bit->isChecked());
     }
 }
 
