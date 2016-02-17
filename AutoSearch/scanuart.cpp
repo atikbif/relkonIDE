@@ -136,13 +136,14 @@ void ScanUART::startScan(const QString &pName)
     }
 
     QSerialPort port(pName);
-    port.open(QSerialPort::ReadWrite);
+    if(port.open(QSerialPort::ReadWrite)) {
 
-    sendAbortCmd(port);
-    if(testBootMode(port)==false) {
-        scan(port);
+        sendAbortCmd(port);
+        if(testBootMode(port)==false) {
+            scan(port);
+        }
+        port.close();
     }
-    port.close();
 }
 
 void ScanUART::stopScan()

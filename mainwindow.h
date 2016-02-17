@@ -69,8 +69,8 @@ signals:
     void openProject(void);
     void saveProject(void);
     void updTree(void);
-    void wrSysFram(void);
-    void rdSysFram(void);
+    //void wrSysFram(void);
+    //void rdSysFram(void);
     void searchRes(const QStringList &sList);
 
 private:
@@ -132,6 +132,9 @@ private slots:
     void startMMBConfig(void);
     void loadSysFramRelk6(void);
     void activateInfoPanel(void);
+
+    void wrSysFramSlot(void);
+    void rdSysFramSlot(void);
 
 
 public slots:

@@ -157,8 +157,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>98</width>
-            <height>28</height>
+            <width>672</width>
+            <height>522</height>
            </rect>
           </property>
          </widget>
@@ -180,8 +180,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>98</width>
-            <height>28</height>
+            <width>268</width>
+            <height>522</height>
            </rect>
           </property>
          </widget>
@@ -282,8 +282,8 @@
         </property>
         <property name="maximumSize">
          <size>
-          <width>1000</width>
-          <height>1000</height>
+          <width>200</width>
+          <height>16777215</height>
          </size>
         </property>
         <property name="title">
@@ -342,8 +342,17 @@
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
+           <property name="autoFillBackground">
+            <bool>false</bool>
+           </property>
            <property name="text">
             <string>старт</string>
+           </property>
+           <property name="autoDefault">
+            <bool>false</bool>
+           </property>
+           <property name="flat">
+            <bool>false</bool>
            </property>
           </widget>
          </item>
@@ -389,6 +398,12 @@
           <horstretch>1</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>150</width>
+          <height>16777215</height>
+         </size>
         </property>
         <property name="title">
          <string/>
@@ -577,7 +592,7 @@
         </property>
         <property name="maximumSize">
          <size>
-          <width>1000</width>
+          <width>200</width>
           <height>1000</height>
          </size>
         </property>
@@ -674,7 +689,7 @@
         </property>
         <property name="maximumSize">
          <size>
-          <width>1000</width>
+          <width>250</width>
           <height>1000</height>
          </size>
         </property>

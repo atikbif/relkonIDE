@@ -198,6 +198,11 @@ void DebuggerForm::setNetAddress(int value)
     ui->spinBoxNetAddress->setValue(value);
 }
 
+void DebuggerForm::stopDebugger()
+{
+    on_stopButton_clicked();
+}
+
 void DebuggerForm::clearMemViewTable()
 {
     disconnect(ui->tableWidgetMem,SIGNAL(cellChanged(int,int)),this,SLOT(memViewCellPressed(int,int)));
@@ -432,6 +437,7 @@ void DebuggerForm::on_startButton_clicked()
 void DebuggerForm::on_stopButton_clicked()
 {
     scan->stopDebugger();
+    while(scan->isWorking());
     ui->tabWidgetCanal->setEnabled(true);
     ui->pushButtonTimeWrite->setEnabled(false);
     ui->radioButtonCOM->setEnabled(true);

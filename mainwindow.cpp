@@ -168,6 +168,18 @@ void MainWindow::activateInfoPanel()
     ui->infoLabel->setVisible(true);
 }
 
+void MainWindow::wrSysFramSlot()
+{
+    debugger->stopDebugger();
+    settings->writeSysFram();
+}
+
+void MainWindow::rdSysFramSlot()
+{
+    debugger->stopDebugger();
+    settings->readSysFram();
+}
+
 int MainWindow::saveWarning()
 {
     if(prChangedFlag || displ->getChanged()) {
@@ -342,8 +354,8 @@ void MainWindow::createToolbar()
     ui->menuCmd->addAction(toPlcAct);
     wrSettings = new QAction(QIcon("://writeData.png"),"Записать настройки F8",this);
     rdSettings = new QAction(QIcon("://readData.png"),"Прочитать настройки F9",this);
-    connect(wrSettings,SIGNAL(triggered(bool)),this,SIGNAL(wrSysFram()));
-    connect(rdSettings,SIGNAL(triggered(bool)),this,SIGNAL(rdSysFram()));
+    connect(wrSettings,SIGNAL(triggered(bool)),this,SLOT(wrSysFramSlot()));
+    connect(rdSettings,SIGNAL(triggered(bool)),this,SLOT(rdSysFramSlot()));
     ui->menuCmd->addAction(wrSettings);
     ui->menuCmd->addAction(rdSettings);
     ui->menuCmd->addAction(toTableAction);
@@ -480,8 +492,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     varOwner = new VarsCreator();
     settings = new SettingsForm();
-    connect(this,SIGNAL(wrSysFram()),settings,SLOT(writeSysFram()));
-    connect(this,SIGNAL(rdSysFram()),settings,SLOT(readSysFram()));
+
     ui->tabWidget->addTab(settings,"Настройки");
 
     createDebugger();
@@ -817,6 +828,7 @@ void MainWindow::buildPr()
 void MainWindow::projectToPlc()
 {
     if(QFile::exists(RCompiler::getBinFileName())) {
+        debugger->stopDebugger();
         ScanGUI gui(settings->getProgAddr(),this);
         int ret = gui.exec();
         if(ret==QDialog::Accepted) {
@@ -868,10 +880,12 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
         }
         break;
     case Qt::Key_F8:
-        emit wrSysFram();
+        //emit wrSysFram();
+        wrSysFramSlot();
         break;
     case Qt::Key_F9:
-        emit rdSysFram();
+        //emit rdSysFram();
+        rdSysFramSlot();
         break;
     }
 
