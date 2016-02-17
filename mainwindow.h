@@ -44,6 +44,7 @@ class MainWindow : public QMainWindow
     int saveWarning(void);
 
     bool prChangedFlag = false;
+    bool noProject = true;
 
     QString getFileNameForPultImport(void);
     void insertVar(QDomElement &e, int strNum);
@@ -83,10 +84,19 @@ private:
     QAction* openAct;
     QAction* saveAct;
     QAction* saveAsAct;
+    QAction* closeProjectAct;
     QAction *importPultAct;
     QAction *editGUI;
     QAction *helpBrAct;
     QAction *openSysFramFromRelkon6;
+    QAction *foldAction;
+    QAction *unfoldAction;
+    QAction *toTableAction;
+    QAction *wrSettings;
+    QAction *rdSettings;
+
+    void disableActionWithoutProject(void);
+    void enableActionWithProject(void);
 
 
 private slots:
@@ -94,6 +104,7 @@ private slots:
     void openFile(void);
     void saveFile(void);
     void saveAsFile(void);
+    void closeProject(void);
     void undo(void);
     void redo(void);
     void searchText(void);

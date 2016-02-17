@@ -193,6 +193,11 @@ void DebuggerForm::tabChanged()
     on_tabWidget_currentChanged(ui->tabWidget->currentIndex());
 }
 
+void DebuggerForm::setNetAddress(int value)
+{
+    ui->spinBoxNetAddress->setValue(value);
+}
+
 void DebuggerForm::clearMemViewTable()
 {
     disconnect(ui->tableWidgetMem,SIGNAL(cellChanged(int,int)),this,SLOT(memViewCellPressed(int,int)));

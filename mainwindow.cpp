@@ -54,6 +54,7 @@ void MainWindow::updatePrevProjects(const QStringList &prNames)
     ui->menuFile->addAction(openAct);
     ui->menuFile->addAction(saveAct);
     ui->menuFile->addAction(saveAsAct);
+    ui->menuFile->addAction(closeProjectAct);
     QMenu *impMenu = ui->menuFile->addMenu("Import");
     impMenu->addAction(importPultAct);
     impMenu->addAction(openSysFramFromRelkon6);
@@ -102,6 +103,7 @@ int MainWindow::openFileByName(const QString &fName)
             settings->clearSettings();
             settings->setKonFileName(fName);
             settings->openSettings();
+            debugger->setNetAddress(settings->getNetAddr());
         }
         editor->document()->clearUndoRedoStacks();
 
@@ -112,7 +114,13 @@ int MainWindow::openFileByName(const QString &fName)
         //QThread::msleep(500);
         on_closeInfoListButton_clicked();
 
+        prChangedFlag = false;
+        ui->tabWidget->setEnabled(true);
+        noProject = false;
+        connect(editor,SIGNAL(textChanged()),this,SLOT(prWasChanged()));
+        enableActionWithProject();
         return 1;
+
     }
     addMessageToInfoList(QDateTime::currentDateTime().time().toString() + " :error - Ошибка открытия файла");
     return 0;
@@ -295,8 +303,9 @@ void MainWindow::createToolbar()
     redoAct = new QAction(QIcon("://redo_32.ico"), "Повторить отменённую операцию", this);
     srchAct = new QAction(QIcon("://srch_32.ico"), "Искать текст", this);
     buildAct = new QAction(QIcon("://build_32.ico"), "Собрать проект F5", this);
-    toPlcAct = new QAction(QIcon("://toPLC_32.ico"), "Загрузить проект в контроллер F7", this);
+    toPlcAct = new QAction(QIcon("://toPLC_32.ico"), "Загрузить программу в контроллер F7", this);
     editGUI = new QAction(QIcon("://config.ico"), "Настройки среды", this);
+    closeProjectAct = new QAction(QIcon("://close.ico"), "Закрыть проект", this);
 
     connect(newAct, SIGNAL(triggered()), this, SLOT(newFile()));
     connect(openAct, SIGNAL(triggered()), this, SLOT(openFile()));
@@ -308,11 +317,14 @@ void MainWindow::createToolbar()
     connect(toPlcAct, SIGNAL(triggered()), this, SLOT(projectToPlc()));
     connect(saveAsAct,SIGNAL(triggered()), this, SLOT(saveAsFile()));
     connect(importPultAct,SIGNAL(triggered()), this, SLOT(importPult()));
+    connect(closeProjectAct,SIGNAL(triggered()), this, SLOT(closeProject()));
     connect(editGUI,SIGNAL(triggered()),this,SLOT(editIDESettings()));
 
     ui->mainToolBar->addAction(newAct);
     ui->mainToolBar->addAction(openAct);
     ui->mainToolBar->addAction(saveAct);
+    ui->mainToolBar->addAction(closeProjectAct);
+    ui->mainToolBar->addSeparator();
     ui->mainToolBar->addAction(undoAct);
     ui->mainToolBar->addAction(redoAct);
     QWidget* spacer = new QWidget();
@@ -320,7 +332,7 @@ void MainWindow::createToolbar()
 
     ui->mainToolBar->addAction(srchAct);
 
-    QAction *toTableAction = new QAction(QIcon("://table.ico"), "пульт > настройки", this);
+    toTableAction = new QAction(QIcon("://table.ico"), "пульт > настройки", this);
     //QAction *fromTableAction = new QAction(QIcon("://display.ico"), "настройки > пульт", this);
 
     //ui->menuCmd->addAction(fromTableAction);
@@ -328,8 +340,8 @@ void MainWindow::createToolbar()
     //connect(fromTableAction,SIGNAL(triggered()),this,SLOT(tableToLcd()));
     ui->menuCmd->addAction(buildAct);
     ui->menuCmd->addAction(toPlcAct);
-    QAction *wrSettings = new QAction(QIcon("://writeData.png"),"Записать настройки F8",this);
-    QAction *rdSettings = new QAction(QIcon("://readData.png"),"Прочитать настройки F9",this);
+    wrSettings = new QAction(QIcon("://writeData.png"),"Записать настройки F8",this);
+    rdSettings = new QAction(QIcon("://readData.png"),"Прочитать настройки F9",this);
     connect(wrSettings,SIGNAL(triggered(bool)),this,SIGNAL(wrSysFram()));
     connect(rdSettings,SIGNAL(triggered(bool)),this,SIGNAL(rdSysFram()));
     ui->menuCmd->addAction(wrSettings);
@@ -340,6 +352,10 @@ void MainWindow::createToolbar()
     ui->mainToolBar->addAction(buildAct);
     ui->mainToolBar->addSeparator();
     ui->mainToolBar->addAction(toPlcAct);
+    ui->mainToolBar->addAction(wrSettings);
+    ui->mainToolBar->addSeparator();
+    ui->mainToolBar->addAction(foldAction);
+    ui->mainToolBar->addAction(unfoldAction);
     ui->mainToolBar->addWidget(spacer);
 }
 
@@ -422,7 +438,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->infoLabel->setVisible(false);
     ui->horizontalSpacer->changeSize(0,0, QSizePolicy::Fixed, QSizePolicy::Fixed);
 
-    setWindowTitle(wTitle + " - несохранённый проект");
+    setWindowTitle(wTitle);
     prDirPath="";
     prFileName="";
 
@@ -431,15 +447,18 @@ MainWindow::MainWindow(QWidget *parent) :
     Q_UNUSED(highlighter);
     setEditorPhont();
 
+    foldAction = new QAction(QIcon("://contract.ico"),"свернуть всё",this);
+    unfoldAction = new QAction(QIcon("://expand.ico"),"развернуть всё",this);
+    connect(foldAction,SIGNAL(triggered(bool)),editor,SLOT(foldAll()));
+    connect(unfoldAction,SIGNAL(triggered(bool)),editor,SLOT(unfoldAll()));
+
     createToolbar();
 
     openSysFramFromRelkon6 = new QAction(QIcon("://database.ico"), "Загрузить зав. установки из Relkon 6.x", this);
     connect(openSysFramFromRelkon6,SIGNAL(triggered(bool)),this,SLOT(loadSysFramRelk6()));
 
-    QAction *foldAction = new QAction(QIcon("://contract.ico"),"свернуть всё",this);
-    connect(foldAction,SIGNAL(triggered(bool)),editor,SLOT(foldAll()));
-    QAction *unfoldAction = new QAction(QIcon("://expand.ico"),"развернуть всё",this);
-    connect(unfoldAction,SIGNAL(triggered(bool)),editor,SLOT(unfoldAll()));
+
+
     ui->menuEdit->addAction(srchAct);
     ui->menuEdit->addAction(foldAction);
     ui->menuEdit->addAction(unfoldAction);
@@ -479,10 +498,12 @@ MainWindow::MainWindow(QWidget *parent) :
     createBuilder();
     createHelp();
     createUtilities();
-    newFile();
+    //newFile();
+    ui->tabWidget->setEnabled(false);
     //QThread::msleep(1000);
     prChangedFlag = false;
-    connect(editor,SIGNAL(textChanged()),this,SLOT(prWasChanged()));
+    disableActionWithoutProject();
+    //connect(editor,SIGNAL(textChanged()),this,SLOT(prWasChanged()));
 }
 
 MainWindow::~MainWindow()
@@ -493,6 +514,46 @@ MainWindow::~MainWindow()
     delete displ;
     delete varOwner;
     delete helpBr;
+}
+
+void MainWindow::disableActionWithoutProject()
+{
+    undoAct->setEnabled(false);
+    redoAct->setEnabled(false);
+    srchAct->setEnabled(false);
+    buildAct->setEnabled(false);
+    toPlcAct->setEnabled(false);
+    saveAct->setEnabled(false);
+    saveAsAct->setEnabled(false);
+    closeProjectAct->setEnabled(false);
+    importPultAct->setEnabled(false);
+    editGUI->setEnabled(false);
+    openSysFramFromRelkon6->setEnabled(false);
+    foldAction->setEnabled(false);
+    unfoldAction->setEnabled(false);
+    toTableAction->setEnabled(false);
+    wrSettings->setEnabled(false);
+    rdSettings->setEnabled(false);
+}
+
+void MainWindow::enableActionWithProject()
+{
+    undoAct->setEnabled(true);
+    redoAct->setEnabled(true);
+    srchAct->setEnabled(true);
+    buildAct->setEnabled(true);
+    toPlcAct->setEnabled(true);
+    saveAct->setEnabled(true);
+    saveAsAct->setEnabled(true);
+    closeProjectAct->setEnabled(true);
+    importPultAct->setEnabled(true);
+    editGUI->setEnabled(true);
+    openSysFramFromRelkon6->setEnabled(true);
+    foldAction->setEnabled(true);
+    unfoldAction->setEnabled(true);
+    toTableAction->setEnabled(true);
+    wrSettings->setEnabled(true);
+    rdSettings->setEnabled(true);
 }
 
 void MainWindow::newFile()
@@ -532,7 +593,11 @@ void MainWindow::newFile()
     editor->document()->clearUndoRedoStacks();
     varOwner->generateVarsTree();
     emit newProject();
+    ui->tabWidget->setEnabled(true);
+    noProject = false;
+    connect(editor,SIGNAL(textChanged()),this,SLOT(prWasChanged()));
 
+    enableActionWithProject();
     //RCompiler::setInpDirName("");
     //RCompiler::setInpKonFileName("");
 
@@ -558,7 +623,6 @@ void MainWindow::openFile()
     if(fileName.isEmpty()) return;
     openFileByName(fileName);
     //QThread::msleep(1000);
-    prChangedFlag = false;
     //editor->document()->clearUndoRedoStacks();
 }
 
@@ -609,6 +673,33 @@ void MainWindow::saveAsFile()
                                                     path,
                                                     tr("Relkon Files (*.kon )"));
     saveFileByName(fileName);
+}
+
+void MainWindow::closeProject()
+{
+    if(saveWarning()==0) return;
+    editor->clear();
+    ui->tabWidget->setCurrentIndex(0);
+    ui->tabWidget->setEnabled(false);
+    noProject = true;
+    disconnect(editor,SIGNAL(textChanged()),this,SLOT(prWasChanged()));
+    prChangedFlag = false;
+    setWindowTitle(wTitle);
+    /*QAction* undoAct;
+    QAction* redoAct;
+    QAction* srchAct;
+    QAction* buildAct;
+    QAction* toPlcAct;
+    QAction* newAct;
+    QAction* openAct;
+    QAction* saveAct;
+    QAction* saveAsAct;
+    QAction* closeProjectAct;
+    QAction *importPultAct;
+    QAction *editGUI;
+    QAction *helpBrAct;
+    QAction *openSysFramFromRelkon6;*/
+    disableActionWithoutProject();
 }
 
 void MainWindow::undo()

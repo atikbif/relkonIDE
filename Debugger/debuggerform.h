@@ -72,6 +72,7 @@ public:
     void openView();    // загрузить состояние отладчика из файла
     void clearView();
     void tabChanged();
+    void setNetAddress(int value);
     ~DebuggerForm();
 
 private slots:
