@@ -18,6 +18,19 @@
     <normaloff>:/srch_32.ico</normaloff>:/srch_32.ico</iconset>
   </property>
   <layout class="QGridLayout" name="gridLayout_2">
+   <item row="0" column="0">
+    <widget class="QComboBox" name="comboBoxSearch">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+       <horstretch>1</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="editable">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
    <item row="0" column="1">
     <widget class="QPushButton" name="pushButtonSearch">
      <property name="sizePolicy">
@@ -30,9 +43,6 @@
       <string>Найти (Ctrl+F)</string>
      </property>
     </widget>
-   </item>
-   <item row="0" column="3">
-    <widget class="QLineEdit" name="lineEditReplace"/>
    </item>
    <item row="0" column="2">
     <spacer name="horizontalSpacer_3">
@@ -47,8 +57,8 @@
      </property>
     </spacer>
    </item>
-   <item row="3" column="0" colspan="5">
-    <widget class="QListWidget" name="listWidget"/>
+   <item row="0" column="3">
+    <widget class="QLineEdit" name="lineEditReplace"/>
    </item>
    <item row="0" column="4">
     <widget class="QPushButton" name="pushButtonReplace">
@@ -57,7 +67,14 @@
      </property>
     </widget>
    </item>
-   <item row="2" column="0" colspan="5">
+   <item row="0" column="5">
+    <widget class="QPushButton" name="pushButtonReplaceAll">
+     <property name="text">
+      <string>Заменить всё</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0" colspan="6">
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
       <string/>
@@ -70,7 +87,7 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="1" rowspan="2">
+      <item row="0" column="1">
        <spacer name="horizontalSpacer_2">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
@@ -90,35 +107,35 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="2" rowspan="2">
-       <widget class="QCheckBox" name="checkBoxCaseSens">
-        <property name="text">
-         <string>с учётом регистра</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0">
+      <item row="1" column="0">
        <widget class="QRadioButton" name="radioButtonBackward">
         <property name="text">
          <string>назад</string>
         </property>
        </widget>
       </item>
+      <item row="1" column="1">
+       <widget class="QCheckBox" name="checkBoxRound">
+        <property name="text">
+         <string>зациклить</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="2">
+       <widget class="QCheckBox" name="checkBoxCaseSens">
+        <property name="text">
+         <string>с учётом регистра</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>
-   <item row="0" column="0">
-    <widget class="QComboBox" name="comboBoxSearch">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-       <horstretch>1</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="editable">
-      <bool>true</bool>
-     </property>
-    </widget>
+   <item row="2" column="0" colspan="6">
+    <widget class="QListWidget" name="listWidget"/>
    </item>
   </layout>
  </widget>

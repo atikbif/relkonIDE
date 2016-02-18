@@ -22,6 +22,7 @@ public:
 signals:
     void startSearch(const SearchData &sInfo);
     void replace(const QString &newText);
+    void replaceAll(const QString &inpText, const QString &outText);
     void goToStr(int strNum, const SearchData &sInfo);
 public slots:
     void getResult(const QStringList &list);
@@ -32,6 +33,8 @@ private slots:
 
     void on_listWidget_itemDoubleClicked(QListWidgetItem *item);
 
+
+    void on_pushButtonReplaceAll_clicked();
 
 private:
     Ui::SearchDialog *ui;

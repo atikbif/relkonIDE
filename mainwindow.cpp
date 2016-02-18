@@ -502,8 +502,8 @@ MainWindow::MainWindow(QWidget *parent) :
     /*ui->mdiArea->addSubWindow(editor);
     ui->mdiArea->addSubWindow(debugger);
     ui->mdiArea->addSubWindow(settings);
-    ui->mdiArea->tileSubWindows();//setViewMode(QMdiArea::TabbedView);
-    */
+    ui->mdiArea->tileSubWindows();//setViewMode(QMdiArea::TabbedView);*/
+
 
     setWindowState(Qt::WindowMaximized);
     createBuilder();
@@ -732,6 +732,7 @@ void MainWindow::searchText()
         connect(this,SIGNAL(searchRes(QStringList)),dialog,SLOT(getResult(QStringList)));
         connect(dialog,SIGNAL(goToStr(int,SearchData)),this,SLOT(goToStr(int,SearchData)));
         connect(dialog,SIGNAL(replace(QString)),this,SLOT(replaceTxt(QString)));
+        connect(dialog,SIGNAL(replaceAll(QString,QString)),this,SLOT(replaceAll(QString,QString)));
         dialog->show();
     }
 }
@@ -746,8 +747,12 @@ void MainWindow::searchCmd(const SearchData &sData)
 
     QTextCursor highlightCursor = editor->textCursor();
     highlightCursor = editor->document()->find(sData.getSearchText() , highlightCursor, flags);
+
+    int firstBlNum = -1;
+
     while(!highlightCursor.isNull()) {
         int blNum = highlightCursor.blockNumber();
+        if(firstBlNum==-1) firstBlNum = blNum;
         QString strText = editor->document()->findBlockByNumber(blNum).text();
         if(sData.getWholeWord()) {
             QString exprStr = strText;
@@ -764,6 +769,37 @@ void MainWindow::searchCmd(const SearchData &sData)
             sList << strText;
         }
         highlightCursor = editor->document()->find(sData.getSearchText(), highlightCursor, flags);
+    }
+    if(sData.getRoundCondition()) {
+        highlightCursor = editor->textCursor();
+        highlightCursor.movePosition(QTextCursor::Start);
+        if(flags & QTextDocument::FindBackward) {highlightCursor.movePosition(QTextCursor::End);}
+        highlightCursor = editor->document()->find(sData.getSearchText() , highlightCursor, flags);
+        while(!highlightCursor.isNull()) {
+            int blNum = highlightCursor.blockNumber();
+
+            if(firstBlNum != -1) {
+                if(flags & QTextDocument::FindBackward) {if(blNum<firstBlNum) break;}
+                else if(blNum>firstBlNum) break;
+            }
+
+            QString strText = editor->document()->findBlockByNumber(blNum).text();
+            if(sData.getWholeWord()) {
+                QString exprStr = strText;
+                QString searchText = sData.getSearchText();
+                if(!sData.getCaseSensivity()) {
+                    exprStr = exprStr.toLower();
+                    searchText = searchText.toLower();
+                }
+                QRegExp exp("\\b"+ searchText + "\\b");
+                if(exp.indexIn(exprStr)==-1) strText="";
+            }
+            if(!strText.isEmpty()) {
+                strText = QString::number(blNum+1) + ": " + strText;
+                sList << strText;
+            }
+            highlightCursor = editor->document()->find(sData.getSearchText(), highlightCursor, flags);
+        }
     }
     emit searchRes(sList);
 }
@@ -807,6 +843,32 @@ void MainWindow::replaceTxt(const QString &newTxt)
     if(!curs.selectedText().isEmpty()) {
         curs.insertText(newTxt);
     }
+}
+
+void MainWindow::replaceAll(const QString &inp, const QString &out)
+{
+    QTextCursor cursor = editor->textCursor();
+    cursor.beginEditBlock();
+    cursor.movePosition(QTextCursor::Start);
+    QTextCursor newCursor = cursor;
+    quint64 count = 0;
+    QTextDocument::FindFlags options;
+    options = options | QTextDocument::FindCaseSensitively;
+    options = options | QTextDocument::FindWholeWords;
+    while (true)
+    {
+        newCursor = editor->document()->find(inp, newCursor, options);
+        if (!newCursor.isNull())
+        {
+            if (newCursor.hasSelection())
+            {
+                newCursor.insertText(out);
+                count++;
+            }
+        }else break;
+    }
+    cursor.endEditBlock();
+    QMessageBox::information(this, tr("ReplaceAll"), tr("количество замен - %1").arg(count));
 }
 
 void MainWindow::buildPr()

@@ -12,6 +12,7 @@ class SearchData
     int searchRegion;
     bool wholeWord;
     bool caseSensivity;
+    bool round;
 public:
     enum {FORWARD,BACKWARD};
     SearchData();
@@ -25,6 +26,8 @@ public:
     void setWholeWord(bool value);
     bool getCaseSensivity() const;
     void setCaseSensivity(bool value);
+    bool getRoundCondition(void) const {return round;}
+    void setRoundcondition(bool value) {round = value;}
 };
 
 #endif // SEARCHDATA_H

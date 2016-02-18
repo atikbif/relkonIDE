@@ -437,7 +437,12 @@ void DebuggerForm::on_startButton_clicked()
 void DebuggerForm::on_stopButton_clicked()
 {
     scan->stopDebugger();
-    while(scan->isWorking());
+    int cnt = 0;
+    while(scan->isWorking()) {
+        cnt++;
+        QThread::msleep(1);
+        if(cnt>=1000) break;
+    }
     ui->tabWidgetCanal->setEnabled(true);
     ui->pushButtonTimeWrite->setEnabled(false);
     ui->radioButtonCOM->setEnabled(true);

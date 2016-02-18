@@ -2,6 +2,7 @@
 #include "ui_searchdialog.h"
 #include <QMessageBox>
 #include <QKeyEvent>
+#include <QClipboard>
 
 int SearchDialog::cnt = 0;
 QStringList SearchDialog::hist = QStringList();
@@ -23,7 +24,14 @@ SearchDialog::SearchDialog(QString inp, QWidget *parent) :
     }
     if(!inp.isEmpty()) {
         ui->comboBoxSearch->setCurrentText(inp);
+    }else {
+        QClipboard *clipboard = QApplication::clipboard();
+        QString bufData = clipboard->text();
+        if(!bufData.isEmpty()) {
+            ui->comboBoxSearch->setCurrentText(bufData);
+        }
     }
+    ui->comboBoxSearch->setFocus();
     ui->comboBoxSearch->setInsertPolicy(QComboBox::InsertAtTop);
 }
 
@@ -51,6 +59,7 @@ void SearchDialog::on_pushButtonSearch_clicked()
         hist.append(ui->comboBoxSearch->currentText());
         //ui->comboBoxSearch->insertItem(0,ui->comboBoxSearch->currentText());
         SearchData sData;
+        sData.setRoundcondition(ui);
         sData.setSearchText(ui->comboBoxSearch->currentText());
         sData.setReplaceText("");
         sData.setCaseSensivity(ui->checkBoxCaseSens->isChecked());
@@ -112,3 +121,10 @@ void SearchDialog::keyPressEvent(QKeyEvent *event)
 
 }
 
+
+void SearchDialog::on_pushButtonReplaceAll_clicked()
+{
+    if(!ui->lineEditReplace->text().isEmpty()) {
+        emit replaceAll(ui->comboBoxSearch->currentText(), ui->lineEditReplace->text());
+    }
+}
