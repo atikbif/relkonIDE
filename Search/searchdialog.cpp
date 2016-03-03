@@ -118,13 +118,15 @@ void SearchDialog::keyPressEvent(QKeyEvent *event)
         ui->listWidget->setFocus();
         break;
     case Qt::Key_Return:
-        if(ui->comboBoxSearch->hasFocus()) {
+        bool focus = false;
+        if(!ui->listWidget->hasFocus()) {
+            focus = true;
             on_pushButtonSearch_clicked();
-            ui->listWidget->setFocus();
         }
         QListWidgetItem *item = ui->listWidget->currentItem();
         if(item!=nullptr) on_listWidget_itemDoubleClicked(item);
         ui->listWidget->setFocus();
+        if(focus) ui->comboBoxSearch->setFocus();
         break;
     }
 

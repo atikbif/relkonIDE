@@ -752,7 +752,12 @@ void MainWindow::searchCmd(const SearchData &sData)
     if(sData.getSearchRegion()==SearchData::BACKWARD) flags |= QTextDocument::FindBackward;
 
     QTextCursor highlightCursor = editor->textCursor();
-    highlightCursor = editor->document()->find(sData.getSearchText() , highlightCursor, flags);
+    if(sData.getWholeWord()) {
+        QRegExp exp("\\b"+ sData.getSearchText() + "\\b");
+        highlightCursor = editor->document()->find(exp , highlightCursor, flags);
+    }else {
+        highlightCursor = editor->document()->find(sData.getSearchText() , highlightCursor, flags);
+    }
 
     int firstBlNum = -1;
     int startBlNum = -1;
@@ -778,13 +783,23 @@ void MainWindow::searchCmd(const SearchData &sData)
             strText = QString::number(blNum+1) + ": " + strText;
             sList << strText;
         }
-        highlightCursor = editor->document()->find(sData.getSearchText(), highlightCursor, flags);
+        if(sData.getWholeWord()) {
+            QRegExp exp("\\b"+ sData.getSearchText() + "\\b");
+            highlightCursor = editor->document()->find(exp , highlightCursor, flags);
+        }else {
+            highlightCursor = editor->document()->find(sData.getSearchText() , highlightCursor, flags);
+        }
     }
     if(sData.getRoundCondition()) {
         highlightCursor = editor->textCursor();
         highlightCursor.movePosition(QTextCursor::Start);
         if(flags & QTextDocument::FindBackward) {highlightCursor.movePosition(QTextCursor::End);}
-        highlightCursor = editor->document()->find(sData.getSearchText() , highlightCursor, flags);
+        if(sData.getWholeWord()) {
+            QRegExp exp("\\b"+ sData.getSearchText() + "\\b");
+            highlightCursor = editor->document()->find(exp , highlightCursor, flags);
+        }else {
+            highlightCursor = editor->document()->find(sData.getSearchText() , highlightCursor, flags);
+        }
         while(!highlightCursor.isNull()) {
             int blNum = highlightCursor.blockNumber();
 
@@ -813,7 +828,12 @@ void MainWindow::searchCmd(const SearchData &sData)
                 strText = QString::number(blNum+1) + ": " + strText;
                 sList << strText;
             }
-            highlightCursor = editor->document()->find(sData.getSearchText(), highlightCursor, flags);
+            if(sData.getWholeWord()) {
+                QRegExp exp("\\b"+ sData.getSearchText() + "\\b");
+                highlightCursor = editor->document()->find(exp , highlightCursor, flags);
+            }else {
+                highlightCursor = editor->document()->find(sData.getSearchText() , highlightCursor, flags);
+            }
         }
     }
     emit searchRes(sList);

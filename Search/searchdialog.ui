@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>648</width>
-    <height>300</height>
+    <width>666</width>
+    <height>375</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -57,24 +57,24 @@
      </property>
     </spacer>
    </item>
-   <item row="0" column="3">
+   <item row="1" column="0">
     <widget class="QLineEdit" name="lineEditReplace"/>
    </item>
-   <item row="0" column="4">
+   <item row="1" column="1">
     <widget class="QPushButton" name="pushButtonReplace">
      <property name="text">
       <string>Заменить (Ctrl+H)</string>
      </property>
     </widget>
    </item>
-   <item row="0" column="5">
+   <item row="1" column="2">
     <widget class="QPushButton" name="pushButtonReplaceAll">
      <property name="text">
       <string>Заменить всё</string>
      </property>
     </widget>
    </item>
-   <item row="1" column="0" colspan="6">
+   <item row="2" column="0" colspan="3">
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
       <string/>
@@ -134,7 +134,7 @@
      </layout>
     </widget>
    </item>
-   <item row="2" column="0" colspan="6">
+   <item row="3" column="0" colspan="3">
     <widget class="QListWidget" name="listWidget"/>
    </item>
   </layout>
