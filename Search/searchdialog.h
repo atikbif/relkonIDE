@@ -24,6 +24,7 @@ signals:
     void replace(const QString &newText);
     void replaceAll(const QString &inpText, const QString &outText);
     void goToStr(int strNum, const SearchData &sInfo);
+    void unfoldStr(int strNum);
 public slots:
     void getResult(const QStringList &list);
 private slots:

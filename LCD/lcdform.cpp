@@ -138,7 +138,7 @@ LCDForm::LCDForm(Display &d, VarsCreator &vCr, QWidget *parent) :
 
     //dW->setMinimumHeight(height);
     dW->setFixedHeight(height);
-    dW->setFixedWidth(height*2.5);
+    dW->setFixedWidth(height*2.8);
 
     layout->addWidget(dW,0,0,1,8);
     PatternEditorWidget* pEd = new PatternEditorWidget(displ,varOwner,this);

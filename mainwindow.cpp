@@ -115,6 +115,7 @@ int MainWindow::openFileByName(const QString &fName)
         on_closeInfoListButton_clicked();
 
         prChangedFlag = false;
+        ui->tabWidget->setTabText(0,"Редактор");
         ui->tabWidget->setEnabled(true);
         noProject = false;
         connect(editor,SIGNAL(textChanged()),this,SLOT(prWasChanged()));
@@ -151,6 +152,7 @@ void MainWindow::saveFileByName(const QString &fName)
         RCompiler::setInpDirName(fInfo.dir().path());
         RCompiler::setInpKonFileName(fInfo.fileName());
         prChangedFlag = false;
+        ui->tabWidget->setTabText(0,"Редактор");
         if(settings!=nullptr) {
             settings->setKonFileName(fName);
             settings->saveSettings();
@@ -513,6 +515,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->tabWidget->setEnabled(false);
     //QThread::msleep(1000);
     prChangedFlag = false;
+    ui->tabWidget->setTabText(0,"Редактор");
     disableActionWithoutProject();
     //connect(editor,SIGNAL(textChanged()),this,SLOT(prWasChanged()));
 }
@@ -597,6 +600,7 @@ void MainWindow::newFile()
     //
 
     prChangedFlag = false;
+    ui->tabWidget->setTabText(0,"Редактор");
     if(settings!=nullptr) {
         //settings->setKonFileName("");
         settings->clearSettings();
@@ -695,6 +699,7 @@ void MainWindow::closeProject()
     noProject = true;
     disconnect(editor,SIGNAL(textChanged()),this,SLOT(prWasChanged()));
     prChangedFlag = false;
+    ui->tabWidget->setTabText(0,"Редактор");
     setWindowTitle(wTitle);
     /*QAction* undoAct;
     QAction* redoAct;
@@ -731,6 +736,7 @@ void MainWindow::searchText()
         connect(dialog,SIGNAL(startSearch(SearchData)),this,SLOT(searchCmd(SearchData)));
         connect(this,SIGNAL(searchRes(QStringList)),dialog,SLOT(getResult(QStringList)));
         connect(dialog,SIGNAL(goToStr(int,SearchData)),this,SLOT(goToStr(int,SearchData)));
+        connect(dialog,SIGNAL(unfoldStr(int)),this,SLOT(unfoldStr(int)));
         connect(dialog,SIGNAL(replace(QString)),this,SLOT(replaceTxt(QString)));
         connect(dialog,SIGNAL(replaceAll(QString,QString)),this,SLOT(replaceAll(QString,QString)));
         dialog->show();
@@ -749,10 +755,14 @@ void MainWindow::searchCmd(const SearchData &sData)
     highlightCursor = editor->document()->find(sData.getSearchText() , highlightCursor, flags);
 
     int firstBlNum = -1;
+    int startBlNum = -1;
 
     while(!highlightCursor.isNull()) {
         int blNum = highlightCursor.blockNumber();
-        if(firstBlNum==-1) firstBlNum = blNum;
+        if(startBlNum==-1) {
+            firstBlNum = startBlNum = blNum;
+            editor->setTextCursor(highlightCursor);
+        }
         QString strText = editor->document()->findBlockByNumber(blNum).text();
         if(sData.getWholeWord()) {
             QString exprStr = strText;
@@ -778,9 +788,14 @@ void MainWindow::searchCmd(const SearchData &sData)
         while(!highlightCursor.isNull()) {
             int blNum = highlightCursor.blockNumber();
 
-            if(firstBlNum != -1) {
-                if(flags & QTextDocument::FindBackward) {if(blNum<firstBlNum) break;}
-                else if(blNum>firstBlNum) break;
+            if(startBlNum != -1) {
+                if(flags & QTextDocument::FindBackward) {if(blNum<startBlNum) break;}
+                else if(blNum>startBlNum) break;
+            }
+
+            if(firstBlNum==-1) {
+                firstBlNum=blNum;
+                editor->setTextCursor(highlightCursor);
             }
 
             QString strText = editor->document()->findBlockByNumber(blNum).text();
@@ -807,18 +822,7 @@ void MainWindow::searchCmd(const SearchData &sData)
 void MainWindow::goToStr(int strNum, const SearchData &sData)
 {
     QTextBlock bl = editor->document()->findBlockByNumber(strNum);
-    QTextBlock block = bl;
-    if(!block.isVisible()) {
-        while(!block.isVisible()) {
-            block = block.previous();
-            if(block.isValid()) {
-                if(block.isVisible()) {
-                    editor->toggleFolding(block);
-                    break;
-                }
-            }
-        }
-    }
+    unfoldStr(strNum);
     QTextCursor highlightCursor(bl);
     editor->setTextCursor(highlightCursor);
     QTextDocument::FindFlags flags;
@@ -835,6 +839,22 @@ void MainWindow::goToStr(int strNum, const SearchData &sData)
         }
     }
 
+}
+
+void MainWindow::unfoldStr(int strNum)
+{
+    QTextBlock block = editor->document()->findBlockByNumber(strNum);
+    if(!block.isVisible()) {
+        while(!block.isVisible()) {
+            block = block.previous();
+            if(block.isValid()) {
+                if(block.isVisible()) {
+                    editor->toggleFolding(block);
+                    break;
+                }
+            }
+        }
+    }
 }
 
 void MainWindow::replaceTxt(const QString &newTxt)
@@ -1029,12 +1049,14 @@ void MainWindow::openPrevProject()
         openFileByName(fName);
         //QThread::msleep(1000);
         prChangedFlag = false;
+        ui->tabWidget->setTabText(0,"Редактор");
     }
 }
 
 void MainWindow::prWasChanged()
 {
     prChangedFlag = true;
+    ui->tabWidget->setTabText(0,"*Редактор");
 }
 
 void MainWindow::buildWithoutErrors()

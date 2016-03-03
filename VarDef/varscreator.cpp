@@ -53,7 +53,7 @@ void VarsCreator::addVarToTree(const QDomElement &e, CompositeVar *var, Composit
         QString name = var->getName();
         name.remove(QRegExp("\\[\\d+\\]"));
         var->setName(name);
-        var->setDataType("архив");
+        var->setDataType("массив");
 
         parent->addChild(*var);
         ids.addVar(var);
@@ -670,7 +670,7 @@ QString VarsCreator::getPultNameOfVar(const QString &idValue)
             return "sysTime_"+fName;
         }
 
-        if(var.getDataType()=="архив") {
+        if(var.getDataType()=="массив") {
             fName = "[" + fName + "]";
         }else if(var.getDataType()=="структура") {
             fName = "." + fName;

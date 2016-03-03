@@ -59,15 +59,23 @@ void SearchDialog::on_pushButtonSearch_clicked()
         hist.append(ui->comboBoxSearch->currentText());
         //ui->comboBoxSearch->insertItem(0,ui->comboBoxSearch->currentText());
         SearchData sData;
-        sData.setRoundcondition(ui);
+        sData.setRoundcondition(ui->checkBoxRound->isChecked());
         sData.setSearchText(ui->comboBoxSearch->currentText());
         sData.setReplaceText("");
         sData.setCaseSensivity(ui->checkBoxCaseSens->isChecked());
         sData.setWholeWord(ui->checkBoxWholeWord->isChecked());
         sData.setSearchRegion(ui->radioButtonForward->isChecked()?SearchData::FORWARD:SearchData::BACKWARD);
         emit startSearch(sData);
+
         QListWidgetItem *item = ui->listWidget->currentItem();
-        if(item!=nullptr) on_listWidget_itemDoubleClicked(item);
+        if(item!=nullptr) { //on_listWidget_itemDoubleClicked(item);
+            QRegExp exp("^(\\d+): ");
+            if(exp.indexIn(item->text())!=-1) {
+                int num = exp.cap(1).toInt();
+                emit unfoldStr(num-1);
+            }
+        }
+
         ui->listWidget->setFocus();
     }
 }
@@ -76,6 +84,7 @@ void SearchDialog::on_pushButtonReplace_clicked()
 {
     if(!ui->lineEditReplace->text().isEmpty()) {
         emit replace(ui->lineEditReplace->text());
+        on_pushButtonSearch_clicked();
     }
     ui->listWidget->setFocus();
 }

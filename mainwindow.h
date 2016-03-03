@@ -110,6 +110,7 @@ private slots:
     void searchText(void);
     void searchCmd(const SearchData &sData);
     void goToStr(int strNum, const SearchData &sData);
+    void unfoldStr(int strNum);
     void replaceTxt(const QString &newTxt);
     void replaceAll(const QString &inp, const QString &out);
     void buildPr(void);

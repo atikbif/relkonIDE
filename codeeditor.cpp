@@ -3,6 +3,7 @@
 #include <QTextBlock>
 #include "leftverticalwidget.h"
 #include <QPalette>
+#include <QScrollBar>
 
 
 /* определение и сохранение номеров текстовых блоков и их координат по вертикали */
@@ -51,6 +52,9 @@ CodeEditor::CodeEditor(QWidget *parent): QPlainTextEdit(parent)
     p.setColor(QPalette::Highlight, QColor("black"));
     p.setColor(QPalette::HighlightedText, QColor("yellow"));
     setPalette(p);
+
+    QScrollBar *vBar = verticalScrollBar();
+    vBar->setSingleStep(3);
 
     //setCenterOnScroll(true);
 }
