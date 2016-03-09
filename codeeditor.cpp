@@ -4,6 +4,7 @@
 #include "leftverticalwidget.h"
 #include <QPalette>
 #include <QScrollBar>
+#include <QAbstractSlider>
 
 
 /* определение и сохранение номеров текстовых блоков и их координат по вертикали */
@@ -54,7 +55,8 @@ CodeEditor::CodeEditor(QWidget *parent): QPlainTextEdit(parent)
     setPalette(p);
 
     QScrollBar *vBar = verticalScrollBar();
-    vBar->setSingleStep(3);
+    connect(vBar,SIGNAL(actionTriggered(int)),this,SLOT(handleScrollAction(int)));
+
 
     //setCenterOnScroll(true);
 }
@@ -99,6 +101,8 @@ void CodeEditor::paintEvent(QPaintEvent *event)
 
 void CodeEditor::mousePressEvent(QMouseEvent *event)
 {
+    QScrollBar *vBar = verticalScrollBar();
+    vBar->setSingleStep(1);
     QPlainTextEdit::mousePressEvent(event);
     QPlainTextEdit::ensureCursorVisible();
 }
@@ -237,6 +241,12 @@ void CodeEditor::unfoldAll()
         }
         block = block.next();
     }
+}
+
+void CodeEditor::handleScrollAction(int action)
+{
+    QScrollBar *bar = verticalScrollBar();
+    if(action==QAbstractSlider::SliderMove) bar->setSingleStep(3);else bar->setSingleStep(1);
 }
 
 /* сворачивание/разворачивание текстового блока */

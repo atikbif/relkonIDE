@@ -104,7 +104,8 @@ SOURCES += main.cpp\
     Search/searchdialog.cpp \
     Search/searchdata.cpp \
     Debugger/memviewdescription.cpp \
-    Debugger/aninpslider.cpp
+    Debugger/aninpslider.cpp \
+    pathstorage.cpp
 
 HEADERS  += mainwindow.h \
     codeeditor.h \
@@ -184,7 +185,8 @@ HEADERS  += mainwindow.h \
     Search/searchdialog.h \
     Search/searchdata.h \
     Debugger/memviewdescription.h \
-    Debugger/aninpslider.h
+    Debugger/aninpslider.h \
+    pathstorage.h
 
 FORMS    += mainwindow.ui \
     settingsform.ui \
