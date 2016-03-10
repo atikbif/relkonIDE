@@ -3,18 +3,19 @@
 #include <QProcess>
 #include <QDir>
 #include <QRegExp>
+#include "pathstorage.h"
 
-const QString RCompiler::dirOutName = "/obj";
-const QString RCompiler::dirBuildName = "/build";
+//const QString RCompiler::dirOutName = "/obj";
+//const QString RCompiler::dirBuildName = "/build";
 
 void RCompiler::init()
 {
     applPath = QCoreApplication::applicationDirPath();
     gccDir.setPath(applPath+"/arm-gcc/bin");
-    buildResDir.setPath(applPath+dirBuildName);
-    objDir.setPath(applPath+dirOutName);
+    buildResDir.setPath(PathStorage::getBuildDir());
+    objDir.setPath(PathStorage::getObjDir());
 
-    const QString fName = applPath+"/compiler.xml";
+    const QString fName = PathStorage::getSrcDir()+"/compiler.xml";
     QDomDocument domDoc;
     QFile file(fName);
     if(file.open(QIODevice::ReadOnly)) {
@@ -130,7 +131,7 @@ void RCompiler::createMemSizeFile()
     attr = QString(" ") + buildResDir.absolutePath()+QString("/project.elf");
 
     QFile logFile;
-    logFile.setFileName(buildResDir.absolutePath()+"/size.log");
+    logFile.setFileName(PathStorage::getSizeFileFullName());
     if(logFile.open(QIODevice::WriteOnly)){
         QTextStream out(&logFile);
         builder.start(program+attr);
@@ -147,7 +148,7 @@ void RCompiler::errorAnalysis()
 {
     QFile logFile;
     outMessage errInfo;
-    logFile.setFileName(buildResDir.absolutePath()+"/build.log");
+    logFile.setFileName(PathStorage::getLogFileFullName());
     if(logFile.open(QIODevice::ReadOnly)){
         QTextStream in(&logFile);
         QStringList errMessage;
@@ -215,9 +216,9 @@ QByteArray RCompiler::compFile(const QString &fName)
         QString program = gccDir.absolutePath() + "/arm-none-eabi-gcc.exe";
 
         QString attr = " " + patterns[patternName];
-        attr += " -I ./src";
-        attr += " -o ../.."+dirOutName+"/" + outName;
-        attr += " ../../src/" + fName;
+        attr += " -I \"" + PathStorage::getSrcDir() + "\"";
+        attr += " -o \"" + PathStorage::getObjDir() + "/" + outName + "\"";
+        attr += " \"" + PathStorage::getSrcDir() + "/" + fName + "\"";
 
         builder.start(program+attr);
         if (!builder.waitForFinished()) {
@@ -237,53 +238,6 @@ QByteArray RCompiler::compFile(const QString &fName)
 RCompiler::RCompiler()
 {
     init();
-}
-
-QString RCompiler::getBinFileName()
-{
-    QString buildFileName = getBuildDirName() + "/" + inpKonFileName;
-    buildFileName.remove(QRegExp("\\.kon"));
-    buildFileName+=".bin";
-    return buildFileName;
-}
-
-QString RCompiler::getKonFileName()
-{
-    return inpDirName + "/" + inpKonFileName;
-}
-
-QString RCompiler::getMapFileName()
-{
-    QString buildFileName = getBuildDirName() + "/" + inpKonFileName;
-    buildFileName.remove(QRegExp("\\.kon"));
-    buildFileName+=".map";
-    return buildFileName;
-}
-
-QString RCompiler::getDebugFileName()
-{
-    QString buildFileName = getBuildDirName() + "/" + inpKonFileName;
-    buildFileName.remove(QRegExp("\\.kon"));
-    buildFileName+="_debug.xml";
-    return buildFileName;
-}
-
-QString RCompiler::getBuildDirName()
-{
-    return inpDirName + dirBuildName;
-}
-
-QString RCompiler::inpDirName = "";
-QString RCompiler::inpKonFileName = "";
-
-void RCompiler::setInpDirName(const QString &path)
-{
-    inpDirName = path;
-}
-
-void RCompiler::setInpKonFileName(const QString &name)
-{
-    inpKonFileName = name;
 }
 
 void RCompiler::compile()
@@ -312,6 +266,9 @@ void RCompiler::compile()
 
 void RCompiler::link()
 {
+    QFile::remove(PathStorage::getLogFileFullName());
+    QFile::remove(PathStorage::getSizeFileFullName());
+
     QDir::setCurrent(gccDir.absolutePath());
 
     if(!objDir.exists()) objDir.mkdir(".");
@@ -323,7 +280,7 @@ void RCompiler::link()
     QString program = gccDir.absolutePath() + "/arm-none-eabi-gcc.exe";
 
     QFile logFile;
-    logFile.setFileName(buildResDir.absolutePath()+"/build.log");
+    logFile.setFileName(PathStorage::getLogFileFullName());
     if(logFile.open(QIODevice::WriteOnly)){
 
 
@@ -344,15 +301,15 @@ void RCompiler::link()
         // form attributes
         QString attr;
         for(int i=0;i<files.count();i++) {
-            attr+=" ../../obj/"+files[i].outName;
+            attr+=" \"" + PathStorage::getObjDir() + "/" + files[i].outName + "\"";
         }
         for(int i=0;i<linkFiles.count();i++) {
-            attr+=" ../../obj/"+linkFiles[i].outName;
+            attr+=" \"" + PathStorage::getObjDir() + "/" + linkFiles[i].outName + "\"";
         }
         attr+=" ";
 
         attr += linkPattern;
-        attr += QString(" -T ") + QString(" ../../src/") + linkScript;
+        attr += QString(" -T ") + "\"" + PathStorage::getSrcDir() + "/\"" + linkScript;
         attr += QString(" -o ") + buildResDir.absolutePath() + QString("/project.elf");
 
         // start build

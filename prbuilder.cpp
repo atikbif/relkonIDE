@@ -6,6 +6,7 @@
 #include <QApplication>
 #include <QRegExp>
 #include "VarDef/varparser.h"
+#include "pathstorage.h"
 
 
 int PrBuilder::convertStrNum(int cStrNum)
@@ -36,19 +37,12 @@ int PrBuilder::convertStrNum(int cStrNum)
 void PrBuilder::removeBuildFiles(const QString & prPath, const QString &prName)
 {
     Q_UNUSED(prName)
-    QString binFileName = RCompiler::getBinFileName();
-    QString mapFileName = RCompiler::getMapFileName();
+    Q_UNUSED(prPath)
+    QString binFileName = PathStorage::getBinFileFullName();
+    QString mapFileName = PathStorage::getMapFileFullName();
 
-    if(!prPath.isEmpty()) {
-        QDir dir(prPath + "/build");
-        if(!dir.exists()) {
-            dir.mkdir(".");
-        }
-        QFile::remove(binFileName);
-        QFile::remove(mapFileName);
-        QFile::remove(dir.path() + "/build.log");
-        QFile::remove(dir.path() + "/fc_u.c");
-    }
+    QFile::remove(binFileName);
+    QFile::remove(mapFileName);
 }
 
 PrBuilder::PrBuilder(const Display &d, QObject *parent) :
@@ -68,9 +62,7 @@ void PrBuilder::buildRequest(QString prPath, QString prName)
 
         // save file
 
-        QString fileName = QApplication::applicationDirPath();
-        fileName += "/src/input.kon";
-
+        QString fileName = PathStorage::getSrcDir() + "/input.kon";
 
         QFile file(fileName);
         if (file.open(QIODevice::WriteOnly)) {
@@ -105,10 +97,9 @@ void PrBuilder::buildRequest(QString prPath, QString prName)
                 emit printMessage(QDateTime::currentDateTime().time().toString() + " :сборка успешно закончена ");
 
                 // print project size
-                QString fileName = QApplication::applicationDirPath();
-                fileName += "/build/size.log";
+                QString fileName = PathStorage::getSizeFileFullName();
 
-                if(QFile::exists(QApplication::applicationDirPath()+"/build/project.elf")) {
+                if(QFile::exists(PathStorage::getBuildDir() + "/project.elf")) {
                     QFile sizeFile(fileName);
                     if (sizeFile.open(QIODevice::ReadOnly)) {
                         QTextStream in (&sizeFile);
@@ -122,24 +113,10 @@ void PrBuilder::buildRequest(QString prPath, QString prName)
                         sizeFile.close();
                     }
 
-                    if(!prPath.isEmpty()) {
-                        removeBuildFiles(prPath,prName);
-
-                        QString binFileName = RCompiler::getBinFileName();
-                        QString mapFileName = RCompiler::getMapFileName();
-
-                        bool copyFlag = true;
-                        copyFlag = copyFlag && QFile::copy(QApplication::applicationDirPath()+"/build/project.bin",binFileName);
-                        copyFlag = copyFlag && QFile::copy(QApplication::applicationDirPath()+"/build/memory.map",mapFileName);
-
-                        if(copyFlag) {
-                            emit printMessage("bin файл сохранён");
-                            VarParser parser(RCompiler::getKonFileName());
-                            parser.createXML();
-                            emit buildIsOk();
-                        }
-                        else emit printMessage("Ошибка сохранения BIN файла");
-                    }
+                    VarParser parser(PathStorage::getKonFileFullName());
+                    parser.createXML();
+                    emit printMessage(QDateTime::currentDateTime().time().toString() + " :создана карта памяти");
+                    emit buildIsOk();
                 }
 
             }else {
@@ -156,8 +133,6 @@ void PrBuilder::buildRequest(QString prPath, QString prName)
 
                 if(!prPath.isEmpty()) {
                     removeBuildFiles(prPath,prName);
-                    QFile::copy(QApplication::applicationDirPath()+"/build/build.log",prPath + "/build/build.log");
-                    QFile::copy(QApplication::applicationDirPath()+"/src/fc_u.c",prPath + "/build/fc_u.c");
                 }
 
             }

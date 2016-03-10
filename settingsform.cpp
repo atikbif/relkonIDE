@@ -9,6 +9,7 @@
 #include <QMessageBox>
 #include "Loader/sysframreadwrite.h"
 #include "RCompiler/rcompiler.h"
+#include "pathstorage.h"
 
 void SettingsForm::printFactorySettings()
 {
@@ -90,6 +91,7 @@ void SettingsForm::guiToData()
 
     if(ui->checkBoxDisplay->isChecked()) displayOn=true;else displayOn=false;
     if(ui->checkBoxSD->isChecked()) sdOn=true;else sdOn=false;
+    setPLCType(ui->comboBoxPLCType->currentText());
 }
 
 void SettingsForm::updateData()
@@ -128,6 +130,7 @@ void SettingsForm::updateData()
     else ui->checkBoxDisplay->setChecked(false);
     if(sdOn) ui->checkBoxSD->setChecked(true);
     else ui->checkBoxSD->setChecked(false);
+    ui->comboBoxPLCType->setCurrentText(getPLCType());
 
     printFactorySettings();
 }
@@ -242,6 +245,13 @@ SettingsForm::SettingsForm(SettingsBase *parent) :
             }
         }
     }
+    QStringList plcNames = getPLCNames();
+    plcNames.sort();
+
+    foreach (QString plcName, plcNames) {
+        ui->comboBoxPLCType->addItem(plcName);
+    }
+    ui->comboBoxPLCType->setCurrentText(getPLCType());
 
     connect(ui->radioButtonOneByte,SIGNAL(toggled(bool)),this,SLOT(radioButtonBytes_toggled()));
     connect(ui->radioButtonTwoBytes,SIGNAL(toggled(bool)),this,SLOT(radioButtonBytes_toggled()));
@@ -266,7 +276,7 @@ void SettingsForm::saveSettings()
 {
     QByteArray data;
     writeToBin(data);
-    QString fName = RCompiler::getKonFileName();//konFileName;
+    QString fName = PathStorage::getKonFileFullName();
     if(fName.isEmpty()) return;
     fName.remove(QRegExp("\\.kon"));
     fName += ".sfr";
@@ -279,6 +289,7 @@ void SettingsForm::saveSettings()
         stream << vers;
         stream << progAddr;
         stream << data;
+        stream << getPLCType();
         sFile->close();
     }
     delete sFile;
@@ -287,7 +298,8 @@ void SettingsForm::saveSettings()
 void SettingsForm::openSettings()
 {
     QByteArray data;
-    QString fName = RCompiler::getKonFileName();//konFileName;
+    QString fName = PathStorage::getKonFileFullName();
+    QString plc;
     if(fName.isEmpty()) return;
     fName.remove(QRegExp("\\.kon"));
     fName += ".sfr";
@@ -303,6 +315,8 @@ void SettingsForm::openSettings()
             if(versValue == 0x01) {
                 stream >> progAddr;
                 stream >> data;
+                stream >> plc;
+                setPLCType(plc);
                 if(stream.status()==QDataStream::Ok) {
                     readFromBin(data);
                     updateData();
@@ -484,4 +498,10 @@ void SettingsForm::on_pushButtonToPLC_clicked()
 void SettingsForm::on_spinBoxProgAddr_valueChanged(int arg1)
 {
     progAddr = arg1;
+}
+
+void SettingsForm::on_comboBoxPLCType_currentTextChanged(const QString &arg1)
+{
+    setPLCType(arg1);
+    PathStorage::setBuildName(getBuildName());
 }

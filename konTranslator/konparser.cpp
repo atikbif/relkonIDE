@@ -6,6 +6,7 @@
 #include <QDebug>
 #include <QDateTime>
 #include <QApplication>
+#include "pathstorage.h"
 
 KonParser::KonParser(const Display &d):lcd(d)
 {
@@ -51,8 +52,7 @@ void KonParser::addStringNum()
 
 int KonParser::readSourceFile()
 {
-    QString fileName = QApplication::applicationDirPath();
-    fileName += "/src/"+sourceKonFileName;
+    QString fileName = PathStorage::getSrcDir() + "/" + sourceKonFileName;
     QFile file(fileName);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
             return -1;

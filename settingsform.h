@@ -39,6 +39,8 @@ private slots:
     void on_pushButtonToPLC_clicked();  // обработка команды записи в ПЛК
     void on_spinBoxProgAddr_valueChanged(int arg1);
 
+    void on_comboBoxPLCType_currentTextChanged(const QString &arg1);
+
 public slots:
     void readFromBin(const QByteArray inpData); // прочитать настройки из бинарного массива
     void writeSysFram(void);

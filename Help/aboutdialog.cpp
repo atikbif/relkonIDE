@@ -3,6 +3,7 @@
 #include <QCoreApplication>
 #include <QFile>
 #include <QTextStream>
+#include "pathstorage.h"
 
 AboutDialog::AboutDialog(QWidget *parent) :
     QDialog(parent),
@@ -11,7 +12,7 @@ AboutDialog::AboutDialog(QWidget *parent) :
     ui->setupUi(this);
 
     QString relkVers="-";
-    QFile file(QApplication::applicationDirPath() + "/coreVersion.txt");
+    QFile file(PathStorage::getCoreVersionFileFullName());
     if(file.open(QFile::ReadOnly)) {
         QTextStream in(&file);
         relkVers = in.readAll();

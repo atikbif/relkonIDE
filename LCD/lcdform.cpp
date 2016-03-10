@@ -10,6 +10,7 @@
 #include "RCompiler/rcompiler.h"
 #include <QXmlStreamWriter>
 #include <QDesktopWidget>
+#include "pathstorage.h"
 
 void LCDForm::createEmptyStrings(QDomDocument &doc)
 {
@@ -172,7 +173,7 @@ void LCDForm::updFocus()
 
 void LCDForm::saveLCD()
 {
-    QString fName = RCompiler::getKonFileName();
+    QString fName = PathStorage::getKonFileFullName();
     fName.remove(QRegExp("\\.kon$"));
     fName+=".lcd";
     QFile file(fName);
@@ -230,7 +231,7 @@ void LCDForm::openLCD()
 {
     displ.clearDisplay();
     QDomDocument doc("lcd");
-    QString fName = RCompiler::getKonFileName();
+    QString fName = PathStorage::getKonFileFullName();
     fName.remove(QRegExp("\\.kon$"));
     fName+=".lcd";
     QFile file(fName);

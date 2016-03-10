@@ -2,6 +2,7 @@
 #include "ui_ymodemthread.h"
 #include "RCompiler/rcompiler.h"
 #include <QProgressBar>
+#include "pathstorage.h"
 
 YmodemThread::YmodemThread(const QString& pName, QWidget *parent) :
     QDialog(parent),
@@ -25,8 +26,8 @@ YmodemThread::YmodemThread(const QString& pName, QWidget *parent) :
     connect(loader,SIGNAL(bootError(QString)),this,SLOT(bootError(QString)));
     connect(this,SIGNAL(startProcess(QString,QString)),loader,SLOT(startProcess(QString,QString)));
     bootThread.start();
-    if(QFile::exists(RCompiler::getBinFileName())) {
-        emit startProcess(pName,RCompiler::getBinFileName());
+    if(QFile::exists(PathStorage::getBinFileFullName())) {
+        emit startProcess(pName,PathStorage::getBinFileFullName());
     }else {
         label->setVisible(true);
         label->setText("Ошибка открытия файла");

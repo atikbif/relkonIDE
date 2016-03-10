@@ -46,6 +46,10 @@ public:
     static QString getBinFileFullName();
     static QString getMapFileFullName();
     static QString getDebugFileFullName();
+    static QString getLogFileFullName();
+    static QString getSizeFileFullName();
+    static QString getCoreVersionFileFullName();
+    static QString getPLCListFileFullName();
 
 };
 

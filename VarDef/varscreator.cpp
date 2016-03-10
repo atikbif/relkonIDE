@@ -5,6 +5,7 @@
 #include <QFile>
 #include "varparser.h"
 #include "Debugger/memstorage.h"
+#include "pathstorage.h"
 
 void VarsCreator::addVarToTree(const QDomElement &e, CompositeVar *var, CompositeVar *parent)
 {
@@ -473,7 +474,7 @@ void VarsCreator::generateVarsTree()
     ids.addVar(userVars);
 
     QDomDocument doc("variables");
-    QString fName = RCompiler::getBuildDirName() + "/variables.xml";
+    QString fName = PathStorage::getBuildDir() + "/variables.xml";
     QFile file(fName);
     if (!file.open(QIODevice::ReadOnly)) return;
     if (!doc.setContent(&file)) {

@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <QByteArray>
+#include <QHash>
 
 class SettingsBase : public QWidget
 {
@@ -34,9 +35,13 @@ protected:
     bool displayOn;
     bool sdOn;
     QString konFileName;
+    QString plcType;
+    QHash<QString,QString> plcBuilds;
 
     virtual void updateData(void)=0;    // обновление GUI
     virtual void writeToBin(QByteArray &outData)=0; // запись настроек в бинарный массив
+
+    void readPLCTypes();
 
 
 public:
@@ -51,6 +56,10 @@ public:
     void updateOnyByte(int addr,quint8 value);
     virtual void updateTable(void);
     static int getCount(void) {return factorySettingsAmount;}
+    QString getPLCType() const {return plcType;}
+    void setPLCType(const QString &value) {plcType = value;}
+    QStringList getPLCNames() const {return plcBuilds.keys();}
+    QString getBuildName();
 
 signals:
     void writeToPLC(QByteArray binData);    // запрос записи данных в ПЛК

@@ -8,6 +8,7 @@
 #include <QMessageBox>
 #include "RCompiler/rcompiler.h"
 #include "VarDef/varitem.h"
+#include "pathstorage.h"
 
 void VarParser::getVarsBlock()
 {
@@ -163,8 +164,8 @@ bool VarParser::buildXML()
 
     if(readMapFile()) {
         xmlWriter.setAutoFormatting(true);
-        if(!RCompiler::getBuildDirName().contains(QRegExp("[\\w\\d]+"))) return false;
-        QFile file(RCompiler::getBuildDirName()+"/variables.xml");
+        if(!PathStorage::getBuildDir().contains(QRegExp("[\\w\\d]+"))) return false;
+        QFile file(PathStorage::getBuildDir()+"/variables.xml");
 
         if (!file.open(QIODevice::WriteOnly)) {return false;}
         else
@@ -229,7 +230,7 @@ bool VarParser::buildXML()
 
 bool VarParser::readMapFile()
 {
-    QString fName = RCompiler::getMapFileName();
+    QString fName = PathStorage::getMapFileFullName();
     QFile file(fName);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
             return false;
@@ -547,7 +548,7 @@ bool VarParser::createXML()
 
 bool VarParser::readSitNum(QVector<int> &addr, QVector<int> &prNum)
 {
-    QString fName = RCompiler::getMapFileName();
+    QString fName = PathStorage::getMapFileFullName();
     QFile file(fName);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
             return false;

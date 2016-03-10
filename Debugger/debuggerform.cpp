@@ -27,11 +27,12 @@
 #include <QFileInfo>
 #include <QDataStream>
 #include "aninpslider.h"
+#include "pathstorage.h"
 
 
 void DebuggerForm::saveView()
 {
-    QFile file(RCompiler::getDebugFileName());
+    QFile file(PathStorage::getDebugFileFullName());
     if(file.open(QIODevice::WriteOnly)) {
         QXmlStreamWriter xmlWriter(&file);
         xmlWriter.setAutoFormatting(true);
@@ -89,7 +90,7 @@ void DebuggerForm::openView()
     scheduler.clear();
 
     QDomDocument doc("debug");
-    QString fName = RCompiler::getDebugFileName();
+    QString fName = PathStorage::getDebugFileFullName();
     QFile file(fName);
     if (!file.open(QIODevice::ReadOnly)) return;
     if (!doc.setContent(&file)) {
@@ -1124,7 +1125,7 @@ void DebuggerForm::openInputs()
     if(!scan->isWorking()) {
         QMessageBox::information(this,"сообщение","Необходимо предварительно запустить отладчик");
     }else {
-        QString  konFileName = RCompiler::getKonFileName();
+        QString  konFileName = PathStorage::getKonFileFullName();
         QString path = QFileInfo(konFileName).absoluteDir().absolutePath();
         QString fName;
         fName = QFileDialog::getOpenFileName(this, tr("Загрузить состояния входов"),
@@ -1204,7 +1205,7 @@ void DebuggerForm::saveInputs()
     QByteArray aiData = memStor.getData(MemStorage::ioMemName,0x0C,16);
     QByteArray mdiData = memStor.getData(MemStorage::ioMemName,0x24,32);
     QByteArray maiData = memStor.getData(MemStorage::ioMemName,0x64,256);
-    QString  konFileName = RCompiler::getKonFileName();
+    QString  konFileName = PathStorage::getKonFileFullName();
     QString path = QFileInfo(konFileName).absoluteDir().absolutePath();
     QString fName;
     fName = QFileDialog::getSaveFileName(this, tr("Сохранение состояния входов"),

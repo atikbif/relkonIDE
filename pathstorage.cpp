@@ -109,7 +109,7 @@ QString PathStorage::getKonFileName()
 QString PathStorage::getKonFileFullName()
 {
     QMutexLocker locker(&mutex);
-    return buildDir + "/" + konFileName;
+    return prDir + "/" + konFileName;
 }
 
 QString PathStorage::getBinFileFullName()
@@ -137,4 +137,32 @@ QString PathStorage::getDebugFileFullName()
     debugFileName.remove(QRegExp("\\.kon"));
     debugFileName+="_debug.xml";
     return debugFileName;
+}
+
+QString PathStorage::getLogFileFullName()
+{
+    QMutexLocker locker(&mutex);
+    QString logFileName = buildDir + "/build.log";
+    return logFileName;
+}
+
+QString PathStorage::getSizeFileFullName()
+{
+    QMutexLocker locker(&mutex);
+    QString sizeFileName = buildDir + "/size.log";
+    return sizeFileName;
+}
+
+QString PathStorage::getCoreVersionFileFullName()
+{
+    QMutexLocker locker(&mutex);
+    QString versFileName = coreDir + "/info.txt";
+    return versFileName;
+}
+
+QString PathStorage::getPLCListFileFullName()
+{
+    QMutexLocker locker(&mutex);
+    QString plcFileName = coreDir + "/controllers.xml";
+    return plcFileName;
 }

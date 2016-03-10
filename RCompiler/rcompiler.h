@@ -45,13 +45,6 @@ class RCompiler
 public:
     RCompiler();
     QVector<outMessage>& getOutErrors(void) {return errors;}
-    static QString getBinFileName(void);
-    static QString getKonFileName(void);
-    static QString getMapFileName(void);
-    static QString getDebugFileName(void);
-    static QString getBuildDirName(void);
-    static void setInpDirName(const QString &path);
-    static void setInpKonFileName(const QString &name);
     void compile(void);
     void link(void);
 };

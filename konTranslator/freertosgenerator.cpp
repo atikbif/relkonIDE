@@ -4,6 +4,7 @@
 #include <QFile>
 #include <QTextStream>
 #include <LCD/ccodecreator.h>
+#include "pathstorage.h"
 
 FreeRtosGenerator::FreeRtosGenerator(const Display &d): CHGenerator(d)
 {
@@ -176,11 +177,8 @@ void FreeRtosGenerator::translateKonToC()
 void FreeRtosGenerator::createIoDefinesH()
 {
     QString path = QCoreApplication::applicationDirPath();
-    const QString dirName = "/src";
-    QDir dir(path+dirName);
-    if(!dir.exists()) {
-        dir.mkdir(".");
-    }
+    QDir dir(PathStorage::getSrcDir());
+    if(!dir.exists()) {dir.mkdir(".");}
     QFile file(dir.path()+"/iodefines.h");
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
         errorList+="Ошибка создания " + file.fileName();
@@ -463,12 +461,8 @@ void FreeRtosGenerator::printProcess(QTextStream &out, int procId,int period)
 
 void FreeRtosGenerator::createFcuC()
 {
-    QString path = QCoreApplication::applicationDirPath();
-    const QString dirName = "/src";
-    QDir dir(path+dirName);
-    if(!dir.exists()) {
-        dir.mkdir(".");
-    }
+    QDir dir(PathStorage::getSrcDir());
+    if(!dir.exists()) {dir.mkdir(".");}
     QFile file(dir.path()+"/fc_u.c");
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
         errorList+="Ошибка создания " + file.fileName();

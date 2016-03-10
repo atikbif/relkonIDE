@@ -1,4 +1,7 @@
 #include "settingsbase.h"
+#include "pathstorage.h"
+#include <QDomDocument>
+#include <QFile>
 
 void SettingsBase::clearSettings()
 {
@@ -13,6 +16,8 @@ void SettingsBase::clearSettings()
     emulation = NoEmulation;
     displayOn = false;
     sdOn = false;
+    plcType = "PC365C";
+    readPLCTypes();
 }
 
 void SettingsBase::updateOnyByte(int addr, quint8 value)
@@ -22,6 +27,34 @@ void SettingsBase::updateOnyByte(int addr, quint8 value)
 
 void SettingsBase::updateTable()
 {
+
+}
+
+QString SettingsBase::getBuildName()
+{
+    return plcBuilds.value(plcType);
+}
+
+void SettingsBase::readPLCTypes()
+{
+    QDomDocument doc("plc");
+    QString fName = PathStorage::getPLCListFileFullName();
+    QFile file(fName);
+    if (!file.open(QIODevice::ReadOnly)) return;
+    if (!doc.setContent(&file)) {
+        return;
+    }
+
+    QDomNodeList controllers = doc.elementsByTagName("plc");
+    for(int i=0;i<controllers.count();i++) {
+        QDomNode n = controllers.item(i);
+        QDomElement e = n.toElement();
+        if(!e.isNull()) {
+            QString plcName = e.attribute("name");
+            QString plcBuild = e.attribute("build");
+            plcBuilds.insert(plcName,plcBuild);
+        }
+    }
 
 }
 

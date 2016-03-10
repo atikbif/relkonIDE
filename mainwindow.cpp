@@ -29,6 +29,7 @@
 #include "Help/aboutdialog.h"
 #include <QProcess>
 #include "Search/searchdialog.h"
+#include "pathstorage.h"
 
 
 
@@ -97,8 +98,10 @@ int MainWindow::openFileByName(const QString &fName)
         file.close();
         addMessageToInfoList(QDateTime::currentDateTime().time().toString() + " :Файл успешно открыт");
         setWindowTitle("(" + prFileName+") " + wTitle + " - " + fName);
-        RCompiler::setInpDirName(fInfo.dir().path());
-        RCompiler::setInpKonFileName(fInfo.fileName());
+
+        PathStorage::setPrDir(fInfo.dir().path());
+        PathStorage::setKonFileName(fInfo.fileName());
+
         if(settings!=nullptr) {
             settings->clearSettings();
             settings->setKonFileName(fName);
@@ -149,8 +152,10 @@ void MainWindow::saveFileByName(const QString &fName)
         file.close();
         //setWindowTitle(wTitle + " - " + fName);
         setWindowTitle("(" + prFileName+") " + wTitle + " - " + fName);
-        RCompiler::setInpDirName(fInfo.dir().path());
-        RCompiler::setInpKonFileName(fInfo.fileName());
+
+        PathStorage::setPrDir(fInfo.dir().path());
+        PathStorage::setKonFileName(fInfo.fileName());
+
         prChangedFlag = false;
         ui->tabWidget->setTabText(0,"Редактор");
         if(settings!=nullptr) {
@@ -486,6 +491,8 @@ MainWindow::MainWindow(QWidget *parent) :
         updatePrevProjects(prNames);
     }
 
+    PathStorage::setCoreDir(QApplication::applicationDirPath() + "/core");
+
     ui->tabWidget->clear();
     ui->tabWidget->tabBar()->setFont(QFont("Courier",12,QFont::Normal,false));
     ui->tabWidget->addTab(editor,"Редактор");
@@ -494,6 +501,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     varOwner = new VarsCreator();
     settings = new SettingsForm();
+    PathStorage::setBuildName(settings->getBuildName());
+
 
     ui->tabWidget->addTab(settings,"Настройки");
 
@@ -657,17 +666,12 @@ void MainWindow::saveFile()
                                                     path,
                                                     tr("Relkon Files (*.kon )"));
     else {
-        fileName = RCompiler::getKonFileName();
-
-        QFile file(fileName);
-        QFileInfo fInfo(file);
-        QDir dir(fInfo.dir().path()+ "/back");
-        if(!dir.exists()) {
-            dir.mkdir(".");
-        }
+        fileName = PathStorage::getKonFileFullName();
+        QDir dir(PathStorage::getBackDir());
+        if(!dir.exists()) {dir.mkdir(".");}
         QString backName = QDateTime::currentDateTime().toString();
         backName.replace(QRegExp("[\\s\\t\\.:]"),"_");
-        backName=fInfo.dir().path() + "/back/" +backName+".kon";
+        backName=PathStorage::getBackDir() + "/" + backName+".kon";
         QFile::copy(fileName,backName);
     }
     saveFileByName(fileName);
@@ -929,7 +933,7 @@ void MainWindow::buildPr()
 
 void MainWindow::projectToPlc()
 {
-    if(QFile::exists(RCompiler::getBinFileName())) {
+    if(QFile::exists(PathStorage::getBinFileFullName())) {
         debugger->stopDebugger();
         ScanGUI gui(settings->getProgAddr(),this);
         int ret = gui.exec();
@@ -941,7 +945,7 @@ void MainWindow::projectToPlc()
                 loader.exec();
             }
         }
-    }else QMessageBox::warning(this,"Загрузка","Ошибка открытия файла "+RCompiler::getBinFileName());
+    }else QMessageBox::warning(this,"Загрузка","Ошибка открытия файла "+PathStorage::getBinFileFullName());
 }
 
 void MainWindow::addMessageToInfoList(const QString &message)
