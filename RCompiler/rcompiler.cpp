@@ -80,15 +80,15 @@ void RCompiler::createMapFile()
 
     QDir::setCurrent(gccDir.absolutePath());
 
-    if (QFile::exists(buildResDir.absolutePath()+"/memory.map"))
-        QFile::remove(buildResDir.absolutePath()+"/memory.map");
+    if (QFile::exists(PathStorage::getMapFileFullName()))
+        QFile::remove(PathStorage::getMapFileFullName());
 
     QFile memFile;
-    memFile.setFileName(buildResDir.absolutePath()+"/memory.map");
+    memFile.setFileName(PathStorage::getMapFileFullName());
     if(memFile.open(QIODevice::WriteOnly)){
         QTextStream map(&memFile);
-        program = gccDir.absolutePath() + "/arm-none-eabi-readelf.exe";
-        attr = QString(" -a ") + buildResDir.absolutePath()+QString("/project.elf");
+        program = "\"" + gccDir.absolutePath() + "/arm-none-eabi-readelf.exe\"";
+        attr = QString(" -a \"") + buildResDir.absolutePath()+QString("/project.elf\"");
 
         builder.start(program+attr);
         if(builder.waitForFinished()) {
@@ -110,9 +110,9 @@ void RCompiler::createBinFile()
     if (QFile::exists(buildResDir.absolutePath()+"/project.bin"))
         QFile::remove(buildResDir.absolutePath()+"/project.bin");
 
-    program = gccDir.absolutePath() + "/arm-none-eabi-objcopy.exe";
-    attr = QString(" -O binary ") + buildResDir.absolutePath() + QString("/project.elf");
-    attr += QString(" ") + buildResDir.absolutePath() + QString("/project.bin");
+    program = "\"" + gccDir.absolutePath() + "/arm-none-eabi-objcopy.exe\"";
+    attr = QString(" -O binary \"") + buildResDir.absolutePath() + QString("/project.elf\"");
+    attr += QString(" \"") + buildResDir.absolutePath() + QString("/project.bin\"");
 
     builder.start(program+attr);
     builder.waitForFinished();
@@ -127,8 +127,8 @@ void RCompiler::createMemSizeFile()
 
     QDir::setCurrent(gccDir.absolutePath());
 
-    program = gccDir.absolutePath() + "/arm-none-eabi-size.exe";
-    attr = QString(" ") + buildResDir.absolutePath()+QString("/project.elf");
+    program = "\"" + gccDir.absolutePath() + "/arm-none-eabi-size.exe\"";
+    attr = QString(" \"") + buildResDir.absolutePath()+QString("/project.elf\"");
 
     QFile logFile;
     logFile.setFileName(PathStorage::getSizeFileFullName());
@@ -213,7 +213,7 @@ QByteArray RCompiler::compFile(const QString &fName)
         }
         QProcess builder;
         builder.setProcessChannelMode(QProcess::MergedChannels);
-        QString program = gccDir.absolutePath() + "/arm-none-eabi-gcc.exe";
+        QString program = "\"" + gccDir.absolutePath() + "/arm-none-eabi-gcc.exe\"";
 
         QString attr = " " + patterns[patternName];
         attr += " -I \"" + PathStorage::getSrcDir() + "\"";
@@ -277,7 +277,7 @@ void RCompiler::link()
     QProcess builder;
     builder.setProcessChannelMode(QProcess::MergedChannels);
     builder.setWorkingDirectory(gccDir.absolutePath());
-    QString program = gccDir.absolutePath() + "/arm-none-eabi-gcc.exe";
+    QString program = "\"" + gccDir.absolutePath() + "/arm-none-eabi-gcc.exe\"";
 
     QFile logFile;
     logFile.setFileName(PathStorage::getLogFileFullName());
@@ -309,15 +309,15 @@ void RCompiler::link()
         attr+=" ";
 
         attr += linkPattern;
-        attr += QString(" -T ") + "\"" + PathStorage::getSrcDir() + "/\"" + linkScript;
-        attr += QString(" -o ") + buildResDir.absolutePath() + QString("/project.elf");
+        attr += QString(" -T ") + "\"" + PathStorage::getSrcDir() + "/" + linkScript + "\"";
+        attr += QString(" -o ") + "\"" + buildResDir.absolutePath() + QString("/project.elf") + "\"";
 
         // start build
         builder.start(program+attr);
         if (!builder.waitForFinished())
             out << builder.errorString();
         else
-            out << builder.readAll();
+            out <<  builder.readAll();
 
         logFile.close();
 

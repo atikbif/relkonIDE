@@ -97,11 +97,13 @@ void PrBuilder::buildRequest(QString prPath, QString prName)
                 emit printMessage(QDateTime::currentDateTime().time().toString() + " :сборка успешно закончена ");
 
                 // print project size
+
                 QString fileName = PathStorage::getSizeFileFullName();
 
                 if(QFile::exists(PathStorage::getBuildDir() + "/project.elf")) {
                     QFile sizeFile(fileName);
                     if (sizeFile.open(QIODevice::ReadOnly)) {
+                        emit printMessage("-------расход памяти-------");
                         QTextStream in (&sizeFile);
                         while (!in.atEnd()) {
                             QString str = in.readLine();
@@ -111,12 +113,15 @@ void PrBuilder::buildRequest(QString prPath, QString prName)
                             emit printMessage(sList[0] + sList[1] + sList[2]);
                         }
                         sizeFile.close();
+                        emit printMessage("---------------------------");
                     }
 
                     VarParser parser(PathStorage::getKonFileFullName());
-                    parser.createXML();
-                    emit printMessage(QDateTime::currentDateTime().time().toString() + " :создана карта памяти");
-                    emit buildIsOk();
+                    emit printMessage(QDateTime::currentDateTime().time().toString() + " :анализ переменных проекта");
+                    if(parser.createXML()) {
+                        emit printMessage(QDateTime::currentDateTime().time().toString() + " :создание карты памяти завершено");
+                        emit buildIsOk();
+                    }else emit printMessage(QDateTime::currentDateTime().time().toString() + " :ошибка разбора переменных");
                 }
 
             }else {

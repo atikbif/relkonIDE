@@ -32,6 +32,8 @@
 
 void DebuggerForm::saveView()
 {
+    QDir dir(PathStorage::getBuildDir());
+    if(!dir.exists()) dir.mkdir(".");
     QFile file(PathStorage::getDebugFileFullName());
     if(file.open(QIODevice::WriteOnly)) {
         QXmlStreamWriter xmlWriter(&file);
