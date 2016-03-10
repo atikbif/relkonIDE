@@ -243,6 +243,27 @@ void CodeEditor::unfoldAll()
     }
 }
 
+void CodeEditor::keyReleaseEvent(QKeyEvent *event)
+{
+    switch(event->key()) {
+    case Qt::Key_Enter:
+    case Qt::Key_Return:
+
+        QTextCursor cursor = textCursor();
+        QTextBlock block = cursor.block();
+        block = block.previous();
+        if(block.isValid()) {
+            QString txt = block.text();
+            for(int i=0;i<txt.size();i++) {
+                if(txt.at(i)==' ') insertPlainText(" ");
+                else if(txt.at(i)=='\t') insertPlainText("\t");
+                else break;
+            }
+        }
+        break;
+    }
+}
+
 void CodeEditor::handleScrollAction(int action)
 {
     QScrollBar *bar = verticalScrollBar();

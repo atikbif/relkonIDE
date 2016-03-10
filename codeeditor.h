@@ -5,6 +5,7 @@
 #include <QTextBlockUserData>
 #include <QObject>
 #include "leftverticalwidget.h"
+#include <QKeyEvent>
 
 class QPaintEvent;
 class QResizeEvent;
@@ -51,6 +52,10 @@ private:
     QList<int> numList;
     QList<int> foldList;
 
+
+    // QWidget interface
+protected:
+    void keyReleaseEvent(QKeyEvent *event);
 };
 
 class LineNumberArea : public QWidget
