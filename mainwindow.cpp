@@ -30,6 +30,7 @@
 #include <QProcess>
 #include "Search/searchdialog.h"
 #include "pathstorage.h"
+#include "settingsbase.h"
 
 
 
@@ -188,6 +189,28 @@ void MainWindow::rdSysFramSlot()
     settings->readSysFram();
 }
 
+void MainWindow::emuModeChanged(SettingsBase::emuType value)
+{
+    if(value==SettingsBase::NoEmulation) noEmuAct->setIcon(QIcon(":/no_emu_on.ico"));else noEmuAct->setIcon(QIcon(":/no_emu_off.ico"));
+    if(value==SettingsBase::InputEmulation) emuInpAct->setIcon(QIcon(":/inp_emu_on.ico"));else emuInpAct->setIcon(QIcon(":/inp_emu_off.ico"));
+    if(value==SettingsBase::InputOutputEmulation) emuAct->setIcon(QIcon(":/all_emu_on.ico"));else emuAct->setIcon(QIcon(":/all_emu_off.ico"));
+}
+
+void MainWindow::emuInpActSlot()
+{
+    if(settings!=nullptr) settings->setEmuMode(SettingsBase::InputEmulation);
+}
+
+void MainWindow::noEmuActSlot()
+{
+    if(settings!=nullptr) settings->setEmuMode(SettingsBase::NoEmulation);
+}
+
+void MainWindow::emuInpOutpActSlot()
+{
+    if(settings!=nullptr) settings->setEmuMode(SettingsBase::InputOutputEmulation);
+}
+
 int MainWindow::saveWarning()
 {
     if(prChangedFlag || displ->getChanged()) {
@@ -328,6 +351,10 @@ void MainWindow::createToolbar()
     editGUI = new QAction(QIcon("://config.ico"), "Настройки среды", this);
     closeProjectAct = new QAction(QIcon("://close.ico"), "Закрыть проект", this);
 
+    noEmuAct = new QAction(QIcon("://no_emu_off.ico"), "без эмуляции", this);
+    emuAct = new QAction(QIcon("://all_emu_off.ico"), "полная эмуляция", this);
+    emuInpAct = new QAction(QIcon("://inp_emu_off.ico"), "эмуляция входов", this);
+
     connect(newAct, SIGNAL(triggered()), this, SLOT(newFile()));
     connect(openAct, SIGNAL(triggered()), this, SLOT(openFile()));
     connect(saveAct, SIGNAL(triggered()), this, SLOT(saveFile()));
@@ -337,10 +364,14 @@ void MainWindow::createToolbar()
     connect(buildAct, SIGNAL(triggered()), this, SLOT(buildPr()));
     connect(toPlcAct, SIGNAL(triggered()), this, SLOT(projectToPlc()));
     connect(saveAsAct,SIGNAL(triggered()), this, SLOT(saveAsFile()));
-    connect(importPultAct,SIGNAL(triggered()), this, SLOT(importPult()));
-    connect(closeProjectAct,SIGNAL(triggered()), this, SLOT(closeProject()));
-    connect(editGUI,SIGNAL(triggered()),this,SLOT(editIDESettings()));
-    connect(progrAllAct,SIGNAL(triggered(bool)),this,SLOT(progrAll()));
+    connect(importPultAct, SIGNAL(triggered()), this, SLOT(importPult()));
+    connect(closeProjectAct, SIGNAL(triggered()), this, SLOT(closeProject()));
+    connect(editGUI, SIGNAL(triggered()),this, SLOT(editIDESettings()));
+    connect(progrAllAct, SIGNAL(triggered(bool)), this, SLOT(progrAll()));
+
+    connect(noEmuAct, SIGNAL(triggered(bool)), this, SLOT(noEmuActSlot()));
+    connect(emuAct, SIGNAL(triggered(bool)), this, SLOT(emuInpOutpActSlot()));
+    connect(emuInpAct, SIGNAL(triggered(bool)), this, SLOT(emuInpActSlot()));
 
     ui->mainToolBar->addAction(newAct);
     ui->mainToolBar->addAction(openAct);
@@ -380,6 +411,10 @@ void MainWindow::createToolbar()
     ui->mainToolBar->addSeparator();
     ui->mainToolBar->addAction(foldAction);
     ui->mainToolBar->addAction(unfoldAction);
+    ui->mainToolBar->addSeparator();
+    ui->mainToolBar->addAction(noEmuAct);
+    ui->mainToolBar->addAction(emuInpAct);
+    ui->mainToolBar->addAction(emuAct);
     ui->mainToolBar->addWidget(spacer);
 }
 
@@ -508,6 +543,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     varOwner = new VarsCreator();
     settings = new SettingsForm();
+    connect(settings,SIGNAL(emuModeChanged(SettingsBase::emuType)),this,SLOT(emuModeChanged(SettingsBase::emuType)));
     PathStorage::setBuildName(settings->getBuildName());
 
 
@@ -565,6 +601,9 @@ void MainWindow::disableActionWithoutProject()
     toTableAction->setEnabled(false);
     wrSettings->setEnabled(false);
     rdSettings->setEnabled(false);
+    noEmuAct->setEnabled(false);
+    emuAct->setEnabled(false);
+    emuInpAct->setEnabled(false);
 }
 
 void MainWindow::enableActionWithProject()
@@ -586,6 +625,9 @@ void MainWindow::enableActionWithProject()
     toTableAction->setEnabled(true);
     wrSettings->setEnabled(true);
     rdSettings->setEnabled(true);
+    noEmuAct->setEnabled(true);
+    emuAct->setEnabled(true);
+    emuInpAct->setEnabled(true);
 }
 
 void MainWindow::newFile()

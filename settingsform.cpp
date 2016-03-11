@@ -122,9 +122,9 @@ void SettingsForm::updateData()
     ui->comboBoxPcProtocol->setCurrentIndex(pcUart.protocol);
     ui->comboBoxPcSpeed->setCurrentText(QString::number(pcUart.speed));
 
-    if(emulation==NoEmulation) ui->radioButtonNoEmulation->setChecked(true);
-    if(emulation==InputEmulation) ui->radioButtonInputEmulation->setChecked(true);
-    if(emulation==InputOutputEmulation) ui->radioButtonInputOutputEmulation->setChecked(true);
+    if(emulation==NoEmulation) {ui->radioButtonNoEmulation->setChecked(true);emit emuModeChanged(NoEmulation);}
+    if(emulation==InputEmulation) {ui->radioButtonInputEmulation->setChecked(true);emit emuModeChanged(InputEmulation);}
+    if(emulation==InputOutputEmulation) {ui->radioButtonInputOutputEmulation->setChecked(true);emit emuModeChanged(InputOutputEmulation);}
 
     if(displayOn) ui->checkBoxDisplay->setChecked(true);
     else ui->checkBoxDisplay->setChecked(false);
@@ -334,6 +334,20 @@ void SettingsForm::updateTable()
     printFactorySettings();
 }
 
+void SettingsForm::setEmuMode(SettingsBase::emuType value)
+{
+    if(value==emuType::NoEmulation) {
+        ui->radioButtonNoEmulation->setChecked(true);
+        emit emuModeChanged(NoEmulation);
+    }else if(value==emuType::InputEmulation) {
+        ui->radioButtonInputEmulation->setChecked(true);
+        emit emuModeChanged(InputEmulation);
+    }else if(value==emuType::InputOutputEmulation) {
+        ui->radioButtonInputOutputEmulation->setChecked(true);
+        emit emuModeChanged(InputOutputEmulation);
+    }
+}
+
 void SettingsForm::readFromBin(const QByteArray inpData)
 {
     if(inpData.count()>=settingsSize) {
@@ -504,4 +518,19 @@ void SettingsForm::on_comboBoxPLCType_currentTextChanged(const QString &arg1)
 {
     setPLCType(arg1);
     PathStorage::setBuildName(getBuildName());
+}
+
+void SettingsForm::on_radioButtonNoEmulation_clicked()
+{
+    emit emuModeChanged(emuType::NoEmulation);
+}
+
+void SettingsForm::on_radioButtonInputEmulation_clicked()
+{
+    emit emuModeChanged(emuType::InputEmulation);
+}
+
+void SettingsForm::on_radioButtonInputOutputEmulation_clicked()
+{
+    emit emuModeChanged(emuType::InputOutputEmulation);
 }

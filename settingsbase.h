@@ -60,10 +60,12 @@ public:
     void setPLCType(const QString &value) {plcType = value;}
     QStringList getPLCNames() const {return plcBuilds.keys();}
     QString getBuildName();
+    virtual void setEmuMode(emuType value)=0;
 
 signals:
     void writeToPLC(QByteArray binData);    // запрос записи данных в ПЛК
     void readFromPLC(void); // запрос чтения данных их ПЛК (результат ожидается в слоте readFromBin)
+    void emuModeChanged(SettingsBase::emuType value);
 public slots:
     virtual void readFromBin(const QByteArray inpData)=0;   // чтение настрое из бинарного массива
     virtual void writeSysFram(void) {}

@@ -30,6 +30,7 @@ public:
     void saveSettings(void);    // сохранить настройки в файл
     void openSettings(void);    // прочитать настройки из файла
     void updateTable(void);
+    void setEmuMode(emuType value);
 
 
 private slots:
@@ -40,6 +41,12 @@ private slots:
     void on_spinBoxProgAddr_valueChanged(int arg1);
 
     void on_comboBoxPLCType_currentTextChanged(const QString &arg1);
+
+    void on_radioButtonNoEmulation_clicked();
+
+    void on_radioButtonInputEmulation_clicked();
+
+    void on_radioButtonInputOutputEmulation_clicked();
 
 public slots:
     void readFromBin(const QByteArray inpData); // прочитать настройки из бинарного массива

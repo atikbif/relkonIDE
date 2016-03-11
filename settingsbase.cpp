@@ -18,6 +18,7 @@ void SettingsBase::clearSettings()
     sdOn = false;
     plcType = "PC365C";
     readPLCTypes();
+    emit emuModeChanged(NoEmulation);
 }
 
 void SettingsBase::updateOnyByte(int addr, quint8 value)

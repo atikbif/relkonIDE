@@ -34,5 +34,11 @@
         <file>close.ico</file>
         <file>../import.ico</file>
         <file>allToPLC.ico</file>
+        <file>inp_emu_on.ico</file>
+        <file>no_emu_on.ico</file>
+        <file>all_emu_on.ico</file>
+        <file>all_emu_off.ico</file>
+        <file>inp_emu_off.ico</file>
+        <file>no_emu_off.ico</file>
     </qresource>
 </RCC>

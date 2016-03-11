@@ -96,6 +96,9 @@ private:
     QAction *toTableAction;
     QAction *wrSettings;
     QAction *rdSettings;
+    QAction *noEmuAct;
+    QAction *emuInpAct;
+    QAction *emuAct;
 
     void disableActionWithoutProject(void);
     void enableActionWithProject(void);
@@ -143,6 +146,11 @@ private slots:
 
     void wrSysFramSlot(void);
     void rdSysFramSlot(void);
+    void emuModeChanged(SettingsBase::emuType value);
+
+    void emuInpActSlot(void);
+    void noEmuActSlot(void);
+    void emuInpOutpActSlot(void);
 
 
 public slots:
