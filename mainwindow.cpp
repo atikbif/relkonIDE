@@ -317,6 +317,7 @@ void MainWindow::createToolbar()
     newAct = new QAction(QIcon("://new_32.ico"), "Новый проект", this);
     openAct = new QAction(QIcon("://open_32.ico"), "Открыть", this);
     importPultAct = new QAction(QIcon("://import_pult.ico"), "Загрузить пульт версии 6.x",this);
+    progrAllAct = new QAction(QIcon("://allToPLC.ico"), "Загрузить программу и настройки в контроллер",this);
     saveAct = new QAction(QIcon("://save_32.ico"), "Сохранить", this);
     saveAsAct = new QAction(QIcon("://save_32.ico"), "Сохранить как", this);
     undoAct = new QAction(QIcon("://undo_32.ico"), "Отменить операцию", this);
@@ -339,6 +340,7 @@ void MainWindow::createToolbar()
     connect(importPultAct,SIGNAL(triggered()), this, SLOT(importPult()));
     connect(closeProjectAct,SIGNAL(triggered()), this, SLOT(closeProject()));
     connect(editGUI,SIGNAL(triggered()),this,SLOT(editIDESettings()));
+    connect(progrAllAct,SIGNAL(triggered(bool)),this,SLOT(progrAll()));
 
     ui->mainToolBar->addAction(newAct);
     ui->mainToolBar->addAction(openAct);
@@ -359,6 +361,7 @@ void MainWindow::createToolbar()
     connect(toTableAction,SIGNAL(triggered()),this,SLOT(lcdToTable()));
     //connect(fromTableAction,SIGNAL(triggered()),this,SLOT(tableToLcd()));
     ui->menuCmd->addAction(buildAct);
+    ui->menuCmd->addAction(progrAllAct);
     ui->menuCmd->addAction(toPlcAct);
     wrSettings = new QAction(QIcon("://writeData.png"),"Записать настройки F8",this);
     rdSettings = new QAction(QIcon("://readData.png"),"Прочитать настройки F9",this);
@@ -371,6 +374,7 @@ void MainWindow::createToolbar()
     ui->mainToolBar->addSeparator();
     ui->mainToolBar->addAction(buildAct);
     ui->mainToolBar->addSeparator();
+    ui->mainToolBar->addAction(progrAllAct);
     ui->mainToolBar->addAction(toPlcAct);
     ui->mainToolBar->addAction(wrSettings);
     ui->mainToolBar->addSeparator();
@@ -549,6 +553,7 @@ void MainWindow::disableActionWithoutProject()
     srchAct->setEnabled(false);
     buildAct->setEnabled(false);
     toPlcAct->setEnabled(false);
+    progrAllAct->setEnabled(false);
     saveAct->setEnabled(false);
     saveAsAct->setEnabled(false);
     closeProjectAct->setEnabled(false);
@@ -569,6 +574,7 @@ void MainWindow::enableActionWithProject()
     srchAct->setEnabled(true);
     buildAct->setEnabled(true);
     toPlcAct->setEnabled(true);
+    progrAllAct->setEnabled(true);
     saveAct->setEnabled(true);
     saveAsAct->setEnabled(true);
     closeProjectAct->setEnabled(true);
@@ -949,6 +955,12 @@ void MainWindow::projectToPlc()
             }
         }
     }else QMessageBox::warning(this,"Загрузка","Ошибка открытия файла "+PathStorage::getBinFileFullName());
+}
+
+void MainWindow::progrAll()
+{
+    projectToPlc();
+    wrSysFramSlot();
 }
 
 void MainWindow::addMessageToInfoList(const QString &message)

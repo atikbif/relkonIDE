@@ -115,9 +115,7 @@ QString PathStorage::getKonFileFullName()
 QString PathStorage::getBinFileFullName()
 {
     QMutexLocker locker(&mutex);
-    QString binFileName = buildDir + "/" + konFileName;
-    binFileName.remove(QRegExp("\\.kon"));
-    binFileName+=".bin";
+    QString binFileName = buildDir + "/project.bin";
     return binFileName;
 }
 

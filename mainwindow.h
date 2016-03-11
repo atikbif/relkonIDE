@@ -80,6 +80,7 @@ private:
     QAction* srchAct;
     QAction* buildAct;
     QAction* toPlcAct;
+    QAction* progrAllAct;
     QAction* newAct;
     QAction* openAct;
     QAction* saveAct;
@@ -116,6 +117,7 @@ private slots:
     void replaceAll(const QString &inp, const QString &out);
     void buildPr(void);
     void projectToPlc(void);
+    void progrAll(void);
     void on_closeInfoListButton_clicked();
     void viewHelp(void);
     void viewAboutWindow(void);

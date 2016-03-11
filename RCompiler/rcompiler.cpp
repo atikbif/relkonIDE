@@ -107,12 +107,12 @@ void RCompiler::createBinFile()
 
     QDir::setCurrent(gccDir.absolutePath());
 
-    if (QFile::exists(buildResDir.absolutePath()+"/project.bin"))
-        QFile::remove(buildResDir.absolutePath()+"/project.bin");
+    if (QFile::exists(PathStorage::getBinFileFullName()))
+        QFile::remove(PathStorage::getBinFileFullName());
 
     program = "\"" + gccDir.absolutePath() + "/arm-none-eabi-objcopy.exe\"";
     attr = QString(" -O binary \"") + buildResDir.absolutePath() + QString("/project.elf\"");
-    attr += QString(" \"") + buildResDir.absolutePath() + QString("/project.bin\"");
+    attr += QString(" \"") + PathStorage::getBinFileFullName() + QString("\"");
 
     builder.start(program+attr);
     builder.waitForFinished();
