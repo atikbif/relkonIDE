@@ -49,7 +49,7 @@ void SearchDialog::getResult(const QStringList &list)
     foreach (QString str, edList) {
        ui->listWidget->addItem(str);
     }
-    ui->listWidget->setCurrentRow(0);
+    //ui->listWidget->setCurrentRow(0);
 }
 
 void SearchDialog::on_pushButtonSearch_clicked()
@@ -76,7 +76,7 @@ void SearchDialog::on_pushButtonSearch_clicked()
             }
         }
 
-        ui->listWidget->setFocus();
+        //ui->listWidget->setFocus();
     }
 }
 
@@ -86,7 +86,7 @@ void SearchDialog::on_pushButtonReplace_clicked()
         emit replace(ui->lineEditReplace->text());
         on_pushButtonSearch_clicked();
     }
-    ui->listWidget->setFocus();
+    //ui->listWidget->setFocus();
 }
 
 void SearchDialog::on_listWidget_itemDoubleClicked(QListWidgetItem *item)
@@ -115,18 +115,14 @@ void SearchDialog::keyPressEvent(QKeyEvent *event)
     case Qt::Key_F:
         if(event->modifiers()==Qt::ControlModifier)
             on_pushButtonSearch_clicked();
-        ui->listWidget->setFocus();
+        //ui->listWidget->setFocus();
         break;
     case Qt::Key_Return:
-        bool focus = false;
-        if(!ui->listWidget->hasFocus()) {
-            focus = true;
-            on_pushButtonSearch_clicked();
-        }
-        QListWidgetItem *item = ui->listWidget->currentItem();
-        if(item!=nullptr) on_listWidget_itemDoubleClicked(item);
-        ui->listWidget->setFocus();
-        if(focus) ui->comboBoxSearch->setFocus();
+    case Qt::Key_Enter:
+        if(ui->listWidget->hasFocus()) {
+            QListWidgetItem *item = ui->listWidget->currentItem();
+            if(item!=nullptr) on_listWidget_itemDoubleClicked(item);
+        }else {on_pushButtonSearch_clicked();}
         break;
     }
 
