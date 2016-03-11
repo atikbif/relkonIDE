@@ -165,16 +165,20 @@ void MainWindow::saveFileByName(const QString &fName)
             settings->saveSettings();
         }
         emit saveProject();
+        addMessageToInfoList(QDateTime::currentDateTime().time().toString() + ": проект успешно сохранён");
     }
 }
 
 void MainWindow::activateInfoPanel()
 {
-    //ui->listWidget->clear();
-    ui->listWidget->setVisible(true);
-    ui->closeInfoListButton->setVisible(true);
-    ui->horizontalSpacer->changeSize(1,1, QSizePolicy::Expanding, QSizePolicy::Fixed);
-    ui->infoLabel->setVisible(true);
+    if(ui->listWidget->isVisible()) on_closeInfoListButton_clicked();
+    else {
+        //ui->listWidget->clear();
+        ui->listWidget->setVisible(true);
+        ui->closeInfoListButton->setVisible(true);
+        ui->horizontalSpacer->changeSize(1,1, QSizePolicy::Expanding, QSizePolicy::Fixed);
+        ui->infoLabel->setVisible(true);
+    }
 }
 
 void MainWindow::wrSysFramSlot()
@@ -219,6 +223,9 @@ int MainWindow::saveWarning()
         msgBox.setInformativeText("Вы хотите сохранить изменения?");
         msgBox.setStandardButtons(QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
         msgBox.setDefaultButton(QMessageBox::Save);
+        msgBox.setButtonText(QMessageBox::Save, "сохранить");
+        msgBox.setButtonText(QMessageBox::Discard, "не сохранять");
+        msgBox.setButtonText(QMessageBox::Cancel, "отменить");
         int ret = msgBox.exec();
         switch (ret) {
           case QMessageBox::Save:
@@ -340,7 +347,7 @@ void MainWindow::createToolbar()
     newAct = new QAction(QIcon("://new_32.ico"), "Новый проект", this);
     openAct = new QAction(QIcon("://open_32.ico"), "Открыть", this);
     importPultAct = new QAction(QIcon("://import_pult.ico"), "Загрузить пульт версии 6.x",this);
-    progrAllAct = new QAction(QIcon("://allToPLC.ico"), "Загрузить программу и настройки в контроллер",this);
+    progrAllAct = new QAction(QIcon("://allToPLC.ico"), "Загрузить программу и настройки в контроллер F6",this);
     saveAct = new QAction(QIcon("://save_32.ico"), "Сохранить", this);
     saveAsAct = new QAction(QIcon("://save_32.ico"), "Сохранить как", this);
     undoAct = new QAction(QIcon("://undo_32.ico"), "Отменить операцию", this);
@@ -354,6 +361,9 @@ void MainWindow::createToolbar()
     noEmuAct = new QAction(QIcon("://no_emu_off.ico"), "без эмуляции", this);
     emuAct = new QAction(QIcon("://all_emu_off.ico"), "полная эмуляция", this);
     emuInpAct = new QAction(QIcon("://inp_emu_off.ico"), "эмуляция входов", this);
+
+    sysMessAction = new QAction(QIcon("://info.ico"),"Системные сообщения", this);
+    connect(sysMessAction,SIGNAL(triggered(bool)),this,SLOT(activateInfoPanel()));
 
     connect(newAct, SIGNAL(triggered()), this, SLOT(newFile()));
     connect(openAct, SIGNAL(triggered()), this, SLOT(openFile()));
@@ -415,6 +425,7 @@ void MainWindow::createToolbar()
     ui->mainToolBar->addAction(noEmuAct);
     ui->mainToolBar->addAction(emuInpAct);
     ui->mainToolBar->addAction(emuAct);
+    ui->mainToolBar->addAction(sysMessAction);
     ui->mainToolBar->addWidget(spacer);
 }
 
@@ -523,8 +534,6 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->menuEdit->addAction(srchAct);
     ui->menuEdit->addAction(foldAction);
     ui->menuEdit->addAction(unfoldAction);
-    QAction *sysMessAction = new QAction(QIcon("://info.ico"),"Системные сообщения", this);
-    connect(sysMessAction,SIGNAL(triggered(bool)),this,SLOT(activateInfoPanel()));
     ui->menuEdit->addAction(sysMessAction);
     ui->menuEdit->addAction(editGUI);
 
@@ -636,6 +645,7 @@ void MainWindow::newFile()
 
     addMessageToInfoList(QDateTime::currentDateTime().time().toString() + " :Новый проект");
 
+
     editor->clear();
     editor->appendPlainText("#DATA //-----Присвоение переменных программы.");
     editor->appendPlainText("    ");
@@ -656,6 +666,13 @@ void MainWindow::newFile()
     if(!dir.exists()) {
         dir.mkdir(".");
     }
+    PathStorage::setBuildName("master");
+
+    prDirPath = dir.absolutePath();
+    prFileName = "project.kon";
+
+
+
     saveFileByName(dir.absolutePath()+"/project.kon");
     //
 
@@ -668,11 +685,14 @@ void MainWindow::newFile()
     editor->document()->clearUndoRedoStacks();
     varOwner->generateVarsTree();
     emit newProject();
+
     ui->tabWidget->setEnabled(true);
     noProject = false;
     connect(editor,SIGNAL(textChanged()),this,SLOT(prWasChanged()));
 
     enableActionWithProject();
+
+    buildPr();
     //RCompiler::setInpDirName("");
     //RCompiler::setInpKonFileName("");
 
@@ -718,12 +738,25 @@ void MainWindow::saveFile()
                                                     tr("Relkon Files (*.kon )"));
     else {
         fileName = PathStorage::getKonFileFullName();
-        QDir dir(PathStorage::getBackDir());
-        if(!dir.exists()) {dir.mkdir(".");}
-        QString backName = QDateTime::currentDateTime().toString();
-        backName.replace(QRegExp("[\\s\\t\\.:]"),"_");
-        backName=PathStorage::getBackDir() + "/" + backName+".kon";
-        QFile::copy(fileName,backName);
+        if(prChangedFlag) {
+            QDir dir(PathStorage::getBackDir());
+            if(!dir.exists()) {dir.mkdir(".");}
+            QString backName = QDateTime::currentDateTime().toString();
+            backName.replace(QRegExp("[\\s\\t\\.:]"),"_");
+            backName=PathStorage::getBackDir() + "/" + backName+".kon";
+            QFile::copy(fileName,backName);
+        }
+        if(displ->getChanged()) {
+            QString lcdFileName = fileName;
+            lcdFileName.remove(".kon");
+            lcdFileName += ".lcd";
+            QDir dir(PathStorage::getBackDir());
+            if(!dir.exists()) {dir.mkdir(".");}
+            QString backName = QDateTime::currentDateTime().toString();
+            backName.replace(QRegExp("[\\s\\t\\.:]"),"_");
+            backName=PathStorage::getBackDir() + "/" + backName+".lcd";
+            QFile::copy(lcdFileName,backName);
+        }
     }
     saveFileByName(fileName);
 }
@@ -1018,6 +1051,7 @@ void MainWindow::addMessageToInfoList(const QString &message)
         ui->listWidget->item(ui->listWidget->count()-1)->setTextColor(QColor(0,50,0));
         ui->listWidget->item(ui->listWidget->count()-1)->setFont (QFont ("Courier", 10,QFont::Normal));
     }
+    ui->listWidget->setCurrentRow(ui->listWidget->count()-1);
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -1032,9 +1066,24 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
     case Qt::Key_F:
         if (QApplication::keyboardModifiers() && Qt::ControlModifier) searchText();
         break;
+    case Qt::Key_S:
+        if (QApplication::keyboardModifiers() && Qt::ControlModifier) saveFile();
+        if(!ui->listWidget->isVisible()) {
+            activateInfoPanel();
+            ui->listWidget->repaint();
+            QThread::sleep(1);
+            activateInfoPanel();
+        }
+
+        break;
     case Qt::Key_F5:
         if(buildAct->isEnabled()) {
             buildPr();
+        }
+        break;
+    case Qt::Key_F6:
+        if(progrAllAct->isEnabled()) {
+            progrAll();
         }
         break;
     case Qt::Key_F7:

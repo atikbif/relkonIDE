@@ -91,6 +91,7 @@ private:
     QAction *editGUI;
     QAction *helpBrAct;
     QAction *openSysFramFromRelkon6;
+    QAction *sysMessAction;
     QAction *foldAction;
     QAction *unfoldAction;
     QAction *toTableAction;
