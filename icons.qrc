@@ -32,5 +32,6 @@
         <file>mmb.ico</file>
         <file>build_32.ico</file>
         <file>close.ico</file>
+        <file>../import.ico</file>
     </qresource>
 </RCC>

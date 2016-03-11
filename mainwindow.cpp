@@ -59,6 +59,7 @@ void MainWindow::updatePrevProjects(const QStringList &prNames)
     QMenu *impMenu = ui->menuFile->addMenu("Import");
     impMenu->addAction(importPultAct);
     impMenu->addAction(openSysFramFromRelkon6);
+    impMenu->addAction(importPrAction);
     QMenu* recPr = new QMenu("Недавние проекты");
     ui->menuFile->addMenu(recPr);
     foreach(QString name, resList) {
@@ -475,6 +476,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     openSysFramFromRelkon6 = new QAction(QIcon("://database.ico"), "Загрузить зав. установки из Relkon 6.x", this);
     connect(openSysFramFromRelkon6,SIGNAL(triggered(bool)),this,SLOT(loadSysFramRelk6()));
+    importPrAction = new QAction(QIcon("://import.ico"), "Открыть проект версии 6.x", this);
+    connect(importPrAction,SIGNAL(triggered(bool)),this,SLOT(importProject()));
 
 
 
@@ -1139,12 +1142,17 @@ void MainWindow::tableToLcd()
 void MainWindow::importPult()
 {
     QString fName = getFileNameForPultImport();
+    importPult(fName);
+}
+
+int MainWindow::importPult(const QString &fName)
+{
     if(!fName.isEmpty()) {
         QDomDocument doc("pult");
         QFile file(fName);
-        if (!file.open(QIODevice::ReadOnly)) return;
+        if (!file.open(QIODevice::ReadOnly)) return 0;
         if (!doc.setContent(&file)) {
-            return;
+            return 0;
         }
         QDomNodeList rows = doc.elementsByTagName("Views");
         if(rows.count()==4) {
@@ -1161,9 +1169,54 @@ void MainWindow::importPult()
                 displ->deleteStr(i,0);
             }
             displ->setCursor(0,0);
+            return 1;
         }else {
             QMessageBox::warning(this,"Импортирование пульта","Некорректный формат файла.\n");
         }
+    }
+    return 0;
+}
+
+void MainWindow::importProject()
+{
+    QString dir = QFileDialog::getExistingDirectory(this, tr("Выберите каталог проекта"),
+                                                    PathStorage::getPrDir(),
+                                                    QFileDialog::ShowDirsOnly
+                                                    | QFileDialog::DontResolveSymlinks);
+    if(!dir.isEmpty()) {
+        QDir oldPr(dir);
+        QDir newPr(dir + "/Relkon7_project");
+        if(!newPr.exists()) newPr.mkdir(".");
+
+        QStringList konFiles;
+        konFiles = oldPr.entryList(QStringList() << "*.kon",
+                                         QDir::Files | QDir::NoSymLinks);
+        if(konFiles.count()) {
+            addMessageToInfoList("копирование kon файла");
+            QString konFile = newPr.absolutePath()+"/"+konFiles.at(0);
+            QFile::copy(oldPr.absolutePath()+"/"+konFiles.at(0), konFile);
+            if(openFileByName(konFile)==1) {
+                QStringList pultFiles;
+                pultFiles = oldPr.entryList(QStringList() << "*.plt",
+                                                 QDir::Files | QDir::NoSymLinks);
+                if(pultFiles.count()) {
+                    QString pultFile = oldPr.absolutePath()+"/"+pultFiles.at(0);
+                    if(importPult(pultFile)) {
+                        addMessageToInfoList("импорта пульта");
+                        QStringList rp6Files;
+                        rp6Files = oldPr.entryList(QStringList() << "*.rp6",
+                                                         QDir::Files | QDir::NoSymLinks);
+                        if(rp6Files.count()) {
+                            QString rp6File = oldPr.absolutePath()+"/"+rp6Files.at(0);
+                            if(loadSysFramRelk6(rp6File)) {
+                                addMessageToInfoList("импорт заводских настроек");
+                                buildPr();
+                            }else addMessageToInfoList("файл настроек не найден");
+                        }
+                    }
+                }else addMessageToInfoList("файл пульта не найден");
+            }
+        }else addMessageToInfoList("kon файл не найден");
     }
 }
 
@@ -1214,6 +1267,11 @@ void MainWindow::loadSysFramRelk6()
     QString fName = QFileDialog::getOpenFileName(this, tr("Импорт зав. установок"),
                                                     path,
                                                     tr("Relkon 6.x project (*.rp6 )"));
+    loadSysFramRelk6(fName);
+}
+
+int MainWindow::loadSysFramRelk6(const QString &fName)
+{
     if(!fName.isEmpty()) {
         QDomDocument doc;
         QFile file(fName);
@@ -1243,6 +1301,8 @@ void MainWindow::loadSysFramRelk6()
                 else QMessageBox::information(this,"Сообщение","Не найдено данных для обновления");
             }
             file.close();
+            return 1;
         }else QMessageBox::information(this,"Ошибка","Не удалось открыть файл");
     }
+    return 0;
 }

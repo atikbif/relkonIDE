@@ -86,6 +86,7 @@ private:
     QAction* saveAsAct;
     QAction* closeProjectAct;
     QAction *importPultAct;
+    QAction *importPrAction;
     QAction *editGUI;
     QAction *helpBrAct;
     QAction *openSysFramFromRelkon6;
@@ -129,10 +130,13 @@ private slots:
     void lcdToTable(void);
     void tableToLcd(void);
     void importPult(void);
+    int importPult(const QString &fName);
+    void importProject(void);
     void editIDESettings(void);
     void startReloader(void);
     void startMMBConfig(void);
     void loadSysFramRelk6(void);
+    int loadSysFramRelk6(const QString &fName);
     void activateInfoPanel(void);
 
     void wrSysFramSlot(void);
