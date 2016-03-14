@@ -44,6 +44,8 @@ class DebuggerForm : public QWidget
     ScanManager* scan;  // управление процессом опроса
     RequestScheduler scheduler; // планировщик запросов
 
+    QString lastOpenInpFile;
+
     VarItem wrVar;      // переменная для записи
     QCheckBox *adc8bit;
     QVector<QGroupBox*> ioBoxes;
@@ -118,6 +120,7 @@ private slots:
 
     void boxToggled(bool fl);
     void openInputs(void);
+    void openInputs(const QString &fName);
     void saveInputs(void);
 
     void on_lineEditTime_returnPressed();
@@ -126,6 +129,8 @@ private slots:
 
     void on_comboBoxMemType_currentIndexChanged(const QString &arg1);
     void memViewCellPressed(int r, int c);
+
+    void on_pushButtonOpenLastInp_clicked();
 
 public slots:
     void on_updateButton_clicked(); // запрос обновления деревьев

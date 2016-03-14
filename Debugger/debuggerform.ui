@@ -157,8 +157,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>98</width>
-            <height>28</height>
+            <width>671</width>
+            <height>493</height>
            </rect>
           </property>
          </widget>
@@ -180,8 +180,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>98</width>
-            <height>28</height>
+            <width>267</width>
+            <height>493</height>
            </rect>
           </property>
          </widget>
@@ -653,17 +653,27 @@
             <string>Слепок входов</string>
            </property>
            <layout class="QGridLayout" name="gridLayout_4">
-            <item row="0" column="0">
-             <widget class="QPushButton" name="pushButtonOpenInp">
-              <property name="text">
-               <string>open</string>
-              </property>
-             </widget>
-            </item>
             <item row="0" column="1">
              <widget class="QPushButton" name="pushButtonSaveInp">
               <property name="text">
-               <string>save</string>
+               <string>сохр.</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="0">
+             <widget class="QPushButton" name="pushButtonOpenInp">
+              <property name="text">
+               <string>загр.</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QPushButton" name="pushButtonOpenLastInp">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="text">
+               <string>загр. посл.</string>
               </property>
              </widget>
             </item>

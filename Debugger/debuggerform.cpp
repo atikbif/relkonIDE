@@ -312,7 +312,7 @@ void DebuggerForm::treeBuilder(const QString &varID, QTreeWidgetItem &item)
 }
 
 DebuggerForm::DebuggerForm(VarsCreator &vCr, QWidget *parent) :
-    QWidget(parent), varOwner(vCr),
+    QWidget(parent), varOwner(vCr), lastOpenInpFile(""),
     ui(new Ui::DebuggerForm)
 {
     scan = nullptr;
@@ -1184,71 +1184,78 @@ void DebuggerForm::openInputs()
         fName = QFileDialog::getOpenFileName(this, tr("Загрузить состояния входов"),
                                                         path,
                                                         tr("SnapShot file (*.inp )"));
-        if(!fName.isEmpty()) {
-            QFile file(fName);
-            if (file.open(QIODevice::ReadOnly)) {
-                QDataStream stream(&file);
-                stream.setVersion(QDataStream::Qt_5_4);
-                QByteArray diData,diDataCur;
-                QByteArray aiData,aiDataCur;
-                QByteArray mdiData,mdiDataCur;
-                QByteArray maiData,maiDataCur;
-                stream >> diData;
-                stream >> aiData;
-                stream >> mdiData;
-                stream >> maiData;
+        openInputs(fName);
+    }
+}
 
-                diDataCur = memStor.getData(MemStorage::ioMemName,0x00,5);
-                for(int i=0;i<diData.count();i++) {
-                    if(diDataCur.at(i)!=diData.at(i)) {
-                        VarItem var;
-                        var.setValue(QString::number(diData.at(i)));
-                        var.setDataType(VarItem::ucharType);
-                        var.setMemAddress(0x00 + i);
-                        var.setMemType(MemStorage::ioMemName);
-                        var.setPriority(1);
-                        scheduler.addWriteOperation(var);
-                    }
+void DebuggerForm::openInputs(const QString &fName)
+{
+    if(!fName.isEmpty()) {
+        lastOpenInpFile = fName;
+        ui->pushButtonOpenLastInp->setEnabled(true);
+        QFile file(fName);
+        if (file.open(QIODevice::ReadOnly)) {
+            QDataStream stream(&file);
+            stream.setVersion(QDataStream::Qt_5_4);
+            QByteArray diData,diDataCur;
+            QByteArray aiData,aiDataCur;
+            QByteArray mdiData,mdiDataCur;
+            QByteArray maiData,maiDataCur;
+            stream >> diData;
+            stream >> aiData;
+            stream >> mdiData;
+            stream >> maiData;
+
+            diDataCur = memStor.getData(MemStorage::ioMemName,0x00,5);
+            for(int i=0;i<diData.count();i++) {
+                if(diDataCur.at(i)!=diData.at(i)) {
+                    VarItem var;
+                    var.setValue(QString::number(diData.at(i)));
+                    var.setDataType(VarItem::ucharType);
+                    var.setMemAddress(0x00 + i);
+                    var.setMemType(MemStorage::ioMemName);
+                    var.setPriority(1);
+                    scheduler.addWriteOperation(var);
                 }
-                aiDataCur = memStor.getData(MemStorage::ioMemName,0x0C,16);
-                for(int i=0;i<aiData.count();i++) {
-                    if(aiDataCur.at(i)!=aiData.at(i)) {
-                        VarItem var;
-                        var.setValue(QString::number(aiData.at(i)));
-                        var.setDataType(VarItem::ucharType);
-                        var.setMemAddress(0x0C + i);
-                        var.setMemType(MemStorage::ioMemName);
-                        var.setPriority(1);
-                        scheduler.addWriteOperation(var);
-                    }
+            }
+            aiDataCur = memStor.getData(MemStorage::ioMemName,0x0C,16);
+            for(int i=0;i<aiData.count();i++) {
+                if(aiDataCur.at(i)!=aiData.at(i)) {
+                    VarItem var;
+                    var.setValue(QString::number(aiData.at(i)));
+                    var.setDataType(VarItem::ucharType);
+                    var.setMemAddress(0x0C + i);
+                    var.setMemType(MemStorage::ioMemName);
+                    var.setPriority(1);
+                    scheduler.addWriteOperation(var);
                 }
-                mdiDataCur = memStor.getData(MemStorage::ioMemName,0x24,32);
-                for(int i=0;i<mdiData.count();i++) {
-                    if(mdiDataCur.at(i)!=mdiData.at(i)) {
-                        VarItem var;
-                        var.setValue(QString::number(mdiData.at(i)));
-                        var.setDataType(VarItem::ucharType);
-                        var.setMemAddress(0x24 + i);
-                        var.setMemType(MemStorage::ioMemName);
-                        var.setPriority(1);
-                        scheduler.addWriteOperation(var);
-                    }
+            }
+            mdiDataCur = memStor.getData(MemStorage::ioMemName,0x24,32);
+            for(int i=0;i<mdiData.count();i++) {
+                if(mdiDataCur.at(i)!=mdiData.at(i)) {
+                    VarItem var;
+                    var.setValue(QString::number(mdiData.at(i)));
+                    var.setDataType(VarItem::ucharType);
+                    var.setMemAddress(0x24 + i);
+                    var.setMemType(MemStorage::ioMemName);
+                    var.setPriority(1);
+                    scheduler.addWriteOperation(var);
                 }
-                maiDataCur = memStor.getData(MemStorage::ioMemName,0x64,256);
-                for(int i=0;i<maiData.count();i++) {
-                    if(maiDataCur.at(i)!=maiData.at(i)) {
-                        VarItem var;
-                        var.setValue(QString::number(maiData.at(i)));
-                        var.setDataType(VarItem::ucharType);
-                        var.setMemAddress(0x64 + i);
-                        var.setMemType(MemStorage::ioMemName);
-                        var.setPriority(1);
-                        scheduler.addWriteOperation(var);
-                    }
+            }
+            maiDataCur = memStor.getData(MemStorage::ioMemName,0x64,256);
+            for(int i=0;i<maiData.count();i++) {
+                if(maiDataCur.at(i)!=maiData.at(i)) {
+                    VarItem var;
+                    var.setValue(QString::number(maiData.at(i)));
+                    var.setDataType(VarItem::ucharType);
+                    var.setMemAddress(0x64 + i);
+                    var.setMemType(MemStorage::ioMemName);
+                    var.setPriority(1);
+                    scheduler.addWriteOperation(var);
                 }
-                file.close();
-            }else QMessageBox::warning(this,"Предупреждение","Не удалось открыть файл");
-        }
+            }
+            file.close();
+        }else QMessageBox::warning(this,"Предупреждение","Не удалось открыть файл");
     }
 }
 
@@ -1336,4 +1343,13 @@ void DebuggerForm::on_comboBoxMemType_currentIndexChanged(const QString &arg1)
     if(arg1.toLower()=="ram") memView->setMemType(MemViewDescription::RAM);
     updateMemViewRequests();
     clearMemViewTable();
+}
+
+void DebuggerForm::on_pushButtonOpenLastInp_clicked()
+{
+    if(!scan->isWorking()) {
+        QMessageBox::information(this,"сообщение","Необходимо предварительно запустить отладчик");
+    }else {
+        openInputs(lastOpenInpFile);
+    }
 }
