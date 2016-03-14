@@ -59,11 +59,14 @@ class DebuggerForm : public QWidget
     void buildDIO(void);
     void updateIOFoldedState(void);
     QGroupBox* addDIO(const QString & name, int startAddress, int bitCnt);
-    QGroupBox* addAIO(const QString &grName, const QString &ioName, int addr, int startNum, int endNum);
+    QVector<QGroupBox*> addAIO(const QString &grName, const QString &ioName, int addr, int startNum, int endNum);
     void buildAIO(void);
     void updateIOVarGUI(const QString &id);
     void updateVarGUI(const QString &id);
     void updateMemVarGUI(const QString &id);
+
+    void updateMatchboxVisibility();
+    int getIOAddrByName(const QString &name);
 
 
 public:

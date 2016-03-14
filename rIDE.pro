@@ -105,7 +105,8 @@ SOURCES += main.cpp\
     Search/searchdata.cpp \
     Debugger/memviewdescription.cpp \
     Debugger/aninpslider.cpp \
-    pathstorage.cpp
+    pathstorage.cpp \
+    Debugger/matchboxexistance.cpp
 
 HEADERS  += mainwindow.h \
     codeeditor.h \
@@ -186,7 +187,8 @@ HEADERS  += mainwindow.h \
     Search/searchdata.h \
     Debugger/memviewdescription.h \
     Debugger/aninpslider.h \
-    pathstorage.h
+    pathstorage.h \
+    Debugger/matchboxexistance.h
 
 FORMS    += mainwindow.ui \
     settingsform.ui \

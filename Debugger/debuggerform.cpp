@@ -29,6 +29,8 @@
 #include "aninpslider.h"
 #include "pathstorage.h"
 
+#include "matchboxexistance.h"
+
 
 void DebuggerForm::saveView()
 {
@@ -188,7 +190,14 @@ void DebuggerForm::clearView()
     ioCheck.insert("OUT1",true);
     ioCheck.insert("OUT2",true);
     ioCheck.insert("OUT3",true);
-    ioCheck.insert("ADC1..8",true);
+    ioCheck.insert("ADC1",true);
+    ioCheck.insert("ADC2",true);
+    ioCheck.insert("ADC3",true);
+    ioCheck.insert("ADC4",true);
+    ioCheck.insert("ADC5",true);
+    ioCheck.insert("ADC6",true);
+    ioCheck.insert("ADC7",true);
+    ioCheck.insert("ADC8",true);
 }
 
 void DebuggerForm::tabChanged()
@@ -528,6 +537,8 @@ void DebuggerForm::updTree()
 {
     on_updateButton_clicked();
     openView();
+    updateMatchboxVisibility();
+    tabChanged();
 }
 
 void DebuggerForm::updateValuesTree()
@@ -609,11 +620,14 @@ void DebuggerForm::buildDIO()
         connect(boxOut,SIGNAL(toggled(bool)),this,SLOT(boxToggled(bool)));
         grLayout->addWidget(boxOut,2,i+1);
     }
+    MatchboxExistance mmb;
+    QString mmbList = mmb.getMatchboxFile();
     // модули Matchbox
     for(int i=0;i<32;i++) {
         QString name;
         name = "IN"+QString::number(i+4);
         QGroupBox *boxIn = addDIO(name,BitIO::mmbInputStartAddress + i,4);
+        if(!mmb.checkIO(name,mmbList)) boxIn->setVisible(false);
         ioBoxes+=boxIn;
         boxIn->setCheckable(true);
         connect(boxIn,SIGNAL(toggled(bool)),this,SLOT(boxToggled(bool)));
@@ -621,7 +635,9 @@ void DebuggerForm::buildDIO()
         grLayout->addWidget(boxIn,3+(i/6)*2,(i%6)+1);
 
         name = "OUT"+QString::number(i+4);
+
         QGroupBox *boxOut = addDIO(name,BitIO::mmbOutputStartAddress + i,4);
+        if(!mmb.checkIO(name,mmbList)) boxOut->setVisible(false);
         ioBoxes+=boxOut;
         boxOut->setCheckable(true);
         connect(boxOut,SIGNAL(toggled(bool)),this,SLOT(boxToggled(bool)));
@@ -671,13 +687,16 @@ QGroupBox *DebuggerForm::addDIO(const QString &name, int startAddress, int bitCn
     return box;
 }
 
-QGroupBox *DebuggerForm::addAIO(const QString &grName, const QString &ioName, int addr, int startNum, int endNum)
+QVector<QGroupBox*> DebuggerForm::addAIO(const QString &grName, const QString &ioName, int addr, int startNum, int endNum)
 {
-    QGroupBox *box = new QGroupBox(grName);
-    QVBoxLayout *vLayout = new QVBoxLayout(box);
+    //QGroupBox *box = new QGroupBox(grName);
+    //QVBoxLayout *vLayout = new QVBoxLayout(box);
+    Q_UNUSED(grName)
+    QVector<QGroupBox*> groups;
     for(int i=startNum;i<=endNum;i++) {
+        QGroupBox *box = new QGroupBox(ioName+QString::number(i));
         QHBoxLayout *hLayout = new QHBoxLayout();
-        QLabel *name = new QLabel(ioName+QString::number(i)+":");
+        //QLabel *name = new QLabel(ioName+QString::number(i)+":");
         //QSlider *slider = new QSlider(Qt::Horizontal);
         AnInpSlider *slider = new AnInpSlider();
         slider->setOrientation(Qt::Horizontal);
@@ -693,11 +712,16 @@ QGroupBox *DebuggerForm::addAIO(const QString &grName, const QString &ioName, in
                               "background: #e0e0f0;");
         number->setReadOnly(true);
         QLineEdit *comment = new QLineEdit();
-        hLayout->addWidget(name,0);
-        hLayout->addWidget(slider,1);
+
+        hLayout->addWidget(slider,2);
         hLayout->addWidget(number,1);
-        hLayout->addWidget(comment,1);
-        vLayout->addLayout(hLayout);
+        hLayout->addWidget(comment,2);
+        box->setLayout(hLayout);
+        box->setCheckable(true);
+        box->setFlat(true);
+        hLayout->setMargin(0);
+        connect(box,SIGNAL(toggled(bool)),this,SLOT(boxToggled(bool)));
+        groups+=box;
         AnIO *aDef = new AnIO();
         aDef->setName(ioName+QString::number(i));
         aDef->setAddress(addr+(i-startNum)*2);
@@ -707,8 +731,7 @@ QGroupBox *DebuggerForm::addAIO(const QString &grName, const QString &ioName, in
         anIoHash.insert(aDef->getAddress(),aDef);
         ioComments.insert(aDef->getName(),comment);
     }
-    box->setLayout(vLayout);
-    return box;
+    return groups;
 }
 
 void DebuggerForm::buildAIO()
@@ -721,32 +744,22 @@ void DebuggerForm::buildAIO()
     connect(adc8bit,SIGNAL(clicked(bool)),this,SLOT(adc8bitChanged()));
     vLayoutAn->addWidget(adc8bit);
 
-    QGroupBox *boxAdc = addAIO("ADC1..8","ADC",AnIO::inputStartAddress,1,8);
+    QVector<QGroupBox*> boxAdc = addAIO("ADC1..8","ADC",AnIO::inputStartAddress,1,8);
     ioBoxes+=boxAdc;
-    boxAdc->setCheckable(true);
-    connect(boxAdc,SIGNAL(toggled(bool)),this,SLOT(boxToggled(bool)));
-    vLayoutAn->addWidget(boxAdc);
+    foreach(QGroupBox* box, boxAdc) {vLayoutAn->addWidget(box);}
 
-    QGroupBox *boxDac = addAIO("DAC1..4","DAC",AnIO::outputStartAddress,1,4);
-    ioBoxes+=boxDac;
-    boxDac->setCheckable(true);
-    connect(boxDac,SIGNAL(toggled(bool)),this,SLOT(boxToggled(bool)));
-    boxDac->setChecked(false);
-    vLayoutAn->addWidget(boxDac);
-
-    QGroupBox *boxAdcMmb = addAIO("Matchbox ADC","ADC",AnIO::mmbInputStartAddress,9,136);
+    QVector<QGroupBox*> boxAdcMmb = addAIO("Matchbox ADC","ADC",AnIO::mmbInputStartAddress,9,136);
     ioBoxes += boxAdcMmb;
-    boxAdcMmb->setCheckable(true);
-    connect(boxAdcMmb,SIGNAL(toggled(bool)),this,SLOT(boxToggled(bool)));
-    boxAdcMmb->setChecked(false);
-    vLayoutAn->addWidget(boxAdcMmb);
+    foreach(QGroupBox* box, boxAdcMmb) vLayoutAn->addWidget(box);
 
-    QGroupBox *boxDacMmb = addAIO("Matchbox DAC","DAC",AnIO::mmbOutputStartAddress,5,68);
+    QVector<QGroupBox*> boxDac = addAIO("DAC1..4","DAC",AnIO::outputStartAddress,1,4);
+    ioBoxes+=boxDac;
+    foreach(QGroupBox* box, boxDac) vLayoutAn->addWidget(box);
+
+    QVector<QGroupBox*> boxDacMmb = addAIO("Matchbox DAC","DAC",AnIO::mmbOutputStartAddress,5,68);
     ioBoxes += boxDacMmb;
-    boxDacMmb->setCheckable(true);
-    connect(boxDacMmb,SIGNAL(toggled(bool)),this,SLOT(boxToggled(bool)));
-    boxDacMmb->setChecked(false);
-    vLayoutAn->addWidget(boxDacMmb);
+    foreach(QGroupBox* box, boxDacMmb) vLayoutAn->addWidget(box);
+
 
     clientAn->setLayout(vLayoutAn);
     ui->scrollArea_2->setWidget(clientAn);
@@ -853,6 +866,28 @@ void DebuggerForm::updateMemVarGUI(const QString &id)
             }
         }
     }
+}
+
+void DebuggerForm::updateMatchboxVisibility()
+{
+    MatchboxExistance mmb;
+    QString mmbList = mmb.getMatchboxFile();
+    foreach (QGroupBox* gr, ioBoxes) {
+        QString grName = gr->title();
+        if(mmb.checkIO(grName,mmbList)) gr->setVisible(true);
+        else gr->setVisible(false);
+    }
+}
+
+int DebuggerForm::getIOAddrByName(const QString &name)
+{
+    foreach (BitIO *io, ioHash) {
+        if(io->getName().contains(QRegExp("\\b" + name + "\\b"))) return ioHash.key(io);
+    }
+    foreach (AnIO *io, anIoHash) {
+        if(io->getName() == name) return anIoHash.key(io);
+    }
+    return -1;
 }
 
 void DebuggerForm::memViewCellPressed(int r, int c)
@@ -1053,13 +1088,29 @@ void DebuggerForm::on_tabWidget_currentChanged(int index)
         scheduler.schedule();
     }else if(index==1) {    // вкладка входов/выходов
         scheduler.clear();
-        for(int i=0;i<MemStorage::ioMemSize;i++) {
+        // стандартные вх/вых
+        for(int i=0;i<0x23;i++) {//MemStorage::ioMemSize;i++) {
             VarItem var;
             var.setDataType(VarItem::ucharType);
             var.setMemType(MemStorage::ioMemName);
             var.setPriority(1);
             var.setMemAddress(i);
             scheduler.addReadOperation(var);
+        }
+        // модули Matchbox
+        foreach (QGroupBox *box, ioBoxes) {
+            if(box->isVisible()) {
+                QString ioName = box->title();
+                int addr = getIOAddrByName(ioName);
+                if(addr!=-1) {
+                    VarItem var;
+                    var.setDataType(VarItem::ushortType);
+                    var.setMemType(MemStorage::ioMemName);
+                    var.setPriority(1);
+                    var.setMemAddress(addr);
+                    scheduler.addReadOperation(var);
+                }
+            }
         }
         scheduler.schedule();
     }else if(index==2) {    // память
