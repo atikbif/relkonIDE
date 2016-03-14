@@ -106,7 +106,8 @@ SOURCES += main.cpp\
     Debugger/memviewdescription.cpp \
     Debugger/aninpslider.cpp \
     pathstorage.cpp \
-    Debugger/matchboxexistance.cpp
+    Debugger/matchboxexistance.cpp \
+    LCD/dialogspessymb.cpp
 
 HEADERS  += mainwindow.h \
     codeeditor.h \
@@ -188,7 +189,8 @@ HEADERS  += mainwindow.h \
     Debugger/memviewdescription.h \
     Debugger/aninpslider.h \
     pathstorage.h \
-    Debugger/matchboxexistance.h
+    Debugger/matchboxexistance.h \
+    LCD/dialogspessymb.h
 
 FORMS    += mainwindow.ui \
     settingsform.ui \
@@ -200,7 +202,8 @@ FORMS    += mainwindow.ui \
     LCD/lcdform.ui \
     dialogeditguisettings.ui \
     Help/aboutdialog.ui \
-    Search/searchdialog.ui
+    Search/searchdialog.ui \
+    LCD/dialogspessymb.ui
 
 RESOURCES += \
     icons.qrc \

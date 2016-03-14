@@ -144,5 +144,22 @@ void LCDPhont::createUnicodeTable()
     uncdTable.insert(0x044E,0xC6);  // ю
     uncdTable.insert(0x044F,0xC7);  // я
     uncdTable.insert(0x0451,0xB5);  // ё
+
+    // спец символы
+    uncdTable.insert(0x2469,123);
+    uncdTable.insert(0x24EC,124);
+    uncdTable.insert(0x24EF,125);
+    uncdTable.insert(0x23CE,126);
+    uncdTable.insert(0xAB,200);
+    uncdTable.insert(0xBB,201);
+    uncdTable.insert(0x2A0D,206);
+    uncdTable.insert(0x2160,215);
+    uncdTable.insert(0x2161,216);
+    uncdTable.insert(0x2191,217);
+    uncdTable.insert(0x2193,218);
+    uncdTable.insert(0x260E,237);
+    uncdTable.insert(0xBD,242);
+    uncdTable.insert(0x2153,241);
+    uncdTable.insert(0xBC,240);
 }
 

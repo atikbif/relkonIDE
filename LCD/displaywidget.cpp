@@ -8,6 +8,7 @@
 #include <QBrush>
 #include <QMenu>
 #include <QApplication>
+#include "dialogspessymb.h"
 
 void DisplayWidget::destroySelection()
 {
@@ -296,23 +297,40 @@ void DisplayWidget::contextMenuEvent(QContextMenuEvent *event)
             QPointF clPos(event->x(),event->y());
             if(sRect.contains(clPos)) {
                 QMenu menu;
+                QAction *copyAction = nullptr;
+                QAction *pasteAction = nullptr;
+                QAction *specSymbAction = nullptr;
+
                 if((selection.strNum == y)&&(x>=selection.startPos)&&(x<=selection.stopPos)) {
-                    QAction* action = new QAction(QIcon(":/copy_32.ico"), "копировать текст", &menu);
-                    menu.addAction(action);
-                    QAction* selectedItem = menu.exec(event->globalPos());
-                    if(selectedItem) {
+                    copyAction = new QAction(QIcon(":/copy_32.ico"), "копировать текст", &menu);
+                    menu.addAction(copyAction);
+
+                }else {
+                    if(selection.copyData.count()){
+                        pasteAction = new QAction(QIcon(":/paste_32.ico"), "вставить текст", &menu);
+                        menu.addAction(pasteAction);
+                    }
+                    specSymbAction = new QAction("спец. символы", &menu);
+                    menu.addAction(specSymbAction);
+                }
+                QAction* selectedItem = menu.exec(event->globalPos());
+                if(selectedItem!=nullptr) {
+                    if(selectedItem==copyAction) {
                         selection.copyData.clear();
                         selection.copyData = displ.getString(y,displ.getCurSubStrNum(y)).getString().mid(selection.startPos,selection.stopPos-selection.startPos+1);
-                    }
-                }else if(selection.copyData.count()){
-                    QAction* action = new QAction(QIcon(":/paste_32.ico"), "вставить текст", &menu);
-                    menu.addAction(action);
-                    QAction* selectedItem = menu.exec(event->globalPos());
-                    if(selectedItem) {
+                    }else if(selectedItem==pasteAction) {
                         displ.setCursor(x,y);
                         foreach (char s, selection.copyData) {
                            displ.insertSymbol(s);
                         }
+                    }else if(selectedItem==specSymbAction) {
+                        DialogSpesSymb *dialog = new DialogSpesSymb();
+                        dialog->exec();
+                        displ.setCursor(x,y);
+                        destroySelection();
+                        int code = dialog->getCode();
+                        if(code!=-1) displ.insertSymbol(phont->getSymbCodeinPhont(code));
+                        delete dialog;
                     }
                 }
             }

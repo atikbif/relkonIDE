@@ -40,5 +40,20 @@
         <file>all_emu_off.ico</file>
         <file>inp_emu_off.ico</file>
         <file>no_emu_off.ico</file>
+        <file>spec_7.ico</file>
+        <file>spec_14.ico</file>
+        <file>spec_13.ico</file>
+        <file>spec_12.ico</file>
+        <file>spec_11.ico</file>
+        <file>spec_10.ico</file>
+        <file>spec_9.ico</file>
+        <file>spec_8.ico</file>
+        <file>spec_6.ico</file>
+        <file>spec_5.ico</file>
+        <file>spec_4.ico</file>
+        <file>spec_3.ico</file>
+        <file>spec_2.ico</file>
+        <file>spec_1.ico</file>
+        <file>spec_0.ico</file>
     </qresource>
 </RCC>
