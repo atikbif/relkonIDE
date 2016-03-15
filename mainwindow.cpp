@@ -1342,6 +1342,7 @@ void MainWindow::importProject()
                             QString rp6File = oldPr.absolutePath()+"/"+rp6Files.at(0);
                             if(loadSysFramRelk6(rp6File)) {
                                 addMessageToInfoList("импорт заводских настроек");
+                                debugger->clearView();
                                 buildPr();
                             }else addMessageToInfoList("файл настроек не найден");
                         }

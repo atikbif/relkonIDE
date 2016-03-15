@@ -5,21 +5,20 @@
 
 bool NameSortIterator::lessThan(const QString &s1, const QString &s2)
 {
-    QRegExp exp("^([^\\d]*)(\\d+)([^\\d]*)");
-    if(exp.indexIn(s1)!=-1) {
-        QString beg1 = exp.cap(1).toLower();
-        int v1 = exp.cap(2).toInt();
-        QString end1 = exp.cap(3).toLower();
-        if(exp.indexIn(s2)!=-1) {
-            QString beg2 = exp.cap(1).toLower();
-            int v2 = exp.cap(2).toInt();
-            QString end2 = exp.cap(3).toLower();
-            if((beg1==beg2)&&(end1==end2)) {
-                return v1<v2;
-            }
+    int v1=0,v2=0;
+    int length = s1.length();
+    if(s2.length()>length) length = s2.length();
+    QChar c1,c2;
+    for(int i=0;i<length;i++) {
+        if(i<s1.length()) c1 = s1.at(i).toLower();else c1='\0';
+        if(i<s2.length()) c2 = s2.at(i).toLower();else c2='\0';
+        if(c1.isDigit()) {v1 = v1*10 + (c1.toLatin1() - 0x30);}
+        if(c2.isDigit()) {v2 = v2*10 + (c2.toLatin1() - 0x30);}
+        if((v1==0)&&(v2==0)) {
+            if(c1!=c2) return c1<c2;
         }
     }
-    return s1.toLower() < s2.toLower();
+    return v1<v2;
 }
 
 void NameSortIterator::createCash(const QString &varID)
