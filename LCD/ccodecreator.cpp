@@ -170,17 +170,19 @@ QStringList CCodeCreator::getText(const Display &d)
         code << "\tswitch(_Sys.S" + QString::number(i+1) + ")\n\t{\n";
 
         for(int j=0;j<d.getSubStrCount(i);j++) {
-            QVector<PultVarDefinition> varList;
-            d.getVarDefinitions(varList,i,j);
-            QString prVarsStr;
-            foreach (PultVarDefinition vDef, varList) {
-               if(!vDef.getName().isEmpty()) {
-                   prVarsStr += printVar(d,vDef,i);
-               }
-            }
-            if(!prVarsStr.isEmpty()) {
-                prVarsStr = "\t\tcase " + QString::number(j) + ":\n" + prVarsStr + "\t\tbreak;\n";
-                code << prVarsStr;
+            if(d.getString(i,j).isActive()){
+                QVector<PultVarDefinition> varList;
+                d.getVarDefinitions(varList,i,j);
+                QString prVarsStr;
+                foreach (PultVarDefinition vDef, varList) {
+                   if(!vDef.getName().isEmpty()) {
+                       prVarsStr += printVar(d,vDef,i);
+                   }
+                }
+                if(!prVarsStr.isEmpty()) {
+                    prVarsStr = "\t\tcase " + QString::number(j) + ":\n" + prVarsStr + "\t\tbreak;\n";
+                    code << prVarsStr;
+                }
             }
         }
         code << "\t\tdefault:break;\n\t}\n";
