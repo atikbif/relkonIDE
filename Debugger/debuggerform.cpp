@@ -402,25 +402,42 @@ void DebuggerForm::on_treeWidgetMain_itemDoubleClicked(QTreeWidgetItem *item, in
 
 void DebuggerForm::on_treeWidgetWatch_itemDoubleClicked(QTreeWidgetItem *item, int column)
 {
-    // удаление переменной из дерева просмотра
-    Q_UNUSED(column)
-    QString id = idActiveWidgetItem.key(item);
-    VarItem var = varOwner.getVarByID(id);
-    var.setPriority(0);
-    varOwner.updateVarByID(id,var);
-    idActiveWidgetItem.remove(id);
-    ui->treeWidgetWatch->removeItemWidget(item,5);
-    delete item;
-
-    scheduler.removeReadOperation(var); // удаление области памяти переменной из опроса
-    // повторное сканирование переменных на случай их пересечения с удалённым участком
-    QStringList idList = idActiveWidgetItem.keys();
-    foreach (QString varID, idList) {
-       var = varOwner.getVarByID(varID);
-       var.setPriority(1);
-       scheduler.addReadOperation(var);
+    // редактирование переменной
+    if(column==1) {
+        if((item)&&(scan->isWorking())) {
+            QString id = idActiveWidgetItem.key(item);
+            if(!id.isEmpty()) {
+                VarItem var = varOwner.getVarByID(id);
+                wrVar = var;
+                if(var.getBitNum()>=0) {
+                    writeVar();
+                }else {
+                    wrVar.setValue(item->text(1));
+                    writeVar();
+                }
+            }
+        }
     }
-    scheduler.schedule();
+    else {
+        // удаление переменной из дерева просмотра
+        QString id = idActiveWidgetItem.key(item);
+        VarItem var = varOwner.getVarByID(id);
+        var.setPriority(0);
+        varOwner.updateVarByID(id,var);
+        idActiveWidgetItem.remove(id);
+        ui->treeWidgetWatch->removeItemWidget(item,5);
+        delete item;
+
+        scheduler.removeReadOperation(var); // удаление области памяти переменной из опроса
+        // повторное сканирование переменных на случай их пересечения с удалённым участком
+        QStringList idList = idActiveWidgetItem.keys();
+        foreach (QString varID, idList) {
+           var = varOwner.getVarByID(varID);
+           var.setPriority(1);
+           scheduler.addReadOperation(var);
+        }
+        scheduler.schedule();
+    }
 }
 
 void DebuggerForm::on_startButton_clicked()
