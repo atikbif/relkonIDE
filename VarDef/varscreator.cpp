@@ -571,7 +571,7 @@ QString VarsCreator::getPultNameOfVar(const QString &idValue)
         ids.getVarByID(parID,var);
 
         QString parName = var.getName();
-        if(parName.contains(QRegExp("^AI$"))) {
+        if(parName=="AI") {
             QRegExp numExp("\\d+$");
             if(numExp.indexIn(fName) != -1) {
                 int adcNum = numExp.cap().toInt();
@@ -580,7 +580,7 @@ QString VarsCreator::getPultNameOfVar(const QString &idValue)
                 }
             }
 
-        }else if(parName.contains(QRegExp("^AO$"))) {
+        }else if(parName=="AO") {
             QRegExp numExp("\\d+$");
             if(numExp.indexIn(fName) != -1) {
                 int dacNum = numExp.cap().toInt();
@@ -588,7 +588,8 @@ QString VarsCreator::getPultNameOfVar(const QString &idValue)
                     return "_Sys_DAC["+QString::number(dacNum-1)+"]";
                 }
             }
-        }else if(parName.contains(QRegExp("^IN"))) {
+        }else //if(parName.contains(QRegExp("^IN"))) {
+            if((parName.at(0)=='I')&&(parName.at(1)=='N')) {
             QRegExp numExp("\\d+$");
             if(numExp.indexIn(parName) != -1) {
                 int bitNum = fName.toInt();
@@ -599,7 +600,8 @@ QString VarsCreator::getPultNameOfVar(const QString &idValue)
                     return "(*(iostruct*)&IN["+QString::number(inNum-4)+"]).bit"+QString::number(bitNum);
                 }
             }
-        }else if(parName.contains(QRegExp("^DIN"))) {
+        }else //if(parName.contains(QRegExp("^DIN"))) {
+            if((parName.at(0)=='D')&&(parName.at(1)=='I')&&(parName.at(2)=='N')) {
             QRegExp numExp("\\d+$");
             if(numExp.indexIn(parName) != -1) {
                 int bitNum = fName.toInt();
@@ -608,7 +610,8 @@ QString VarsCreator::getPultNameOfVar(const QString &idValue)
                     return "(*(iostruct*)&_Sys_IN["+QString::number(dinNum)+"]).bit"+QString::number(bitNum);
                 }
             }
-        }else if(parName.contains(QRegExp("^OUT"))) {
+        }else //if(parName.contains(QRegExp("^OUT"))) {
+            if((parName.at(0)=='O')&&(parName.at(1)=='U')&&(parName.at(2)=='T')) {
             QRegExp numExp("\\d+$");
             if(numExp.indexIn(parName) != -1) {
                 int bitNum = fName.toInt();
@@ -618,7 +621,8 @@ QString VarsCreator::getPultNameOfVar(const QString &idValue)
                 }else if(outNum>=4)
                     return "(*(iostruct*)&OUT["+QString::number(outNum-4)+"]).bit"+QString::number(bitNum);
                 }
-        }else if(parName.contains(QRegExp("^DOUT"))) {
+        }else //if(parName.contains(QRegExp("^DOUT"))) {
+            if((parName.at(0)=='D')&&(parName.at(1)=='O')&&(parName.at(2)=='U')&&(parName.at(3)=='T')) {
             QRegExp numExp("\\d+$");
             if(numExp.indexIn(parName) != -1) {
                 int bitNum = fName.toInt();
@@ -627,17 +631,19 @@ QString VarsCreator::getPultNameOfVar(const QString &idValue)
                     return "(*(iostruct*)&_Sys_OUT["+QString::number(doutNum)+"]).bit"+QString::number(bitNum);
                 }
             }
-        }else if(parName.contains(QRegExp("^ADC"))) {
+        }else //if(parName.contains(QRegExp("^ADC"))) {
+            if((parName.at(0)=='A')&&(parName.at(1)=='D')&&(parName.at(2)=='C')) {
             QRegExp numExp("\\d+$");
             if(numExp.indexIn(fName) != -1) {
                 return fName;
             }
-        }else if(parName.contains(QRegExp("^DAC"))) {
+        }else //if(parName.contains(QRegExp("^DAC"))) {
+            if((parName.at(0)=='D')&&(parName.at(1)=='A')&&(parName.at(2)=='C')) {
             QRegExp numExp("\\d+$");
             if(numExp.indexIn(fName) != -1) {
                 return fName;
             }
-        }else if(parName.contains(QRegExp("^char$"))) {
+        }else if(parName=="char") {
             QRegExp memExp("^MEM(\\d+)$");
             QRegExp eeExp("^EE(\\d+)$");
             if(memExp.indexIn(fName) != -1) {
@@ -645,7 +651,7 @@ QString VarsCreator::getPultNameOfVar(const QString &idValue)
             }else if(eeExp.indexIn(fName) != -1) {
                 return fName;
             }
-        }else if(parName.contains(QRegExp("^short$"))) {
+        }else if(parName=="short") {
             QRegExp memExp("^MEM(\\d+)i$");
             QRegExp eeExp("^EE(\\d+)i$");
             if(memExp.indexIn(fName) != -1) {
@@ -653,7 +659,7 @@ QString VarsCreator::getPultNameOfVar(const QString &idValue)
             }else if(eeExp.indexIn(fName) != -1) {
                 return fName;
             }
-        }else if(parName.contains(QRegExp("^long$"))) {
+        }else if(parName=="long") {
             QRegExp memExp("^MEM(\\d+)l$");
             QRegExp eeExp("^EE(\\d+)l$");
             if(memExp.indexIn(fName) != -1) {
@@ -661,13 +667,13 @@ QString VarsCreator::getPultNameOfVar(const QString &idValue)
             }else if(eeExp.indexIn(fName) != -1) {
                 return fName;
             }
-        }else if(parName.contains(QRegExp("^SIT$"))) {
+        }else if(parName=="SIT") {
             QRegExp sitExp("^Proc(\\d+)$");
             if(sitExp.indexIn(fName) != -1) {
                 QString sNum = sitExp.cap(1);
                 return "_Sys4x_p"+sNum+".SIT";
             }
-        }else if(parName.contains(QRegExp("^TIME$"))) {
+        }else if(parName=="TIME") {
             return "sysTime_"+fName;
         }
 

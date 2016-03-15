@@ -605,6 +605,7 @@ void DebuggerForm::buildDIO()
         QGroupBox *boxIn = addDIO(name,BitIO::inputStartAddress + i,8);
         ioBoxes+=boxIn;
         boxIn->setCheckable(true);
+        boxIn->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
         //ioCheck.insert(name,true);
         //boxIn->setChecked(true);
         connect(boxIn,SIGNAL(toggled(bool)),this,SLOT(boxToggled(bool)));
@@ -615,6 +616,7 @@ void DebuggerForm::buildDIO()
         QGroupBox *boxOut = addDIO(name,BitIO::outputStartAddress + i,8);
         ioBoxes+=boxOut;
         boxOut->setCheckable(true);
+        boxOut->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
         //ioCheck.insert(name,true);
         //boxOut->setChecked(true);
         connect(boxOut,SIGNAL(toggled(bool)),this,SLOT(boxToggled(bool)));
