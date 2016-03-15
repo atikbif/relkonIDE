@@ -107,7 +107,8 @@ SOURCES += main.cpp\
     Debugger/aninpslider.cpp \
     pathstorage.cpp \
     Debugger/matchboxexistance.cpp \
-    LCD/dialogspessymb.cpp
+    LCD/dialogspessymb.cpp \
+    rp6creator.cpp
 
 HEADERS  += mainwindow.h \
     codeeditor.h \
@@ -190,7 +191,8 @@ HEADERS  += mainwindow.h \
     Debugger/aninpslider.h \
     pathstorage.h \
     Debugger/matchboxexistance.h \
-    LCD/dialogspessymb.h
+    LCD/dialogspessymb.h \
+    rp6creator.h
 
 FORMS    += mainwindow.ui \
     settingsform.ui \
@@ -207,7 +209,8 @@ FORMS    += mainwindow.ui \
 
 RESOURCES += \
     icons.qrc \
-    LCD/lcdicons.qrc
+    LCD/lcdicons.qrc \
+    rp6.qrc
 
 
 INCLUDEPATH += "C:/boost/boost_1_58_0"

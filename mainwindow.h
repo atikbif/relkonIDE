@@ -100,6 +100,7 @@ private:
     QAction *noEmuAct;
     QAction *emuInpAct;
     QAction *emuAct;
+    QAction *rp6Act;
 
     void disableActionWithoutProject(void);
     void enableActionWithProject(void);
@@ -144,6 +145,7 @@ private slots:
     void loadSysFramRelk6(void);
     int loadSysFramRelk6(const QString &fName);
     void activateInfoPanel(void);
+    void toggleInfoPanel(void);
 
     void wrSysFramSlot(void);
     void rdSysFramSlot(void);
@@ -152,6 +154,7 @@ private slots:
     void emuInpActSlot(void);
     void noEmuActSlot(void);
     void emuInpOutpActSlot(void);
+    void createRPFile(void);
 
 
 public slots:

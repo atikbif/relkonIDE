@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file>empty.rp6</file>
+    </qresource>
+</RCC>

@@ -32,6 +32,8 @@
 #include "pathstorage.h"
 #include "settingsbase.h"
 
+#include "rp6creator.h"
+
 
 
 QStringList MainWindow::getPrevProjects()
@@ -61,6 +63,9 @@ void MainWindow::updatePrevProjects(const QStringList &prNames)
     impMenu->addAction(importPultAct);
     impMenu->addAction(openSysFramFromRelkon6);
     impMenu->addAction(importPrAction);
+    QMenu *expMenu = ui->menuFile->addMenu("Export");
+    expMenu->addAction(rp6Act);
+    ui->menuFile->addMenu(expMenu);
     QMenu* recPr = new QMenu("Недавние проекты");
     ui->menuFile->addMenu(recPr);
     foreach(QString name, resList) {
@@ -171,6 +176,16 @@ void MainWindow::saveFileByName(const QString &fName)
 
 void MainWindow::activateInfoPanel()
 {
+
+    //ui->listWidget->clear();
+    ui->listWidget->setVisible(true);
+    ui->closeInfoListButton->setVisible(true);
+    ui->horizontalSpacer->changeSize(1,1, QSizePolicy::Expanding, QSizePolicy::Fixed);
+    ui->infoLabel->setVisible(true);
+}
+
+void MainWindow::toggleInfoPanel()
+{
     if(ui->listWidget->isVisible()) on_closeInfoListButton_clicked();
     else {
         //ui->listWidget->clear();
@@ -213,6 +228,13 @@ void MainWindow::noEmuActSlot()
 void MainWindow::emuInpOutpActSlot()
 {
     if(settings!=nullptr) settings->setEmuMode(SettingsBase::InputOutputEmulation);
+}
+
+void MainWindow::createRPFile()
+{
+    if(RP6Creator::createRelkon6ProjectFile(varOwner)) addMessageToInfoList("файл project.rp6 успешно создан");
+    else addMessageToInfoList("ошибка создания файла project.rp6");
+    activateInfoPanel();
 }
 
 int MainWindow::saveWarning()
@@ -363,7 +385,7 @@ void MainWindow::createToolbar()
     emuInpAct = new QAction(QIcon("://inp_emu_off.ico"), "эмуляция входов", this);
 
     sysMessAction = new QAction(QIcon("://info.ico"),"Системные сообщения", this);
-    connect(sysMessAction,SIGNAL(triggered(bool)),this,SLOT(activateInfoPanel()));
+    connect(sysMessAction,SIGNAL(triggered(bool)),this,SLOT(toggleInfoPanel()));
 
     connect(newAct, SIGNAL(triggered()), this, SLOT(newFile()));
     connect(openAct, SIGNAL(triggered()), this, SLOT(openFile()));
@@ -392,6 +414,8 @@ void MainWindow::createToolbar()
     ui->mainToolBar->addAction(redoAct);
     QWidget* spacer = new QWidget();
     spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+
+
 
     ui->mainToolBar->addAction(srchAct);
 
@@ -522,6 +546,9 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(foldAction,SIGNAL(triggered(bool)),editor,SLOT(foldAll()));
     connect(unfoldAction,SIGNAL(triggered(bool)),editor,SLOT(unfoldAll()));
 
+    rp6Act = new QAction("rp6 для панели", this);
+    connect(rp6Act,SIGNAL(triggered(bool)),this,SLOT(createRPFile()));
+
     createToolbar();
 
     openSysFramFromRelkon6 = new QAction(QIcon("://database.ico"), "Загрузить зав. установки из Relkon 6.x", this);
@@ -613,6 +640,7 @@ void MainWindow::disableActionWithoutProject()
     noEmuAct->setEnabled(false);
     emuAct->setEnabled(false);
     emuInpAct->setEnabled(false);
+    rp6Act->setEnabled(false);
 }
 
 void MainWindow::enableActionWithProject()
@@ -637,6 +665,7 @@ void MainWindow::enableActionWithProject()
     noEmuAct->setEnabled(true);
     emuAct->setEnabled(true);
     emuInpAct->setEnabled(true);
+    rp6Act->setEnabled(true);
 }
 
 void MainWindow::newFile()
