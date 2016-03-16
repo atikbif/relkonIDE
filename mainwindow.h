@@ -12,6 +12,7 @@
 #include "LCD/lcdform.h"
 #include "Help/helpbrowser.h"
 #include "Search/searchdata.h"
+#include <QDockWidget>
 
 
 namespace Ui {
@@ -30,6 +31,10 @@ class MainWindow : public QMainWindow
     VarsCreator *varOwner;
     HelpBrowser *helpBr;
     QThread builderThread;
+
+    QDockWidget *dockDebugger;
+    QDockWidget *dockDisplay;
+    QDockWidget *dockSettings;
 
     const QString wTitle = "RelkonIDE ";
     const int maxAmountOfPrevProjects = 10;
@@ -102,6 +107,7 @@ private:
     QAction *emuAct;
     QAction *rp6Act;
 
+
     void disableActionWithoutProject(void);
     void enableActionWithProject(void);
 
@@ -155,6 +161,10 @@ private slots:
     void noEmuActSlot(void);
     void emuInpOutpActSlot(void);
     void createRPFile(void);
+
+    void toggleDebugger();
+    void togglePult();
+    void toggleSettings();
 
 
 public slots:

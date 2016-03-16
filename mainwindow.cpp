@@ -36,6 +36,7 @@
 
 
 
+
 QStringList MainWindow::getPrevProjects()
 {
     QStringList res;
@@ -235,6 +236,21 @@ void MainWindow::createRPFile()
     if(RP6Creator::createRelkon6ProjectFile(varOwner)) addMessageToInfoList("файл project.rp6 успешно создан");
     else addMessageToInfoList("ошибка создания файла project.rp6");
     activateInfoPanel();
+}
+
+void MainWindow::toggleDebugger()
+{
+    debugger->tabChanged();
+}
+
+void MainWindow::togglePult()
+{
+    lcd->updFocus();
+}
+
+void MainWindow::toggleSettings()
+{
+
 }
 
 int MainWindow::saveWarning()
@@ -450,7 +466,7 @@ void MainWindow::createToolbar()
     ui->mainToolBar->addAction(emuInpAct);
     ui->mainToolBar->addAction(emuAct);
     ui->mainToolBar->addAction(sysMessAction);
-    ui->mainToolBar->addWidget(spacer);
+    ui->mainToolBar->addSeparator();
 }
 
 void MainWindow::setEditorPhont()
@@ -473,7 +489,18 @@ void MainWindow::createDebugger()
     connect(this,SIGNAL(newProject()),debugger,SLOT(newProject()));
     connect(this,SIGNAL(saveProject()),debugger,SLOT(saveProject()));
     connect(this,SIGNAL(updTree()),debugger,SLOT(updTree()));
-    ui->tabWidget->addTab(debugger,"Отладчик");
+    //ui->tabWidget->addTab(debugger,"Отладчик");
+
+    dockDebugger = new QDockWidget(tr("Отладчик F4"), this);
+    dockDebugger->setAllowedAreas(Qt::NoDockWidgetArea);
+    dockDebugger->setWidget(debugger);
+    addDockWidget(Qt::LeftDockWidgetArea, dockDebugger);
+    //ui->mainToolBar->addAction(dockDebugger->toggleViewAction());
+    ui->menuView->addAction(dockDebugger->toggleViewAction());
+    ui->mainToolBar->addAction(dockDebugger->toggleViewAction());
+    connect(dockDebugger->toggleViewAction(),SIGNAL(triggered(bool)),this,SLOT(toggleDebugger()));
+    dockDebugger->close();
+    dockDebugger->setFloating(true);
 }
 
 void MainWindow::createDisplay()
@@ -484,7 +511,15 @@ void MainWindow::createDisplay()
     connect(this,SIGNAL(openProject()),lcd,SIGNAL(openProject()));
     connect(this,SIGNAL(saveProject()),lcd,SIGNAL(saveProject()));
     connect(this,SIGNAL(updTree()),lcd,SIGNAL(updTree()));
-    ui->tabWidget->addTab(lcd,"Пульт");
+    //ui->tabWidget->addTab(lcd,"Пульт");
+    dockDisplay = new QDockWidget(tr("Пульт F3"), this);
+    dockDisplay->setAllowedAreas(Qt::RightDockWidgetArea);
+    dockDisplay->setWidget(lcd);
+    addDockWidget(Qt::RightDockWidgetArea, dockDisplay);
+    ui->menuView->addAction(dockDisplay->toggleViewAction());
+    ui->mainToolBar->addAction(dockDisplay->toggleViewAction());
+    connect(dockDisplay->toggleViewAction(),SIGNAL(triggered(bool)),this,SLOT(togglePult()));
+    dockDisplay->close();
 }
 
 void MainWindow::createBuilder()
@@ -561,7 +596,6 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->menuEdit->addAction(srchAct);
     ui->menuEdit->addAction(foldAction);
     ui->menuEdit->addAction(unfoldAction);
-    ui->menuEdit->addAction(sysMessAction);
     ui->menuEdit->addAction(editGUI);
 
     QStringList prNames = getPrevProjects();
@@ -582,12 +616,27 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(settings,SIGNAL(emuModeChanged(SettingsBase::emuType)),this,SLOT(emuModeChanged(SettingsBase::emuType)));
     PathStorage::setBuildName(settings->getBuildName());
 
+    dockSettings = new QDockWidget(tr("Настройки F2"), this);
+    dockSettings->setAllowedAreas(Qt::RightDockWidgetArea | Qt::LeftDockWidgetArea);
+    dockSettings->setWidget(settings);
+    addDockWidget(Qt::RightDockWidgetArea, dockSettings);
+    ui->menuView->addAction(dockSettings->toggleViewAction());
+    ui->mainToolBar->addAction(dockSettings->toggleViewAction());
+    dockSettings->close();
+    connect(dockSettings->toggleViewAction(),SIGNAL(triggered(bool)),this,SLOT(toggleSettings()));
 
-    ui->tabWidget->addTab(settings,"Настройки");
 
-    createDebugger();
+    //ui->tabWidget->addTab(settings,"Настройки");
 
     createDisplay();
+    createDebugger();
+
+
+    ui->menuView->addAction(sysMessAction);
+    //ui->mainToolBar->addWidget(spacer);
+
+
+    QMainWindow::tabifyDockWidget(dockSettings, dockDisplay);
 
     /*ui->mdiArea->addSubWindow(editor);
     ui->mdiArea->addSubWindow(debugger);
@@ -616,6 +665,8 @@ MainWindow::~MainWindow()
     delete displ;
     delete varOwner;
     delete helpBr;
+    delete dockDebugger;
+    delete dockDisplay;
 }
 
 void MainWindow::disableActionWithoutProject()
@@ -641,6 +692,10 @@ void MainWindow::disableActionWithoutProject()
     emuAct->setEnabled(false);
     emuInpAct->setEnabled(false);
     rp6Act->setEnabled(false);
+    sysMessAction->setEnabled(false);
+    dockDebugger->toggleViewAction()->setEnabled(false);
+    dockDisplay->toggleViewAction()->setEnabled(false);
+    dockSettings->toggleViewAction()->setEnabled(false);
 }
 
 void MainWindow::enableActionWithProject()
@@ -666,6 +721,10 @@ void MainWindow::enableActionWithProject()
     emuAct->setEnabled(true);
     emuInpAct->setEnabled(true);
     rp6Act->setEnabled(true);
+    sysMessAction->setEnabled(true);
+    dockDebugger->toggleViewAction()->setEnabled(true);
+    dockDisplay->toggleViewAction()->setEnabled(true);
+    dockSettings->toggleViewAction()->setEnabled(true);
 }
 
 void MainWindow::newFile()
@@ -1104,6 +1163,17 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
             activateInfoPanel();
         }
 
+        break;
+    case Qt::Key_F2:
+        QMainWindow::tabifyDockWidget(dockDisplay,dockSettings);
+        if(dockSettings->toggleViewAction()->isEnabled()) dockSettings->setVisible(true);
+        break;
+    case Qt::Key_F3:
+        QMainWindow::tabifyDockWidget(dockSettings, dockDisplay);
+        if(dockDisplay->toggleViewAction()->isEnabled()) dockDisplay->setVisible(true);
+        break;
+    case Qt::Key_F4:
+        if(dockDebugger->toggleViewAction()->isEnabled()) dockDebugger->setVisible(true);
         break;
     case Qt::Key_F5:
         if(buildAct->isEnabled()) {

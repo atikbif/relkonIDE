@@ -173,8 +173,14 @@
      <string>Справка</string>
     </property>
    </widget>
+   <widget class="QMenu" name="menuView">
+    <property name="title">
+     <string>Вид</string>
+    </property>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
+   <addaction name="menuView"/>
    <addaction name="menuCmd"/>
    <addaction name="menuUtil"/>
    <addaction name="menuHelp"/>
