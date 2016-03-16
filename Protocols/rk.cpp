@@ -114,6 +114,60 @@ WriteFram::~WriteFram()
 
 //-------------------------------------------------
 
+WriteEE::WriteEE()
+{
+
+}
+
+bool WriteEE::form(Request &req)
+{
+    QByteArray reqBody = req.getBody();
+    reqBody.clear();
+    reqBody += req.getNetAddress();
+    reqBody += 0xE6;
+    reqBody += req.getMemAddress() >> 8;
+    reqBody += req.getMemAddress() & 0xFF;
+    reqBody += req.getDataNumber() >>8;
+    reqBody += req.getDataNumber() & 0xFF;
+    for(int i=0;i<req.getDataNumber();i++) {
+        if(i<req.getWrData().count()) reqBody += req.getWrData().at(i);
+        else reqBody+='\0';
+    }
+    int crc = CheckSum::getCRC16(reqBody);
+    reqBody += crc&0xFF;
+    reqBody += (crc>>8)&0xFF;
+    req.getBody() = reqBody;
+    req.insParam("rw","write");
+    req.insParam("mem","EE");
+    return true;
+}
+
+bool WriteEE::waitAnAnswer(Request &req, QIODevice &io)
+{
+    static const int maxCnt = 500; // ограничение ожидания ответа при длительном входящем потоке данных
+    if(io.isOpen()){
+        QByteArray answer;
+        if(io.waitForReadyRead(200)){
+            int cnt=0;
+            answer+=io.readAll();
+            while(io.waitForReadyRead(10)) {
+                answer+=io.readAll();
+                cnt++;if(cnt>=maxCnt) break;
+            }
+        }
+        req.updateRdData(answer);
+        if(answer.count()) return true;
+    }
+    return false;
+}
+
+WriteEE::~WriteEE()
+{
+
+}
+
+//-------------------------------------------------
+
 ResetController::ResetController()
 {
 
@@ -227,6 +281,66 @@ bool ReadFram::waitAnAnswer(Request &req, QIODevice &io)
 }
 
 ReadFram::~ReadFram()
+{
+
+}
+
+//-------------------------------------------------
+
+
+ReadEE::ReadEE()
+{
+
+}
+
+bool ReadEE::form(Request &req)
+{
+    QByteArray reqBody = req.getBody();
+    reqBody.clear();
+    reqBody += req.getNetAddress();
+    reqBody += 0xD6;
+    reqBody += req.getMemAddress() >> 8;
+    reqBody += req.getMemAddress() & 0xFF;
+    reqBody += req.getDataNumber() >>8;
+    reqBody += req.getDataNumber() & 0xFF;
+    int crc = CheckSum::getCRC16(reqBody);
+    reqBody += crc&0xFF;
+    reqBody += (crc>>8)&0xFF;
+    req.getBody() = reqBody;
+    req.insParam("rw","read");
+    req.insParam("mem","EE");
+    return true;
+}
+
+bool ReadEE::getAnAnswer(Request &req)
+{
+    QByteArray answer = req.getRdData();
+    answer.chop(2);
+    answer.remove(0,1);
+    req.updateRdData(answer);
+    return true;
+}
+
+bool ReadEE::waitAnAnswer(Request &req, QIODevice &io)
+{
+    static const int maxCnt = 500; // ограничение ожидания ответа при длительном входящем потоке данных
+    if(io.isOpen()){
+        QByteArray answer;
+        if(io.waitForReadyRead(200)){
+            int cnt=0;
+            answer+=io.readAll();
+            while(io.waitForReadyRead(10)) {
+                answer+=io.readAll();
+                cnt++;if(cnt>=maxCnt) break;
+            }
+        }
+        req.updateRdData(answer);
+        if(answer.count()) return true;
+    }
+    return false;
+}
+
+ReadEE::~ReadEE()
 {
 
 }

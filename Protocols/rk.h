@@ -36,6 +36,16 @@ namespace RkProtocol {
         ~WriteFram();
     };
 
+    class WriteEE: public RkCommand
+    {
+    public:
+        WriteEE();
+        CommandInterface* clone(void) {return new WriteEE();}
+        bool form(Request &req);
+        bool waitAnAnswer(Request &req, QIODevice &io);
+        ~WriteEE();
+    };
+
     class WriteRam: public RkCommand
     {
     public:
@@ -72,6 +82,17 @@ namespace RkProtocol {
         bool getAnAnswer(Request &req);
         bool waitAnAnswer(Request &req, QIODevice &io);
         ~ReadFram();
+    };
+
+    class ReadEE: public RkCommand
+    {
+    public:
+        ReadEE();
+        CommandInterface* clone(void) {return new ReadEE();}
+        bool form(Request &req);
+        bool getAnAnswer(Request &req);
+        bool waitAnAnswer(Request &req, QIODevice &io);
+        ~ReadEE();
     };
 
     class ReadRam: public RkCommand

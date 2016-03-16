@@ -19,11 +19,13 @@ public:
     static const int ramMemSize = 64*1024;
     static const int framMemSize = 32*1024;
     static const int userMemSize = 256;
+    static const int eeMemSize = 1024;
     static const QString ioMemName;
     static const QString ramMemName;
     static const QString framMemName;
     static const QString userMemName;
     static const QString timeMemName;
+    static const QString eeMemName;
     explicit MemStorage(QObject *parent = 0);
     QByteArray getData(const QString &memType, int addr, int count);
     bool connectCellToID(const QString &memType, int addr, const QString &id);

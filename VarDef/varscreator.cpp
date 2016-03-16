@@ -274,8 +274,10 @@ void VarsCreator::addFactorySettings(CompositeVar *parent)
         CompositeVar* var = new CompositeVar();
         var->setName("EE"+QString::number(i));
         var->setDataType(VarItem::ucharType);
-        var->setMemAddress(0x7B00 + i);
-        var->setMemType("FRAM");
+        //var->setMemAddress(0x7B00 + i);
+        //var->setMemType("FRAM");
+        var->setMemAddress(i);
+        var->setMemType("EE");
         charVar->addChild(*var);
         ids.addVar(var);
     }

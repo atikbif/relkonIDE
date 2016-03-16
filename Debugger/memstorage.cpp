@@ -6,6 +6,7 @@ const QString MemStorage::ramMemName = "RAM";
 const QString MemStorage::framMemName = "FRAM";
 const QString MemStorage::userMemName = "USER";
 const QString MemStorage::timeMemName = "TIME";
+const QString MemStorage::eeMemName = "EE";
 
 MemStorage::MemStorage(QObject *parent) : QObject(parent)
 {
@@ -13,10 +14,12 @@ MemStorage::MemStorage(QObject *parent) : QObject(parent)
     MemBlock* ram = new MemBlock(ramMemName,ramMemSize);
     MemBlock* fram = new MemBlock(framMemName,framMemSize);
     MemBlock* dispRam = new MemBlock(userMemName,userMemSize);
+    MemBlock* ee = new MemBlock(eeMemName,eeMemSize);
     blocks += io;
     blocks += ram;
     blocks += fram;
     blocks += dispRam;
+    blocks += ee;
 }
 
 bool MemStorage::updateBlock(QString memType, int addr, QByteArray data)

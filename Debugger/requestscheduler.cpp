@@ -22,6 +22,7 @@ CommandInterface *RequestScheduler::getRdCmdByMemType(const QString &memType)
     else if(memType==MemStorage::framMemName) ptr = new ReadFram();
     else if(memType==MemStorage::ioMemName) ptr = new ReadIO();
     else if(memType==MemStorage::userMemName) ptr = new ReadDispRam();
+    else if(memType==MemStorage::eeMemName) ptr = new ReadEE();
     return ptr;
 }
 
@@ -33,6 +34,7 @@ CommandInterface *RequestScheduler::getWrCmdByMemType(const QString &memType)
     else if(memType==MemStorage::timeMemName) ptr = new WriteTime();
     else if(memType==MemStorage::ioMemName) ptr = new WriteIO();
     else if(memType==MemStorage::userMemName) ptr = new WriteDispRam();
+    else if(memType==MemStorage::eeMemName) ptr = new WriteEE();
     return ptr;
 }
 
@@ -201,6 +203,7 @@ void RequestScheduler::schedule()
     scanMap(MemStorage::framMemName);
     scanMap(MemStorage::ioMemName);
     scanMap(MemStorage::userMemName);
+    scanMap(MemStorage::eeMemName);
 }
 
 void RequestScheduler::clear()

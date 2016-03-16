@@ -110,10 +110,12 @@ void DisplayWidget::keyPressEvent(QKeyEvent *event)
     case Qt::Key_PageUp:
         destroySelection();
         displ.prevString();
+        emit displ.cursorPosChanged(displ.getXPosition(),displ.getYPosition());
         break;
     case Qt::Key_PageDown:
         destroySelection();
         displ.nextString();
+        emit displ.cursorPosChanged(displ.getXPosition(),displ.getYPosition());
         break;
     case Qt::Key_Home:
         displ.moveCursorToBegin();
