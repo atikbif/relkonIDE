@@ -634,7 +634,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->menuView->addAction(sysMessAction);
     //ui->mainToolBar->addWidget(spacer);
 
-
+    QMainWindow::setDockNestingEnabled(false);
     QMainWindow::tabifyDockWidget(dockSettings, dockDisplay);
     QMainWindow::tabifyDockWidget(dockDisplay, dockDebugger);
 
