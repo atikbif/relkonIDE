@@ -9,7 +9,7 @@ ScanController::ScanController(const QString &pName, int progAddr, QObject *pare
     scanWorker->moveToThread(&scanThread);
     connect(&scanThread,SIGNAL(finished()),scanWorker,SLOT(deleteLater()));
     connect(scanWorker,SIGNAL(percentUpdate(float)),this,SLOT(percentUpdate(float)));
-    connect(scanWorker,SIGNAL(plcHasBeenFound(DetectedController*)),this,SLOT(plcHasBeenFound(DetectedController*)));
+    connect(scanWorker,SIGNAL(plcHasBeenFound(SearchController)),this,SLOT(plcHasBeenFound(SearchController)));
     connect(scanWorker,SIGNAL(scanIsFinished(QString)),this,SLOT(scanIsFinished(QString)));
     connect(this,SIGNAL(startScan(QString)),scanWorker,SLOT(startScan(QString)));
     scanThread.start();
@@ -33,7 +33,7 @@ void ScanController::scanIsFinished(const QString &message)
     emit finished(message);
 }
 
-void ScanController::plcHasBeenFound(DetectedController* plc)
+void ScanController::plcHasBeenFound(SearchController plc)
 {
     emit found(plc,pName);
 }

@@ -2,12 +2,15 @@
 #include "ui_scangui.h"
 #include <QSerialPortInfo>
 
-ScanGUI::ScanGUI(int progAddr, QWidget *parent) :
+ScanGUI::ScanGUI(int progAddr, bool mode, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::ScanGUI)
 {
+    plcFound = false;
+    qRegisterMetaType<SearchController>("SearchController");
     ui->setupUi(this);
     QStringList portNames;
+    progMode = mode;
 
     foreach (const QSerialPortInfo &info, QSerialPortInfo::availablePorts()) {
             portNames << info.portName();
@@ -17,11 +20,12 @@ ScanGUI::ScanGUI(int progAddr, QWidget *parent) :
         //message.setStyleSheet("QLabel { font: bold; color : darkred; }");
         message.setText("COM порты не обнаружены");
     }else {
+
         foreach(QString pName, portNames) {
             ScanController* port = new ScanController(pName,progAddr);
             ports+= port;
             connect(port,SIGNAL(updated(float,QString)),this,SLOT(percentUpdate(float,QString)));
-            connect(port,SIGNAL(found(DetectedController*,QString)),this,SLOT(plcHasBeenFound(DetectedController*,QString)));
+            connect(port,SIGNAL(found(SearchController,QString)),this,SLOT(plcHasBeenFound(SearchController,QString)));
             QProgressBar* bar = new QProgressBar();
             bar->setFormat(pName);bar->setValue(0);
             ui->verticalLayout->addWidget(bar);
@@ -48,24 +52,36 @@ void ScanGUI::percentUpdate(float percValue, const QString &pName)
         if(bar->value()<99) finishFlag = false;
     }
     if(finishFlag) {
-        //message.setStyleSheet("QLabel { font: bold; color : darkred; }");
-        message.setText("Контроллер не найден");
-        DetectedController::Instance().setUartName("");
+        if(!plcFound) {
+            //message.setStyleSheet("QLabel { font: bold; color : darkred; }");
+            message.setText("Контроллер не найден");
+            DetectedController::Instance().setUartName("");
+        }else {
+            accept();
+        }
     }
 }
 
-void ScanGUI::plcHasBeenFound(DetectedController *plc, const QString &pName)
+void ScanGUI::plcHasBeenFound(SearchController plc, const QString &pName)
 {
     QString plcMessage = pName;
-    if(plc->getBootMode()) plcMessage += " BOOTLOADER";
+    if(plc.getBootMode()) plcMessage += " BOOTLOADER";
     else {
-        plcMessage += " " + QString::number(plc->getBaudrate());
-        if(plc->getAsciiMode()) plcMessage += " ASCII"; else plcMessage += " BIN";
-        plcMessage += " ADDRESS:" + QString::number(plc->getNetAddress());
+        plcMessage += " " + QString::number(plc.getBaudrate());
+        if(plc.getAsciiMode()) plcMessage += " ASCII"; else plcMessage += " BIN";
+        plcMessage += " ADDRESS:" + QString::number(plc.getNetAddress());
+        plcMessage += " " + plc.getCanName();
     }
     message.setStyleSheet("QLabel { font: bold; color : darkgreen; }");
     message.setText(plcMessage);
+    DetectedController::Instance().updateData(plc);
+    plcFound = true;
     repaint();
-    thread()->msleep(500);
-    accept();
+    if(progMode) {
+        if(plc.getBootMode() || plc.getCanName().contains("PROG")) {
+            //DetectedController::Instance().updateData(plc);
+            thread()->msleep(500);
+            accept();
+        }
+    }else {accept();}
 }

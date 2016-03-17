@@ -620,6 +620,7 @@ void DebuggerForm::buildDIO()
         if(i<4) name = "IN"+QString::number(i);
         else name = "DIN" + QString::number(i);
         QGroupBox *boxIn = addDIO(name,BitIO::inputStartAddress + i,8);
+        boxIn->setStyleSheet(QString::fromUtf8("QGroupBox { background-color: rgb(230,240,240); border: 1px solid darkgray; border-radius: 5px; margin-top: 7px; margin-bottom: 7px; padding: 0px} QGroupBox::title {top:-7 ex;left: 10px; subcontrol-origin: border}"));
         ioBoxes+=boxIn;
         boxIn->setCheckable(true);
         boxIn->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
@@ -631,6 +632,7 @@ void DebuggerForm::buildDIO()
         if(i<4) name = "OUT"+QString::number(i);
         else name = "DOUT" + QString::number(i);
         QGroupBox *boxOut = addDIO(name,BitIO::outputStartAddress + i,8);
+        boxOut->setStyleSheet(QString::fromUtf8("QGroupBox { background-color: rgb(230,240,240); border: 1px solid darkgray; border-radius: 5px; margin-top: 7px; margin-bottom: 7px; padding: 0px} QGroupBox::title {top:-7 ex;left: 10px; subcontrol-origin: border}"));
         ioBoxes+=boxOut;
         boxOut->setCheckable(true);
         boxOut->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
@@ -649,6 +651,7 @@ void DebuggerForm::buildDIO()
         if(!mmb.checkIO(name,mmbList)) boxIn->setVisible(false);
         ioBoxes+=boxIn;
         boxIn->setCheckable(true);
+        boxIn->setStyleSheet(QString::fromUtf8("QGroupBox { background-color: rgb(230,240,240); border: 1px solid darkgray; border-radius: 5px; margin-top: 7px; margin-bottom: 7px; padding: 0px} QGroupBox::title {top:-7 ex;left: 10px; subcontrol-origin: border}"));
         connect(boxIn,SIGNAL(toggled(bool)),this,SLOT(boxToggled(bool)));
         //boxIn->setChecked(false);
         grLayout->addWidget(boxIn,3+(i/6)*2,(i%6)+1);
@@ -659,6 +662,7 @@ void DebuggerForm::buildDIO()
         if(!mmb.checkIO(name,mmbList)) boxOut->setVisible(false);
         ioBoxes+=boxOut;
         boxOut->setCheckable(true);
+        boxOut->setStyleSheet(QString::fromUtf8("QGroupBox { background-color: rgb(230,240,240); border: 1px solid darkgray; border-radius: 5px; margin-top: 7px; margin-bottom: 7px; padding: 0px} QGroupBox::title {top:-7 ex;left: 10px; subcontrol-origin: border}"));
         connect(boxOut,SIGNAL(toggled(bool)),this,SLOT(boxToggled(bool)));
         //boxOut->setChecked(false);
         grLayout->addWidget(boxOut,4+(i/6)*2,(i%6)+1);
@@ -728,7 +732,7 @@ QVector<QGroupBox*> DebuggerForm::addAIO(const QString &grName, const QString &i
         number->setStyleSheet("border: 2px solid gray;"
                               "border-radius: 5px;"
                               "padding: 0 8px;"
-                              "background: #e0e0f0;");
+                              "background: rgb(230,240,240);");
         number->setReadOnly(true);
         QLineEdit *comment = new QLineEdit();
 
@@ -944,7 +948,8 @@ void DebuggerForm::on_pushButtonCOMUpdate_clicked()
 void DebuggerForm::on_pushButtonAutoSearch_clicked()
 {
     int progAddr = ui->spinBoxNetAddress->value();
-    ScanGUI gui(progAddr,this);
+
+    ScanGUI gui(progAddr,false, this);
     int ret = gui.exec();
     if(ret==QDialog::Accepted) {
         DetectedController* plc = &DetectedController::Instance();
@@ -1250,27 +1255,34 @@ void DebuggerForm::openInputs(const QString &fName)
                 }
             }
             mdiDataCur = memStor.getData(MemStorage::ioMemName,0x24,32);
+            MatchboxExistance mmb;
+            QString mmbList = mmb.getMatchboxFile();
+
             for(int i=0;i<mdiData.count();i++) {
                 if(mdiDataCur.at(i)!=mdiData.at(i)) {
-                    VarItem var;
-                    var.setValue(QString::number(mdiData.at(i)));
-                    var.setDataType(VarItem::ucharType);
-                    var.setMemAddress(0x24 + i);
-                    var.setMemType(MemStorage::ioMemName);
-                    var.setPriority(1);
-                    scheduler.addWriteOperation(var);
+                    if(mmb.checkIO("IN" +QString::number(4+i),mmbList)) {
+                        VarItem var;
+                        var.setValue(QString::number(mdiData.at(i)));
+                        var.setDataType(VarItem::ucharType);
+                        var.setMemAddress(0x24 + i);
+                        var.setMemType(MemStorage::ioMemName);
+                        var.setPriority(1);
+                        scheduler.addWriteOperation(var);
+                    }
                 }
             }
             maiDataCur = memStor.getData(MemStorage::ioMemName,0x64,256);
             for(int i=0;i<maiData.count();i++) {
                 if(maiDataCur.at(i)!=maiData.at(i)) {
-                    VarItem var;
-                    var.setValue(QString::number(maiData.at(i)));
-                    var.setDataType(VarItem::ucharType);
-                    var.setMemAddress(0x64 + i);
-                    var.setMemType(MemStorage::ioMemName);
-                    var.setPriority(1);
-                    scheduler.addWriteOperation(var);
+                    if(mmb.checkIO("ADC" +QString::number(9+i/2),mmbList)) {
+                        VarItem var;
+                        var.setValue(QString::number(maiData.at(i)));
+                        var.setDataType(VarItem::ucharType);
+                        var.setMemAddress(0x64 + i);
+                        var.setMemType(MemStorage::ioMemName);
+                        var.setPriority(1);
+                        scheduler.addWriteOperation(var);
+                    }
                 }
             }
             file.close();

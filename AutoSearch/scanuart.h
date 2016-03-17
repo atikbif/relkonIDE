@@ -9,6 +9,7 @@
 #include <QVector>
 #include "detectedcontroller.h"
 #include <QSerialPort>
+#include "searchcontroller.h"
 
 class ScanUART : public QObject
 {
@@ -33,7 +34,7 @@ public:
 signals:
     void percentUpdate(float percValue);
     void scanIsFinished(const QString& message);
-    void plcHasBeenFound(DetectedController* plc);
+    void plcHasBeenFound(SearchController plc);
 public slots:
     void startScan(const QString &pName);
     void stopScan(void);

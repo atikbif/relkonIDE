@@ -4,13 +4,14 @@
 #include "Protocols/rk.h"
 #include "Protocols/asciidecorator.h"
 
+
 using namespace RkProtocol;
 
 
 bool ScanUART::scan(QSerialPort &port)
 {
     bool foundFlag = false;
-    DetectedController* contr = &DetectedController::Instance();
+    SearchController contr;
     float stepWidth = 100.0/(baudTable.count()*2);
     float currentPercent=0;
     for(int i=0;i<baudTable.count();i++) {
@@ -25,28 +26,32 @@ bool ScanUART::scan(QSerialPort &port)
         foundFlag = false;
         foreach(CommandInterface* cmd, cmdList) {
             if(cmd->execute(req,port)){
-                contr->setBaudrate(baudTable.at(i));
-                if(QString(req.getRdData()).contains("Relkon")) contr->setBootMode(false);
-                else contr->setBootMode(true);
-                if(dynamic_cast<AsciiDecorator*>(cmd)) contr->setAsciiMode(true);
-                else contr->setAsciiMode(false);
+                contr.setBaudrate(baudTable.at(i));
+                if(QString(req.getRdData()).contains("Relkon")) contr.setBootMode(false);
+                else contr.setBootMode(true);
+                if(dynamic_cast<AsciiDecorator*>(cmd)) contr.setAsciiMode(true);
+                else contr.setAsciiMode(false);
                 GetCoreVersion* coreCmd = dynamic_cast<GetCoreVersion*>(cmdBin);
-                if(coreCmd) contr->setNetAddress(coreCmd->getNetAddress());
-                else contr->setNetAddress(0);
-                contr->setUartName(pName);
-
-                emit plcHasBeenFound(contr);
-                foundFlag = true;
+                if(coreCmd) contr.setNetAddress(coreCmd->getNetAddress());
+                else contr.setNetAddress(0);
+                contr.setUartName(pName);
 
                 // get canal name
-                if(contr->getBootMode()==false) {
+                if(contr.getBootMode()==false) {
                     CommandInterface* cmdGetName = new GetCanName();
-                    if(contr->getAsciiMode()) cmdGetName = new AsciiDecorator(cmdGetName);
+                    if(contr.getAsciiMode()) cmdGetName = new AsciiDecorator(cmdGetName);
                     if(cmdGetName->execute(req,port)) {
-                        contr->setCanName(QString(req.getRdData()).remove("Canal:"));
+                        contr.setCanName(QString(req.getRdData()).remove("Canal:"));
                     }
                     delete cmdGetName;
                 }
+
+                emit percentUpdate(100);
+                emit plcHasBeenFound(contr);
+
+                foundFlag = true;
+
+
                 break;
             }
             currentPercent+=stepWidth;
@@ -66,7 +71,7 @@ bool ScanUART::scan(QSerialPort &port)
 bool ScanUART::testBootMode(QSerialPort &port)
 {
     bool foundFlag = false;
-    DetectedController* contr = &DetectedController::Instance();
+    SearchController contr;
 
     Request req;
     req.setNetAddress(0);
@@ -75,13 +80,13 @@ bool ScanUART::testBootMode(QSerialPort &port)
     CommandInterface* cmd = new GetCoreVersion();
 
     if(cmd->execute(req,port)){
-        contr->setBaudrate(115200);
-        if(QString(req.getRdData()).contains("boot")) contr->setBootMode(true);
-        else contr->setBootMode(false);
-        contr->setAsciiMode(false);
-        contr->setNetAddress(0);
-        contr->setUartName(pName);
-        if(contr->getBootMode()) {
+        contr.setBaudrate(115200);
+        if(QString(req.getRdData()).contains("boot")) contr.setBootMode(true);
+        else contr.setBootMode(false);
+        contr.setAsciiMode(false);
+        contr.setNetAddress(0);
+        contr.setUartName(pName);
+        if(contr.getBootMode()) {
             emit plcHasBeenFound(contr);
             foundFlag = true;
         }

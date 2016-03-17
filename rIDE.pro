@@ -108,7 +108,8 @@ SOURCES += main.cpp\
     pathstorage.cpp \
     Debugger/matchboxexistance.cpp \
     LCD/dialogspessymb.cpp \
-    rp6creator.cpp
+    rp6creator.cpp \
+    AutoSearch/searchcontroller.cpp
 
 HEADERS  += mainwindow.h \
     codeeditor.h \
@@ -192,7 +193,8 @@ HEADERS  += mainwindow.h \
     pathstorage.h \
     Debugger/matchboxexistance.h \
     LCD/dialogspessymb.h \
-    rp6creator.h
+    rp6creator.h \
+    AutoSearch/searchcontroller.h
 
 FORMS    += mainwindow.ui \
     settingsform.ui \

@@ -1,81 +1,19 @@
 #include "detectedcontroller.h"
 #include <QMutexLocker>
 
-
-qint8 DetectedController::getNetAddress()
+void DetectedController::updateData(const SearchController &contr)
 {
-    QMutexLocker locker(&mutex);
-    return netAddress;
-}
-
-void DetectedController::setNetAddress(const qint8 &value)
-{
-    QMutexLocker locker(&mutex);
-    netAddress = value;
-}
-
-QString DetectedController::getUartName()
-{
-    QMutexLocker locker(&mutex);
-    return uartName;
-}
-
-void DetectedController::setUartName(const QString &value)
-{
-    QMutexLocker locker(&mutex);
-    uartName = value;
-}
-
-bool DetectedController::getAsciiMode()
-{
-    QMutexLocker locker(&mutex);
-    return asciiMode;
-}
-
-void DetectedController::setAsciiMode(bool value)
-{
-    QMutexLocker locker(&mutex);
-    asciiMode = value;
-}
-
-bool DetectedController::getBootMode()
-{
-    QMutexLocker locker(&mutex);
-    return bootMode;
-}
-
-void DetectedController::setBootMode(bool value)
-{
-    QMutexLocker locker(&mutex);
-    bootMode = value;
-}
-
-QString DetectedController::getCanName()
-{
-    QMutexLocker locker(&mutex);
-    return canName;
-}
-
-void DetectedController::setCanName(const QString &value)
-{
-    QMutexLocker locker(&mutex);
-    canName = value;
-}
-qint32 DetectedController::getBaudrate()
-{
-    QMutexLocker locker(&mutex);
-    return baudrate;
-}
-
-void DetectedController::setBaudrate(const qint32 &value)
-{
-    QMutexLocker locker(&mutex);
-    baudrate = value;
+    setBaudrate(contr.getBaudrate());
+    setNetAddress(contr.getNetAddress());
+    setUartName(contr.getUartName());
+    setAsciiMode(contr.getAsciiMode());
+    setBootMode(contr.getBootMode());
+    setCanName(contr.getCanName());
 }
 
 DetectedController::DetectedController()
 {
-    canName = "";
+
 }
 
 DetectedController::~DetectedController()

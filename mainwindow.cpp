@@ -492,15 +492,14 @@ void MainWindow::createDebugger()
     //ui->tabWidget->addTab(debugger,"Отладчик");
 
     dockDebugger = new QDockWidget(tr("Отладчик F4"), this);
-    dockDebugger->setAllowedAreas(Qt::NoDockWidgetArea);
+    dockDebugger->setAllowedAreas(Qt::RightDockWidgetArea | Qt::LeftDockWidgetArea);
     dockDebugger->setWidget(debugger);
-    addDockWidget(Qt::LeftDockWidgetArea, dockDebugger);
+    addDockWidget(Qt::RightDockWidgetArea, dockDebugger);
     //ui->mainToolBar->addAction(dockDebugger->toggleViewAction());
     ui->menuView->addAction(dockDebugger->toggleViewAction());
     ui->mainToolBar->addAction(dockDebugger->toggleViewAction());
     connect(dockDebugger->toggleViewAction(),SIGNAL(triggered(bool)),this,SLOT(toggleDebugger()));
     dockDebugger->close();
-    dockDebugger->setFloating(true);
 }
 
 void MainWindow::createDisplay()
@@ -513,7 +512,7 @@ void MainWindow::createDisplay()
     connect(this,SIGNAL(updTree()),lcd,SIGNAL(updTree()));
     //ui->tabWidget->addTab(lcd,"Пульт");
     dockDisplay = new QDockWidget(tr("Пульт F3"), this);
-    dockDisplay->setAllowedAreas(Qt::RightDockWidgetArea);
+    dockDisplay->setAllowedAreas(Qt::RightDockWidgetArea | Qt::LeftDockWidgetArea);
     dockDisplay->setWidget(lcd);
     addDockWidget(Qt::RightDockWidgetArea, dockDisplay);
     ui->menuView->addAction(dockDisplay->toggleViewAction());
@@ -637,6 +636,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 
     QMainWindow::tabifyDockWidget(dockSettings, dockDisplay);
+    QMainWindow::tabifyDockWidget(dockDisplay, dockDebugger);
 
     /*ui->mdiArea->addSubWindow(editor);
     ui->mdiArea->addSubWindow(debugger);
@@ -1107,7 +1107,7 @@ void MainWindow::projectToPlc()
 {
     if(QFile::exists(PathStorage::getBinFileFullName())) {
         debugger->stopDebugger();
-        ScanGUI gui(settings->getProgAddr(),this);
+        ScanGUI gui(settings->getProgAddr(),true,this);
         int ret = gui.exec();
         if(ret==QDialog::Accepted) {
             BootModeSetter bootSetter(this);

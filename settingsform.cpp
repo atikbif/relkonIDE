@@ -474,7 +474,7 @@ void SettingsForm::radioButtonBytes_toggled()
 
 void SettingsForm::on_pushButtonFromPLC_clicked()
 {
-    ScanGUI gui(progAddr,this);
+    ScanGUI gui(progAddr,false,this);
     int ret = gui.exec();
     if(ret==QDialog::Accepted) {
         DetectedController* plc = &DetectedController::Instance();
@@ -494,7 +494,7 @@ void SettingsForm::on_pushButtonToPLC_clicked()
 {
     QByteArray data;
     writeToBin(data);
-    ScanGUI gui(progAddr,this);
+    ScanGUI gui(progAddr,false,this);
     int ret = gui.exec();
     if(ret==QDialog::Accepted) {
         DetectedController* plc = &DetectedController::Instance();

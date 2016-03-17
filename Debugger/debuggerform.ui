@@ -38,7 +38,7 @@
       <enum>QTabWidget::Triangular</enum>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <property name="documentMode">
       <bool>false</bool>
@@ -256,12 +256,6 @@
        <verstretch>1</verstretch>
       </sizepolicy>
      </property>
-     <property name="minimumSize">
-      <size>
-       <width>0</width>
-       <height>0</height>
-      </size>
-     </property>
      <property name="title">
       <string/>
      </property>
@@ -274,22 +268,17 @@
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>1000</width>
-          <height>16777215</height>
-         </size>
-        </property>
         <property name="title">
          <string/>
         </property>
         <layout class="QGridLayout" name="gridLayout_2">
+         <item row="4" column="0">
+          <widget class="QRadioButton" name="radioButtonUDP">
+           <property name="text">
+            <string>UDP</string>
+           </property>
+          </widget>
+         </item>
          <item row="0" column="0" colspan="2">
           <widget class="QLabel" name="label">
            <property name="text">
@@ -304,16 +293,19 @@
            </property>
           </widget>
          </item>
-         <item row="2" column="0" colspan="3">
-          <widget class="QPushButton" name="pushButtonAutoSearch">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
+         <item row="4" column="1" colspan="2">
+          <widget class="QCheckBox" name="checkBoxLog">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="layoutDirection">
+            <enum>Qt::RightToLeft</enum>
            </property>
            <property name="text">
-            <string>поиск</string>
+            <string>лог</string>
+           </property>
+           <property name="checked">
+            <bool>false</bool>
            </property>
           </widget>
          </item>
@@ -324,13 +316,6 @@
            </property>
            <property name="checked">
             <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="4" column="0">
-          <widget class="QRadioButton" name="radioButtonUDP">
-           <property name="text">
-            <string>UDP</string>
            </property>
           </widget>
          </item>
@@ -372,19 +357,16 @@
            </property>
           </widget>
          </item>
-         <item row="4" column="1" colspan="2">
-          <widget class="QCheckBox" name="checkBoxLog">
-           <property name="enabled">
-            <bool>true</bool>
-           </property>
-           <property name="layoutDirection">
-            <enum>Qt::RightToLeft</enum>
+         <item row="2" column="0" colspan="3">
+          <widget class="QPushButton" name="pushButtonAutoSearch">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
            </property>
            <property name="text">
-            <string>лог</string>
-           </property>
-           <property name="checked">
-            <bool>false</bool>
+            <string>поиск</string>
            </property>
           </widget>
          </item>
@@ -409,6 +391,31 @@
          <string/>
         </property>
         <layout class="QGridLayout" name="gridLayout_9">
+         <item row="2" column="0">
+          <widget class="QPushButton" name="updateButton">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="layoutDirection">
+            <enum>Qt::LeftToRight</enum>
+           </property>
+           <property name="autoFillBackground">
+            <bool>false</bool>
+           </property>
+           <property name="text">
+            <string>Обн. дерево </string>
+           </property>
+           <property name="flat">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
          <item row="0" column="0">
           <widget class="QLCDNumber" name="lcdNumberCorrect">
            <property name="sizePolicy">
@@ -548,31 +555,6 @@
            </property>
           </widget>
          </item>
-         <item row="2" column="0">
-          <widget class="QPushButton" name="updateButton">
-           <property name="enabled">
-            <bool>true</bool>
-           </property>
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="layoutDirection">
-            <enum>Qt::LeftToRight</enum>
-           </property>
-           <property name="autoFillBackground">
-            <bool>false</bool>
-           </property>
-           <property name="text">
-            <string>Обн. дерево </string>
-           </property>
-           <property name="flat">
-            <bool>false</bool>
-           </property>
-          </widget>
-         </item>
         </layout>
        </widget>
       </item>
@@ -584,22 +566,43 @@
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>1000</width>
-          <height>1000</height>
-         </size>
-        </property>
         <property name="title">
          <string/>
         </property>
         <layout class="QGridLayout" name="gridLayout_8">
+         <item row="1" column="0">
+          <widget class="QGroupBox" name="groupBox_5">
+           <property name="title">
+            <string>Слепок входов</string>
+           </property>
+           <layout class="QGridLayout" name="gridLayout_4">
+            <item row="0" column="0">
+             <widget class="QPushButton" name="pushButtonOpenInp">
+              <property name="text">
+               <string>загр.</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QPushButton" name="pushButtonOpenLastInp">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="text">
+               <string>загр. посл.</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QPushButton" name="pushButtonSaveInp">
+              <property name="text">
+               <string>сохр.</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
          <item row="0" column="0">
           <widget class="QGroupBox" name="groupBox_4">
            <property name="sizePolicy">
@@ -647,39 +650,6 @@
            </layout>
           </widget>
          </item>
-         <item row="1" column="0">
-          <widget class="QGroupBox" name="groupBox_5">
-           <property name="title">
-            <string>Слепок входов</string>
-           </property>
-           <layout class="QGridLayout" name="gridLayout_4">
-            <item row="0" column="1">
-             <widget class="QPushButton" name="pushButtonSaveInp">
-              <property name="text">
-               <string>сохр.</string>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="0">
-             <widget class="QPushButton" name="pushButtonOpenInp">
-              <property name="text">
-               <string>загр.</string>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="0">
-             <widget class="QPushButton" name="pushButtonOpenLastInp">
-              <property name="enabled">
-               <bool>false</bool>
-              </property>
-              <property name="text">
-               <string>загр. посл.</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-         </item>
         </layout>
        </widget>
       </item>
@@ -690,18 +660,6 @@
           <horstretch>2</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>250</width>
-          <height>1000</height>
-         </size>
         </property>
         <property name="tabPosition">
          <enum>QTabWidget::West</enum>
@@ -717,13 +675,6 @@
           <string>COM</string>
          </attribute>
          <layout class="QGridLayout" name="gridLayout_3">
-          <item row="1" column="0" colspan="2">
-           <widget class="QLabel" name="label_5">
-            <property name="text">
-             <string>Скорость:</string>
-            </property>
-           </widget>
-          </item>
           <item row="0" column="0" colspan="2">
            <widget class="QComboBox" name="comboBoxCOM">
             <property name="sizePolicy">
@@ -737,19 +688,6 @@
               <string>COM1</string>
              </property>
             </item>
-           </widget>
-          </item>
-          <item row="0" column="2">
-           <widget class="QPushButton" name="pushButtonCOMUpdate">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="text">
-             <string>обновить</string>
-            </property>
            </widget>
           </item>
           <item row="1" column="2">
@@ -792,13 +730,6 @@
             </item>
            </widget>
           </item>
-          <item row="2" column="0" colspan="2">
-           <widget class="QLabel" name="label_4">
-            <property name="text">
-             <string>Протокол:</string>
-            </property>
-           </widget>
-          </item>
           <item row="2" column="2">
            <widget class="QComboBox" name="comboBoxProtocol">
             <property name="sizePolicy">
@@ -823,6 +754,33 @@
            <widget class="QLabel" name="label_6">
             <property name="text">
              <string>Канал:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0" colspan="2">
+           <widget class="QLabel" name="label_5">
+            <property name="text">
+             <string>Скорость:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2">
+           <widget class="QPushButton" name="pushButtonCOMUpdate">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>обновить</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0" colspan="2">
+           <widget class="QLabel" name="label_4">
+            <property name="text">
+             <string>Протокол:</string>
             </property>
            </widget>
           </item>
@@ -888,12 +846,6 @@
           <horstretch>10</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>1500</width>
-          <height>500</height>
-         </size>
         </property>
         <property name="verticalScrollBarPolicy">
          <enum>Qt::ScrollBarAlwaysOff</enum>

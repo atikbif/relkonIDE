@@ -8,6 +8,7 @@
 #include <QVector>
 #include <QProgressBar>
 #include <QLabel>
+#include "searchcontroller.h"
 
 namespace Ui {
 class ScanGUI;
@@ -19,15 +20,16 @@ class ScanGUI : public QDialog
     QVector<ScanController*> ports;
     QVector<QProgressBar*> prBar;
     QLabel message;
+    bool progMode;
+    bool plcFound;
 public:
-    explicit ScanGUI(int progAddr=0, QWidget *parent = 0);
+    explicit ScanGUI(int progAddr=0, bool mode=false, QWidget *parent = 0);
     ~ScanGUI();
-
 private:
     Ui::ScanGUI *ui;
 public slots:
     void percentUpdate(float percValue,const QString& pName);
-    void plcHasBeenFound(DetectedController* plc,const QString& pName);
+    void plcHasBeenFound(SearchController plc,const QString& pName);
 };
 
 #endif // SCANGUI_H
