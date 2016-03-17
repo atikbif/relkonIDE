@@ -3,7 +3,6 @@
 #include <QTextStream>
 #include <QRegExp>
 
-#include <QDebug>
 #include <QDateTime>
 #include <QApplication>
 #include "pathstorage.h"

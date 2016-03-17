@@ -49,7 +49,6 @@ sFram::~sFram()
 void sFram::startWrite(QByteArray data)
 {
     bool errFlag = false;
-
     DetectedController* plc = &DetectedController::Instance();
     if(!testControllerReady()) return;
     QSerialPort port(plc->getUartName());

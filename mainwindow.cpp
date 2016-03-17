@@ -1165,15 +1165,19 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
 
         break;
     case Qt::Key_F2:
-        QMainWindow::tabifyDockWidget(dockDisplay,dockSettings);
-        if(dockSettings->toggleViewAction()->isEnabled()) dockSettings->setVisible(true);
+        if(dockSettings->toggleViewAction()->isEnabled()) {
+            dockSettings->setVisible(true);
+        }
         break;
     case Qt::Key_F3:
-        QMainWindow::tabifyDockWidget(dockSettings, dockDisplay);
-        if(dockDisplay->toggleViewAction()->isEnabled()) dockDisplay->setVisible(true);
+        if(dockDisplay->toggleViewAction()->isEnabled()) {
+            dockDisplay->setVisible(true);
+        }
         break;
     case Qt::Key_F4:
-        if(dockDebugger->toggleViewAction()->isEnabled()) dockDebugger->setVisible(true);
+        if(dockDebugger->toggleViewAction()->isEnabled()) {
+            dockDebugger->setVisible(true);
+        }
         break;
     case Qt::Key_F5:
         if(buildAct->isEnabled()) {

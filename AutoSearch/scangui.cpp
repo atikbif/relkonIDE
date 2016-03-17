@@ -83,5 +83,5 @@ void ScanGUI::plcHasBeenFound(SearchController plc, const QString &pName)
             thread()->msleep(500);
             accept();
         }
-    }else {accept();}
+    }else {thread()->msleep(500);accept();}
 }

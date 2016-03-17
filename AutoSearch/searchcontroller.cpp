@@ -62,5 +62,10 @@ void SearchController::setCanName(const QString &value)
 
 SearchController::SearchController()
 {
-
+    baudrate = 0;
+    netAddress = 0;
+    uartName = "";
+    asciiMode = false;
+    bootMode = false;
+    canName = "";
 }
