@@ -13,7 +13,7 @@ class sFram : public QObject
     Q_OBJECT
     QMutex mutex;
     bool stopCmd;
-    static const int reqLength = 128;
+    static const int reqLength = 64;
     void controllerReset(QSerialPort &port);
     bool testControllerReady(void); // проверка готовности контроллера к чтению/записи настроек
 public:

@@ -15,7 +15,7 @@ class MemStorage : public QObject
     QVector<MemBlock*> blocks;
     QMutex mutex;
 public:
-    static const int ioMemSize = 484;
+    static const int ioMemSize = 500;
     static const int ramMemSize = 64*1024;
     static const int framMemSize = 32*1024;
     static const int userMemSize = 256;

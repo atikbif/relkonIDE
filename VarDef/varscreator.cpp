@@ -218,6 +218,21 @@ void VarsCreator::addAnalogInputs(CompositeVar *parent)
     aiVar->addChild(*mmbVar);
     ids.addVar(mmbVar);
 
+    CompositeVar* eaiVar = new CompositeVar();
+    eaiVar->setName("I2CADC");
+    eaiVar->setMemAddress(1);   // для различия с другими узлами MMB
+    for(int i=0;i<8;i++) {
+        CompositeVar* intVar = new CompositeVar();
+        intVar->setName("ADC"+QString::number(201+i));
+        intVar->setDataType(VarItem::ushortType);
+        intVar->setMemType("IO");
+        intVar->setMemAddress(0x1E4+i*2);
+        eaiVar->addChild(*intVar);
+        ids.addVar(intVar);
+    }
+    aiVar->addChild(*eaiVar);
+    ids.addVar(eaiVar);
+
     parent->addChild(*aiVar);
     ids.addVar(aiVar);
 }

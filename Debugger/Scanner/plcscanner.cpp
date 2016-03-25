@@ -65,7 +65,7 @@ void PLCScanner::startReq(QIODevice &port)
             QString yearStr = QString::number(year);if(yearStr.size()<2) yearStr = "0"+yearStr;
 
             QString plcTime = hourStr + ":" + minStr + ":" + secStr +
-                    "   " + dateStr+":"+monthStr+":"+yearStr;
+                    "   " + dateStr+"."+monthStr+"."+yearStr;
             emit updateTimeStr(plcTime);
         }else
         {

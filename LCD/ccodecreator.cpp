@@ -9,16 +9,17 @@ void CCodeCreator::printData(const Display &d, QStringList &code)
         code << "const unsigned char str" + QString::number(i+1) + "[][" + QString::number(d.getLength()) + "]={\n";
         int subStrCount = d.getSubStrCount(i);
         for(int j=0;j<subStrCount;j++) {
-            if(!d.getString(i,j).isActive()) break;
-            QString strData("{");
-            QByteArray bytes = d.getString(i,j).getString();
-            foreach (int symb, bytes) {
-                strData+="0x"+QString::number(quint8(symb),16) + ',';
+            if(d.getString(i,j).isActive()) {
+                QString strData("{");
+                QByteArray bytes = d.getString(i,j).getString();
+                foreach (int symb, bytes) {
+                    strData+="0x"+QString::number(quint8(symb),16) + ',';
+                }
+                strData.remove(strData.length()-1,1);   // remove last ','
+                strData+="}";
+                if(j!=d.getSubStrCount(i)-1) strData+=",\n";
+                code << strData;
             }
-            strData.remove(strData.length()-1,1);   // remove last ','
-            strData+="}";
-            if(j!=d.getSubStrCount(i)-1) strData+=",\n";
-            code << strData;
         }
         code << "};\n";
     }

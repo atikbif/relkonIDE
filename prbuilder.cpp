@@ -11,8 +11,8 @@
 
 int PrBuilder::convertStrNum(int cStrNum)
 {
-    QString fileName = QApplication::applicationDirPath();
-    fileName += "/src/fc_u.c";
+    QString fileName = PathStorage::getSrcDir();
+    fileName += "/fc_u.c";
     QFile file(fileName);
     if (file.open(QIODevice::ReadOnly)) {
         QTextStream in (&file);

@@ -223,17 +223,23 @@ void DisplayWidget::paintEvent(QPaintEvent *event)
                         else painter.setBrush(QBrush(Qt::black));
                         painter.setPen(penLight);
                     }else {
-                        painter.setBrush(QBrush(QColor(240,240,255)));
-                        painter.setPen(QColor(225,225,225));
+                        if((y==selection.strNum)&&(x>=selection.startPos)&&(x<=selection.stopPos)) {
+                            painter.setBrush(QBrush(QColor(200,200,200)));
+                            painter.setPen(QColor(225,225,225));
+                        }else {
+                            painter.setBrush(QBrush(QColor(240,240,255)));
+                            painter.setPen(QColor(225,225,225));
+                        }
+
                     }
-                    if((y==selection.strNum)&&(x>=selection.startPos)&&(x<=selection.stopPos)) {
+                    /*if((y==selection.strNum)&&(x>=selection.startPos)&&(x<=selection.stopPos)) {
                         QBrush br = painter.brush();
                         QColor col = br.color();
                         col.setRed(255-col.red());
                         col.setGreen(255-col.green());
                         br.setColor(col.lighter(150));
                         painter.setBrush(br);
-                    }
+                    }*/
                     QRectF pixRect(x*widthOneSymb+1+pixX*pixWidth,y*heightOneSymb+1+pixY*pixHeight,pixWidth,pixHeight);
                     painter.drawRect(pixRect);
                 }

@@ -17,6 +17,7 @@ class AnIO
 
 public:
     static const int inputStartAddress = 0x0C;
+    static const int i2cInputStartAddress = 0x1E4;
     static const int outputStartAddress = 0x1C;
     static const int mmbInputStartAddress = 0x64;
     static const int mmbOutputStartAddress = 0x164;

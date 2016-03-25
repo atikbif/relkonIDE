@@ -340,13 +340,14 @@ DebuggerForm::DebuggerForm(VarsCreator &vCr, QWidget *parent) :
     connect(ui->pushButtonSaveInp,SIGNAL(clicked(bool)),this,SLOT(saveInputs()));
 
     buildIO();
-    ui->lineEditTime->setInputMask("99:99:99    99:99:99");
-    ui->lineEditTime->setText("00:00:00 01:01:00");
+    ui->lineEditTime->setInputMask("99:99:99    99.99.99");
+    ui->lineEditTime->setText("00:00:00 01.01.00");
 
     ui->tableWidgetMem->setRowCount(memViewRowCount);
     ui->tableWidgetMem->setColumnCount(memViewColumnCount);
     clearMemViewTable();
     on_checkBoxLog_clicked();
+    on_tabWidget_currentChanged(1);
 }
 
 DebuggerForm::~DebuggerForm()
@@ -771,6 +772,10 @@ void DebuggerForm::buildAIO()
     ioBoxes+=boxAdc;
     foreach(QGroupBox* box, boxAdc) {vLayoutAn->addWidget(box);}
 
+    QVector<QGroupBox*> boxAdcI2C = addAIO("ADC201..208","ADC",AnIO::i2cInputStartAddress,201,208);
+    ioBoxes+=boxAdcI2C;
+    foreach(QGroupBox* box, boxAdcI2C) {vLayoutAn->addWidget(box);}
+
     QVector<QGroupBox*> boxAdcMmb = addAIO("Matchbox ADC","ADC",AnIO::mmbInputStartAddress,9,136);
     ioBoxes += boxAdcMmb;
     foreach(QGroupBox* box, boxAdcMmb) vLayoutAn->addWidget(box);
@@ -1121,6 +1126,14 @@ void DebuggerForm::on_tabWidget_currentChanged(int index)
             var.setMemAddress(i);
             scheduler.addReadOperation(var);
         }
+        for(int i=484;i<500;i++) {//MemStorage::ioMemSize;i++) {
+            VarItem var;
+            var.setDataType(VarItem::ucharType);
+            var.setMemType(MemStorage::ioMemName);
+            var.setPriority(1);
+            var.setMemAddress(i);
+            scheduler.addReadOperation(var);
+        }
         // модули Matchbox
         foreach (QGroupBox *box, ioBoxes) {
             if(box->isVisible()) {
@@ -1324,7 +1337,7 @@ void DebuggerForm::on_lineEditTime_returnPressed()
     var.setDataType(VarItem::timeType);
 
     QString timeStr = ui->lineEditTime->text();
-    QRegExp exp("^(\\d\\d):(\\d\\d):(\\d\\d)[\\t\\s]+(\\d\\d):(\\d\\d):(\\d\\d)");
+    QRegExp exp("^(\\d\\d):(\\d\\d):(\\d\\d)[\\t\\s]+(\\d\\d)\\.(\\d\\d)\\.(\\d\\d)");
     if(exp.indexIn(timeStr)!=-1) {
         int hours = exp.cap(1).toInt();
         int mins = exp.cap(2).toInt();

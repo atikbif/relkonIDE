@@ -1,14 +1,15 @@
 #include "lcdphont.h"
 #include <QFile>
 #include <QDataStream>
+#include <QApplication>
 
-const QString LCDPhont::defName = "lcd_phont.rph";
+const QString LCDPhont::defName = "/phont/lcdPhont.bin";
 
 LCDPhont::LCDPhont(const QString &fName):rowCount(0),
     columnCount(0),symbCount(0)
 {
     if(!fName.isEmpty()) {
-        QFile file(fName);
+        QFile file(QApplication::applicationDirPath() + fName);
         if (file.open(QIODevice::ReadOnly)) {
             QDataStream in(&file);
             in.setVersion(QDataStream::Qt_5_4);

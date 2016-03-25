@@ -634,7 +634,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->menuView->addAction(sysMessAction);
     //ui->mainToolBar->addWidget(spacer);
 
-    QMainWindow::setDockNestingEnabled(false);
+    QMainWindow::setDockOptions(QMainWindow::ForceTabbedDocks);
     QMainWindow::tabifyDockWidget(dockSettings, dockDisplay);
     QMainWindow::tabifyDockWidget(dockDisplay, dockDebugger);
 
@@ -869,6 +869,11 @@ void MainWindow::saveAsFile()
 void MainWindow::closeProject()
 {
     if(saveWarning()==0) return;
+    prChangedFlag = false;
+    displ->setChanged(false);
+    dockDebugger->close();
+    dockDisplay->close();
+    dockSettings->close();
     editor->clear();
     ui->tabWidget->setCurrentIndex(0);
     ui->tabWidget->setEnabled(false);
