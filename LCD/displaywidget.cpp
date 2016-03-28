@@ -137,8 +137,12 @@ void DisplayWidget::keyPressEvent(QKeyEvent *event)
         displ.addEmptyStrAfter(displ.getYPosition(),displ.getCurSubStrNum(displ.getYPosition()));
         break;
     case Qt::Key_Delete:
-        destroySelection();
-        displ.deleteSymbol();
+        if (QApplication::keyboardModifiers() && Qt::ShiftModifier) {
+            displ.deleteStr(displ.getYPosition(),displ.getCurSubStrNum(displ.getYPosition()));
+        }else {
+            destroySelection();
+            displ.deleteSymbol();
+        }
         break;
     case Qt::Key_Backspace:
         destroySelection();
@@ -162,6 +166,22 @@ void DisplayWidget::keyPressEvent(QKeyEvent *event)
             }
             destroySelection();
         }
+        break;
+    case Qt::Key_Q:
+        if (QApplication::keyboardModifiers() && Qt::ControlModifier) {
+            if(displ.getCursorString().isActive()) displ.toggleActive(displ.getYPosition(),displ.getCurSubStrNum(displ.getYPosition()));
+        }
+        destroySelection();
+        displ.nextString();
+        emit displ.cursorPosChanged(displ.getXPosition(),displ.getYPosition());
+        break;
+    case Qt::Key_W:
+        if (QApplication::keyboardModifiers() && Qt::ControlModifier) {
+            if(!displ.getCursorString().isActive()) displ.toggleActive(displ.getYPosition(),displ.getCurSubStrNum(displ.getYPosition()));
+        }
+        destroySelection();
+        displ.nextString();
+        emit displ.cursorPosChanged(displ.getXPosition(),displ.getYPosition());
         break;
     default:
         QString s = event->text();

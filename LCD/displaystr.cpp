@@ -36,14 +36,21 @@ bool DisplayStr::insertSymbol(int pos,quint8 code)
         data.insert(pos,code);
         result = true;
     }else {
-        // проверка свободного места для вставки символа со сдвигом строки
-        if(data.at(length-1)==spaceCode) {
+        if(data.at(pos)==spaceCode) { // если курсор на месте пробела то он замещается новым символом
+            // заменить символ
+            data.remove(pos,1);
             data.insert(pos,code);
-            // сдвиг всех переменных правее заданной позиции
-            foreach (PultVarDefinition* v, vList) {
-               if(v->getPosInStr() >= pos) v->setPosInStr(v->getPosInStr()+1);
-            }
             result = true;
+        }else {
+            // проверка свободного места для вставки символа со сдвигом строки
+            if(data.at(length-1)==spaceCode) {
+                data.insert(pos,code);
+                // сдвиг всех переменных правее заданной позиции
+                foreach (PultVarDefinition* v, vList) {
+                   if(v->getPosInStr() >= pos) v->setPosInStr(v->getPosInStr()+1);
+                }
+                result = true;
+            }
         }
     }
     data.resize(length);// отсечь лишние символы (сдвинутые)
@@ -100,13 +107,22 @@ bool DisplayStr::addVar(const PultVarDefinition &vDef)
     if(!checkPosition(pos)) return false;
     if(endPos>=length) return false;
     if(!replaceMode) {
-        if(isVarHere(pos)) return false;
-        // check free space
-        int spaceCnt = getFreeSpace();
-        if(spaceCnt<patternLength) return false;
-        // сдвиг переменных, находящихся правее указанной позиции
-        foreach (PultVarDefinition* vd, vList) {
-           if(vd->getPosInStr() > pos) vd->setPosInStr(vd->getPosInStr()+patternLength);
+        // проверка пробелов на предполагаемом месте
+        bool spaceFlag = true;
+        for(int i=pos;i<=endPos;i++) {
+            if(data.at(i)!=spaceCode) {spaceFlag=false;break;}
+        }
+        if(spaceFlag) {
+            data.remove(pos,patternLength);
+        }else {
+            if(isVarHere(pos)) return false;
+            // check free space
+            int spaceCnt = getFreeSpace();
+            if(spaceCnt<patternLength) return false;
+            // сдвиг переменных, находящихся правее указанной позиции
+            foreach (PultVarDefinition* vd, vList) {
+               if(vd->getPosInStr() > pos) vd->setPosInStr(vd->getPosInStr()+patternLength);
+            }
         }
     }else {
         for(int i=pos;i<=endPos;i++) {
