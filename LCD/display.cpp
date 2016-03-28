@@ -18,7 +18,7 @@ void Display::updVarDefinition(int strNum, int subStrNum, int VarNum, PultVarDef
     }
 }
 
-Display::Display(QObject *parent):QObject(parent),changed(false),copyStrBuf(nullptr),x(0),y(0)
+Display::Display(QObject *parent):QObject(parent),changed(false),copyStrBuf(nullptr),x(0),y(0),copySubject(false)
 {
     for(int i=0;i<strCount;i++) {
         QVector<DisplayStr*> v;
@@ -169,6 +169,7 @@ bool Display::copyStrToBuffer(int strNum, int subStrNum)
     if(checkStrNum(strNum,subStrNum)==false) return false;
     if(copyStrBuf!=nullptr) delete copyStrBuf;
     copyStrBuf = new DisplayStr(*(data.value(strNum).at(subStrNum)));
+    setCopySubject(false);
     return true;
 }
 
@@ -202,8 +203,8 @@ bool Display::deleteStr(int strNum, int subStrNum)
     curStr.insert(strNum,subStrNum);
     x=0;y=strNum;
     emit cursorPosChanged(x,y);
-    emit curStrNumChanged(strNum,subStrNum);
     emit strListChanged(strNum);
+    emit curStrNumChanged(strNum,subStrNum);
     return true;
 }
 
@@ -379,3 +380,13 @@ Display::~Display()
     if(copyStrBuf!=nullptr) delete copyStrBuf;
 }
 
+
+bool Display::getCopySubject() const
+{
+    return copySubject;
+}
+
+void Display::setCopySubject(bool value)
+{
+    copySubject = value;
+}

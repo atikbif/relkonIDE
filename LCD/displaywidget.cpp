@@ -153,16 +153,24 @@ void DisplayWidget::keyPressEvent(QKeyEvent *event)
         break;
     case Qt::Key_C:
         if (QApplication::keyboardModifiers() && Qt::ControlModifier) {
-            if(selection.strNum>=0) {
+            if((selection.strNum>=0)&&(selection.startPos!=selection.stopPos)) {
                 selection.copyData.clear();
                 selection.copyData = displ.getString(selection.strNum,displ.getCurSubStrNum(selection.strNum)).getString().mid(selection.startPos,selection.stopPos-selection.startPos+1);
+                displ.setCopySubject(true);
+            }else {
+                displ.copyStrToBuffer(displ.getYPosition(),displ.getCurSubStrNum(displ.getYPosition()));
             }
         }
         break;
     case Qt::Key_V:
         if (QApplication::keyboardModifiers() && Qt::ControlModifier) {
-            foreach (char s, selection.copyData) {
-               displ.insertSymbol(s);
+            if(displ.getCopySubject()==false) {
+                displ.addEmptyStrBefore(displ.getYPosition(),displ.getCurSubStrNum(displ.getYPosition()));
+                displ.pasteStrFromBuffer(displ.getYPosition(),displ.getCurSubStrNum(displ.getYPosition()));
+            }else {
+                foreach (char s, selection.copyData) {
+                   displ.insertSymbol(s);
+                }
             }
             destroySelection();
         }
@@ -346,6 +354,7 @@ void DisplayWidget::contextMenuEvent(QContextMenuEvent *event)
                     if(selectedItem==copyAction) {
                         selection.copyData.clear();
                         selection.copyData = displ.getString(y,displ.getCurSubStrNum(y)).getString().mid(selection.startPos,selection.stopPos-selection.startPos+1);
+                        displ.setCopySubject(true);
                     }else if(selectedItem==pasteAction) {
                         displ.setCursor(x,y);
                         foreach (char s, selection.copyData) {

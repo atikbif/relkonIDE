@@ -189,13 +189,17 @@ void StrListWidget::copyString()
 {
     if(testStrNum(actData.strNum,actData.subStrNum)) {
         displ.copyStrToBuffer(actData.strNum,actData.subStrNum);
+        curStrNumChanged(actData.strNum,displ.getCurSubStrNum(actData.strNum));
+        emit updFocus();
     }
 }
 
 void StrListWidget::pasteString()
 {
     if(testStrNum(actData.strNum,actData.subStrNum)) {
+        displ.addEmptyStrBefore(actData.strNum,actData.subStrNum);
         displ.pasteStrFromBuffer(actData.strNum,actData.subStrNum);
+        emit updFocus();
     }
 }
 

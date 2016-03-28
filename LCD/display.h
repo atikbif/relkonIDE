@@ -19,8 +19,10 @@ class Display: public QObject
     QHash<int, int> curStr; // номер строки, номер активной подстроки
     DisplayStr* copyStrBuf; // указатель на скопированную строку
     int x, y; // координаты курсора
+    bool copySubject;    // объект последней операции копирования : false - строка , true - выделение
     bool checkStrNum(int strNum, int subStrNum);
     void updVarDefinition(int strNum, int subStrNum,int VarNum, PultVarDefinition &vd);
+
 public:
     explicit Display(QObject *parent = 0);
     void setChanged(bool value) {changed = value;}
@@ -61,6 +63,9 @@ public:
     void getVarDefinitions(QVector<PultVarDefinition> &varList, int strNum, int subStrNum) const;
     void updateDefinitions(VarsCreator &varOwner);
     ~Display();
+    bool getCopySubject() const;
+    void setCopySubject(bool value);
+
 signals:
     cursorPosChanged(int x,int y); // были изменены координаты курсора
     strListChanged(int strNum);    // были добавлены/удалены подстроки в строке
