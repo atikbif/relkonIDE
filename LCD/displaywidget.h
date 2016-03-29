@@ -12,7 +12,7 @@ class DisplayWidget : public QWidget
     Q_OBJECT
     LCDPhont* phont;
     static const int strCount = 4;
-    static const int spaceBetwSymb = 5;
+    static const int spaceBetwSymb = 3;
     int symbInStrCount;
 
     Display& displ;

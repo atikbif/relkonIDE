@@ -210,14 +210,20 @@ void DisplayWidget::paintEvent(QPaintEvent *event)
     painter.save();
 
     QRect rect = event->rect();
-    float widthOneSymb = ((float)rect.width()-1)/symbInStrCount;
-    float heightOneSymb = ((float)rect.height()-1)/strCount;
+
+    float widthOneSymb = ((float)rect.width()-10)/symbInStrCount;
+    float heightOneSymb = ((float)rect.height()-10)/strCount;
 
     painter.setRenderHint(QPainter::HighQualityAntialiasing);
     QPen penLight(Qt::lightGray);
-    QPen penDark(Qt::darkGray);
-    QPen penCurs(Qt::darkGreen);
-    penCurs.setWidth(3);
+    QPen penDark(Qt::darkBlue);
+    penDark.setWidth(3);
+    QPen penCurs(Qt::black);
+    penCurs.setWidth(1);
+
+    painter.setBrush(QBrush(QColor(220,220,220)));
+    painter.setPen(penDark);
+    painter.drawRect(rect);
 
     DisplayStr cursStr = displ.getString(displ.getYPosition(),displ.getCurSubStrNum(displ.getYPosition()));
 
@@ -252,34 +258,34 @@ void DisplayWidget::paintEvent(QPaintEvent *event)
                         painter.setPen(penLight);
                     }else {
                         if((y==selection.strNum)&&(x>=selection.startPos)&&(x<=selection.stopPos)) {
-                            painter.setBrush(QBrush(QColor(200,200,200)));
+                            painter.setBrush(QBrush(QColor(210,210,210)));
                             painter.setPen(QColor(225,225,225));
                         }else {
-                            painter.setBrush(QBrush(QColor(240,240,255)));
-                            painter.setPen(QColor(225,225,225));
+                            if((displ.getXPosition()==x)&&(displ.getYPosition()==y)) {
+                                if(displ.getReplaceMode()==false) {
+                                    painter.setBrush(QBrush(QColor(250,240,200)));
+                                    painter.setPen(QColor(225,225,225));
+                                }else {
+                                    painter.setBrush(QBrush(QColor(240,200,200)));
+                                    painter.setPen(QColor(225,225,225));
+                                }
+                            }else {
+                                painter.setBrush(QBrush(QColor(240,240,255)));
+                                painter.setPen(QColor(225,225,225));
+                            }
                         }
 
                     }
-                    /*if((y==selection.strNum)&&(x>=selection.startPos)&&(x<=selection.stopPos)) {
-                        QBrush br = painter.brush();
-                        QColor col = br.color();
-                        col.setRed(255-col.red());
-                        col.setGreen(255-col.green());
-                        br.setColor(col.lighter(150));
-                        painter.setBrush(br);
-                    }*/
-                    QRectF pixRect(x*widthOneSymb+1+pixX*pixWidth,y*heightOneSymb+1+pixY*pixHeight,pixWidth,pixHeight);
+                    QRectF pixRect(x*widthOneSymb+5+pixX*pixWidth,y*heightOneSymb+5+pixY*pixHeight,pixWidth,pixHeight);
                     painter.drawRect(pixRect);
                 }
             }
             painter.setBrush(Qt::NoBrush);
-            QRectF sRect(x*widthOneSymb+1,y*heightOneSymb+1,widthOneSymb-spaceBetwSymb,heightOneSymb-spaceBetwSymb);
+            QRectF sRect(x*widthOneSymb+5,y*heightOneSymb+5,widthOneSymb-spaceBetwSymb,heightOneSymb-spaceBetwSymb);
             if((displ.getXPosition()==x)&&(displ.getYPosition()==y)) {
-                if(displ.getReplaceMode()==false) penCurs.setColor(Qt::darkGray);
-                    else penCurs.setColor(Qt::darkBlue);
                 painter.setPen(penCurs);
-            }else painter.setPen(penDark);
-            painter.drawRect(sRect);
+                painter.drawRect(sRect);
+            }
         }
     }
 
