@@ -1238,10 +1238,12 @@ void DebuggerForm::openInputs(const QString &fName)
             QByteArray aiData,aiDataCur;
             QByteArray mdiData,mdiDataCur;
             QByteArray maiData,maiDataCur;
+            QByteArray i2cAiData, i2cAiDataCur;
             stream >> diData;
             stream >> aiData;
             stream >> mdiData;
             stream >> maiData;
+            stream >> i2cAiData;
 
             diDataCur = memStor.getData(MemStorage::ioMemName,0x00,5);
             for(int i=0;i<diData.count();i++) {
@@ -1262,6 +1264,18 @@ void DebuggerForm::openInputs(const QString &fName)
                     var.setValue(QString::number(aiData.at(i)));
                     var.setDataType(VarItem::ucharType);
                     var.setMemAddress(0x0C + i);
+                    var.setMemType(MemStorage::ioMemName);
+                    var.setPriority(1);
+                    scheduler.addWriteOperation(var);
+                }
+            }
+            i2cAiDataCur = memStor.getData(MemStorage::ioMemName,AnIO::i2cInputStartAddress,16);
+            for(int i=0;i<i2cAiData.count();i++) {
+                if(i2cAiDataCur.at(i)!=i2cAiData.at(i)) {
+                    VarItem var;
+                    var.setValue(QString::number(i2cAiData.at(i)));
+                    var.setDataType(VarItem::ucharType);
+                    var.setMemAddress(AnIO::i2cInputStartAddress + i);
                     var.setMemType(MemStorage::ioMemName);
                     var.setPriority(1);
                     scheduler.addWriteOperation(var);
@@ -1298,6 +1312,31 @@ void DebuggerForm::openInputs(const QString &fName)
                     }
                 }
             }
+            int vCnt = 0;
+            stream >> vCnt;
+            if(stream.status()==QDataStream::Ok) {
+                QHash<QString,QString> fullNames;
+                foreach (QTreeWidgetItem* item, idWidgetItem.values()) {
+                   QString fName = item->toolTip(0);
+                   fullNames.insert(fName,idWidgetItem.key(item));
+                }
+                for(int i=0;i<vCnt;i++) {
+                    QString fullName;
+                    stream >> fullName;
+                    bool bitVar;
+                    stream >> bitVar;
+                    QString vValue;
+                    stream >> vValue;
+                    if((bitVar==false)&&(!vValue.isEmpty())) {
+                        QString newId = fullNames.value(fullName);
+                        if(!newId.isEmpty()) {
+                            VarItem var = varOwner.getVarByID(newId);
+                            var.setValue(vValue);
+                            scheduler.addWriteOperation(var);
+                        }
+                    }
+                }
+            }
             file.close();
         }else QMessageBox::warning(this,"Предупреждение","Не удалось открыть файл");
     }
@@ -1309,6 +1348,7 @@ void DebuggerForm::saveInputs()
     QByteArray aiData = memStor.getData(MemStorage::ioMemName,0x0C,16);
     QByteArray mdiData = memStor.getData(MemStorage::ioMemName,0x24,32);
     QByteArray maiData = memStor.getData(MemStorage::ioMemName,0x64,256);
+    QByteArray i2cAiData = memStor.getData(MemStorage::ioMemName,AnIO::i2cInputStartAddress,16);
     QString  konFileName = PathStorage::getKonFileFullName();
     QString path = QFileInfo(konFileName).absoluteDir().absolutePath();
     QString fName;
@@ -1324,6 +1364,17 @@ void DebuggerForm::saveInputs()
             stream << aiData;
             stream << mdiData;
             stream << maiData;
+            stream << i2cAiData;
+            stream << idActiveWidgetItem.count();   // количество переменных в окне просмотра
+            foreach (QString id, idActiveWidgetItem.keys()) {
+                VarItem var = varOwner.getVarByID(id);
+                stream << idActiveWidgetItem.value(id)->toolTip(0);
+                bool bitVar = (var.getBitNum()>=0)?true:false;
+                stream << bitVar;
+                QString vValue = idActiveWidgetItem.value(id)->text(1);
+                stream << vValue;
+            }
+
             file.close();
         }else QMessageBox::warning(this,"Предупреждение","Не удалось сохранить файл");
     }
