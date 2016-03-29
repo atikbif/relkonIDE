@@ -80,7 +80,14 @@ void PatternEditorWidget::showEditAndSign(PultVarDefinition &vDef)
 
 void PatternEditorWidget::showVar(PultVarDefinition &vDef, const QString &comment)
 {
-    nameEdit->setText(varOwner.getFullNameOfVar(vDef.getId()).remove(QRegExp("^[^\\.]*\\.[^\\.]*\\.")));
+    QString vName = varOwner.getFullNameOfVar(vDef.getId()).remove(QRegExp("^[^\\.]*\\.[^\\.]*\\."));
+    if(!vName.contains(QRegExp(".*\\.\\d+.*"))) {
+        QStringList names = vName.split(".");
+        vName = names.last();
+    }
+
+    nameEdit->setStyleSheet("QLineEdit{background: yellow;}");
+    nameEdit->setText(vName);
     typeEdit->setText(vDef.getDataType());
     commentEdit->setText(comment);
     patternEdit->setText(vDef.getPattern());
@@ -89,6 +96,7 @@ void PatternEditorWidget::showVar(PultVarDefinition &vDef, const QString &commen
 void PatternEditorWidget::noVar()
 {
     applyButton->setText("Добавить переменную");
+    nameEdit->setStyleSheet("QLineEdit{background: white;}");
     nameEdit->setText("");
     typeEdit->setText("");
     commentEdit->setText("");
@@ -143,7 +151,7 @@ void PatternEditorWidget::createWidgets()
 
     QLabel* nameLabel = new QLabel("имя:");
     nameEdit = new QLineEdit();
-    nameEdit->setEnabled(false);
+    nameEdit->setReadOnly(true);
 
     vLayout->addWidget(nameLabel,1);
     vLayout->addWidget(nameEdit,1);
@@ -292,7 +300,13 @@ void PatternEditorWidget::doubleClickedVar(QTreeWidgetItem *item, int column)
     if(idWidgetItem.values().contains(item)) {
         QString id = idWidgetItem.key(item);
         VarItem var = varOwner.getVarByID(id);
-        nameEdit->setText(item->toolTip(0).remove(QRegExp("^[^\\.]*\\.[^\\.]*\\.")));
+        QString vName = item->toolTip(0).remove(QRegExp("^[^\\.]*\\.[^\\.]*\\."));
+        if(!vName.contains(QRegExp(".*\\.\\d+.*"))) {
+            QStringList names = vName.split(".");
+            vName = names.last();
+        }
+        nameEdit->setStyleSheet("QLineEdit{background: red;}");
+        nameEdit->setText(vName);
         typeEdit->setText(var.getDataType());
         commentEdit->setText(var.getComment());
         curVarID = id;

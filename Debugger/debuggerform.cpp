@@ -387,6 +387,13 @@ void DebuggerForm::on_treeWidgetMain_itemDoubleClicked(QTreeWidgetItem *item, in
 
             if(idActiveWidgetItem.contains(id)) return;
 
+            QRegExp exp(".*\\.\\d+.*");
+            if(exp.indexIn(varName)==-1) {
+                QStringList names = varName.split(".");
+                varName = names.last();
+            }
+
+
             sList << varName << "" << "" << "0x"+QString::number(var.getMemAddress(),16).toUpper() << var.getDataType();
             QTreeWidgetItem* newItem = new QTreeWidgetItem(sList);
             idActiveWidgetItem.insert(id,newItem);
