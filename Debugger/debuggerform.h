@@ -19,6 +19,7 @@
 #include <QCheckBox>
 #include "memviewdescription.h"
 #include <QKeyEvent>
+#include "QuickWatch/varwatchermanager.h"
 
 namespace Ui {
 class DebuggerForm;
@@ -47,6 +48,7 @@ class DebuggerForm : public QWidget
     VarItem wrVar;      // переменная для записи
     QCheckBox *adc8bit;
     QVector<QGroupBox*> ioBoxes;
+    VarWatcherManager* quick;
 
     void clearMemViewTable(void);
     void updateMemViewRequests(void);   // формирование очереди запросов планировщика для просмотра памяти
@@ -75,6 +77,7 @@ public:
     void clearView();
     void tabChanged();
     void setNetAddress(int value);
+    void closeQuickWatch();
     ~DebuggerForm();
 
 private slots:
@@ -107,9 +110,12 @@ private slots:
     void saveInputs(void);  // сохранить состояние входов и опрашиваемых переменных в файл
     void memViewCellPressed(int r, int c);
     void adc8bitChanged(void);  // 8 bit mode changed
+    void on_checkBoxQuickWatch_toggled(bool checked);
 
+signals:
+    void quickInfo(QStringList names, QStringList values);
 public slots:
-
+    void getQuickWatchInfo();
     void openProject(void);
     void saveProject(void);
     void newProject(void);

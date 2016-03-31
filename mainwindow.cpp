@@ -783,8 +783,8 @@ void MainWindow::newFile()
     buildPr();
     //RCompiler::setInpDirName("");
     //RCompiler::setInpKonFileName("");
-
-
+    debugger->stopDebugger();
+    debugger->closeQuickWatch();
 }
 
 void MainWindow::openFile()
@@ -805,6 +805,8 @@ void MainWindow::openFile()
                                                     tr("Relkon Files (*.kon )"));
     if(fileName.isEmpty()) return;
     openFileByName(fileName);
+    debugger->stopDebugger();
+    debugger->closeQuickWatch();
     //QThread::msleep(1000);
     //editor->document()->clearUndoRedoStacks();
 }
@@ -897,18 +899,20 @@ void MainWindow::closeProject()
     QAction *helpBrAct;
     QAction *openSysFramFromRelkon6;*/
     disableActionWithoutProject();
+    debugger->stopDebugger();
+    debugger->closeQuickWatch();
 }
 
 void MainWindow::undo()
 {
     if(editor->hasFocus()) editor->undo();
-    else {if(dockDisplay->isEnabled()) displ->undo();}
+    //else {if(dockDisplay->isEnabled()) displ->undo();}
 }
 
 void MainWindow::redo()
 {
     if(editor->hasFocus()) editor->redo();
-    else {if(dockDisplay->isEnabled()) displ->redo();}
+    //else {if(dockDisplay->isEnabled()) displ->redo();}
 }
 
 void MainWindow::searchText()
@@ -1152,7 +1156,11 @@ void MainWindow::addMessageToInfoList(const QString &message)
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     if(saveWarning()==0) event->ignore();
-    else event->accept();
+    else {
+        debugger->stopDebugger();
+        debugger->closeQuickWatch();
+        event->accept();
+    }
 }
 
 void MainWindow::keyPressEvent(QKeyEvent *event)

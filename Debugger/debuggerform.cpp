@@ -210,6 +210,11 @@ void DebuggerForm::setNetAddress(int value)
     ui->spinBoxNetAddress->setValue(value);
 }
 
+void DebuggerForm::closeQuickWatch()
+{
+    ui->checkBoxQuickWatch->setChecked(false);
+}
+
 void DebuggerForm::stopDebugger()
 {
     on_stopButton_clicked();
@@ -255,6 +260,13 @@ void DebuggerForm::updateMemViewRequests()
             var.setMemAddress(i);
             scheduler.addReadOperation(var);
             memStor.connectCellToID(memType,i,var.getID());
+        }
+    }
+    if(ui->checkBoxQuickWatch->isChecked()) {
+        foreach (QString id, idActiveWidgetItem.keys()) {
+            VarItem var = varOwner.getVarByID(id);
+            var.setPriority(1);
+            scheduler.addReadOperation(var);
         }
     }
     scheduler.schedule();
@@ -347,6 +359,9 @@ DebuggerForm::DebuggerForm(VarsCreator &vCr, QWidget *parent) :
     clearMemViewTable();
     on_checkBoxLog_clicked();
     on_tabWidget_currentChanged(1);
+    quick = new VarWatcherManager();
+    connect(quick,SIGNAL(quickInfoRequest()),this,SLOT(getQuickWatchInfo()));
+    connect(this,SIGNAL(quickInfo(QStringList,QStringList)),quick,SLOT(quickInfo(QStringList,QStringList)));
 }
 
 DebuggerForm::~DebuggerForm()
@@ -354,6 +369,7 @@ DebuggerForm::~DebuggerForm()
     delete ui;
     delete iter;
     delete scan;
+    delete quick;
     foreach (BitIO* ptr, ioHash.values()) {
        delete ptr;
     }
@@ -494,10 +510,12 @@ void DebuggerForm::updateMemory(QStringList ids)
         // если активна вкладка входов/выходов
         if(ui->tabWidget->currentIndex()==1) {
             updateIOVarGUI(id);
+            if(ui->checkBoxQuickWatch->isChecked()) updateVarGUI(id);
         }else if(ui->tabWidget->currentIndex()==0) {
             updateVarGUI(id);
         }else if(ui->tabWidget->currentIndex()==2) {
             updateMemVarGUI(id);
+            if(ui->checkBoxQuickWatch->isChecked()) updateVarGUI(id);
         }
     }
 }
@@ -1139,6 +1157,13 @@ void DebuggerForm::on_tabWidget_currentChanged(int index)
                 }
             }
         }
+        if(ui->checkBoxQuickWatch->isChecked()) {
+            foreach (QString id, idActiveWidgetItem.keys()) {
+                VarItem var = varOwner.getVarByID(id);
+                var.setPriority(1);
+                scheduler.addReadOperation(var);
+            }
+        }
         scheduler.schedule();
     }else if(index==2) {    // память
         updateMemViewRequests();
@@ -1154,6 +1179,16 @@ void DebuggerForm::adc8bitChanged()
         AnInpSlider* anSl = dynamic_cast<AnInpSlider*>(sl);
         if(anSl!=nullptr) anSl->setEightBit(adc8bit->isChecked());
     }
+}
+
+void DebuggerForm::getQuickWatchInfo()
+{
+    QStringList names,values;
+    foreach (QTreeWidgetItem* item, idActiveWidgetItem.values()) {
+        names += item->text(0);
+        values += item->text(1);
+    }
+    emit quickInfo(names, values);
 }
 
 
@@ -1437,4 +1472,13 @@ void DebuggerForm::on_pushButtonOpenLastInp_clicked()
     }else {
         openInputs(lastOpenInpFile);
     }
+}
+
+void DebuggerForm::on_checkBoxQuickWatch_toggled(bool checked)
+{
+    quick->setActive(checked);
+    if(checked) {
+        quick->show();
+    }else quick->close();
+    on_tabWidget_currentChanged(ui->tabWidget->currentIndex());
 }

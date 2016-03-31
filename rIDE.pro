@@ -12,7 +12,7 @@ QT       += network
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 RC_ICONS = R.ico
-VERSION = 1.0.0.11
+VERSION = 1.0.0.13
 QMAKE_TARGET_COMPANY = Kontel Co
 QMAKE_TARGET_PRODUCT = RIDE (Relkon7)
 QMAKE_TARGET_DESCRIPTION = Relkon IDE
@@ -111,7 +111,9 @@ SOURCES += main.cpp\
     rp6creator.cpp \
     AutoSearch/searchcontroller.cpp \
     LCD/undoredooperation.cpp \
-    LCD/undoredostack.cpp
+    LCD/undoredostack.cpp \
+    QuickWatch/varwatcher.cpp \
+    QuickWatch/varwatchermanager.cpp
 
 HEADERS  += mainwindow.h \
     codeeditor.h \
@@ -198,7 +200,9 @@ HEADERS  += mainwindow.h \
     rp6creator.h \
     AutoSearch/searchcontroller.h \
     LCD/undoredooperation.h \
-    LCD/undoredostack.h
+    LCD/undoredostack.h \
+    QuickWatch/varwatcher.h \
+    QuickWatch/varwatchermanager.h
 
 FORMS    += mainwindow.ui \
     settingsform.ui \
