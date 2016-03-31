@@ -43,33 +43,30 @@ class DebuggerForm : public QWidget
     MemStorage memStor; // хранилище памяти
     ScanManager* scan;  // управление процессом опроса
     RequestScheduler scheduler; // планировщик запросов
-
-    QString lastOpenInpFile;
-
+    QString lastOpenInpFile;    // последний открытый файл с состоянием входов и переменных отладчика
     VarItem wrVar;      // переменная для записи
     QCheckBox *adc8bit;
     QVector<QGroupBox*> ioBoxes;
 
     void clearMemViewTable(void);
-    void updateMemViewRequests(void);
-    void createTree();
-    void updateTrees();
+    void updateMemViewRequests(void);   // формирование очереди запросов планировщика для просмотра памяти
+    void createTree();  // построение дерева переменных проекта
     void treeBuilder(const QString& varID, QTreeWidgetItem &item);// построение дерева с узла/переменной с идентификатором varID
     void updateValuesTree(void);    // обновление обоих деревьев
     void updateComPortList(void);
     void buildIO(void); // построение вкладки входов/выходов
     void buildDIO(void);
-    void updateIOFoldedState(void);
-    QGroupBox* addDIO(const QString & name, int startAddress, int bitCnt);
-    QVector<QGroupBox*> addAIO(const QString &grName, const QString &ioName, int addr, int startNum, int endNum);
     void buildAIO(void);
-    void updateIOVarGUI(const QString &id);
-    void updateVarGUI(const QString &id);
-    void updateMemVarGUI(const QString &id);
-
-    void updateMatchboxVisibility();
-    int getIOAddrByName(const QString &name);
-
+    void updateIOFoldedState(void); // сворачивает/разворачивает все QGroupBox вх/вых в соответсвии с состоянием ioCheck
+    QGroupBox* addDIO(const QString & name, int startAddress, int bitCnt); // создаёт QGroupBox с дискретными вх/вых
+    QVector<QGroupBox*> addAIO(const QString &grName, const QString &ioName, int addr, int startNum, int endNum);
+    void updateIOVarGUI(const QString &id); // обновление GUI вх/вых по значению переменной
+    void updateVarGUI(const QString &id);   // обновление GUI опрашиваемых переменных
+    void updateMemVarGUI(const QString &id);    // обновление ячеек таблицы при опросе памяти
+    void updateMatchboxVisibility();    // скрытие неиспользуемых входов/выходов
+    int getIOAddrByName(const QString &name);   // возвращает адрес дискретного или аналогового вх/вых по имени
+    void writeVar();    // записать значение, введённое в диалоге редактирования
+    void openInputs(const QString &fName);  // открыть файл с состоянием входов и опрашиваемых переменных и записать их в контроллер
 
 public:
     explicit DebuggerForm(VarsCreator& vCr, QWidget *parent = 0);
@@ -81,59 +78,38 @@ public:
     ~DebuggerForm();
 
 private slots:
-    // слот добавления переменной к дереву просмотра
-    void on_treeWidgetMain_itemDoubleClicked(QTreeWidgetItem *item, int column);
-    // удаление переменной из дерева просмотра
-    void on_treeWidgetWatch_itemDoubleClicked(QTreeWidgetItem *item, int column);
-    // старт опроса контроллеров отладчиком
-    void on_startButton_clicked();
-    // остановить опрос
-    void on_stopButton_clicked();
-    // вызывается хранилищем памяти для обновления значений переменных
-    void updateMemory(QStringList ids);
-    // обновление счётчиков корректного и ошибочного опроса
-    void updateCorrErrAnswerCount(int cnt, bool correctFlag);
-    // вывести текстовое сообщение в лог
-    void getMessageFromDebugProcess(QString message);
-    // обновить время ПЛК (GUI отображение)
-    void getTimeStr(QString timeStr);
-    // обновить список COM портов
-    void on_pushButtonCOMUpdate_clicked();
-    // автопоиск контроллера
-    void on_pushButtonAutoSearch_clicked();
-    // скрытие/отображение лога работы
-    void on_checkBoxLog_clicked();
-    // обновление времени ПЛК (команда по протоколу)
-    void on_pushButtonTimeWrite_clicked();
-    // запрос контекстного меню дерева просмотра - редактирование переменных
-    void on_treeWidgetWatch_customContextMenuRequested(const QPoint &pos);
-    void writeVar();    // записать значение, введённое в диалоге редактирования
+    void on_treeWidgetMain_itemDoubleClicked(QTreeWidgetItem *item, int column);    // слот добавления переменной к дереву просмотра
+    void on_treeWidgetWatch_itemDoubleClicked(QTreeWidgetItem *item, int column);   // удаление переменной из дерева просмотра
+    void on_startButton_clicked();  // старт опроса контроллеров отладчиком
+    void on_stopButton_clicked();   // остановить опрос
+    void on_pushButtonCOMUpdate_clicked();  // обновить список COM портов
+    void on_pushButtonAutoSearch_clicked(); // автопоиск контроллера
+    void on_checkBoxLog_clicked();  // скрытие/отображение лога работы
+    void on_pushButtonTimeWrite_clicked();  // обновление времени ПЛК (команда по протоколу)
+    void on_treeWidgetWatch_customContextMenuRequested(const QPoint &pos);  // запрос контекстного меню дерева просмотра - редактирование переменных
+    void on_tabWidget_currentChanged(int index);    // переключение между вкладками отладчика
+    void on_lineEditTime_returnPressed();   // запись введённого времени в контроллер
+    void on_pushButtonPing_clicked();
+    void on_lineEditMemStartAddr_textChanged(const QString &arg1);  // изменение стартового адреса при опросе памяти
+    void on_comboBoxMemType_currentIndexChanged(const QString &arg1);   // смена типа опрашиваемой памяти
+    void on_pushButtonOpenLastInp_clicked();
+    void on_updateButton_clicked(); // запрос обновления деревьев
+
+    void updateMemory(QStringList ids); // вызывается хранилищем памяти для обновления значений переменных
+    void updateCorrErrAnswerCount(int cnt, bool correctFlag);   // обновление счётчиков корректного и ошибочного опроса
+    void getMessageFromDebugProcess(QString message);   // вывести текстовое сообщение в лог
+    void getTimeStr(QString timeStr);   // обновить время ПЛК (GUI отображение)
+
     void inOutClicked();    // команда на запись дискретного входа/выхода
     void anInOutClicked();  // команда на запись аналогового входа/выхода
-    // переключение между вкладками отладчика
-    void on_tabWidget_currentChanged(int index);
-    // 8 bit mode changed
-    void adc8bitChanged(void);
-
-
-    void on_pushButtonPing_clicked();
-
-    void boxToggled(bool fl);
-    void openInputs(void);
-    void openInputs(const QString &fName);
-    void saveInputs(void);
-
-    void on_lineEditTime_returnPressed();
-
-    void on_lineEditMemStartAddr_textChanged(const QString &arg1);
-
-    void on_comboBoxMemType_currentIndexChanged(const QString &arg1);
+    void boxToggled(bool fl);   // изменение видимости блоков вх/вых
+    void openInputs(void);  // загрузить состояние входов и опрашиваемых переменных в плк
+    void saveInputs(void);  // сохранить состояние входов и опрашиваемых переменных в файл
     void memViewCellPressed(int r, int c);
-
-    void on_pushButtonOpenLastInp_clicked();
+    void adc8bitChanged(void);  // 8 bit mode changed
 
 public slots:
-    void on_updateButton_clicked(); // запрос обновления деревьев
+
     void openProject(void);
     void saveProject(void);
     void newProject(void);
@@ -141,7 +117,6 @@ public slots:
     void stopDebugger(void);
 private:
     Ui::DebuggerForm *ui;
-
 };
 
 #endif // DEBUGGERFORM_H

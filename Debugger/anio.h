@@ -13,14 +13,15 @@ class AnIO
     int address;    // адрес в памяти
     QLineEdit *lcdNum;  // указатель на виджет с отображаемым значением
     QLineEdit *comment; // указатель на виджет с комментарием
-    QSlider *slider;    // указатель на виджет для изменения знчения
+    QSlider *slider;    // указатель на виджет для изменения значения
 
 public:
-    static const int inputStartAddress = 0x0C;
-    static const int i2cInputStartAddress = 0x1E4;
-    static const int outputStartAddress = 0x1C;
-    static const int mmbInputStartAddress = 0x64;
-    static const int mmbOutputStartAddress = 0x164;
+    // расположение в памяти (стартовые адреса)
+    static const int inputStartAddress = 0x0C;  // ADC1..ADC8
+    static const int i2cInputStartAddress = 0x1E4;  // ADC201..ADC208
+    static const int outputStartAddress = 0x1C; // DAC1..DAC4
+    static const int mmbInputStartAddress = 0x64;   // ADC9...
+    static const int mmbOutputStartAddress = 0x164; // DAC5...
     AnIO();
     ~AnIO();
     QString getName() const;

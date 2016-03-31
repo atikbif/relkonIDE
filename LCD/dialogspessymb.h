@@ -1,6 +1,8 @@
 #ifndef DIALOGSPESSYMB_H
 #define DIALOGSPESSYMB_H
 
+// виртуальная клавиатура для вставки спец символов
+
 #include <QDialog>
 
 namespace Ui {

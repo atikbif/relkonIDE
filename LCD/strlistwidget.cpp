@@ -4,6 +4,7 @@
 #include <QString>
 #include <QRegExp>
 #include <QMenu>
+#include <QApplication>
 
 StrListWidget::StrListWidget(Display &d, QWidget *parent) : QWidget(parent),
     displ(d)
@@ -197,9 +198,25 @@ void StrListWidget::copyString()
 void StrListWidget::pasteString()
 {
     if(testStrNum(actData.strNum,actData.subStrNum)) {
-        displ.addEmptyStrBefore(actData.strNum,actData.subStrNum);
-        displ.pasteStrFromBuffer(actData.strNum,actData.subStrNum);
+        displ.addEmptyStrBefore(actData.strNum, actData.subStrNum);
+        displ.pasteStrFromBuffer(actData.strNum, actData.subStrNum);
         emit updFocus();
+    }
+}
+
+void StrListWidget::keyPressEvent(QKeyEvent *event)
+{
+    switch (event->key()) {
+    case Qt::Key_Z:
+        if (QApplication::keyboardModifiers() && Qt::ControlModifier) {
+            displ.undo();
+        }
+        break;
+    case Qt::Key_Y:
+        if (QApplication::keyboardModifiers() && Qt::ControlModifier) {
+            displ.redo();
+        }
+        break;
     }
 }
 

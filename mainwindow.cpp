@@ -333,7 +333,7 @@ void MainWindow::insertVar(QDomElement &e, int strNum)
 
             vDef.setName(varName);
 
-            displ->addVar(vDef);
+            displ->addVar(vDef, false);
         }
     }
 }
@@ -352,7 +352,7 @@ void MainWindow::insertTextData(const QString &txt, int strNum, const LCDPhont &
 
 void MainWindow::insertStr(QDomNodeList &views, int strNum, int subStrNum, const LCDPhont &ph)
 {
-    displ->addEmptyStrAfter(strNum,displ->getSubStrCount(strNum)-1);
+    displ->addEmptyStrAfter(strNum,displ->getSubStrCount(strNum)-1, false);
     QDomNode vn = views.item(subStrNum);
     QDomElement ve = vn.toElement();
     if(!ve.isNull()) {
@@ -901,12 +901,14 @@ void MainWindow::closeProject()
 
 void MainWindow::undo()
 {
-    editor->undo();
+    if(editor->hasFocus()) editor->undo();
+    else {if(dockDisplay->isEnabled()) displ->undo();}
 }
 
 void MainWindow::redo()
 {
-    editor->redo();
+    if(editor->hasFocus()) editor->redo();
+    else {if(dockDisplay->isEnabled()) displ->redo();}
 }
 
 void MainWindow::searchText()
@@ -1160,12 +1162,14 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
         if (QApplication::keyboardModifiers() && Qt::ControlModifier) searchText();
         break;
     case Qt::Key_S:
-        if (QApplication::keyboardModifiers() && Qt::ControlModifier) saveFile();
-        if(!ui->listWidget->isVisible()) {
-            activateInfoPanel();
-            ui->listWidget->repaint();
-            QThread::sleep(1);
-            activateInfoPanel();
+        if (QApplication::keyboardModifiers() && Qt::ControlModifier) {
+            saveFile();
+            if(!ui->listWidget->isVisible()) {
+                activateInfoPanel();
+                ui->listWidget->repaint();
+                QThread::sleep(1);
+                activateInfoPanel();
+            }
         }
 
         break;
@@ -1380,6 +1384,7 @@ int MainWindow::importPult(const QString &fName)
                 displ->deleteStr(i,0);
             }
             displ->setCursor(0,0);
+            displ->clearStack();
             return 1;
         }else {
             QMessageBox::warning(this,"Импортирование пульта","Некорректный формат файла.\n");

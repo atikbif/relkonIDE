@@ -17,10 +17,8 @@ ScanGUI::ScanGUI(int progAddr, bool mode, QWidget *parent) :
     }
 
     if(portNames.count()==0) {
-        //message.setStyleSheet("QLabel { font: bold; color : darkred; }");
         message.setText("COM порты не обнаружены");
     }else {
-
         foreach(QString pName, portNames) {
             ScanController* port = new ScanController(pName,progAddr);
             ports+= port;
@@ -53,7 +51,6 @@ void ScanGUI::percentUpdate(float percValue, const QString &pName)
     }
     if(finishFlag) {
         if(!plcFound) {
-            //message.setStyleSheet("QLabel { font: bold; color : darkred; }");
             message.setText("Контроллер не найден");
             DetectedController::Instance().setUartName("");
         }else {
@@ -79,7 +76,6 @@ void ScanGUI::plcHasBeenFound(SearchController plc, const QString &pName)
     repaint();
     if(progMode) {
         if(plc.getBootMode() || plc.getCanName().contains("PROG")) {
-            //DetectedController::Instance().updateData(plc);
             thread()->msleep(500);
             accept();
         }

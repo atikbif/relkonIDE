@@ -10,6 +10,7 @@
 #include "lcdphont.h"
 #include <QPoint>
 #include <QAction>
+#include <QKeyEvent>
 
 struct subStrActionData{
     int strNum;
@@ -55,6 +56,10 @@ private slots:
     void activateDesactString(void);
     void copyString(void);
     void pasteString(void);
+
+    // QWidget interface
+protected:
+    void keyPressEvent(QKeyEvent *event);
 };
 
 #endif // STRLISTWIDGET_H

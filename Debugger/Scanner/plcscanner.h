@@ -10,7 +10,6 @@
 #include "Debugger/debuggersettings.h"
 #include <QString>
 #include "Protocols/request.h"
-//#include <QSerialPort>
 #include <QIODevice>
 
 class PLCScanner : public QObject

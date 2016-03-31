@@ -1,6 +1,9 @@
 #ifndef ANINPSLIDER_H
 #define ANINPSLIDER_H
 
+// потомок виджета QSlider
+// реализует возможность изменять значение ползунка клавишами "влево" и "вправо"
+
 #include <QObject>
 #include <QSlider>
 

@@ -29,7 +29,7 @@ void LCDForm::createEmptyStrings(QDomDocument &doc)
                     if((numValue>=0)&&(numValue<displ.getStrCount())) {
                         if(countValue>0) {
                             while(displ.getSubStrCount(numValue)<countValue) {
-                                displ.addEmptyStrBefore(numValue,0);
+                                displ.addEmptyStrBefore(numValue,0,false);
                             }
                         }
                     }
@@ -97,7 +97,7 @@ void LCDForm::insertVar(QDomElement &e, int strNum)
     for(int i=0;i<vp.getPattern().length();i++) {
         displ.deleteSymbol();
     }
-    displ.addVar(vp);
+    displ.addVar(vp, false);
 }
 
 void LCDForm::printStr(QDomNode &n, int strNum)
@@ -268,10 +268,12 @@ void LCDForm::openLCD()
     }
     displ.setCursor(0,0);
     displ.setChanged(false);
+    displ.clearStack();
 }
 
 void LCDForm::newLCD()
 {
     displ.clearDisplay();
     displ.setChanged(false);
+    displ.clearStack();
 }

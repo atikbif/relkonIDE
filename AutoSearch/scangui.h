@@ -20,7 +20,7 @@ class ScanGUI : public QDialog
     QVector<ScanController*> ports;
     QVector<QProgressBar*> prBar;
     QLabel message;
-    bool progMode;
+    bool progMode;      // если необходимо найти порт PROG - true
     bool plcFound;
 public:
     explicit ScanGUI(int progAddr=0, bool mode=false, QWidget *parent = 0);

@@ -25,7 +25,6 @@ signals:
     void startScan(const QString &pName);
 private slots:
     void percentUpdate(float percValue);
-    void scanIsFinished(const QString& message);
     void plcHasBeenFound(SearchController plc);
 };
 

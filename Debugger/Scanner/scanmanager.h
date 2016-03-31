@@ -34,8 +34,6 @@ private slots:
     // слоты для принятия сигналов от сканера
     void updCorrAnswerCnt(int cnt);
     void updErrAnswerCnt(int cnt);
-    void getMessage(QString message);
-    void getTimeStr(QString timeStr);
 public slots:
     void startDebugger();
     void stopDebugger();

@@ -1,7 +1,7 @@
 #ifndef MEMVIEWDESCRIPTION_H
 #define MEMVIEWDESCRIPTION_H
 
-// класс с данными для вкладки просмотра памяти в отладчики
+// класс с данными для вкладки просмотра памяти в отладчике
 
 #include <QString>
 

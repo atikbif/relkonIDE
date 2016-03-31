@@ -335,7 +335,6 @@ DebuggerForm::DebuggerForm(VarsCreator &vCr, QWidget *parent) :
     updateComPortList();
     ui->treeWidgetWatch->setContextMenuPolicy(Qt::CustomContextMenu);
     ui->comboBoxSpeed->setCurrentText("115200");
-    //ui->updateButton->setVisible(false);
     connect(ui->pushButtonOpenInp,SIGNAL(clicked(bool)),this,SLOT(openInputs()));
     connect(ui->pushButtonSaveInp,SIGNAL(clicked(bool)),this,SLOT(saveInputs()));
 
@@ -632,8 +631,6 @@ void DebuggerForm::buildDIO()
         ioBoxes+=boxIn;
         boxIn->setCheckable(true);
         boxIn->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
-        //ioCheck.insert(name,true);
-        //boxIn->setChecked(true);
         connect(boxIn,SIGNAL(toggled(bool)),this,SLOT(boxToggled(bool)));
         grLayout->addWidget(boxIn,1,i+1);
 
@@ -644,8 +641,6 @@ void DebuggerForm::buildDIO()
         ioBoxes+=boxOut;
         boxOut->setCheckable(true);
         boxOut->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
-        //ioCheck.insert(name,true);
-        //boxOut->setChecked(true);
         connect(boxOut,SIGNAL(toggled(bool)),this,SLOT(boxToggled(bool)));
         grLayout->addWidget(boxOut,2,i+1);
     }
@@ -661,7 +656,6 @@ void DebuggerForm::buildDIO()
         boxIn->setCheckable(true);
         boxIn->setStyleSheet(QString::fromUtf8("QGroupBox { background-color: rgb(230,240,240); border: 1px solid darkgray; border-radius: 5px; margin-top: 7px; margin-bottom: 7px; padding: 0px} QGroupBox::title {top:-7 ex;left: 10px; subcontrol-origin: border}"));
         connect(boxIn,SIGNAL(toggled(bool)),this,SLOT(boxToggled(bool)));
-        //boxIn->setChecked(false);
         grLayout->addWidget(boxIn,3+(i/6)*2,(i%6)+1);
 
         name = "OUT"+QString::number(i+4);
@@ -672,7 +666,6 @@ void DebuggerForm::buildDIO()
         boxOut->setCheckable(true);
         boxOut->setStyleSheet(QString::fromUtf8("QGroupBox { background-color: rgb(230,240,240); border: 1px solid darkgray; border-radius: 5px; margin-top: 7px; margin-bottom: 7px; padding: 0px} QGroupBox::title {top:-7 ex;left: 10px; subcontrol-origin: border}"));
         connect(boxOut,SIGNAL(toggled(bool)),this,SLOT(boxToggled(bool)));
-        //boxOut->setChecked(false);
         grLayout->addWidget(boxOut,4+(i/6)*2,(i%6)+1);
     }
     client->setLayout(grLayout);
@@ -720,20 +713,15 @@ QGroupBox *DebuggerForm::addDIO(const QString &name, int startAddress, int bitCn
 
 QVector<QGroupBox*> DebuggerForm::addAIO(const QString &grName, const QString &ioName, int addr, int startNum, int endNum)
 {
-    //QGroupBox *box = new QGroupBox(grName);
-    //QVBoxLayout *vLayout = new QVBoxLayout(box);
     Q_UNUSED(grName)
     QVector<QGroupBox*> groups;
     for(int i=startNum;i<=endNum;i++) {
         QGroupBox *box = new QGroupBox(ioName+QString::number(i));
         QHBoxLayout *hLayout = new QHBoxLayout();
-        //QLabel *name = new QLabel(ioName+QString::number(i)+":");
-        //QSlider *slider = new QSlider(Qt::Horizontal);
         AnInpSlider *slider = new AnInpSlider();
         slider->setOrientation(Qt::Horizontal);
         slider->setMaximum(65535);
         slider->setMinimum(0);
-        //connect(slider,SIGNAL(sliderReleased()),this,SLOT(anInOutClicked()));
         connect(slider,SIGNAL(valueChanged(int)),this,SLOT(anInOutClicked()));
 
         QLineEdit *number = new QLineEdit();
@@ -802,10 +790,10 @@ void DebuggerForm::buildAIO()
 
 void DebuggerForm::updateIOVarGUI(const QString &id)
 {
-    if(idWidgetItem.contains(id)) {
-        VarItem var = varOwner.getVarByID(id);
-        if(var.getMemType()==MemStorage::ioMemName) {
-            if(ioHash.contains(var.getMemAddress())) {
+    if(idWidgetItem.contains(id)) { // проверка существования id в проекте
+        VarItem var = varOwner.getVarByID(id);  // переменная, связанная с идентификатором
+        if(var.getMemType()==MemStorage::ioMemName) {   // проверка типа памяти переменной
+            if(ioHash.contains(var.getMemAddress())) {  // поиск переменной среди дискретных вх/вых
                 QList<BitIO*> ptrList = ioHash.values(var.getMemAddress());
                 QByteArray data = memStor.getData(var.getMemType(),var.getMemAddress(),1);
                 foreach (BitIO* ptr, ptrList) {
@@ -982,12 +970,9 @@ void DebuggerForm::on_pushButtonAutoSearch_clicked()
 
 void DebuggerForm::on_checkBoxLog_clicked()
 {
-//    if(ui->checkBoxLog->isChecked()) ui->textBrowserRequests->setVisible(true);
-//    else ui->textBrowserRequests->setVisible(false);
     if(ui->checkBoxLog->isChecked()) ui->textBrowserRequests->setEnabled(true);
     else {
         ui->textBrowserRequests->setEnabled(false);
-        //ui->textBrowserRequests->clear();
     }
 }
 
@@ -1025,17 +1010,15 @@ void DebuggerForm::on_treeWidgetWatch_customContextMenuRequested(const QPoint &p
         QString id = idActiveWidgetItem.key(item);
         if(!id.isEmpty()) {
             VarItem var = varOwner.getVarByID(id);
-            //if(var.isEditable()) {
-                wrVar = var;
-                QMenu *menu=new QMenu(this);
-                if(var.getBitNum()>=0) {
-                    menu->addAction(QIcon("://write_32.ico"),"Переключить",this,SLOT(writeVar()));
-                }else {
-                    wrVar.setValue(item->text(1));
-                    menu->addAction(QIcon("://write_32.ico"),"Изменить",this,SLOT(writeVar()));
-                }
-                menu->popup(ui->treeWidgetWatch->viewport()->mapToGlobal(pos));
-            //}
+            wrVar = var;
+            QMenu *menu=new QMenu(this);
+            if(var.getBitNum()>=0) {
+                menu->addAction(QIcon("://write_32.ico"),"Переключить",this,SLOT(writeVar()));
+            }else {
+                wrVar.setValue(item->text(1));
+                menu->addAction(QIcon("://write_32.ico"),"Изменить",this,SLOT(writeVar()));
+            }
+            menu->popup(ui->treeWidgetWatch->viewport()->mapToGlobal(pos));
         }
     }
 }

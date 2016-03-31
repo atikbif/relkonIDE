@@ -12,7 +12,7 @@ QT       += network
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 RC_ICONS = R.ico
-VERSION = 1.0.0.10
+VERSION = 1.0.0.11
 QMAKE_TARGET_COMPANY = Kontel Co
 QMAKE_TARGET_PRODUCT = RIDE (Relkon7)
 QMAKE_TARGET_DESCRIPTION = Relkon IDE
@@ -109,7 +109,9 @@ SOURCES += main.cpp\
     Debugger/matchboxexistance.cpp \
     LCD/dialogspessymb.cpp \
     rp6creator.cpp \
-    AutoSearch/searchcontroller.cpp
+    AutoSearch/searchcontroller.cpp \
+    LCD/undoredooperation.cpp \
+    LCD/undoredostack.cpp
 
 HEADERS  += mainwindow.h \
     codeeditor.h \
@@ -194,7 +196,9 @@ HEADERS  += mainwindow.h \
     Debugger/matchboxexistance.h \
     LCD/dialogspessymb.h \
     rp6creator.h \
-    AutoSearch/searchcontroller.h
+    AutoSearch/searchcontroller.h \
+    LCD/undoredooperation.h \
+    LCD/undoredostack.h
 
 FORMS    += mainwindow.ui \
     settingsform.ui \

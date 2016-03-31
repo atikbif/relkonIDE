@@ -24,6 +24,8 @@ class DisplayWidget : public QWidget
         QByteArray copyData;
     }selection;
 
+    void justKey(QKeyEvent *event); // обработка стандартных клавиш
+
 public:
     explicit DisplayWidget(Display& d, QWidget *parent = 0);
     const LCDPhont&  getPhont(void) const {return *phont;}

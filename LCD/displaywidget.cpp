@@ -19,6 +19,18 @@ void DisplayWidget::destroySelection()
     repaint();
 }
 
+void DisplayWidget::justKey(QKeyEvent *event)
+{
+    QString s = event->text();
+    if(!s.isEmpty()) {
+        int ucdValue = s.at(0).unicode();
+        if(phont->hasSymbol(ucdValue)) {
+            displ.insertSymbol(phont->getSymbCodeinPhont(ucdValue));
+        }
+    }
+    QWidget::keyPressEvent(event);
+}
+
 DisplayWidget::DisplayWidget(Display &d, QWidget *parent) : QWidget(parent),
     displ(d)
 {
@@ -69,7 +81,7 @@ void DisplayWidget::keyPressEvent(QKeyEvent *event)
     switch (event->key()) {
     case Qt::Key_Left:
         displ.moveCursorLeft();
-        if(QApplication::keyboardModifiers() && Qt::ShiftModifier) {
+        if(QApplication::keyboardModifiers().testFlag(Qt::ShiftModifier)) {
             int x = displ.getXPosition();
             bool updFl = false;
             if(x>selection.prevXPos) {
@@ -85,7 +97,7 @@ void DisplayWidget::keyPressEvent(QKeyEvent *event)
         break;
     case Qt::Key_Right:
         displ.moveCursorRight();
-        if(QApplication::keyboardModifiers() && Qt::ShiftModifier) {
+        if(QApplication::keyboardModifiers().testFlag(Qt::ShiftModifier)) {
             int x = displ.getXPosition();
             bool updFl = false;
             if(x>selection.prevXPos) {
@@ -119,14 +131,14 @@ void DisplayWidget::keyPressEvent(QKeyEvent *event)
         break;
     case Qt::Key_Home:
         displ.moveCursorToBegin();
-        if(QApplication::keyboardModifiers() && Qt::ShiftModifier) {
+        if(QApplication::keyboardModifiers().testFlag(Qt::ShiftModifier)) {
             selection.startPos = 0;
             repaint();
         }else destroySelection();
         break;
     case Qt::Key_End:
         displ.moveCursorToEnd();
-        if(QApplication::keyboardModifiers() && Qt::ShiftModifier) {
+        if(QApplication::keyboardModifiers().testFlag(Qt::ShiftModifier)) {
             selection.stopPos = displ.getLength()-1;
             repaint();
         }else destroySelection();
@@ -137,7 +149,7 @@ void DisplayWidget::keyPressEvent(QKeyEvent *event)
         displ.addEmptyStrAfter(displ.getYPosition(),displ.getCurSubStrNum(displ.getYPosition()));
         break;
     case Qt::Key_Delete:
-        if (QApplication::keyboardModifiers() && Qt::ShiftModifier) {
+        if (QApplication::keyboardModifiers().testFlag(Qt::ShiftModifier)) {
             displ.deleteStr(displ.getYPosition(),displ.getCurSubStrNum(displ.getYPosition()));
         }else {
             destroySelection();
@@ -152,7 +164,7 @@ void DisplayWidget::keyPressEvent(QKeyEvent *event)
         displ.setReplaceMode(!displ.getReplaceMode());
         break;
     case Qt::Key_C:
-        if (QApplication::keyboardModifiers() && Qt::ControlModifier) {
+        if (QApplication::keyboardModifiers().testFlag(Qt::ControlModifier)) {
             if((selection.strNum>=0)&&(selection.startPos!=selection.stopPos)) {
                 selection.copyData.clear();
                 selection.copyData = displ.getString(selection.strNum,displ.getCurSubStrNum(selection.strNum)).getString().mid(selection.startPos,selection.stopPos-selection.startPos+1);
@@ -160,46 +172,58 @@ void DisplayWidget::keyPressEvent(QKeyEvent *event)
             }else {
                 displ.copyStrToBuffer(displ.getYPosition(),displ.getCurSubStrNum(displ.getYPosition()));
             }
-        }
+        }else justKey(event);
         break;
     case Qt::Key_V:
-        if (QApplication::keyboardModifiers() && Qt::ControlModifier) {
+        if (QApplication::keyboardModifiers().testFlag(Qt::ControlModifier)) {
             if(displ.getCopySubject()==false) {
                 displ.addEmptyStrBefore(displ.getYPosition(),displ.getCurSubStrNum(displ.getYPosition()));
                 displ.pasteStrFromBuffer(displ.getYPosition(),displ.getCurSubStrNum(displ.getYPosition()));
             }else {
+                UndoRedoOperation op(displ);
+                op.setOperationType(UndoRedoOperation::ReplaceString);
+                op.setStartCursor(displ.getXPosition(),displ.getYPosition());
+                op.setStartStr(displ.getCursorString());
+                op.setStrNum(displ.getYPosition());
+                op.setSubStrNum(displ.getCurSubStrNum(displ.getYPosition()));
                 foreach (char s, selection.copyData) {
-                   displ.insertSymbol(s);
+                   displ.insertSymbol(s,false);
                 }
+                op.setResCursor(displ.getXPosition(),displ.getYPosition());
+                op.setResStr(displ.getCursorString());
+                displ.addOperation(op);
             }
             destroySelection();
-        }
+        }else justKey(event);
         break;
     case Qt::Key_Q:
-        if (QApplication::keyboardModifiers() && Qt::ControlModifier) {
+        if (QApplication::keyboardModifiers().testFlag(Qt::ControlModifier)) {
             if(displ.getCursorString().isActive()) displ.toggleActive(displ.getYPosition(),displ.getCurSubStrNum(displ.getYPosition()));
-        }
-        destroySelection();
-        displ.nextString();
-        emit displ.cursorPosChanged(displ.getXPosition(),displ.getYPosition());
+            destroySelection();
+            displ.nextString();
+            emit displ.cursorPosChanged(displ.getXPosition(),displ.getYPosition());
+        }else justKey(event);
         break;
     case Qt::Key_W:
-        if (QApplication::keyboardModifiers() && Qt::ControlModifier) {
+        if (QApplication::keyboardModifiers().testFlag(Qt::ControlModifier)) {
             if(!displ.getCursorString().isActive()) displ.toggleActive(displ.getYPosition(),displ.getCurSubStrNum(displ.getYPosition()));
-        }
-        destroySelection();
-        displ.nextString();
-        emit displ.cursorPosChanged(displ.getXPosition(),displ.getYPosition());
+            destroySelection();
+            displ.nextString();
+            emit displ.cursorPosChanged(displ.getXPosition(),displ.getYPosition());
+        }else justKey(event);
+        break;
+    case Qt::Key_Z:
+        if (QApplication::keyboardModifiers().testFlag(Qt::ControlModifier)) {
+            displ.undo();
+        }else justKey(event);
+        break;
+    case Qt::Key_Y:
+        if (QApplication::keyboardModifiers().testFlag(Qt::ControlModifier)) {
+            displ.redo();
+        }else justKey(event);
         break;
     default:
-        QString s = event->text();
-        if(!s.isEmpty()) {
-            int ucdValue = s.at(0).unicode();
-            if(phont->hasSymbol(ucdValue)) {
-                displ.insertSymbol(phont->getSymbCodeinPhont(ucdValue));
-            }
-        }
-        QWidget::keyPressEvent(event);
+        justKey(event);
     }
 }
 
@@ -363,9 +387,18 @@ void DisplayWidget::contextMenuEvent(QContextMenuEvent *event)
                         displ.setCopySubject(true);
                     }else if(selectedItem==pasteAction) {
                         displ.setCursor(x,y);
+                        UndoRedoOperation op(displ);
+                        op.setOperationType(UndoRedoOperation::ReplaceString);
+                        op.setStartCursor(displ.getXPosition(),displ.getYPosition());
+                        op.setStartStr(displ.getCursorString());
+                        op.setStrNum(displ.getYPosition());
+                        op.setSubStrNum(displ.getCurSubStrNum(displ.getYPosition()));
                         foreach (char s, selection.copyData) {
-                           displ.insertSymbol(s);
+                           displ.insertSymbol(s,false);
                         }
+                        op.setResCursor(displ.getXPosition(),displ.getYPosition());
+                        op.setResStr(displ.getCursorString());
+                        displ.addOperation(op);
                     }else if(selectedItem==specSymbAction) {
                         DialogSpesSymb *dialog = new DialogSpesSymb();
                         dialog->exec();

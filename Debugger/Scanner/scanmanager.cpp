@@ -9,8 +9,8 @@ ScanManager::ScanManager(MemStorage *memStor, QObject *parent) : QObject(parent)
     connect(scanner,SIGNAL(updateBlock(QString,int,QByteArray)),memStor,SLOT(updateBlock(QString,int,QByteArray)));
     connect(scanner,SIGNAL(updateCorrectRequestCnt(int)),this,SLOT(updCorrAnswerCnt(int)));
     connect(scanner,SIGNAL(updateErrorRequestCnt(int)),this,SLOT(updErrAnswerCnt(int)));
-    connect(scanner,SIGNAL(addMessage(QString)),this,SLOT(getMessage(QString)));
-    connect(scanner,SIGNAL(updateTimeStr(QString)),this,SLOT(getTimeStr(QString)));
+    connect(scanner,SIGNAL(addMessage(QString)),this,SIGNAL(addMessage(QString)));
+    connect(scanner,SIGNAL(updateTimeStr(QString)),this,SIGNAL(updateTimeStr(QString)));
     scanThread.start();
     emit startProcess();
 }
@@ -40,16 +40,6 @@ void ScanManager::updCorrAnswerCnt(int cnt)
 void ScanManager::updErrAnswerCnt(int cnt)
 {
     emit updateAnswerCnt(cnt,false);
-}
-
-void ScanManager::getMessage(QString message)
-{
-    emit addMessage(message);
-}
-
-void ScanManager::getTimeStr(QString timeStr)
-{
-    emit updateTimeStr(timeStr);
 }
 
 void ScanManager::startDebugger()

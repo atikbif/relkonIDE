@@ -1,5 +1,6 @@
 #include "display.h"
 #include <QStringList>
+#include "undoredostack.h"
 
 bool Display::checkStrNum(int strNum, int subStrNum)
 {
@@ -132,32 +133,63 @@ void Display::setReplaceMode(bool value)
 
 }
 
-bool Display::addEmptyStrBefore(int strNum, int subStrNum)
+void Display::addOperation(UndoRedoOperation &op)
+{
+    undoRedo.addOperation(op);
+}
+
+bool Display::addEmptyStrBefore(int strNum, int subStrNum, bool isUndoEn)
 {
     changed = true;
     if(checkStrNum(strNum,subStrNum)==false) return false;
     DisplayStr* str = new DisplayStr();
+    UndoRedoOperation op(*this);
+    if(isUndoEn) {
+        op.setOperationType(UndoRedoOperation::InsertString);
+        op.setStartCursor(x,y);
+        op.setStartStr(*str);
+        op.setStrNum(strNum);
+        op.setSubStrNum(subStrNum);
+    }
     QVector<DisplayStr*> subStrings = data.value(strNum);
     subStrings.insert(subStrNum,str);
     data.insert(strNum,subStrings);
     curStr.insert(strNum,subStrNum);
     x=0;y=strNum;
+    if(isUndoEn) {
+        op.setResCursor(x,y);
+        op.setResStr(*str);
+        undoRedo.addOperation(op);
+    }
     emit cursorPosChanged(x,y);
     emit strListChanged(strNum);
     emit curStrNumChanged(strNum,subStrNum);
     return true;
 }
 
-bool Display::addEmptyStrAfter(int strNum, int subStrNum)
+bool Display::addEmptyStrAfter(int strNum, int subStrNum, bool isUndoen)
 {
     changed = true;
     if(checkStrNum(strNum,subStrNum)==false) return false;
     DisplayStr* str = new DisplayStr();
+    UndoRedoOperation op(*this);
+    if(isUndoen) {
+        op.setOperationType(UndoRedoOperation::InsertString);
+        op.setStartCursor(x,y);
+        op.setStartStr(*str);
+        op.setStrNum(strNum);
+        op.setSubStrNum(subStrNum+1);
+    }
     QVector<DisplayStr*> subStrings = data.value(strNum);
     subStrings.insert(subStrNum+1,str);
     data.insert(strNum,subStrings);
     curStr.insert(strNum,subStrNum+1);
     x=0;y=strNum;
+    if(isUndoen) {
+        op.setResCursor(x,y);
+        op.setResStr(*str);
+        undoRedo.addOperation(op);
+    }
     emit cursorPosChanged(x,y);
     emit strListChanged(strNum);
     emit curStrNumChanged(strNum,subStrNum+1);
@@ -173,34 +205,59 @@ bool Display::copyStrToBuffer(int strNum, int subStrNum)
     return true;
 }
 
-bool Display::pasteStrFromBuffer(int strNum, int subStrNum)
+bool Display::pasteStrFromBuffer(int strNum, int subStrNum, bool isUndoEn)
 {
     changed = true;
     if(checkStrNum(strNum,subStrNum)==false) return false;
     if(copyStrBuf==nullptr) return false;
     QVector<DisplayStr*> subStrings = data.value(strNum);
     DisplayStr* str = subStrings.at(subStrNum);
+    UndoRedoOperation op(*this);
+    if(isUndoEn) {
+        op.setOperationType(UndoRedoOperation::ReplaceString);
+        op.setStartCursor(x,y);
+        op.setStartStr(*str);
+        op.setStrNum(strNum);
+        op.setSubStrNum(subStrNum);
+    }
     str->operator =(*copyStrBuf);
     curStr.insert(strNum,subStrNum);
     x=0;y=strNum;
+    if(isUndoEn) {
+        op.setResCursor(x,y);
+        op.setResStr(*str);
+        undoRedo.addOperation(op);
+    }
     emit cursorPosChanged(x,y);
     emit curStrNumChanged(strNum,subStrNum);
     emit strChanged(strNum, subStrNum);
     return true;
 }
 
-bool Display::deleteStr(int strNum, int subStrNum)
+bool Display::deleteStr(int strNum, int subStrNum, bool isUndoEn)
 {
     changed = true;
     if(checkStrNum(strNum,subStrNum)==false) return false;
     QVector<DisplayStr*> subStrings = data.value(strNum);
     if(subStrings.count()==1) return false;
     DisplayStr *ptr = subStrings.at(subStrNum);
+    UndoRedoOperation op(*this);
+    if(isUndoEn) {
+        op.setOperationType(UndoRedoOperation::DelString);
+        op.setStartCursor(x,y);
+        op.setStartStr(*ptr);
+        op.setStrNum(strNum);
+        op.setSubStrNum(subStrNum);
+    }
     subStrings.remove(subStrNum);
     delete ptr;
     data.insert(strNum,subStrings);
     if(subStrNum>=subStrings.count()) subStrNum--;
     curStr.insert(strNum,subStrNum);
+    if(isUndoEn) {
+        op.setResCursor(x,y);
+        undoRedo.addOperation(op);
+    }
     x=0;y=strNum;
     emit cursorPosChanged(x,y);
     emit strListChanged(strNum);
@@ -208,14 +265,40 @@ bool Display::deleteStr(int strNum, int subStrNum)
     return true;
 }
 
-bool Display::insertSymbol(quint8 code)
+bool Display::replaceStr(int strNum, int subStrNum, const DisplayStr &str)
+{
+    if(strNum>=getStrCount()) return false;
+    if(subStrNum>=getSubStrCount(strNum)) return false;
+    QVector<DisplayStr*> strings = data.value(strNum);
+    DisplayStr *oldStr = strings.at(subStrNum);
+    DisplayStr *newStr = new DisplayStr(str);
+    strings[subStrNum] = newStr;
+    data.insert(strNum, strings);
+    delete oldStr;
+    return true;
+}
+
+bool Display::insertSymbol(quint8 code, bool isUndoEn)
 {
     changed = true;
     if(checkStrNum(y,getCurSubStrNum(y))==false) return false;
     DisplayStr* str = data.value(y).at(getCurSubStrNum(y));
+    UndoRedoOperation op(*this);
+    if(isUndoEn) {
+        op.setOperationType(UndoRedoOperation::ReplaceString);
+        op.setStartCursor(x,y);
+        op.setStartStr(*str);
+        op.setStrNum(y);
+        op.setSubStrNum(getCurSubStrNum(y));
+    }
     if(str->insertSymbol(x,code)==true) {
         moveCursorRight();
         emit strChanged(y,getCurSubStrNum(y));
+        if(isUndoEn) {
+            op.setResCursor(x,y);
+            op.setResStr(*(data.value(y).at(getCurSubStrNum(y))));
+            undoRedo.addOperation(op);
+        }
         return true;
     }
     return false;
@@ -226,7 +309,16 @@ void Display::deleteSymbol()
     changed = true;
     if(checkStrNum(y,getCurSubStrNum(y))==false) return;
     DisplayStr* str = data.value(y).at(getCurSubStrNum(y));
+    UndoRedoOperation op(*this);
+    op.setOperationType(UndoRedoOperation::ReplaceString);
+    op.setStartCursor(x,y);
+    op.setStartStr(*str);
+    op.setStrNum(y);
+    op.setSubStrNum(getCurSubStrNum(y));
     str->deleteSymbol(x);
+    op.setResCursor(x,y);
+    op.setResStr(*(data.value(y).at(getCurSubStrNum(y))));
+    undoRedo.addOperation(op);
     emit strChanged(y,getCurSubStrNum(y));
 }
 
@@ -239,14 +331,29 @@ void Display::backspace()
     }
 }
 
-bool Display::addVar(PultVarDefinition &vP)
+bool Display::addVar(PultVarDefinition &vP, bool isUndoEn)
 {
     changed = true;
     if(checkStrNum(y,getCurSubStrNum(y))==false) return false;
     DisplayStr* str = data.value(y).at(getCurSubStrNum(y));
+    UndoRedoOperation op(*this);
+    if(isUndoEn) {
+        op.setOperationType(UndoRedoOperation::ReplaceString);
+        op.setStartCursor(x,y);
+        op.setStartStr(*str);
+        op.setStrNum(y);
+        op.setSubStrNum(getCurSubStrNum(y));
+    }
     vP.setPosInStr(x);
     bool res =  str->addVar(vP);
-    if(res) emit strChanged(y,getCurSubStrNum(y));
+    if(res) {
+        emit strChanged(y,getCurSubStrNum(y));
+        if(isUndoEn) {
+            op.setResCursor(x,y);
+            op.setResStr(*(data.value(y).at(getCurSubStrNum(y))));
+        }
+        undoRedo.addOperation(op);
+    }
     return res;
 }
 
@@ -255,10 +362,19 @@ bool Display::updVar(PultVarDefinition &vP)
     changed = true;
     if(checkStrNum(y,getCurSubStrNum(y))==false) return false;
     DisplayStr* str = data.value(y).at(getCurSubStrNum(y));
+    UndoRedoOperation op(*this);
+    op.setOperationType(UndoRedoOperation::ReplaceString);
+    op.setStartCursor(x,y);
+    op.setStartStr(*str);
+    op.setStrNum(y);
+    op.setSubStrNum(getCurSubStrNum(y));
     vP.setPosInStr(x);
     bool res = str->updVar(vP);
     if(res) {
         while((!str->isThisABeginningOfVar(x))&&(x>0)) x--;
+        op.setResCursor(x,y);
+        op.setResStr(*(data.value(y).at(getCurSubStrNum(y))));
+        undoRedo.addOperation(op);
         emit cursorPosChanged(x,y);
         emit strChanged(y,getCurSubStrNum(y));
     }
@@ -279,7 +395,16 @@ void Display::toggleActive(int strNum, int subStrNum)
 {
     if(checkStrNum(strNum,subStrNum)==false) return;
     DisplayStr* str = data.value(strNum).at(subStrNum);
+    UndoRedoOperation op(*this);
+    op.setOperationType(UndoRedoOperation::ReplaceString);
+    op.setStartCursor(x,y);
+    op.setStartStr(*str);
+    op.setStrNum(strNum);
+    op.setSubStrNum(subStrNum);
     str->setActive(!str->isActive());
+    op.setResCursor(x,y);
+    op.setResStr(*str);
+    undoRedo.addOperation(op);
     emit strListChanged(strNum);
 }
 
@@ -312,7 +437,13 @@ void Display::clearDisplay()
         emit curStrNumChanged(i,0);
         emit strChanged(i,0);
     }
+    undoRedo.clear();
     emit cursorPosChanged(0,0);
+}
+
+void Display::clearStack()
+{
+    undoRedo.clear();
 }
 
 void Display::getVars(QVector<PultVarDefinition> &vars)
@@ -389,4 +520,22 @@ bool Display::getCopySubject() const
 void Display::setCopySubject(bool value)
 {
     copySubject = value;
+}
+
+void Display::undo()
+{
+    undoRedo.undo();
+    emit cursorPosChanged(x,y);
+    emit strListChanged(y);
+    emit curStrNumChanged(y,getCurSubStrNum(y));
+    emit strChanged(y,getCurSubStrNum(y));
+}
+
+void Display::redo()
+{
+    undoRedo.redo();
+    emit cursorPosChanged(x,y);
+    emit strListChanged(y);
+    emit curStrNumChanged(y,getCurSubStrNum(y));
+    emit strChanged(y,getCurSubStrNum(y));
 }

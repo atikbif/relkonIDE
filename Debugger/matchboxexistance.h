@@ -1,6 +1,8 @@
 #ifndef MATCHBOXEXISTANCE_H
 #define MATCHBOXEXISTANCE_H
 
+// класс проверки доступных для проект входов/выходов
+
 #include <QString>
 
 class MatchboxExistance

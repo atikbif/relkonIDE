@@ -133,7 +133,6 @@ void PLCScanner::scanProcess()
                     QString ipAddr = settings.getUdpSettings().ipAddress;
                     if(ipAddr.contains(QRegExp("^\\d{1,3}\\.\\d{1,3}.\\d{1,3}.\\d{1,3}"))) {
                         if(udp.state()==QAbstractSocket::UnconnectedState) {
-                            //udp.bind(QHostAddress(ipAddr),settings.getDefaultUDPPortNum());
                             udp.connectToHost(ipAddr,settings.getDefaultUDPPortNum());
                             udp.waitForConnected();
                         }

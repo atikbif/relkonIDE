@@ -26,8 +26,17 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
+     <property name="inputMethodHints">
+      <set>Qt::ImhNoAutoUppercase|Qt::ImhNoPredictiveText</set>
+     </property>
      <property name="editable">
       <bool>true</bool>
+     </property>
+     <property name="currentText">
+      <string notr="true"/>
+     </property>
+     <property name="insertPolicy">
+      <enum>QComboBox::NoInsert</enum>
      </property>
     </widget>
    </item>
