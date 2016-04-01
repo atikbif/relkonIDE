@@ -111,6 +111,7 @@ private slots:
     void memViewCellPressed(int r, int c);
     void adc8bitChanged(void);  // 8 bit mode changed
     void on_checkBoxQuickWatch_toggled(bool checked);
+    void closeQuickWatchWindow();
 
 signals:
     void quickInfo(QStringList names, QStringList values);

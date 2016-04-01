@@ -58,3 +58,8 @@ void VarWatcherManager::quickInfo(QStringList names, QStringList values)
     table->resizeColumnsToContents();
     table->setEnabled(true);
 }
+
+void VarWatcherManager::closeEvent(QCloseEvent *)
+{
+    emit closeWatch();
+}

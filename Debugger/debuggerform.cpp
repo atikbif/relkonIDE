@@ -362,6 +362,7 @@ DebuggerForm::DebuggerForm(VarsCreator &vCr, QWidget *parent) :
     quick = new VarWatcherManager();
     connect(quick,SIGNAL(quickInfoRequest()),this,SLOT(getQuickWatchInfo()));
     connect(this,SIGNAL(quickInfo(QStringList,QStringList)),quick,SLOT(quickInfo(QStringList,QStringList)));
+    connect(quick,SIGNAL(closeWatch()),this,SLOT(closeQuickWatchWindow()));
 }
 
 DebuggerForm::~DebuggerForm()
@@ -1481,4 +1482,9 @@ void DebuggerForm::on_checkBoxQuickWatch_toggled(bool checked)
         quick->show();
     }else quick->close();
     on_tabWidget_currentChanged(ui->tabWidget->currentIndex());
+}
+
+void DebuggerForm::closeQuickWatchWindow()
+{
+    if(ui->checkBoxQuickWatch->isChecked()) ui->checkBoxQuickWatch->setChecked(false);
 }

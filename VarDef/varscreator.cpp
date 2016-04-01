@@ -197,6 +197,17 @@ void VarsCreator::addAnalogInputs(CompositeVar *parent)
         ids.addVar(var);
     }
 
+    for(int i=0;i<8;i++) {
+        CompositeVar* var = new CompositeVar();
+        var->setName("ADH"+QString::number(i+1));
+        var->setDataType(VarItem::ucharType);
+        var->setMemType("IO");
+        var->setMemAddress(0x0C+i*2+1);
+
+        aiVar->addChild(*var);
+        ids.addVar(var);
+    }
+
     CompositeVar* mmbVar = new CompositeVar();
     mmbVar->setName("MMB");
     mmbVar->setMemAddress(2);   // для различия с другими узлами MMB
@@ -230,6 +241,17 @@ void VarsCreator::addAnalogInputs(CompositeVar *parent)
         eaiVar->addChild(*intVar);
         ids.addVar(intVar);
     }
+
+    for(int i=0;i<8;i++) {
+        CompositeVar* intVar = new CompositeVar();
+        intVar->setName("ADH"+QString::number(201+i));
+        intVar->setDataType(VarItem::ucharType);
+        intVar->setMemType("IO");
+        intVar->setMemAddress(0x1E4+i*2+1);
+        eaiVar->addChild(*intVar);
+        ids.addVar(intVar);
+    }
+
     aiVar->addChild(*eaiVar);
     ids.addVar(eaiVar);
 
