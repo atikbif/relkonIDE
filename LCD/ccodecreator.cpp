@@ -169,7 +169,7 @@ QStringList CCodeCreator::getText(const Display &d)
 
     for(int i=0;i<d.getStrCount();i++) {
         code << "\tswitch(_Sys.S" + QString::number(i+1) + ")\n\t{\n";
-
+        unsigned short invisVarCnt = 0;
         for(int j=0;j<d.getSubStrCount(i);j++) {
             if(d.getString(i,j).isActive()){
                 QVector<PultVarDefinition> varList;
@@ -181,10 +181,10 @@ QStringList CCodeCreator::getText(const Display &d)
                    }
                 }
                 if(!prVarsStr.isEmpty()) {
-                    prVarsStr = "\t\tcase " + QString::number(j) + ":\n" + prVarsStr + "\t\tbreak;\n";
+                    prVarsStr = "\t\tcase " + QString::number(j-invisVarCnt) + ":\n" + prVarsStr + "\t\tbreak;\n";
                     code << prVarsStr;
                 }
-            }
+            }else invisVarCnt++;
         }
         code << "\t\tdefault:break;\n\t}\n";
     }

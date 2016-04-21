@@ -241,16 +241,18 @@ void MainWindow::createRPFile()
 void MainWindow::toggleDebugger()
 {
     debugger->tabChanged();
+    dockDebugger->raise();
 }
 
 void MainWindow::togglePult()
 {
     lcd->updFocus();
+    dockDisplay->raise();
 }
 
 void MainWindow::toggleSettings()
 {
-
+    dockSettings->raise();
 }
 
 int MainWindow::saveWarning()
@@ -424,7 +426,7 @@ void MainWindow::createToolbar()
     ui->mainToolBar->addAction(newAct);
     ui->mainToolBar->addAction(openAct);
     ui->mainToolBar->addAction(saveAct);
-    ui->mainToolBar->addAction(closeProjectAct);
+    //ui->mainToolBar->addAction(closeProjectAct);
     ui->mainToolBar->addSeparator();
     ui->mainToolBar->addAction(undoAct);
     ui->mainToolBar->addAction(redoAct);
@@ -1184,16 +1186,19 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
     case Qt::Key_F2:
         if(dockSettings->toggleViewAction()->isEnabled()) {
             dockSettings->setVisible(true);
+            dockSettings->raise();
         }
         break;
     case Qt::Key_F3:
         if(dockDisplay->toggleViewAction()->isEnabled()) {
             dockDisplay->setVisible(true);
+            dockDisplay->raise();
         }
         break;
     case Qt::Key_F4:
         if(dockDebugger->toggleViewAction()->isEnabled()) {
             dockDebugger->setVisible(true);
+            dockDebugger->raise();
         }
         break;
     case Qt::Key_F5:

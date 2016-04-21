@@ -35,6 +35,7 @@ public:
     int getXPosition(void) const {return x;}
     int getYPosition(void) const {return y;}
     int getSubStrCount(int strNum) const;
+    int getVisibleSubStrCount(int strNum) const;
     void moveCursorRight(void);
     void moveCursorLeft(void);
     void moveCursorUp(void);

@@ -474,7 +474,7 @@ void FreeRtosGenerator::createFcuC()
     out << "#include \"fc_u.h\"\n";
     out << "#include \"additional.h\"\n";
     out << "extern unsigned long sd_fl;\n";
-    out << "const unsigned short S4_max = " + QString::number(lcd.getSubStrCount(lcd.getStrCount()-1)) + ";\n";
+    out << "const unsigned short S4_max = " + QString::number(lcd.getVisibleSubStrCount(lcd.getStrCount()-1)) + ";\n";
 
     out << "\n";
 

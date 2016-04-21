@@ -46,6 +46,17 @@ int Display::getSubStrCount(int strNum) const
     return data.value(strNum).count();
 }
 
+int Display::getVisibleSubStrCount(int strNum) const
+{
+    if((strNum<0)||(strNum>=strCount)) return -1;
+    int num = 0;
+    int allStrCnt = getSubStrCount(strNum);
+    for(int i=0;i<allStrCnt;++i) {
+        if(getString(strNum,i).isActive()) num++;
+    }
+    return num;
+}
+
 void Display::moveCursorRight()
 {
     if(x<DisplayStr::getLength()-1) x++;
