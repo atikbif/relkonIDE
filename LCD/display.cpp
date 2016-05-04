@@ -97,15 +97,13 @@ void Display::nextString()
 {
     int lastStrNum = data.value(y).count() - 1;
     int curStrNum = curStr.value(y);
-    if(curStrNum<lastStrNum) curStr.insert(y,curStrNum+1);
-    emit curStrNumChanged(y,curStr.value(y));
+    if(curStrNum<lastStrNum) goToStr(y,curStrNum+1);
 }
 
 void Display::prevString()
 {
     int curStrNum = curStr.value(y);
-    if(curStrNum>0) curStr.insert(y,curStrNum-1);
-    emit curStrNumChanged(y,curStr.value(y));
+    if(curStrNum>0) goToStr(y,curStrNum-1);
 }
 
 DisplayStr Display::getString(int strNum, int subStrNum) const
@@ -394,9 +392,17 @@ bool Display::updVar(PultVarDefinition &vP)
 
 bool Display::goToStr(int strNum, int subStrNum)
 {
-    if(checkStrNum(y,getCurSubStrNum(y))==false) return false;
+    if(checkStrNum(strNum,subStrNum)==false) return false;
     curStr.insert(strNum,subStrNum);
-    x = 0; y = strNum;
+    DisplayStr str = getString(strNum,subStrNum);
+    x = 0;
+    // поиск переменной в строке
+    if(str.getVarsCount()) for(int i=0;i<str.getLength();i++) {
+        if(str.isVarHere(i)) {
+            x = i; break;
+        }
+    }
+    y = strNum;
     emit curStrNumChanged(strNum, subStrNum);
     emit cursorPosChanged(x,y);
     return true;

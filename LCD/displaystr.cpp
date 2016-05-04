@@ -36,7 +36,7 @@ bool DisplayStr::insertSymbol(int pos,quint8 code)
         data.insert(pos,code);
         result = true;
     }else {
-        if(data.at(pos)==spaceCode) { // если курсор на месте пробела то он замещается новым символом
+        if((data.at(pos)==spaceCode)&&(code!=spaceCode)) { // если курсор на месте пробела то он замещается новым символом
             // заменить символ
             data.remove(pos,1);
             data.insert(pos,code);

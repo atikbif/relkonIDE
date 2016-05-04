@@ -83,6 +83,7 @@ void LCDForm::insertVar(QDomElement &e, int strNum)
     vp.setName(vName);
     vp.setEditable(isEd=="1"?true:false);
     vp.setForceSign(isSign=="1"?true:false);
+    //vp.setPosInStr(posValue);
 
     QRegExp eeExp("^EE(\\d+)");
     if(eeExp.indexIn(var.getName()) != -1) {
@@ -97,6 +98,11 @@ void LCDForm::insertVar(QDomElement &e, int strNum)
     for(int i=0;i<vp.getPattern().length();i++) {
         displ.deleteSymbol();
     }
+    displ.setCursor(posValue,strNum);
+    for(int i=0;i<vp.getPattern().length();i++) {
+        displ.insertSymbol(0x20,false);
+    }
+    displ.setCursor(posValue,strNum);
     displ.addVar(vp, false);
 }
 

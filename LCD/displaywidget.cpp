@@ -55,7 +55,7 @@ void DisplayWidget::mousePressEvent(QMouseEvent *event)
 
     for(int y=0;y<strCount;y++) {
         for(int x=0;x<symbInStrCount;x++) {
-            QRectF sRect(x*widthOneSymb+1,y*heightOneSymb+1,widthOneSymb-spaceBetwSymb,heightOneSymb-spaceBetwSymb);
+            QRectF sRect(x*widthOneSymb+1,y*heightOneSymb+1,widthOneSymb,heightOneSymb);
             QPointF clPos(event->x(),event->y());
             if(sRect.contains(clPos)) {
                 if(event->button() == Qt::LeftButton) {
@@ -282,8 +282,8 @@ void DisplayWidget::paintEvent(QPaintEvent *event)
                         painter.setPen(penLight);
                     }else {
                         if((y==selection.strNum)&&(x>=selection.startPos)&&(x<=selection.stopPos)) {
-                            painter.setBrush(QBrush(QColor(210,210,210)));
-                            painter.setPen(QColor(225,225,225));
+                            painter.setBrush(QBrush(QColor(150,150,150)));
+                            painter.setPen(QColor(150,150,150));
                         }else {
                             if((displ.getXPosition()==x)&&(displ.getYPosition()==y)) {
                                 if(displ.getReplaceMode()==false) {

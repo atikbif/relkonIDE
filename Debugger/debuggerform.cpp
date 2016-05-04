@@ -128,6 +128,13 @@ void DebuggerForm::openView()
                   varName += "." + s;
                 }
                 varName.remove(0,1);// удаление стартовой "."
+
+                QRegExp exp(".*\\.\\d+.*");
+                if(exp.indexIn(varName)==-1) {
+                    QStringList names = varName.split(".");
+                    varName = names.last();
+                }
+
                 // список полей для отображения в дереве просмотра
                 sList << varName << "" << "" << "0x"+QString::number(var.getMemAddress(),16).toUpper() << var.getDataType();
                 QTreeWidgetItem* newItem = new QTreeWidgetItem(sList);

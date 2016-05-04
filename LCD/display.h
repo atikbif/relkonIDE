@@ -25,6 +25,7 @@ class Display: public QObject
     bool checkStrNum(int strNum, int subStrNum);    // проверка существования строки
     void updVarDefinition(int strNum, int subStrNum,int VarNum, PultVarDefinition &vd); // обновление описания переменной
 
+
 public:
     explicit Display(QObject *parent = 0);
     void setChanged(bool value) {changed = value;}
