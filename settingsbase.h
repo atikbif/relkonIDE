@@ -53,6 +53,7 @@ public:
     void setKonFileName(const QString &fName) {konFileName=fName;}
     virtual void saveSettings(void)=0;  // сохранение настроек в файл
     virtual void openSettings(void)=0;  // чтение настроек из файла
+    quint8 getOneByte(int addr) const {if((addr>=0)&&(addr<factorySettingsAmount)) return fSettings[addr]; return 0;}
     void updateOnyByte(int addr,quint8 value);
     virtual void updateTable(void);
     static int getCount(void) {return factorySettingsAmount;}

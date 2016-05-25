@@ -438,11 +438,11 @@ void MainWindow::createToolbar()
     ui->mainToolBar->addAction(srchAct);
 
     toTableAction = new QAction(QIcon("://table.ico"), "пульт > настройки", this);
-    //QAction *fromTableAction = new QAction(QIcon("://display.ico"), "настройки > пульт", this);
+    fromTableAction = new QAction(QIcon("://display.ico"), "настройки > пульт", this);
 
     //ui->menuCmd->addAction(fromTableAction);
     connect(toTableAction,SIGNAL(triggered()),this,SLOT(lcdToTable()));
-    //connect(fromTableAction,SIGNAL(triggered()),this,SLOT(tableToLcd()));
+    connect(fromTableAction,SIGNAL(triggered()),this,SLOT(tableToLcd()));
     ui->menuCmd->addAction(buildAct);
     ui->menuCmd->addAction(progrAllAct);
     ui->menuCmd->addAction(toPlcAct);
@@ -453,6 +453,7 @@ void MainWindow::createToolbar()
     ui->menuCmd->addAction(wrSettings);
     ui->menuCmd->addAction(rdSettings);
     ui->menuCmd->addAction(toTableAction);
+    ui->menuCmd->addAction(fromTableAction);
 
     ui->mainToolBar->addSeparator();
     ui->mainToolBar->addAction(buildAct);
@@ -688,6 +689,7 @@ void MainWindow::disableActionWithoutProject()
     foldAction->setEnabled(false);
     unfoldAction->setEnabled(false);
     toTableAction->setEnabled(false);
+    fromTableAction->setEnabled(false);
     wrSettings->setEnabled(false);
     rdSettings->setEnabled(false);
     noEmuAct->setEnabled(false);
@@ -717,6 +719,7 @@ void MainWindow::enableActionWithProject()
     foldAction->setEnabled(true);
     unfoldAction->setEnabled(true);
     toTableAction->setEnabled(true);
+    fromTableAction->setEnabled(true);
     wrSettings->setEnabled(true);
     rdSettings->setEnabled(true);
     noEmuAct->setEnabled(true);
@@ -1327,10 +1330,6 @@ void MainWindow::buildWithoutErrors()
 
 void MainWindow::lcdToTable()
 {
-
-    const int startSettingsAddress = 0x7B00;
-    const int stopSettingsEndAddress = 0x7EFF;
-
     QVector<PultVarDefinition> vars;
     displ->getVars(vars);
 
@@ -1340,7 +1339,7 @@ void MainWindow::lcdToTable()
             QString vP = vars.at(i).getPattern();
             VarItem var = varOwner->getVarByID(vID);
             QString memType = var.getMemType();
-            if(memType==MemStorage::framMemName) {
+            if(memType==MemStorage::eeMemName) {
                 int byteCount = var.getByteCount();
                 if(byteCount) {
                     vP.remove(".");
@@ -1350,8 +1349,8 @@ void MainWindow::lcdToTable()
                     for(int j=0;j<byteCount;j++) {
                         quint8 vByte = value & 0xFF;
                         value = value >> 8;
-                        if((addr>=startSettingsAddress)&&(addr<=stopSettingsEndAddress)) {
-                            settings->updateOnyByte(addr-startSettingsAddress,vByte);
+                        if((addr>=0)&&(addr<MemStorage::eeMemSize)) {
+                            settings->updateOnyByte(addr,vByte);
                         }
                         addr++;
                     }
@@ -1364,7 +1363,58 @@ void MainWindow::lcdToTable()
 
 void MainWindow::tableToLcd()
 {
-
+    int strCount = displ->getStrCount();
+    int x = displ->getXPosition();
+    int y = displ->getYPosition();
+    int strNum = displ->getCurSubStrNum(y);
+    for(int i=0;i<strCount;i++) {
+        int subStrCount = displ->getSubStrCount(i);
+        for(int j=0;j<subStrCount;j++) {
+            QVector<PultVarDefinition> varList;
+            displ->getVarDefinitions(varList, i, j);
+            if(varList.count()) {
+                foreach (PultVarDefinition def, varList) {
+                    QString vID = def.getId();
+                    QString vP = def.getPattern();
+                    VarItem var = varOwner->getVarByID(vID);
+                    QString memType = var.getMemType();
+                    if(memType==MemStorage::eeMemName) {
+                        int byteCount = var.getByteCount();
+                        if(byteCount) {
+                            qulonglong value = 0;
+                            for(int k=0;k<byteCount;k++) {
+                                quint8 vByte = settings->getOneByte(var.getMemAddress()+byteCount-1-k);
+                                value = value << 8;
+                                value = value | vByte;
+                            }
+                            if(def.getForceSign()) {
+                                vP.remove('-');
+                                if(byteCount==1) {qint8 a=(qint8)value;if(a<0) vP ='-'+vP; value = abs(a);}
+                                else if(byteCount==2) {qint16 a=(qint16)value;if(a<0) vP ='-'+vP; value = abs(a);}
+                                else if(byteCount==4) {qint32 a=(qint32)value;if(a<0) vP ='-'+vP; value = abs(a);}
+                            }
+                            QString newPattern = QString::number(value);
+                            int digitCount=0;
+                            for(int k=0;k<vP.length();k++) {
+                                if(vP.at(vP.length()-1-k).isDigit()) {
+                                    digitCount++;
+                                    if(newPattern.length()>=digitCount) {
+                                        vP[vP.length()-1-k] = newPattern[newPattern.length()-1-(digitCount-1)];
+                                    }else vP[vP.length()-1-k]='0';
+                                }
+                            }
+                            displ->goToStr(i,j);
+                            displ->setCursor(def.getPosInStr(),i);
+                            def.setPattern(vP);
+                            displ->updVar(def);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    displ->goToStr(y,strNum);
+    displ->setCursor(x,y);
 }
 
 void MainWindow::importPult()

@@ -23,11 +23,11 @@ void SettingsForm::printFactorySettings()
             if((num%amountOfByte==0)&&(num<factorySettingsAmount)) {
                 unsigned long value = fSettings[num];
                 if((amountOfByte>=2)&&(num+1<factorySettingsAmount)) {
-                    value += (unsigned long)fSettings[num+1] << 8;
+                    value |= (unsigned long)fSettings[num+1] << 8;
                 }
                 if((amountOfByte>=4)&&(num+3<factorySettingsAmount)) {
-                    value += (unsigned long)fSettings[num+2] << 8;
-                    value += (unsigned long)fSettings[num+3] << 8;
+                    value |= (unsigned long)fSettings[num+2] << 16;
+                    value |= (unsigned long)fSettings[num+3] << 24;
                     //value = value + (unsigned long)fSettings[num+2]*256;
                     //value = value + (unsigned long)fSettings[num+3]*256;
                 }

@@ -100,6 +100,7 @@ private:
     QAction *foldAction;
     QAction *unfoldAction;
     QAction *toTableAction;
+    QAction *fromTableAction;
     QAction *wrSettings;
     QAction *rdSettings;
     QAction *noEmuAct;
