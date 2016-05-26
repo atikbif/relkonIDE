@@ -5,7 +5,7 @@
 
 void SettingsBase::clearSettings()
 {
-    for(int i=0;i<factorySettingsAmount;i++) fSettings[i]=0;
+    for(int i=0;i<factorySettingsAmount;i++) fSettings[i]=0xFF;
     netAddress=0x01;
     progAddr=0x00;
     ipAddr[0]=192;ipAddr[1]=168;ipAddr[2]=0;ipAddr[3]=31;

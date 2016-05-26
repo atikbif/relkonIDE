@@ -38,7 +38,7 @@ void FreeRtosGenerator::scanMatchbox()
             curSitNum = prBlock[i].getSituation(j).getSitNum();
             curSitSpeed = prBlock[i].getSituation(j).getPeriod();
             foreach(QString str,prBlock[i].getSituation(j).getText()){
-                QRegExp in("IN(\\d+)");
+                QRegExp in("IN(\\d+)(?!_)");
                 int pos=0;
                 while((pos=in.indexIn(str,pos))!=-1){
                     // except DIN
@@ -70,7 +70,7 @@ void FreeRtosGenerator::scanMatchbox()
                     pos+=in.matchedLength();
                 }
 
-                QRegExp out("OUT(\\d+)");
+                QRegExp out("OUT(\\d+)(?!_)");
                 pos=0;
                 while((pos=out.indexIn(str,pos))!=-1){
                     // except DOUT
@@ -102,7 +102,7 @@ void FreeRtosGenerator::scanMatchbox()
                     pos+=out.matchedLength();
                 }
 
-                QRegExp adc("AD[CH](\\d+)");
+                QRegExp adc("AD[CH](\\d+)(?!_)");
                 pos=0;
                 while((pos=adc.indexIn(str,pos))!=-1){
                     int modNum = adc.cap(1).toInt();
@@ -127,7 +127,7 @@ void FreeRtosGenerator::scanMatchbox()
                     pos+=adc.matchedLength();
                 }
 
-                QRegExp dac("DAC(\\d+)");
+                QRegExp dac("DAC(\\d+)(?!_)");
                 pos=0;
                 while((pos=dac.indexIn(str,pos))!=-1){
                     int modNum = dac.cap(1).toInt();
