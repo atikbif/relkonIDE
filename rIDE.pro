@@ -12,7 +12,7 @@ QT       += network
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 RC_ICONS = R.ico
-VERSION = 1.0.0.20
+VERSION = 1.0.0.21
 QMAKE_TARGET_COMPANY = Kontel Co
 QMAKE_TARGET_PRODUCT = RIDE (Relkon7)
 QMAKE_TARGET_DESCRIPTION = Relkon IDE

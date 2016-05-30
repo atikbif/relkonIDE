@@ -227,6 +227,11 @@ void DebuggerForm::stopDebugger()
     on_stopButton_clicked();
 }
 
+void DebuggerForm::newPLCType(const QString &value)
+{
+    plcType = value;
+}
+
 void DebuggerForm::clearMemViewTable()
 {
     disconnect(ui->tableWidgetMem,SIGNAL(cellChanged(int,int)),this,SLOT(memViewCellPressed(int,int)));
@@ -334,6 +339,7 @@ DebuggerForm::DebuggerForm(VarsCreator &vCr, QWidget *parent) :
     QWidget(parent), varOwner(vCr), lastOpenInpFile(""),
     ui(new Ui::DebuggerForm)
 {
+    plcType = "PC365C";
     scan = nullptr;
     iter = nullptr;
     ui->setupUi(this);
@@ -919,7 +925,7 @@ void DebuggerForm::updateMemVarGUI(const QString &id)
 
 void DebuggerForm::updateMatchboxVisibility()
 {
-    MatchboxExistance mmb;
+    MatchboxExistance mmb(plcType);
     QString mmbList = mmb.getMatchboxFile();
     foreach (QGroupBox* gr, ioBoxes) {
         QString grName = gr->title();

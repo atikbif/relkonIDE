@@ -7,8 +7,9 @@
 
 class MatchboxExistance
 {
+    QString plc;
 public:
-    MatchboxExistance();
+    MatchboxExistance(const QString &plcType="PC365C");
     QString getMatchboxFile();
     bool checkIO(const QString &ioName, const QString &ioList);
 };

@@ -257,6 +257,8 @@ SettingsForm::SettingsForm(SettingsBase *parent) :
     connect(ui->radioButtonTwoBytes,SIGNAL(toggled(bool)),this,SLOT(radioButtonBytes_toggled()));
     connect(ui->radioButtonFourBytes,SIGNAL(toggled(bool)),this,SLOT(radioButtonBytes_toggled()));
 
+    emit newPLCType(ui->comboBoxPLCType->currentText());
+
     updateData();
 }
 
@@ -518,6 +520,7 @@ void SettingsForm::on_comboBoxPLCType_currentTextChanged(const QString &arg1)
 {
     setPLCType(arg1);
     PathStorage::setBuildName(getBuildName());
+    emit newPLCType(arg1);
 }
 
 void SettingsForm::on_radioButtonNoEmulation_clicked()

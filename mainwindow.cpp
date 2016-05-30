@@ -492,6 +492,7 @@ void MainWindow::createDebugger()
     connect(this,SIGNAL(newProject()),debugger,SLOT(newProject()));
     connect(this,SIGNAL(saveProject()),debugger,SLOT(saveProject()));
     connect(this,SIGNAL(updTree()),debugger,SLOT(updTree()));
+    connect(settings,SIGNAL(newPLCType(QString)),debugger,SLOT(newPLCType(QString)));
     //ui->tabWidget->addTab(debugger,"Отладчик");
 
     dockDebugger = new QDockWidget(tr("Отладчик F4"), this);

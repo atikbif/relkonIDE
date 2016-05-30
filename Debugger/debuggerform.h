@@ -49,6 +49,7 @@ class DebuggerForm : public QWidget
     QCheckBox *adc8bit;
     QVector<QGroupBox*> ioBoxes;
     VarWatcherManager* quick;
+    QString plcType;
 
     void clearMemViewTable(void);
     void updateMemViewRequests(void);   // формирование очереди запросов планировщика для просмотра памяти
@@ -122,6 +123,7 @@ public slots:
     void newProject(void);
     void updTree(void);
     void stopDebugger(void);
+    void newPLCType(const QString &value);
 private:
     Ui::DebuggerForm *ui;
 };
