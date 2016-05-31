@@ -176,7 +176,7 @@ void FreeRtosGenerator::translateKonToC()
 
 void FreeRtosGenerator::createIoDefinesH()
 {
-    QString path = QCoreApplication::applicationDirPath();
+    //QString path = QCoreApplication::applicationDirPath();
     QDir dir(PathStorage::getSrcDir());
     if(!dir.exists()) {dir.mkdir(".");}
     QFile file(dir.path()+"/iodefines.h");
@@ -206,6 +206,8 @@ void FreeRtosGenerator::createIoDefinesH()
             }
         }
     }
+    QFile::remove(PathStorage::getBuildDir()+"/iodefines.h");
+    file.copy(PathStorage::getBuildDir()+"/iodefines.h");
 
     file.close();
 }

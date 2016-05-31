@@ -33,6 +33,7 @@
 #include "settingsbase.h"
 
 #include "rp6creator.h"
+#include <QTimer>
 
 
 
@@ -121,6 +122,7 @@ int MainWindow::openFileByName(const QString &fName)
         repaint();
         varOwner->generateVarsTree();
         emit openProject();
+        cleaner.startClean();
 
         //QThread::msleep(500);
         on_closeInfoListButton_clicked();
@@ -253,6 +255,11 @@ void MainWindow::togglePult()
 void MainWindow::toggleSettings()
 {
     dockSettings->raise();
+}
+
+void MainWindow::cleanBackFiles()
+{
+    cleaner.startClean();
 }
 
 int MainWindow::saveWarning()
@@ -658,6 +665,10 @@ MainWindow::MainWindow(QWidget *parent) :
     prChangedFlag = false;
     ui->tabWidget->setTabText(0,"Редактор");
     disableActionWithoutProject();
+
+    QTimer *timer = new QTimer(this);
+    connect(timer, SIGNAL(timeout()), this, SLOT(cleanBackFiles()));
+    timer->start(600000); // каждые 10 минут удалять ненужные back файлы
     //connect(editor,SIGNAL(textChanged()),this,SLOT(prWasChanged()));
 }
 
@@ -837,7 +848,7 @@ void MainWindow::saveFile()
         if(prChangedFlag) {
             QDir dir(PathStorage::getBackDir());
             if(!dir.exists()) {dir.mkdir(".");}
-            QString backName = QDateTime::currentDateTime().toString();
+            QString backName = QDateTime::currentDateTime().toString("dd_MM_yyyy__hh_mm_ss");
             backName.replace(QRegExp("[\\s\\t\\.:]"),"_");
             backName=PathStorage::getBackDir() + "/" + backName+".kon";
             QFile::copy(fileName,backName);
@@ -848,7 +859,7 @@ void MainWindow::saveFile()
             lcdFileName += ".lcd";
             QDir dir(PathStorage::getBackDir());
             if(!dir.exists()) {dir.mkdir(".");}
-            QString backName = QDateTime::currentDateTime().toString();
+            QString backName = QDateTime::currentDateTime().toString("dd_MM_yyyy__hh_mm_ss");
             backName.replace(QRegExp("[\\s\\t\\.:]"),"_");
             backName=PathStorage::getBackDir() + "/" + backName+".lcd";
             QFile::copy(lcdFileName,backName);

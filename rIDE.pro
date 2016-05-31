@@ -113,7 +113,9 @@ SOURCES += main.cpp\
     LCD/undoredooperation.cpp \
     LCD/undoredostack.cpp \
     QuickWatch/varwatcher.cpp \
-    QuickWatch/varwatchermanager.cpp
+    QuickWatch/varwatchermanager.cpp \
+    Debugger/BackCleaner/cleanmanager.cpp \
+    Debugger/BackCleaner/cleanprocess.cpp
 
 HEADERS  += mainwindow.h \
     codeeditor.h \
@@ -202,7 +204,9 @@ HEADERS  += mainwindow.h \
     LCD/undoredooperation.h \
     LCD/undoredostack.h \
     QuickWatch/varwatcher.h \
-    QuickWatch/varwatchermanager.h
+    QuickWatch/varwatchermanager.h \
+    Debugger/BackCleaner/cleanmanager.h \
+    Debugger/BackCleaner/cleanprocess.h
 
 FORMS    += mainwindow.ui \
     settingsform.ui \

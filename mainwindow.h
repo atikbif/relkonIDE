@@ -13,6 +13,7 @@
 #include "Help/helpbrowser.h"
 #include "Search/searchdata.h"
 #include <QDockWidget>
+#include "Debugger/BackCleaner/cleanmanager.h"
 
 
 namespace Ui {
@@ -40,6 +41,8 @@ class MainWindow : public QMainWindow
     const int maxAmountOfPrevProjects = 10;
     QString prDirPath;
     QString prFileName;
+
+    CleanManager cleaner;
 
     QStringList getPrevProjects(void);
     void updatePrevProjects(const QStringList &prNames);
@@ -166,6 +169,8 @@ private slots:
     void toggleDebugger();
     void togglePult();
     void toggleSettings();
+
+    void cleanBackFiles();
 
 
 public slots:
