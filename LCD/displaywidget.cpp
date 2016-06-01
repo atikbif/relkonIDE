@@ -174,6 +174,12 @@ void DisplayWidget::keyPressEvent(QKeyEvent *event)
             }
         }else justKey(event);
         break;
+    case Qt::Key_X:
+        if (QApplication::keyboardModifiers().testFlag(Qt::ControlModifier)) {
+            displ.copyStrToBuffer(displ.getYPosition(),displ.getCurSubStrNum(displ.getYPosition()));
+            displ.deleteStr(displ.getYPosition(),displ.getCurSubStrNum(displ.getYPosition()));
+        }else justKey(event);
+        break;
     case Qt::Key_V:
         if (QApplication::keyboardModifiers().testFlag(Qt::ControlModifier)) {
             if(displ.getCopySubject()==false) {

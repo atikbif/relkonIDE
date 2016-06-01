@@ -114,6 +114,8 @@ private slots:
     void on_checkBoxQuickWatch_toggled(bool checked);
     void closeQuickWatchWindow();
 
+    void on_pushButtonClear_clicked();
+
 signals:
     void quickInfo(QStringList names, QStringList values);
 public slots:

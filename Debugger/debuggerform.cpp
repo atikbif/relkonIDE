@@ -1501,3 +1501,15 @@ void DebuggerForm::closeQuickWatchWindow()
 {
     if(ui->checkBoxQuickWatch->isChecked()) ui->checkBoxQuickWatch->setChecked(false);
 }
+
+void DebuggerForm::on_pushButtonClear_clicked()
+{
+    int ret = QMessageBox::question(this, tr("Отладчик"),
+                                   tr("Вы действительно  хотите удалить все переменные из списка?"));
+    if(ret==QMessageBox::Yes) {
+        while(ui->treeWidgetWatch->topLevelItemCount()) {
+            QTreeWidgetItem *item = ui->treeWidgetWatch->topLevelItem(0);
+            on_treeWidgetWatch_itemDoubleClicked(item,2);
+        }
+    }
+}
