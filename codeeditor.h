@@ -56,6 +56,10 @@ private:
     // QWidget interface
 protected:
     void keyReleaseEvent(QKeyEvent *event);
+
+    // QWidget interface
+protected:
+    void keyPressEvent(QKeyEvent *e);
 };
 
 class LineNumberArea : public QWidget

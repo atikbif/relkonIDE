@@ -5,7 +5,7 @@
 #include <QPalette>
 #include <QScrollBar>
 #include <QAbstractSlider>
-
+#include <QApplication>
 
 /* определение и сохранение номеров текстовых блоков и их координат по вертикали */
 void CodeEditor::scanBlocksNums()
@@ -248,18 +248,174 @@ void CodeEditor::keyReleaseEvent(QKeyEvent *event)
     switch(event->key()) {
     case Qt::Key_Enter:
     case Qt::Key_Return:
-
-        QTextCursor cursor = textCursor();
-        QTextBlock block = cursor.block();
-        block = block.previous();
-        if(block.isValid()) {
-            QString txt = block.text();
-            for(int i=0;i<txt.size();i++) {
-                if(txt.at(i)==' ') insertPlainText(" ");
-                else if(txt.at(i)=='\t') insertPlainText("\t");
-                else break;
+        {
+            QTextCursor cursor = textCursor();
+            QTextBlock block = cursor.block();
+            block = block.previous();
+            if(block.isValid()) {
+                QString txt = block.text();
+                for(int i=0;i<txt.size();i++) {
+                    if(txt.at(i)==' ') insertPlainText(" ");
+                    else if(txt.at(i)=='\t') insertPlainText("\t");
+                    else break;
+                }
             }
         }
+        break;
+    }
+}
+
+
+void CodeEditor::keyPressEvent(QKeyEvent *e)
+{
+    switch(e->key()) {
+    case Qt::Key_Home:
+        {
+        // выделение с фильтрацией табуляции и пробелов в начале строки
+            QTextCursor curs = textCursor();
+            if(!curs.hasSelection())  {
+                if(QApplication::keyboardModifiers().testFlag(Qt::ShiftModifier)) {
+                    int startPos = curs.position();
+                    curs.movePosition(QTextCursor::StartOfBlock);
+                    int pos = curs.position();
+                    forever{
+                        curs.setPosition(pos+1,QTextCursor::KeepAnchor);
+                        if((curs.selectedText()=="\t")||(curs.selectedText()==" ")) {
+                            pos++;
+                            curs.setPosition(pos);
+                        }
+                        else break;
+                    }
+                    if(pos<startPos) {
+                        curs.setPosition(pos);
+                        curs.setPosition(startPos,QTextCursor::KeepAnchor);
+                    }else curs.setPosition(startPos);
+                    setTextCursor(curs);
+                }else QPlainTextEdit::keyPressEvent(e);
+            }
+        }
+        break;
+    case Qt::Key_Backtab:
+        {
+        // сдвиг строки или выделенного текста влево
+            QTextCursor curs = textCursor();
+
+            if(!curs.hasSelection())  {
+                int pos = curs.position();
+                curs.setPosition(pos-1, QTextCursor::KeepAnchor);
+                if((curs.selectedText()=="\t")||(curs.selectedText()==" ")) {
+                    curs.removeSelectedText();
+                    curs.setPosition(pos-1);
+                    setTextCursor(curs);
+                }
+                return;
+            }
+            int spos = curs.anchor();
+            int epos = curs.position();
+
+            if(spos > epos)
+            {
+                std::swap(spos, epos);
+            }
+
+            curs.setPosition(spos, QTextCursor::MoveAnchor);
+            int sblock = curs.block().blockNumber();
+
+            curs.setPosition(epos, QTextCursor::MoveAnchor);
+            int eblock = curs.block().blockNumber();
+
+            curs.setPosition(spos, QTextCursor::MoveAnchor);
+            curs.beginEditBlock();
+
+            for(int i = 0; i <= (eblock - sblock); ++i)
+            {
+                curs.movePosition(QTextCursor::StartOfBlock, QTextCursor::MoveAnchor);
+                int pos = curs.position();
+                curs.setPosition(pos+1,QTextCursor::KeepAnchor);
+                if((curs.selectedText()=="\t")||(curs.selectedText()==" ")) {
+                    curs.removeSelectedText();
+                }
+                curs.movePosition(QTextCursor::NextBlock, QTextCursor::MoveAnchor);
+            }
+
+            curs.endEditBlock();
+
+            // Set our cursor's selection to span all of the involved lines.
+
+            curs.setPosition(spos, QTextCursor::MoveAnchor);
+            curs.movePosition(QTextCursor::StartOfBlock, QTextCursor::MoveAnchor);
+
+            while(curs.block().blockNumber() < eblock)
+            {
+                curs.movePosition(QTextCursor::NextBlock, QTextCursor::KeepAnchor);
+            }
+
+            curs.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+
+            // Done!
+
+            setTextCursor(curs);
+        }
+        break;
+    case Qt::Key_Tab:
+        {
+        // сдвиг выделенного текста вправо
+            QTextCursor curs = textCursor();
+
+            if(!curs.hasSelection())  {
+                QPlainTextEdit::keyPressEvent(e);
+                return;
+            }
+
+            // Get the first and count of lines to indent.
+
+            int spos = curs.anchor();
+            int epos = curs.position();
+
+            if(spos > epos)
+            {
+                std::swap(spos, epos);
+            }
+
+            curs.setPosition(spos, QTextCursor::MoveAnchor);
+            int sblock = curs.block().blockNumber();
+
+            curs.setPosition(epos, QTextCursor::MoveAnchor);
+            int eblock = curs.block().blockNumber();
+
+            // Do the indent.
+
+            curs.setPosition(spos, QTextCursor::MoveAnchor);
+            curs.beginEditBlock();
+
+            for(int i = 0; i <= (eblock - sblock); ++i)
+            {
+                curs.movePosition(QTextCursor::StartOfBlock, QTextCursor::MoveAnchor);
+                curs.insertText("\t");
+                curs.movePosition(QTextCursor::NextBlock, QTextCursor::MoveAnchor);
+            }
+
+            curs.endEditBlock();
+
+            // Set our cursor's selection to span all of the involved lines.
+
+            curs.setPosition(spos, QTextCursor::MoveAnchor);
+            curs.movePosition(QTextCursor::StartOfBlock, QTextCursor::MoveAnchor);
+
+            while(curs.block().blockNumber() < eblock)
+            {
+                curs.movePosition(QTextCursor::NextBlock, QTextCursor::KeepAnchor);
+            }
+
+            curs.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+
+            // Done!
+
+            setTextCursor(curs);
+        }
+        break;
+    default:
+        QPlainTextEdit::keyPressEvent(e);
         break;
     }
 }
