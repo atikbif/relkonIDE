@@ -269,6 +269,18 @@ void CodeEditor::keyReleaseEvent(QKeyEvent *event)
 void CodeEditor::keyPressEvent(QKeyEvent *e)
 {
     switch(e->key()) {
+    case Qt::Key_Insert:
+        setOverwriteMode(!overwriteMode());
+        break;
+    case Qt::Key_Delete:
+        if(QApplication::keyboardModifiers().testFlag(Qt::ShiftModifier)) {
+            QTextCursor curs = textCursor();
+            curs.select(QTextCursor::BlockUnderCursor);
+            curs.removeSelectedText();
+            curs.movePosition(QTextCursor::NextBlock);
+            setTextCursor(curs);
+        }else QPlainTextEdit::keyPressEvent(e);
+        break;
     case Qt::Key_Home:
         {
         // выделение с фильтрацией табуляции и пробелов в начале строки

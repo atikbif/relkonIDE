@@ -158,6 +158,7 @@ void FreeRtosGenerator::scanMatchbox()
 
 void FreeRtosGenerator::translateKonToC()
 {
+    QVector<int> sitPeriod = {1,5,10,100,1000};
     translateTextBlock(varBlock.getText(),varBlock.getKonNums());
     translateTextBlock(initBlock.getText(),initBlock.getKonNums());
 
@@ -169,7 +170,8 @@ void FreeRtosGenerator::translateKonToC()
         for(int j=0;j<sitCount;j++) {
             curSitNum = prBlock[i].getSituation(j).getSitNum();
             curSitSpeed = prBlock[i].getSituation(j).getPeriod();
-            translateTextBlock(prBlock[i].getSituation(j).getText(),prBlock[i].getSituation(j).getKonNums());
+            if(!sitPeriod.contains(curSitSpeed)) errorList+="Некорректный период ситуации. Процесс " + QString::number(curPrNum) + ", ситуация " + QString::number(curSitNum);
+            else translateTextBlock(prBlock[i].getSituation(j).getText(),prBlock[i].getSituation(j).getKonNums());
         }
     }
 }
@@ -316,7 +318,7 @@ void FreeRtosGenerator::translateSitJump(QString &str, int konNum)
         str.insert(pos,newExp);
         pos += repExp.matchedLength();
     }
-    QRegExp repPauseExp("\\s*#/(\\d+.\\d+)/R;");
+    QRegExp repPauseExp("\\s*#/(\\d+\\.\\d+)/R;");
     pos = 0;
     while((pos = repPauseExp.indexIn(str,pos))!=-1) {
         int pauseMs = repPauseExp.cap(1).toDouble()*1000;

@@ -105,7 +105,8 @@ int KonParser::createProcessBlock()
                 int sitNum = 0;         // номер ситуации
 
                 // scan situations inside process
-
+                bool convRes=false;
+                QString err;
                 while(1) {
                     i++;
                     if(i>=konSource.count()) break;
@@ -113,13 +114,20 @@ int KonParser::createProcessBlock()
                         i--;
                         break;
                     }
-                    QRegExp sitFullExp("\\s*#SIT(\\d+)\\((\\d+.\\d+)\\)");
+                    sitNum=0;
+                    err="";
+                    QRegExp sitFullExp("\\s*#SIT(\\d+)\\((.+)\\)");
                     QRegExp sitShortExp("\\s*#SIT(\\d+)\\b");
                     if(sitFullExp.indexIn(konSource[i])!=-1) {
-                        sitNum = sitFullExp.cap(1).toInt();
-                        sitPeriod = sitFullExp.cap(2).toDouble()*1000 + 0.5;
+                        sitNum = sitFullExp.cap(1).toInt(&convRes);
+                        if(convRes==false) {parsingErrors+="Некорректный номер ситуации. Строка " + QString::number(i+1);}
+                        sitPeriod = sitFullExp.cap(2).toDouble(&convRes)*1000 + 0.5;
+                        if(convRes==false) {sitPeriod=0;parsingErrors+="Некорректный период ситуации. Строка " + QString::number(i+1);}
                     }else if(sitShortExp.indexIn(konSource[i])!=-1) {
-                        sitNum = sitShortExp.cap(1).toInt();
+                        sitNum = sitShortExp.cap(1).toInt(&convRes);
+                        if(convRes==false) {parsingErrors+="Некорректный номер ситуации. Строка " + QString::number(i+1);}
+                    }else if(konSource[i].contains("SIT")) {
+                        parsingErrors+="Некорректное название ситуации. Строка " + QString::number(i+1);
                     }
                     if(sitNum) {
                         // read a content of situation
@@ -154,6 +162,7 @@ void KonParser::parse()
     int resCode; // operation's result
     resCode = readSourceFile();
     if(resCode==-1) return;
+    parsingErrors.clear();
     removeComments();
     addStringNum();
     createVarBlock();
@@ -162,8 +171,8 @@ void KonParser::parse()
     if(factory != nullptr) {
         CHGenerator* generator = factory->createCHGenerator(lcd);
         generator->createFiles(varBlock,initBlock,prBlock);
-        parsingErrors.clear();
-        parsingErrors = generator->getErrors();
+
+        parsingErrors += generator->getErrors();
     }
 
 }
