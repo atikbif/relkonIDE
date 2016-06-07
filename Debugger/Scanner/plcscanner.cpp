@@ -76,7 +76,7 @@ void PLCScanner::startReq(QIODevice &port)
     delete cmd;
 }
 
-PLCScanner::PLCScanner(QObject *parent) : QObject(parent)
+PLCScanner::PLCScanner(QObject *parent) : QObject(parent),portOpenError(false)
 {
     startCmd=false;
     stopCmd=false;
@@ -123,9 +123,12 @@ void PLCScanner::scanProcess()
                     port.setBaudRate(settings.getComSettings().baudrate);
                     if(!port.open(QSerialPort::ReadWrite)) {
                         // ошибка открытия порта
-                        emit addMessage(QDateTime::currentDateTime().time().toString() + ": невозможно открыть порт " + port.portName());
+                        QString message = QDateTime::currentDateTime().time().toString() + ": невозможно открыть порт " + port.portName();
+                        emit addMessage(message);
+                        if(portOpenError==false) {emit errMessage(message);}
+                        portOpenError=true;
                         QThread::msleep(1000);
-                    }
+                    }else portOpenError=false;
                     cmdCnt=0;
                 }
             }else {
@@ -192,6 +195,7 @@ void PLCScanner::startScanCmd()
     QMutexLocker locker(&mutex);
     startCmd = true;
     stopCmd = false;
+    portOpenError = false;
 }
 
 void PLCScanner::stopScanCmd()

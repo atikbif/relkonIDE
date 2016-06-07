@@ -269,6 +269,53 @@ void CodeEditor::keyReleaseEvent(QKeyEvent *event)
 void CodeEditor::keyPressEvent(QKeyEvent *e)
 {
     switch(e->key()) {
+    case Qt::Key_C:
+        if(QApplication::keyboardModifiers().testFlag(Qt::ControlModifier)) {
+            QTextCursor curs = textCursor();
+            if(curs.hasSelection()) QPlainTextEdit::keyPressEvent(e);
+            else {
+                int startPos = curs.position();
+                curs.movePosition(QTextCursor::StartOfBlock);
+                int pos = curs.position();
+                forever{
+                    curs.setPosition(pos+1,QTextCursor::KeepAnchor);
+                    if((curs.selectedText()=="\t")||(curs.selectedText()==" ")) {
+                        pos++;
+                        curs.setPosition(pos);
+                    }
+                    else break;
+                }
+                curs.setPosition(pos);
+                curs.movePosition(QTextCursor::EndOfBlock,QTextCursor::KeepAnchor);
+                setTextCursor(curs);
+                QPlainTextEdit::keyPressEvent(e);
+                curs.setPosition(startPos);
+                setTextCursor(curs);
+            }
+        }else QPlainTextEdit::keyPressEvent(e);
+        break;
+    case Qt::Key_X:
+        if(QApplication::keyboardModifiers().testFlag(Qt::ControlModifier)) {
+            QTextCursor curs = textCursor();
+            if(curs.hasSelection()) QPlainTextEdit::keyPressEvent(e);
+            else {
+                curs.movePosition(QTextCursor::StartOfBlock);
+                int pos = curs.position();
+                forever{
+                    curs.setPosition(pos+1,QTextCursor::KeepAnchor);
+                    if((curs.selectedText()=="\t")||(curs.selectedText()==" ")) {
+                        pos++;
+                        curs.setPosition(pos);
+                    }
+                    else break;
+                }
+                curs.setPosition(pos);
+                curs.movePosition(QTextCursor::EndOfBlock,QTextCursor::KeepAnchor);
+                setTextCursor(curs);
+                QPlainTextEdit::keyPressEvent(e);
+            }
+        }else QPlainTextEdit::keyPressEvent(e);
+        break;
     case Qt::Key_Insert:
         setOverwriteMode(!overwriteMode());
         break;
@@ -285,8 +332,9 @@ void CodeEditor::keyPressEvent(QKeyEvent *e)
         {
         // выделение с фильтрацией табуляции и пробелов в начале строки
             QTextCursor curs = textCursor();
-            if(!curs.hasSelection())  {
-                if(QApplication::keyboardModifiers().testFlag(Qt::ShiftModifier)) {
+            if(QApplication::keyboardModifiers().testFlag(Qt::ShiftModifier)) {
+                if(!curs.hasSelection())  {
+
                     int startPos = curs.position();
                     curs.movePosition(QTextCursor::StartOfBlock);
                     int pos = curs.position();
@@ -299,11 +347,54 @@ void CodeEditor::keyPressEvent(QKeyEvent *e)
                         else break;
                     }
                     if(pos<startPos) {
-                        curs.setPosition(pos);
-                        curs.setPosition(startPos,QTextCursor::KeepAnchor);
+                        curs.setPosition(startPos);
+                        curs.setPosition(pos,QTextCursor::KeepAnchor);
                     }else curs.setPosition(startPos);
                     setTextCursor(curs);
-                }else QPlainTextEdit::keyPressEvent(e);
+                }else {
+                    bool startOfBlock = false;
+                    QTextCursor startCurs = curs;
+                    startCurs.movePosition(QTextCursor::StartOfBlock);
+                    if(startCurs.position()==curs.position()) startOfBlock=true;
+                    if(startOfBlock) {
+                        int pos = startCurs.position();
+                        forever{
+                            startCurs.setPosition(pos+1,QTextCursor::KeepAnchor);
+                            if((startCurs.selectedText()=="\t")||(startCurs.selectedText()==" ")) {
+                                pos++;
+                                startCurs.setPosition(pos);
+                                curs.movePosition(QTextCursor::Right,QTextCursor::KeepAnchor);
+                            }
+                            else break;
+                        }
+                    }else {
+                        curs.movePosition(QTextCursor::StartOfBlock,QTextCursor::KeepAnchor);
+                    }
+                    setTextCursor(curs);
+                }
+            }else {
+                bool startOfBlock = false;
+                QTextCursor startCurs = curs;
+                startCurs.movePosition(QTextCursor::StartOfBlock);
+                if(startCurs.position()==curs.position()) startOfBlock=true;
+
+                int pos = startCurs.position();
+                forever{
+                    startCurs.setPosition(pos+1,QTextCursor::KeepAnchor);
+                    if((startCurs.selectedText()=="\t")||(startCurs.selectedText()==" ")) {
+                        pos++;
+                        startCurs.setPosition(pos);
+                    }
+                    else break;
+                }
+
+                if(startOfBlock) {
+                    curs.setPosition(pos);
+                }else {
+                    if(curs.position()==pos) curs.movePosition(QTextCursor::StartOfBlock);
+                    else curs.setPosition(pos);
+                }
+                setTextCursor(curs);
             }
         }
         break;

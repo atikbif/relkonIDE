@@ -659,7 +659,7 @@
       <enum>QTabWidget::Triangular</enum>
      </property>
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <property name="documentMode">
       <bool>false</bool>
@@ -675,7 +675,57 @@
        <string>Переменные</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout">
-       <item row="0" column="0" rowspan="2">
+       <item row="0" column="3" rowspan="3" colspan="3">
+        <widget class="QTreeWidget" name="treeWidgetWatch">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+           <horstretch>5</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="sortingEnabled">
+          <bool>false</bool>
+         </property>
+         <column>
+          <property name="text">
+           <string>имя</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>значение</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>значение HEX</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>адрес</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>тип</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>комментарий</string>
+          </property>
+         </column>
+        </widget>
+       </item>
+       <item row="3" column="5">
+        <widget class="QPushButton" name="pushButtonDown">
+         <property name="text">
+          <string>Опустить</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0" rowspan="4" colspan="2">
         <widget class="QTreeWidget" name="treeWidgetMain">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -712,54 +762,18 @@
          </column>
         </widget>
        </item>
-       <item row="2" column="0">
+       <item row="3" column="4">
+        <widget class="QPushButton" name="pushButtonUp">
+         <property name="text">
+          <string>Поднять</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="3">
         <widget class="QPushButton" name="pushButtonClear">
          <property name="text">
           <string>Очистить список</string>
          </property>
-        </widget>
-       </item>
-       <item row="0" column="3" rowspan="3">
-        <widget class="QTreeWidget" name="treeWidgetWatch">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-           <horstretch>5</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="sortingEnabled">
-          <bool>true</bool>
-         </property>
-         <column>
-          <property name="text">
-           <string>имя</string>
-          </property>
-         </column>
-         <column>
-          <property name="text">
-           <string>значение</string>
-          </property>
-         </column>
-         <column>
-          <property name="text">
-           <string>время</string>
-          </property>
-         </column>
-         <column>
-          <property name="text">
-           <string>адрес</string>
-          </property>
-         </column>
-         <column>
-          <property name="text">
-           <string>тип</string>
-          </property>
-         </column>
-         <column>
-          <property name="text">
-           <string>комментарий</string>
-          </property>
-         </column>
         </widget>
        </item>
       </layout>
@@ -822,6 +836,13 @@
        <string>память</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_7">
+       <item row="0" column="3">
+        <widget class="QLabel" name="label_8">
+         <property name="text">
+          <string>кол-во байт:</string>
+         </property>
+        </widget>
+       </item>
        <item row="0" column="0">
         <widget class="QComboBox" name="comboBoxMemType">
          <item>
@@ -843,6 +864,19 @@
          </property>
         </widget>
        </item>
+       <item row="0" column="5">
+        <spacer name="horizontalSpacer">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>668</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
        <item row="0" column="2">
         <widget class="QLineEdit" name="lineEditMemStartAddr">
          <property name="sizePolicy">
@@ -856,21 +890,18 @@
          </property>
         </widget>
        </item>
-       <item row="0" column="3">
-        <spacer name="horizontalSpacer">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>668</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="1" column="0" colspan="4">
+       <item row="1" column="0" colspan="6">
         <widget class="QTableWidget" name="tableWidgetMem"/>
+       </item>
+       <item row="0" column="4">
+        <widget class="QSpinBox" name="spinBoxByteCnt">
+         <property name="minimum">
+          <number>1</number>
+         </property>
+         <property name="maximum">
+          <number>256</number>
+         </property>
+        </widget>
        </item>
       </layout>
      </widget>

@@ -234,12 +234,31 @@ void DebuggerForm::newPLCType(const QString &value)
 
 void DebuggerForm::clearMemViewTable()
 {
+    ui->tableWidgetMem->clear();
     disconnect(ui->tableWidgetMem,SIGNAL(cellChanged(int,int)),this,SLOT(memViewCellPressed(int,int)));
     for(int r=0;r<memViewRowCount;r++) {
         for(int c=0;c<memViewColumnCount;c++) {
             ui->tableWidgetMem->setItem(r,c,new QTableWidgetItem("   "));
         }
     }
+    QStringList hHeader;
+    for(int i=0;i<memViewColumnCount;i++) {
+        QString offset = QString::number((memStartAddr + i)%16,16);
+        if(offset.length()<2) offset="0"+offset;
+        offset="0x"+offset;
+        hHeader << offset;
+    }
+    QStringList vHeader;
+    int addr = memStartAddr;
+    for(int i=0;i<memViewRowCount;i++) {
+        QString offset = QString::number(addr,16);
+        if(offset.length()<2) offset="0"+offset;
+        offset="0x"+offset;
+        vHeader << offset;
+        addr+=memViewColumnCount;
+    }
+    ui->tableWidgetMem->setHorizontalHeaderLabels(hHeader);
+    ui->tableWidgetMem->setVerticalHeaderLabels(vHeader);
     ui->tableWidgetMem->resizeColumnsToContents();
     connect(ui->tableWidgetMem,SIGNAL(cellChanged(int,int)),this,SLOT(memViewCellPressed(int,int)));
 }
@@ -254,7 +273,7 @@ void DebuggerForm::updateMemViewRequests()
     int addr = startAddr.toInt(&convRes,16);
     clearMemViewTable();
     if(convRes) {
-        int maxAddr = addr + memViewColumnCount*memViewRowCount;
+        int maxAddr = addr + memLength;
         QString memType;
         if(memView->getMemType()==MemViewDescription::FRAM) {
             memType = MemStorage::framMemName;
@@ -336,7 +355,8 @@ void DebuggerForm::treeBuilder(const QString &varID, QTreeWidgetItem &item)
 }
 
 DebuggerForm::DebuggerForm(VarsCreator &vCr, QWidget *parent) :
-    QWidget(parent), varOwner(vCr), lastOpenInpFile(""),
+    QWidget(parent), varOwner(vCr), lastOpenInpFile(""),memStartAddr(0),memLength(64),
+    startCheckTmr(0),
     ui(new Ui::DebuggerForm)
 {
     plcType = "PC365C";
@@ -354,6 +374,7 @@ DebuggerForm::DebuggerForm(VarsCreator &vCr, QWidget *parent) :
     scan = new ScanManager(&memStor,this);
     connect(scan,SIGNAL(updateAnswerCnt(int,bool)),this,SLOT(updateCorrErrAnswerCount(int,bool)));
     connect(scan,SIGNAL(addMessage(QString)),this,SLOT(getMessageFromDebugProcess(QString)));
+    connect(scan,SIGNAL(errMessage(QString)),this,SLOT(getErrMessageFromDebugProcess(QString)));
     connect(scan,SIGNAL(updateTimeStr(QString)),this,SLOT(getTimeStr(QString)));
     ui->lcdNumberCorrect->setDigitCount(8);
     ui->lcdNumberError->setDigitCount(8);
@@ -376,6 +397,9 @@ DebuggerForm::DebuggerForm(VarsCreator &vCr, QWidget *parent) :
     connect(quick,SIGNAL(quickInfoRequest()),this,SLOT(getQuickWatchInfo()));
     connect(this,SIGNAL(quickInfo(QStringList,QStringList)),quick,SLOT(quickInfo(QStringList,QStringList)));
     connect(quick,SIGNAL(closeWatch()),this,SLOT(closeQuickWatchWindow()));
+
+    ui->spinBoxByteCnt->setValue(memLength);
+    ui->lineEditMemStartAddr->setText("0x"+QString::number(memStartAddr,16));
 }
 
 DebuggerForm::~DebuggerForm()
@@ -497,6 +521,7 @@ void DebuggerForm::on_startButton_clicked()
     ui->startButton->setEnabled(false);
 
     scan->setScheduler(&scheduler);
+    startCheckTmr=0;
     scan->startDebugger();
 }
 
@@ -536,8 +561,18 @@ void DebuggerForm::updateMemory(QStringList ids)
 
 void DebuggerForm::updateCorrErrAnswerCount(int cnt, bool correctFlag)
 {
-    if(correctFlag) ui->lcdNumberCorrect->display(cnt);
-    else ui->lcdNumberError->display(cnt);
+
+    if(correctFlag) {
+        ui->lcdNumberCorrect->display(cnt);
+        startCheckTmr=0;
+    }
+    else {
+        ui->lcdNumberError->display(cnt);
+        startCheckTmr++;
+        if(startCheckTmr==10) {
+            QMessageBox::warning(this,"","Контроллер не обнаружен.");
+        }
+    }
 }
 
 void DebuggerForm::getMessageFromDebugProcess(QString message)
@@ -554,6 +589,11 @@ void DebuggerForm::getMessageFromDebugProcess(QString message)
         if(!str.isEmpty()) txt+=str+"\n";
     }
     ui->textBrowserRequests->setText(txt);
+}
+
+void DebuggerForm::getErrMessageFromDebugProcess(QString message)
+{
+    QMessageBox::warning(this,"",message);
 }
 
 void DebuggerForm::getTimeStr(QString timeStr)
@@ -877,7 +917,15 @@ void DebuggerForm::updateVarGUI(const QString &id)
                 var.setValue(value);
                 varOwner.updateVarByID(id,var);
                 item->setText(1,VarBytesValueConverter::getValue(var,data));
-                item->setText(2,QDateTime::currentDateTime().time().toString());
+                QString hexFormat="0x";
+                for(int i=varSize-1;i>=0;i--) {
+                    int v = (quint8)data.at(i);
+                    QString vStr = QString::number(v,16);
+                    if(vStr.length()<2) vStr="0"+vStr;
+                    hexFormat+=vStr;
+                }
+                item->setText(2,hexFormat);
+                item->setToolTip(1,QDateTime::currentDateTime().time().toString());
             }
         }
     }
@@ -899,7 +947,7 @@ void DebuggerForm::updateMemVarGUI(const QString &id)
     int startAddr = ui->lineEditMemStartAddr->text().toInt(&res,16);
     if(res) {
         int tabLastAddress = startAddr + memViewRowCount*memViewColumnCount - 1;
-        if((curAddr>=startAddr)&&(curAddr<=tabLastAddress)) {
+        if((curAddr>=startAddr)&&(curAddr<startAddr+memLength)&&(curAddr<=tabLastAddress)) {
             if(memView->checkAddress(curAddr)) {
                 int num = curAddr - startAddr;
                 int row = num/memViewColumnCount;
@@ -956,18 +1004,20 @@ void DebuggerForm::memViewCellPressed(int r, int c)
         int startAddr = ui->lineEditMemStartAddr->text().toInt(&res,16);
         if(res) {
             int curAddr = startAddr + r*memViewColumnCount + c;
-            QString memType;
-            if(memView->getMemType()==MemViewDescription::FRAM) memType = MemStorage::framMemName;
-            if(memView->getMemType()==MemViewDescription::RAM) memType = MemStorage::ramMemName;
-            int value = item->text().toInt();
-            VarItem var;
-            var.setDataType(VarItem::ucharType);
-            var.setMemType(memType);
-            var.setMemAddress(curAddr);
-            var.setValue(QString::number(value));
-            scheduler.addWriteOperation(var);
-            ui->treeWidgetWatch->setFocus();
-        }
+            if((curAddr>=startAddr)&&(curAddr<startAddr+memLength)) {
+                QString memType;
+                if(memView->getMemType()==MemViewDescription::FRAM) memType = MemStorage::framMemName;
+                if(memView->getMemType()==MemViewDescription::RAM) memType = MemStorage::ramMemName;
+                int value = item->text().toInt();
+                VarItem var;
+                var.setDataType(VarItem::ucharType);
+                var.setMemType(memType);
+                var.setMemAddress(curAddr);
+                var.setValue(QString::number(value));
+                scheduler.addWriteOperation(var);
+                ui->treeWidgetWatch->setFocus();
+            }else item->setText("");
+        }else item->setText("");
 
     }
 }
@@ -1198,10 +1248,14 @@ void DebuggerForm::adc8bitChanged()
 void DebuggerForm::getQuickWatchInfo()
 {
     QStringList names,values;
-    foreach (QTreeWidgetItem* item, idActiveWidgetItem.values()) {
+    for(int i=0;i<ui->treeWidgetWatch->topLevelItemCount();i++) {
+        names += ui->treeWidgetWatch->topLevelItem(i)->text(0);
+        values += ui->treeWidgetWatch->topLevelItem(i)->text(1);
+    }
+    /*foreach (QTreeWidgetItem* item, idActiveWidgetItem.values()) {
         names += item->text(0);
         values += item->text(1);
-    }
+    }*/
     emit quickInfo(names, values);
 }
 
@@ -1466,8 +1520,10 @@ void DebuggerForm::on_lineEditTime_returnPressed()
 
 void DebuggerForm::on_lineEditMemStartAddr_textChanged(const QString &arg1)
 {
-    Q_UNUSED(arg1)
     updateMemViewRequests();
+    bool convRes = false;
+    int addr = arg1.toInt(&convRes,16);
+    memStartAddr = addr;
     clearMemViewTable();
 }
 
@@ -1511,5 +1567,37 @@ void DebuggerForm::on_pushButtonClear_clicked()
             QTreeWidgetItem *item = ui->treeWidgetWatch->topLevelItem(0);
             on_treeWidgetWatch_itemDoubleClicked(item,2);
         }
+    }
+}
+
+void DebuggerForm::on_spinBoxByteCnt_valueChanged(int arg1)
+{
+    memLength = arg1;
+    updateMemViewRequests();
+}
+
+void DebuggerForm::on_pushButtonUp_clicked()
+{
+    QTreeWidgetItem* item = ui->treeWidgetWatch->currentItem();
+    int row  = ui->treeWidgetWatch->currentIndex().row();
+    if (item && row > 0)
+    {
+        int index = ui->treeWidgetWatch->indexOfTopLevelItem(item);
+        QTreeWidgetItem* child = ui->treeWidgetWatch->takeTopLevelItem(index);
+        ui->treeWidgetWatch->insertTopLevelItem(index-1,child);
+        ui->treeWidgetWatch->setCurrentItem(child);
+    }
+}
+
+void DebuggerForm::on_pushButtonDown_clicked()
+{
+    QTreeWidgetItem* item = ui->treeWidgetWatch->currentItem();
+    int row  = ui->treeWidgetWatch->currentIndex().row();
+    if (item && row >= 0 && row < ui->treeWidgetWatch->topLevelItemCount()-1)
+    {
+        int index = ui->treeWidgetWatch->indexOfTopLevelItem(item);
+        QTreeWidgetItem* child = ui->treeWidgetWatch->takeTopLevelItem(index);
+        ui->treeWidgetWatch->insertTopLevelItem(index+1,child);
+        ui->treeWidgetWatch->setCurrentItem(child);
     }
 }

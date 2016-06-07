@@ -54,7 +54,7 @@ void VarWatcherManager::quickInfo(QStringList names, QStringList values)
         table->setItem(i,0,itemName);
         table->setItem(i,1,itemValue);
     }
-    table->sortItems(0);
+    //table->sortItems(0);
     table->resizeColumnsToContents();
     table->setEnabled(true);
 }

@@ -29,8 +29,8 @@ class DebuggerForm : public QWidget
 {
     Q_OBJECT
 
-    static const unsigned char memViewRowCount = 15;
-    static const unsigned char memViewColumnCount = 30;
+    static const unsigned char memViewRowCount = 20;
+    static const unsigned char memViewColumnCount = 16;
     MemViewDescription *memView;
 
     VarsCreator& varOwner;
@@ -50,8 +50,11 @@ class DebuggerForm : public QWidget
     QVector<QGroupBox*> ioBoxes;
     VarWatcherManager* quick;
     QString plcType;
+    int memStartAddr;
+    int memLength;
+    int startCheckTmr=0;    // счётчик для вывода сообщения о неподключенном контроллере при старте
 
-    void clearMemViewTable(void);
+    void clearMemViewTable();
     void updateMemViewRequests(void);   // формирование очереди запросов планировщика для просмотра памяти
     void createTree();  // построение дерева переменных проекта
     void treeBuilder(const QString& varID, QTreeWidgetItem &item);// построение дерева с узла/переменной с идентификатором varID
@@ -102,6 +105,7 @@ private slots:
     void updateMemory(QStringList ids); // вызывается хранилищем памяти для обновления значений переменных
     void updateCorrErrAnswerCount(int cnt, bool correctFlag);   // обновление счётчиков корректного и ошибочного опроса
     void getMessageFromDebugProcess(QString message);   // вывести текстовое сообщение в лог
+    void getErrMessageFromDebugProcess(QString message);   // вывести сообщение об ошибке в окно
     void getTimeStr(QString timeStr);   // обновить время ПЛК (GUI отображение)
 
     void inOutClicked();    // команда на запись дискретного входа/выхода
@@ -115,6 +119,12 @@ private slots:
     void closeQuickWatchWindow();
 
     void on_pushButtonClear_clicked();
+
+    void on_spinBoxByteCnt_valueChanged(int arg1);
+
+    void on_pushButtonUp_clicked();
+
+    void on_pushButtonDown_clicked();
 
 signals:
     void quickInfo(QStringList names, QStringList values);

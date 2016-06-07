@@ -26,6 +26,7 @@ class PLCScanner : public QObject
     void startReq(QIODevice &port);   // системные запросы, не зависящие от планировщика (время ПЛК)
     static const int sysReqPeriod = 10; // периодичность включения системных запросов
     bool isUdp;
+    bool portOpenError;
 public:
     explicit PLCScanner(QObject *parent = 0);
     ~PLCScanner();
@@ -40,6 +41,7 @@ signals:
     updateCorrectRequestCnt(int cnt);
     updateErrorRequestCnt(int cnt);
     addMessage(QString message);    // добавить сообщение в лог
+    errMessage(QString message);
     updateTimeStr(QString timeStr); // обновить текущее время ПЛК
 public slots:
     void scanProcess(void); // рабочий процесс

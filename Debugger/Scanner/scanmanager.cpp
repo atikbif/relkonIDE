@@ -10,6 +10,7 @@ ScanManager::ScanManager(MemStorage *memStor, QObject *parent) : QObject(parent)
     connect(scanner,SIGNAL(updateCorrectRequestCnt(int)),this,SLOT(updCorrAnswerCnt(int)));
     connect(scanner,SIGNAL(updateErrorRequestCnt(int)),this,SLOT(updErrAnswerCnt(int)));
     connect(scanner,SIGNAL(addMessage(QString)),this,SIGNAL(addMessage(QString)));
+    connect(scanner,SIGNAL(errMessage(QString)),this,SIGNAL(errMessage(QString)));
     connect(scanner,SIGNAL(updateTimeStr(QString)),this,SIGNAL(updateTimeStr(QString)));
     scanThread.start();
     emit startProcess();
