@@ -140,6 +140,8 @@ public:
     bool createXML(void);   // формирование выходного XML файла
     // поиск адресов переменных, в которых хранятся номера тек. ситуаций процессов
     static bool readSitNum(QVector<int> &addr, QVector<int> &prNum);
+    static bool readDisplVars(QStringList &names, QVector<int> &addr, QStringList &types);
+    static bool readExchangeBufs(QStringList &names, QVector<int> &addr);
     ~VarParser();
 };
 

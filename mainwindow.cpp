@@ -508,7 +508,7 @@ void MainWindow::createDebugger()
     addDockWidget(Qt::RightDockWidgetArea, dockDebugger);
     //ui->mainToolBar->addAction(dockDebugger->toggleViewAction());
     ui->menuView->addAction(dockDebugger->toggleViewAction());
-    ui->mainToolBar->addAction(dockDebugger->toggleViewAction());
+    //ui->mainToolBar->addAction(dockDebugger->toggleViewAction());
     connect(dockDebugger->toggleViewAction(),SIGNAL(triggered(bool)),this,SLOT(toggleDebugger()));
     dockDebugger->close();
 }
@@ -527,7 +527,7 @@ void MainWindow::createDisplay()
     dockDisplay->setWidget(lcd);
     addDockWidget(Qt::RightDockWidgetArea, dockDisplay);
     ui->menuView->addAction(dockDisplay->toggleViewAction());
-    ui->mainToolBar->addAction(dockDisplay->toggleViewAction());
+    //ui->mainToolBar->addAction(dockDisplay->toggleViewAction());
     connect(dockDisplay->toggleViewAction(),SIGNAL(triggered(bool)),this,SLOT(togglePult()));
     dockDisplay->close();
 }
@@ -631,7 +631,7 @@ MainWindow::MainWindow(QWidget *parent) :
     dockSettings->setWidget(settings);
     addDockWidget(Qt::RightDockWidgetArea, dockSettings);
     ui->menuView->addAction(dockSettings->toggleViewAction());
-    ui->mainToolBar->addAction(dockSettings->toggleViewAction());
+    //ui->mainToolBar->addAction(dockSettings->toggleViewAction());
     dockSettings->close();
     connect(dockSettings->toggleViewAction(),SIGNAL(triggered(bool)),this,SLOT(toggleSettings()));
 

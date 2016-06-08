@@ -44,7 +44,8 @@ void DebuggerForm::saveView()
         xmlWriter.writeStartElement("Debugger");
         // сохранение переменных из дерева просмотра
         xmlWriter.writeStartElement("VarView");
-        QList<QTreeWidgetItem*> actItems = idActiveWidgetItem.values();
+        QList<QTreeWidgetItem*> actItems;// = idActiveWidgetItem.values();
+        for(int i=0;i<ui->treeWidgetWatch->topLevelItemCount();i++) actItems.append(ui->treeWidgetWatch->topLevelItem(i));
         for(int i=0;i<actItems.count();i++) {
             QString curId = idActiveWidgetItem.key(actItems.at(i));
             QString curFullName = actItems.at(i)->toolTip(0);

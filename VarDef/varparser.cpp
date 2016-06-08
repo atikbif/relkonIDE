@@ -577,6 +577,84 @@ bool VarParser::readSitNum(QVector<int> &addr, QVector<int> &prNum)
     return true;
 }
 
+bool VarParser::readDisplVars(QStringList &names, QVector<int> &addr, QStringList &types)
+{
+    QString fName = PathStorage::getMapFileFullName();
+    QFile file(fName);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+            return false;
+    QTextStream in(&file);
+
+    while (!in.atEnd()) {
+       QString line = in.readLine();
+       if(line.contains("OBJECT")) {
+           QStringList fields = line.split(QRegExp("[\\s\\t]+"));
+           fields.removeFirst();
+           if(fields.count()==8) {
+               bool convRes = false;
+               int varAddress = fields[1].toInt(&convRes,16);
+               if(convRes) {
+                   QString vName = fields.last();
+                   if((vName=="key")||(vName=="led")) {
+                       names += vName;
+                       addr += varAddress - 0x20000000;
+                       types += VarItem::ucharType;
+                   }
+                   if(vName=="_Sys") {
+                       names+="st1";
+                       addr+=varAddress - 0x20000000 + 1288;
+                       types+=VarItem::uintType;
+                       names+="st2";
+                       addr+=varAddress - 0x20000000 + 1292;
+                       types+=VarItem::uintType;
+                       names+="st3";
+                       addr+=varAddress - 0x20000000 + 1296;
+                       types+=VarItem::uintType;
+                       names+="st4";
+                       addr+=varAddress - 0x20000000 + 1300;
+                       types+=VarItem::uintType;
+                   }
+               }
+           }
+       }
+    }
+    file.close();
+    return true;
+}
+
+bool VarParser::readExchangeBufs(QStringList &names, QVector<int> &addr)
+{
+    QString fName = PathStorage::getMapFileFullName();
+    QFile file(fName);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+            return false;
+    QTextStream in(&file);
+
+    while (!in.atEnd()) {
+       QString line = in.readLine();
+       if(line.contains("OBJECT")) {
+           QStringList fields = line.split(QRegExp("[\\s\\t]+"));
+           fields.removeFirst();
+           if(fields.count()==8) {
+               bool convRes = false;
+               int varAddress = fields[1].toInt(&convRes,16);
+               if(convRes) {
+                   QString vName = fields.last();
+                   if((vName=="TX")||(vName=="RX")) {
+                       names += vName;
+                       addr += varAddress - 0x20000000;
+                   }else if(vName.contains(QRegExp("\\b[TR]X_[1-8]\\b"))) {
+                       names+=vName;
+                       addr+=varAddress - 0x20000000;
+                   }
+               }
+           }
+       }
+    }
+    file.close();
+    return true;
+}
+
 VarParser::~VarParser()
 {
     for(int i=0;i<fundTypes.count();i++) {

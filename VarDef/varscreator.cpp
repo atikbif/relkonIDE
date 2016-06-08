@@ -84,6 +84,8 @@ void VarsCreator::createSysVars(CompositeVar* parent)
     addFactorySettings(parent);
     addDispVar(parent);
     addSituationNum(parent);
+    addDisplVars(parent);
+    addExchangeBufs(parent);
     addTimeVars(parent);
 }
 
@@ -302,7 +304,7 @@ void VarsCreator::addAnalogOutputs(CompositeVar *parent)
 void VarsCreator::addFactorySettings(CompositeVar *parent)
 {
     CompositeVar* fsVar = new CompositeVar();
-    fsVar->setName("Settings");
+    fsVar->setName("EE");
 
     CompositeVar* charVar = new CompositeVar();
     charVar->setName("char");
@@ -433,6 +435,59 @@ void VarsCreator::addSituationNum(CompositeVar *parent)
             }
         parent->addChild(*sitVar);
         ids.addVar(sitVar);
+    }
+}
+
+void VarsCreator::addDisplVars(CompositeVar *parent)
+{
+    QStringList varNames;
+    QVector<int> varAddr;
+    QStringList varTypes;
+    if(VarParser::readDisplVars(varNames,varAddr,varTypes)) {
+        CompositeVar* displVar = new CompositeVar();
+        displVar->setName("LCD");
+            for(int i=0;i<varNames.count();i++) {
+                CompositeVar* var = new CompositeVar();
+                var->setName(varNames.at(i));
+                var->setDataType(varTypes.at(i));
+                var->setMemAddress(varAddr.at(i));
+                var->setMemType("RAM");
+                var->setEditable(false);
+                displVar->addChild(*var);
+                ids.addVar(var);
+            }
+        parent->addChild(*displVar);
+        ids.addVar(displVar);
+    }
+}
+
+void VarsCreator::addExchangeBufs(CompositeVar *parent)
+{
+    QStringList varNames;
+    QVector<int> varAddr;
+    if(VarParser::readExchangeBufs(varNames,varAddr)) {
+        CompositeVar* exVar = new CompositeVar();
+        exVar->setName("SWAP");
+            for(int i=0;i<varNames.count();i++) {
+                CompositeVar* var = new CompositeVar();
+                var->setName(varNames.at(i));
+                var->setDataType("массив");
+
+                for(int j=0;j<64;j++) {
+                    CompositeVar* v = new CompositeVar();
+                    v->setName(QString::number(j));
+                    v->setDataType(VarItem::ucharType);
+                    v->setMemType("RAM");
+                    v->setMemAddress(varAddr.at(i)+j);
+                    var->addChild(*v);
+                    ids.addVar(v);
+                }
+
+                exVar->addChild(*var);
+                ids.addVar(var);
+            }
+        parent->addChild(*exVar);
+        ids.addVar(exVar);
     }
 }
 
