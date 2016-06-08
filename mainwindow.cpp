@@ -670,6 +670,12 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(timer, SIGNAL(timeout()), this, SLOT(cleanBackFiles()));
     timer->start(600000); // каждые 10 минут удалять ненужные back файлы
     //connect(editor,SIGNAL(textChanged()),this,SLOT(prWasChanged()));
+
+    QStringList args = QCoreApplication::arguments();
+    if(args.count()>=2) {
+        QString fName = args.at(1);
+        openFileByName(fName);
+    }
 }
 
 MainWindow::~MainWindow()

@@ -1047,6 +1047,7 @@ void DebuggerForm::on_pushButtonAutoSearch_clicked()
             if(plc->getAsciiMode()) protocol = "ASCII";
             ui->comboBoxProtocol->setCurrentText(protocol);
             ui->lineEditCanal->setText(plc->getCanName());
+            ui->spinBoxNetAddress->setValue(plc->getNetAddress());
         }
     }
 }
@@ -1580,12 +1581,17 @@ void DebuggerForm::on_spinBoxByteCnt_valueChanged(int arg1)
 void DebuggerForm::on_pushButtonUp_clicked()
 {
     QTreeWidgetItem* item = ui->treeWidgetWatch->currentItem();
+
     int row  = ui->treeWidgetWatch->currentIndex().row();
     if (item && row > 0)
     {
+        QString comment;
+        QLineEdit *ed = dynamic_cast<QLineEdit*>(ui->treeWidgetWatch->itemWidget(item,5));
+        if(ed!=nullptr) comment = ed->text();
         int index = ui->treeWidgetWatch->indexOfTopLevelItem(item);
         QTreeWidgetItem* child = ui->treeWidgetWatch->takeTopLevelItem(index);
         ui->treeWidgetWatch->insertTopLevelItem(index-1,child);
+        ui->treeWidgetWatch->setItemWidget(child,5,new QLineEdit(comment,ui->treeWidgetWatch));
         ui->treeWidgetWatch->setCurrentItem(child);
     }
 }
@@ -1596,9 +1602,104 @@ void DebuggerForm::on_pushButtonDown_clicked()
     int row  = ui->treeWidgetWatch->currentIndex().row();
     if (item && row >= 0 && row < ui->treeWidgetWatch->topLevelItemCount()-1)
     {
+        QString comment;
+        QLineEdit *ed = dynamic_cast<QLineEdit*>(ui->treeWidgetWatch->itemWidget(item,5));
+        if(ed!=nullptr) comment = ed->text();
         int index = ui->treeWidgetWatch->indexOfTopLevelItem(item);
         QTreeWidgetItem* child = ui->treeWidgetWatch->takeTopLevelItem(index);
         ui->treeWidgetWatch->insertTopLevelItem(index+1,child);
+        ui->treeWidgetWatch->setItemWidget(child,5,new QLineEdit(comment,ui->treeWidgetWatch));
         ui->treeWidgetWatch->setCurrentItem(child);
+    }
+}
+
+void DebuggerForm::on_pushButtonSaveVars_clicked()
+{
+    QString  konFileName = PathStorage::getKonFileFullName();
+    QString path = QFileInfo(konFileName).absoluteDir().absolutePath();
+    QString fName;
+    fName = QFileDialog::getSaveFileName(this, tr("Сохранение списка переменных"),
+                                                    path,
+                                                    tr("Debug variables file (*.var )"));
+    if(!fName.isEmpty()) {
+        QFile file(fName);
+        if (file.open(QIODevice::WriteOnly)) {
+            QDataStream stream(&file);
+            stream.setVersion(QDataStream::Qt_5_4);
+            stream << ui->treeWidgetWatch->topLevelItemCount();   // количество переменных в окне просмотра
+            for(int i=0;i<ui->treeWidgetWatch->topLevelItemCount();i++) {
+                QTreeWidgetItem *item = ui->treeWidgetWatch->topLevelItem(i);
+                QString id = idActiveWidgetItem.key(item);
+                VarItem var = varOwner.getVarByID(id);
+                stream << item->toolTip(0);
+                bool bitVar = (var.getBitNum()>=0)?true:false;
+                stream << bitVar;
+                QString vValue = item->text(1);
+                stream << vValue;
+                QString vComment;
+                QLineEdit *ed = dynamic_cast<QLineEdit*>(ui->treeWidgetWatch->itemWidget(item,5));
+                if(ed!=nullptr) vComment = ed->text();
+                stream << vComment;
+            }
+            file.close();
+        }else QMessageBox::warning(this,"Предупреждение","Не удалось сохранить файл");
+    }
+}
+
+void DebuggerForm::on_pushButtonLoadVars_clicked()
+{
+    if(!scan->isWorking()) {
+        QMessageBox::information(this,"сообщение","Необходимо предварительно запустить отладчик");
+    }else {
+        QString  konFileName = PathStorage::getKonFileFullName();
+        QString path = QFileInfo(konFileName).absoluteDir().absolutePath();
+        QString fName;
+        fName = QFileDialog::getOpenFileName(this, tr("Загрузить список переменных"),
+                                                        path,
+                                                        tr("Debug variables file (*.var )"));
+        if(!fName.isEmpty()) {
+            QFile file(fName);
+            if (file.open(QIODevice::ReadOnly)) {
+                while(ui->treeWidgetWatch->topLevelItemCount()) {
+                    QTreeWidgetItem *item = ui->treeWidgetWatch->topLevelItem(0);
+                    on_treeWidgetWatch_itemDoubleClicked(item,2);
+                }
+                QDataStream stream(&file);
+                stream.setVersion(QDataStream::Qt_5_4);
+                int vCnt = 0;
+                stream >> vCnt;
+                if(stream.status()==QDataStream::Ok) {
+                    QHash<QString,QString> fullNames;
+                    foreach (QTreeWidgetItem* item, idWidgetItem.values()) {
+                       QString fName = item->toolTip(0);
+                       fullNames.insert(fName,idWidgetItem.key(item));
+                    }
+                    for(int i=0;i<vCnt;i++) {
+                        QString fullName;
+                        stream >> fullName;
+                        bool bitVar;
+                        stream >> bitVar;
+                        QString vValue;
+                        stream >> vValue;
+                        QString vComment;
+                        stream >> vComment;
+                        if((bitVar==false)&&(!vValue.isEmpty())) {
+                            QString newId = fullNames.value(fullName);
+                            if(!newId.isEmpty()) {
+                                on_treeWidgetMain_itemDoubleClicked(idWidgetItem.value(newId),0);
+                                QTreeWidgetItem *item = idActiveWidgetItem.value(newId);
+                                if(item!=nullptr) {
+                                    ui->treeWidgetWatch->setItemWidget(item,5,new QLineEdit(vComment,ui->treeWidgetWatch));
+                                }
+                                VarItem var = varOwner.getVarByID(newId);
+                                var.setValue(vValue);
+                                scheduler.addWriteOperation(var);
+                            }
+                        }
+                    }
+                }
+                file.close();
+            }else QMessageBox::warning(this,"Предупреждение","Не удалось открыть файл");
+        }
     }
 }

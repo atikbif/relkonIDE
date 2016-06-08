@@ -119,12 +119,11 @@ private slots:
     void closeQuickWatchWindow();
 
     void on_pushButtonClear_clicked();
-
     void on_spinBoxByteCnt_valueChanged(int arg1);
-
     void on_pushButtonUp_clicked();
-
     void on_pushButtonDown_clicked();
+    void on_pushButtonSaveVars_clicked();
+    void on_pushButtonLoadVars_clicked();
 
 signals:
     void quickInfo(QStringList names, QStringList values);
