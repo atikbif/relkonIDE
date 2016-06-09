@@ -961,7 +961,13 @@ void DebuggerForm::updateMemVarGUI(const QString &id)
                         QTableWidgetItem *item = ui->tableWidgetMem->item(row,col);
                         if(item!=nullptr) {
                             disconnect(ui->tableWidgetMem,SIGNAL(cellChanged(int,int)),this,SLOT(memViewCellPressed(int,int)));
-                            item->setText(QString::number(value));
+                            if(ui->checkBoxHexMem->isChecked()) {
+                                QString vStr = QString::number(value,16);
+                                if(vStr.length()%2) vStr = "0"+vStr;
+                                vStr=vStr.toUpper();
+                                vStr="0x"+vStr;
+                                item->setText(vStr);
+                            }else item->setText(QString::number(value));
                             item->setTextColor(Qt::darkBlue);
                             connect(ui->tableWidgetMem,SIGNAL(cellChanged(int,int)),this,SLOT(memViewCellPressed(int,int)));
                         }
@@ -1009,14 +1015,24 @@ void DebuggerForm::memViewCellPressed(int r, int c)
                 QString memType;
                 if(memView->getMemType()==MemViewDescription::FRAM) memType = MemStorage::framMemName;
                 if(memView->getMemType()==MemViewDescription::RAM) memType = MemStorage::ramMemName;
-                int value = item->text().toInt();
-                VarItem var;
-                var.setDataType(VarItem::ucharType);
-                var.setMemType(memType);
-                var.setMemAddress(curAddr);
-                var.setValue(QString::number(value));
-                scheduler.addWriteOperation(var);
-                ui->treeWidgetWatch->setFocus();
+                QString vStr = item->text();
+                bool convRes = false;
+                int value = 0;
+                if(ui->checkBoxHexMem->isChecked()) {
+                    vStr.remove("0x");
+                    value = vStr.toInt(&convRes,16);
+                }else {
+                    value = vStr.toInt(&convRes);
+                }
+                if(convRes) {
+                    VarItem var;
+                    var.setDataType(VarItem::ucharType);
+                    var.setMemType(memType);
+                    var.setMemAddress(curAddr);
+                    var.setValue(QString::number(value));
+                    scheduler.addWriteOperation(var);
+                    ui->treeWidgetWatch->setFocus();
+                }
             }else item->setText("");
         }else item->setText("");
 
@@ -1700,6 +1716,47 @@ void DebuggerForm::on_pushButtonLoadVars_clicked()
                 }
                 file.close();
             }else QMessageBox::warning(this,"Предупреждение","Не удалось открыть файл");
+        }
+    }
+}
+
+void DebuggerForm::on_checkBoxHexMem_clicked()
+{
+    if(!scan->isWorking()) {
+        bool hexFl = ui->checkBoxHexMem->isChecked();
+        if(hexFl) {
+            for(int i=0;i<memViewColumnCount;i++) {
+                for(int j=0;j<memViewRowCount;j++) {
+                    QTableWidgetItem *item = ui->tableWidgetMem->item(j,i);
+                    if(item!=nullptr) {
+                        QString strVal = item->text();
+                        if((!strVal.isEmpty())&&(!strVal.contains("0x"))) {
+                            int v = strVal.toInt();
+                            strVal = QString::number(v,16);
+                            if(strVal.length()%2) strVal="0"+strVal;
+                            strVal = strVal.toUpper();
+                            strVal = "0x" + strVal;
+                            item->setText(strVal);
+                        }
+                    }
+                }
+            }
+        }else {
+            for(int i=0;i<memViewColumnCount;i++) {
+                for(int j=0;j<memViewRowCount;j++) {
+                    QTableWidgetItem *item = ui->tableWidgetMem->item(j,i);
+                    if(item!=nullptr) {
+                        QString strVal = item->text();
+                        if((!strVal.isEmpty())&&(strVal.contains("0x"))) {
+                            strVal.remove("0x");
+                            bool convRes = false;
+                            int v = strVal.toInt(&convRes,16);
+                            strVal = QString::number(v);
+                            item->setText(strVal);
+                        }
+                    }
+                }
+            }
         }
     }
 }

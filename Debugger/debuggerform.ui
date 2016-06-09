@@ -754,7 +754,7 @@
          </column>
          <column>
           <property name="text">
-           <string>значение</string>
+           <string>значение DEC</string>
           </property>
          </column>
          <column>
@@ -883,6 +883,13 @@
          </property>
         </widget>
        </item>
+       <item row="0" column="1">
+        <widget class="QLabel" name="label_3">
+         <property name="text">
+          <string>адрес:</string>
+         </property>
+        </widget>
+       </item>
        <item row="0" column="0">
         <widget class="QComboBox" name="comboBoxMemType">
          <item>
@@ -897,14 +904,7 @@
          </item>
         </widget>
        </item>
-       <item row="0" column="1">
-        <widget class="QLabel" name="label_3">
-         <property name="text">
-          <string>адрес:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="5">
+       <item row="0" column="6">
         <spacer name="horizontalSpacer">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
@@ -930,9 +930,6 @@
          </property>
         </widget>
        </item>
-       <item row="1" column="0" colspan="6">
-        <widget class="QTableWidget" name="tableWidgetMem"/>
-       </item>
        <item row="0" column="4">
         <widget class="QSpinBox" name="spinBoxByteCnt">
          <property name="minimum">
@@ -940,6 +937,19 @@
          </property>
          <property name="maximum">
           <number>256</number>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0" colspan="7">
+        <widget class="QTableWidget" name="tableWidgetMem"/>
+       </item>
+       <item row="0" column="5">
+        <widget class="QCheckBox" name="checkBoxHexMem">
+         <property name="layoutDirection">
+          <enum>Qt::RightToLeft</enum>
+         </property>
+         <property name="text">
+          <string>HEX</string>
          </property>
         </widget>
        </item>

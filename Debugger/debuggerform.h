@@ -125,6 +125,8 @@ private slots:
     void on_pushButtonSaveVars_clicked();
     void on_pushButtonLoadVars_clicked();
 
+    void on_checkBoxHexMem_clicked();
+
 signals:
     void quickInfo(QStringList names, QStringList values);
 public slots:
