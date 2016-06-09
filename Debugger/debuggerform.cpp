@@ -1723,6 +1723,7 @@ void DebuggerForm::on_pushButtonLoadVars_clicked()
 void DebuggerForm::on_checkBoxHexMem_clicked()
 {
     if(!scan->isWorking()) {
+        disconnect(ui->tableWidgetMem,SIGNAL(cellChanged(int,int)),this,SLOT(memViewCellPressed(int,int)));
         bool hexFl = ui->checkBoxHexMem->isChecked();
         if(hexFl) {
             for(int i=0;i<memViewColumnCount;i++) {
@@ -1731,11 +1732,14 @@ void DebuggerForm::on_checkBoxHexMem_clicked()
                     if(item!=nullptr) {
                         QString strVal = item->text();
                         if((!strVal.isEmpty())&&(!strVal.contains("0x"))) {
-                            int v = strVal.toInt();
-                            strVal = QString::number(v,16);
-                            if(strVal.length()%2) strVal="0"+strVal;
-                            strVal = strVal.toUpper();
-                            strVal = "0x" + strVal;
+                            bool convRes = false;
+                            int v = strVal.toInt(&convRes);
+                            if(convRes) {
+                                strVal = QString::number(v,16);
+                                if(strVal.length()%2) strVal="0"+strVal;
+                                strVal = strVal.toUpper();
+                                strVal = "0x" + strVal;
+                            }else convRes = "";
                             item->setText(strVal);
                         }
                     }
@@ -1751,12 +1755,14 @@ void DebuggerForm::on_checkBoxHexMem_clicked()
                             strVal.remove("0x");
                             bool convRes = false;
                             int v = strVal.toInt(&convRes,16);
-                            strVal = QString::number(v);
+                            if(convRes) strVal = QString::number(v);
+                            else strVal = "";
                             item->setText(strVal);
                         }
                     }
                 }
             }
         }
+        connect(ui->tableWidgetMem,SIGNAL(cellChanged(int,int)),this,SLOT(memViewCellPressed(int,int)));
     }
 }
