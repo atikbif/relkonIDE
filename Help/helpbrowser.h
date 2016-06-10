@@ -17,6 +17,7 @@ public:
 signals:
 
 public slots:
+
 };
 
 #endif // HELPBROWSER_H

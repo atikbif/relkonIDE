@@ -19,7 +19,7 @@ HelpBrowser::HelpBrowser(const QString &path, const QString &fName, QWidget *par
     connect(br,SIGNAL(backwardAvailable(bool)),pCmdBack,SLOT(setEnabled(bool)));
     connect(br,SIGNAL(forwardAvailable(bool)),pCmdForward,SLOT(setEnabled(bool)));
 
-    br->setSearchPaths(QStringList() << path);
+    br->setSearchPaths(QStringList() << path << path + "/PLC_Catalogue" << path + "/PLC_Catalogue/images");
 
     QDesktopWidget desk;
     int minHeight = desk.availableGeometry().height()*0.6;
@@ -48,4 +48,5 @@ HelpBrowser::~HelpBrowser()
 {
 
 }
+
 
