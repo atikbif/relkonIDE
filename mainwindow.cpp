@@ -34,8 +34,10 @@
 
 #include "rp6creator.h"
 #include <QTimer>
-
-
+#include <QToolButton>
+#include <QPrinter>
+#include <QPrintDialog>
+#include <QPrintPreviewDialog>
 
 
 QStringList MainWindow::getPrevProjects()
@@ -43,6 +45,11 @@ QStringList MainWindow::getPrevProjects()
     QStringList res;
     QSettings settings;//("Kontel","RIDE");
     res = settings.value("/Settings/PrevProjects",QStringList()).toStringList();
+    for(int i=0;i<res.count();i++) {
+        QString s = res.at(i);
+        s.replace('\\','/');
+        res[i] = s;
+    }
     res.removeDuplicates();
     if(res.count()>maxAmountOfPrevProjects) res = res.mid(0,maxAmountOfPrevProjects);
     settings.setValue("/Settings/PrevProjects",res);
@@ -68,6 +75,10 @@ void MainWindow::updatePrevProjects(const QStringList &prNames)
     QMenu *expMenu = ui->menuFile->addMenu("Export");
     expMenu->addAction(rp6Act);
     ui->menuFile->addMenu(expMenu);
+    ui->menuFile->addSeparator();
+    ui->menuFile->addAction(previewAct);
+    ui->menuFile->addAction(printAct);
+    ui->menuFile->addSeparator();
     QMenu* recPr = new QMenu("Недавние проекты");
     ui->menuFile->addMenu(recPr);
     foreach(QString name, resList) {
@@ -262,6 +273,42 @@ void MainWindow::cleanBackFiles()
     cleaner.startClean();
 }
 
+void MainWindow::printText()
+{
+    QPrinter printer;
+    QPrintDialog dialog(&printer, this);
+    dialog.setWindowTitle(tr("Печать документа"));
+    if (editor->textCursor().hasSelection()) {
+       dialog.addEnabledOption(QAbstractPrintDialog::PrintSelection);
+       printer.setPrintRange(QPrinter::Selection);
+    }
+    if (dialog.exec() != QDialog::Accepted) {
+       return;
+    }
+    editor->setLineWrapMode(QPlainTextEdit::WidgetWidth);
+    editor->print(&printer);
+    editor->setLineWrapMode(QPlainTextEdit::NoWrap);
+}
+
+void MainWindow::previewText()
+{
+    QPrinter printer;
+
+    QPrintPreviewDialog preview(&printer);
+    preview.setWindowFlags ( Qt::Window );
+    if (editor->textCursor().hasSelection())
+       printer.setPrintRange(QPrinter::Selection);
+    connect(&preview, SIGNAL(paintRequested(QPrinter *)), SLOT(printPreview(QPrinter *)));
+    preview.exec();
+}
+
+void MainWindow::printPreview(QPrinter *printer)
+{
+    editor->setLineWrapMode(QPlainTextEdit::WidgetWidth);
+    editor->print(printer);
+    editor->setLineWrapMode(QPlainTextEdit::NoWrap);
+}
+
 int MainWindow::saveWarning()
 {
     if(prChangedFlag || displ->getChanged()) {
@@ -401,7 +448,7 @@ void MainWindow::createToolbar()
     redoAct = new QAction(QIcon("://redo_32.ico"), "Повторить отменённую операцию", this);
     srchAct = new QAction(QIcon("://srch_32.ico"), "Искать текст", this);
     buildAct = new QAction(QIcon("://build_32.ico"), "Собрать проект F5", this);
-    toPlcAct = new QAction(QIcon("://toPLC_32.ico"), "Загрузить программу в контроллер F7", this);
+    toPlcAct = new QAction(QIcon("://flash_chip.png"), "Загрузить программу в контроллер F7", this);
     editGUI = new QAction(QIcon("://config.ico"), "Настройки среды", this);
     closeProjectAct = new QAction(QIcon("://close.ico"), "Закрыть проект", this);
 
@@ -453,7 +500,7 @@ void MainWindow::createToolbar()
     ui->menuCmd->addAction(buildAct);
     ui->menuCmd->addAction(progrAllAct);
     ui->menuCmd->addAction(toPlcAct);
-    wrSettings = new QAction(QIcon("://writeData.png"),"Записать настройки F8",this);
+    wrSettings = new QAction(QIcon(":/write_conf2.png"),"Записать настройки F8",this);
     rdSettings = new QAction(QIcon("://readData.png"),"Прочитать настройки F9",this);
     connect(wrSettings,SIGNAL(triggered(bool)),this,SLOT(wrSysFramSlot()));
     connect(rdSettings,SIGNAL(triggered(bool)),this,SLOT(rdSysFramSlot()));
@@ -509,6 +556,10 @@ void MainWindow::createDebugger()
     //ui->mainToolBar->addAction(dockDebugger->toggleViewAction());
     ui->menuView->addAction(dockDebugger->toggleViewAction());
     //ui->mainToolBar->addAction(dockDebugger->toggleViewAction());
+    QAction *act = dockDebugger->toggleViewAction();
+    act->setIcon(QIcon(":/debug.png"));
+    act->setToolTip("отладчик");
+    ui->mainToolBar->addAction(act);
     connect(dockDebugger->toggleViewAction(),SIGNAL(triggered(bool)),this,SLOT(toggleDebugger()));
     dockDebugger->close();
 }
@@ -527,7 +578,10 @@ void MainWindow::createDisplay()
     dockDisplay->setWidget(lcd);
     addDockWidget(Qt::RightDockWidgetArea, dockDisplay);
     ui->menuView->addAction(dockDisplay->toggleViewAction());
-    //ui->mainToolBar->addAction(dockDisplay->toggleViewAction());
+    QAction *act = dockDisplay->toggleViewAction();
+    act->setIcon(QIcon(":/pult.ico"));
+    act->setToolTip("пульт");
+    ui->mainToolBar->addAction(act);
     connect(dockDisplay->toggleViewAction(),SIGNAL(triggered(bool)),this,SLOT(togglePult()));
     dockDisplay->close();
 }
@@ -608,6 +662,11 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->menuEdit->addAction(unfoldAction);
     ui->menuEdit->addAction(editGUI);
 
+    printAct = new QAction(QIcon("://printer.ico"), "Печать", this);
+    connect(printAct,SIGNAL(triggered(bool)),this,SLOT(printText()));
+    previewAct = new QAction(QIcon("://preview.ico"), "Предварительный просмотр", this);
+    connect(previewAct,SIGNAL(triggered(bool)),this,SLOT(previewText()));
+
     QStringList prNames = getPrevProjects();
     if(prNames.count()) {
         updatePrevProjects(prNames);
@@ -632,6 +691,12 @@ MainWindow::MainWindow(QWidget *parent) :
     addDockWidget(Qt::RightDockWidgetArea, dockSettings);
     ui->menuView->addAction(dockSettings->toggleViewAction());
     //ui->mainToolBar->addAction(dockSettings->toggleViewAction());
+
+    QAction *act = dockSettings->toggleViewAction();
+    act->setIcon(QIcon(":/settings2.ico"));
+    act->setToolTip("настройки");
+    ui->mainToolBar->addAction(act);
+
     dockSettings->close();
     connect(dockSettings->toggleViewAction(),SIGNAL(triggered(bool)),this,SLOT(toggleSettings()));
 
@@ -718,6 +783,8 @@ void MainWindow::disableActionWithoutProject()
     dockDebugger->toggleViewAction()->setEnabled(false);
     dockDisplay->toggleViewAction()->setEnabled(false);
     dockSettings->toggleViewAction()->setEnabled(false);
+    printAct->setEnabled(false);
+    previewAct->setEnabled(false);
 }
 
 void MainWindow::enableActionWithProject()
@@ -748,6 +815,8 @@ void MainWindow::enableActionWithProject()
     dockDebugger->toggleViewAction()->setEnabled(true);
     dockDisplay->toggleViewAction()->setEnabled(true);
     dockSettings->toggleViewAction()->setEnabled(true);
+    printAct->setEnabled(true);
+    previewAct->setEnabled(true);
 }
 
 void MainWindow::newFile()

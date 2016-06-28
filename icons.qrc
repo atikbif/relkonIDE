@@ -55,5 +55,19 @@
         <file>spec_2.ico</file>
         <file>spec_1.ico</file>
         <file>spec_0.ico</file>
+        <file>debug.ico</file>
+        <file>pult.ico</file>
+        <file>conf.ico</file>
+        <file>debug.png</file>
+        <file>flash_chip.png</file>
+        <file>write_conf.ico</file>
+        <file>write_conf3.png</file>
+        <file>write_conf2.ico</file>
+        <file>write_conf2.png</file>
+        <file>settings.ico</file>
+        <file>settings.png</file>
+        <file>settings2.ico</file>
+        <file>preview.ico</file>
+        <file>printer.ico</file>
     </qresource>
 </RCC>

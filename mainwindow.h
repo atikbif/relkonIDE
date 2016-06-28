@@ -15,6 +15,7 @@
 #include <QDockWidget>
 #include "Debugger/BackCleaner/cleanmanager.h"
 
+class QPrinter;
 
 namespace Ui {
 class MainWindow;
@@ -110,6 +111,9 @@ private:
     QAction *emuInpAct;
     QAction *emuAct;
     QAction *rp6Act;
+    QAction *printAct;
+    QAction *previewAct;
+
 
 
     void disableActionWithoutProject(void);
@@ -171,6 +175,9 @@ private slots:
     void toggleSettings();
 
     void cleanBackFiles();
+    void printText();
+    void previewText();
+    void printPreview(QPrinter *printer);
 
 
 public slots:

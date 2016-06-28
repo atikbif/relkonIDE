@@ -401,6 +401,7 @@ DebuggerForm::DebuggerForm(VarsCreator &vCr, QWidget *parent) :
 
     ui->spinBoxByteCnt->setValue(memLength);
     ui->lineEditMemStartAddr->setText("0x"+QString::number(memStartAddr,16));
+    ui->updateButton->setVisible(false);
 }
 
 DebuggerForm::~DebuggerForm()
@@ -571,6 +572,7 @@ void DebuggerForm::updateCorrErrAnswerCount(int cnt, bool correctFlag)
         ui->lcdNumberError->display(cnt);
         startCheckTmr++;
         if(startCheckTmr==10) {
+            on_stopButton_clicked();
             QMessageBox::warning(this,"","Контроллер не обнаружен.");
         }
     }

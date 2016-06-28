@@ -8,11 +8,12 @@ QT       += core gui
 QT       += xml
 QT       += serialport
 QT       += network
+QT       += printsupport
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 RC_ICONS = R.ico
-VERSION = 1.0.0.30
+VERSION = 1.0.0.34
 QMAKE_TARGET_COMPANY = Kontel Co
 QMAKE_TARGET_PRODUCT = RIDE (Relkon7)
 QMAKE_TARGET_DESCRIPTION = Relkon IDE
