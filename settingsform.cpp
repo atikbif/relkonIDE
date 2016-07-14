@@ -10,6 +10,7 @@
 #include "Loader/sysframreadwrite.h"
 #include "RCompiler/rcompiler.h"
 #include "pathstorage.h"
+#include <QSerialPortInfo>
 
 void SettingsForm::printFactorySettings()
 {
@@ -253,6 +254,8 @@ SettingsForm::SettingsForm(SettingsBase *parent) :
     }
     ui->comboBoxPLCType->setCurrentText(getPLCType());
 
+    on_pushButtonPortListUpdate_clicked();
+
     connect(ui->radioButtonOneByte,SIGNAL(toggled(bool)),this,SLOT(radioButtonBytes_toggled()));
     connect(ui->radioButtonTwoBytes,SIGNAL(toggled(bool)),this,SLOT(radioButtonBytes_toggled()));
     connect(ui->radioButtonFourBytes,SIGNAL(toggled(bool)),this,SLOT(radioButtonBytes_toggled()));
@@ -270,6 +273,7 @@ SettingsForm::~SettingsForm()
 void SettingsForm::clearSettings()
 {
     SettingsBase::clearSettings();
+    ui->comboBoxPrPort->setCurrentText("AUTO");
     updateData();
     ui->radioButtonOneByte->setChecked(true);
 }
@@ -292,6 +296,7 @@ void SettingsForm::saveSettings()
         stream << progAddr;
         stream << data;
         stream << getPLCType();
+        stream << getPortName();
         sFile->close();
     }
     delete sFile;
@@ -302,6 +307,7 @@ void SettingsForm::openSettings()
     QByteArray data;
     QString fName = PathStorage::getKonFileFullName();
     QString plc;
+    QString port;
     if(fName.isEmpty()) return;
     fName.remove(QRegExp("\\.kon"));
     fName += ".sfr";
@@ -318,7 +324,9 @@ void SettingsForm::openSettings()
                 stream >> progAddr;
                 stream >> data;
                 stream >> plc;
+                stream >> port;
                 setPLCType(plc);
+                ui->comboBoxPrPort->setCurrentText(port);
                 if(stream.status()==QDataStream::Ok) {
                     readFromBin(data);
                     updateData();
@@ -348,6 +356,11 @@ void SettingsForm::setEmuMode(SettingsBase::emuType value)
         ui->radioButtonInputOutputEmulation->setChecked(true);
         emit emuModeChanged(InputOutputEmulation);
     }
+}
+
+QString SettingsForm::getPortName() const
+{
+    return ui->comboBoxPrPort->currentText();
 }
 
 void SettingsForm::readFromBin(const QByteArray inpData)
@@ -476,7 +489,7 @@ void SettingsForm::radioButtonBytes_toggled()
 
 void SettingsForm::on_pushButtonFromPLC_clicked()
 {
-    ScanGUI gui(progAddr,false,this);
+    ScanGUI gui(progAddr,false,getPortName(),this);
     int ret = gui.exec();
     if(ret==QDialog::Accepted) {
         DetectedController* plc = &DetectedController::Instance();
@@ -496,7 +509,7 @@ void SettingsForm::on_pushButtonToPLC_clicked()
 {
     QByteArray data;
     writeToBin(data);
-    ScanGUI gui(progAddr,false,this);
+    ScanGUI gui(progAddr,false,getPortName(),this);
     int ret = gui.exec();
     if(ret==QDialog::Accepted) {
         DetectedController* plc = &DetectedController::Instance();
@@ -536,4 +549,21 @@ void SettingsForm::on_radioButtonInputEmulation_clicked()
 void SettingsForm::on_radioButtonInputOutputEmulation_clicked()
 {
     emit emuModeChanged(emuType::InputOutputEmulation);
+}
+
+
+void SettingsForm::on_pushButtonPortListUpdate_clicked()
+{
+    QStringList portNames;
+    foreach (const QSerialPortInfo &info, QSerialPortInfo::availablePorts()) {
+            portNames << info.portName();
+    }
+    ui->comboBoxPrPort->clear();
+    if(portNames.count()) {
+        foreach (QString pName, portNames) {
+           ui->comboBoxPrPort->addItem(pName);
+        }
+    }
+    ui->comboBoxPrPort->addItem("AUTO");
+    ui->comboBoxPrPort->setCurrentText("AUTO");
 }

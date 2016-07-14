@@ -49,4 +49,13 @@ HelpBrowser::~HelpBrowser()
 
 }
 
+void HelpBrowser::keyPressEvent(QKeyEvent *event)
+{
+    switch(event->key()) {
+        case Qt::Key_F1:
+            if(isVisible()) close();
+        break;
+    }
+}
+
 

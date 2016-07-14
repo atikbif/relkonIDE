@@ -1210,7 +1210,7 @@ void MainWindow::projectToPlc()
 {
     if(QFile::exists(PathStorage::getBinFileFullName())) {
         debugger->stopDebugger();
-        ScanGUI gui(settings->getProgAddr(),true,this);
+        ScanGUI gui(settings->getProgAddr(),true,settings->getPortName(),this);
         int ret = gui.exec();
         if(ret==QDialog::Accepted) {
             BootModeSetter bootSetter(this);
@@ -1272,6 +1272,13 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
             }
         }
 
+        break;
+    case Qt::Key_F1:
+        if(helpBr->isVisible()) {
+            helpBr->close();
+        }else {
+            viewHelp();
+        }
         break;
     case Qt::Key_F2:
         if(dockSettings->toggleViewAction()->isEnabled()) {

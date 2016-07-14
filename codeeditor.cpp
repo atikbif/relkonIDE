@@ -372,6 +372,8 @@ void CodeEditor::keyPressEvent(QKeyEvent *e)
                     }
                     setTextCursor(curs);
                 }
+            }else if(QApplication::keyboardModifiers().testFlag(Qt::ControlModifier)) {
+                QPlainTextEdit::keyPressEvent(e);
             }else {
                 bool startOfBlock = false;
                 QTextCursor startCurs = curs;

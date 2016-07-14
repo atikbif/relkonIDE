@@ -31,6 +31,7 @@ public:
     void openSettings(void);    // прочитать настройки из файла
     void updateTable(void);
     void setEmuMode(emuType value);
+    QString getPortName() const;
 
 
 private slots:
@@ -47,6 +48,8 @@ private slots:
     void on_radioButtonInputEmulation_clicked();
 
     void on_radioButtonInputOutputEmulation_clicked();
+
+    void on_pushButtonPortListUpdate_clicked();
 
 public slots:
     void readFromBin(const QByteArray inpData); // прочитать настройки из бинарного массива

@@ -23,7 +23,7 @@ class ScanGUI : public QDialog
     bool progMode;      // если необходимо найти порт PROG - true
     bool plcFound;
 public:
-    explicit ScanGUI(int progAddr=0, bool mode=false, QWidget *parent = 0);
+    explicit ScanGUI(int progAddr=0, bool mode=false, const QString &portName="AUTO", QWidget *parent = 0);
     ~ScanGUI();
 private:
     Ui::ScanGUI *ui;

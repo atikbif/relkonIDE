@@ -571,7 +571,7 @@ void DebuggerForm::updateCorrErrAnswerCount(int cnt, bool correctFlag)
     else {
         ui->lcdNumberError->display(cnt);
         startCheckTmr++;
-        if(startCheckTmr==10) {
+        if(startCheckTmr==100) {
             on_stopButton_clicked();
             QMessageBox::warning(this,"","Контроллер не обнаружен.");
         }
@@ -1050,7 +1050,7 @@ void DebuggerForm::on_pushButtonAutoSearch_clicked()
 {
     int progAddr = ui->spinBoxNetAddress->value();
 
-    ScanGUI gui(progAddr,false, this);
+    ScanGUI gui(progAddr,false, "AUTO", this);
     int ret = gui.exec();
     if(ret==QDialog::Accepted) {
         DetectedController* plc = &DetectedController::Instance();
@@ -1768,3 +1768,4 @@ void DebuggerForm::on_checkBoxHexMem_clicked()
         connect(ui->tableWidgetMem,SIGNAL(cellChanged(int,int)),this,SLOT(memViewCellPressed(int,int)));
     }
 }
+

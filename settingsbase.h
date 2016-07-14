@@ -43,7 +43,6 @@ protected:
 
     void readPLCTypes();
 
-
 public:
     explicit SettingsBase(QWidget *parent = 0);
     ~SettingsBase();
@@ -62,6 +61,7 @@ public:
     QStringList getPLCNames() const {return plcBuilds.keys();}
     QString getBuildName();
     virtual void setEmuMode(emuType value)=0;
+    virtual QString getPortName() const=0;
 
 signals:
     writeToPLC(QByteArray binData);    // запрос записи данных в ПЛК

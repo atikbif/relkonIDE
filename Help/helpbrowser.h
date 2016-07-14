@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QString>
 #include <QTextBrowser>
+#include <QKeyEvent>
 
 class HelpBrowser : public QWidget
 {
@@ -18,6 +19,10 @@ signals:
 
 public slots:
 
+
+    // QWidget interface
+protected:
+    void keyPressEvent(QKeyEvent *event);
 };
 
 #endif // HELPBROWSER_H

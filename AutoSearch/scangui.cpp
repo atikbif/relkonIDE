@@ -2,7 +2,7 @@
 #include "ui_scangui.h"
 #include <QSerialPortInfo>
 
-ScanGUI::ScanGUI(int progAddr, bool mode, QWidget *parent) :
+ScanGUI::ScanGUI(int progAddr, bool mode, const QString &portName, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::ScanGUI)
 {
@@ -19,6 +19,10 @@ ScanGUI::ScanGUI(int progAddr, bool mode, QWidget *parent) :
     if(portNames.count()==0) {
         message.setText("COM порты не обнаружены");
     }else {
+        if(portName.contains("COM")) {
+            portNames.clear();
+            portNames.append(portName);
+        }
         foreach(QString pName, portNames) {
             ScanController* port = new ScanController(pName,progAddr);
             ports+= port;

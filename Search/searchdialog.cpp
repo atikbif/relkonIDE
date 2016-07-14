@@ -22,16 +22,18 @@ SearchDialog::SearchDialog(QString inp, QWidget *parent) :
         QString current = itr.previous();
         ui->comboBoxSearch->addItem(current);
     }
+
     if(!inp.isEmpty()) {
         ui->comboBoxSearch->setCurrentText(inp);
+        ui->pushButtonSearch->setFocus();
     }else {
         QClipboard *clipboard = QApplication::clipboard();
         QString bufData = clipboard->text();
         if(!bufData.isEmpty()) {
             ui->comboBoxSearch->setCurrentText(bufData);
         }
+        ui->comboBoxSearch->setFocus();
     }
-    ui->comboBoxSearch->setFocus();
     ui->comboBoxSearch->setInsertPolicy(QComboBox::InsertAtTop);
 }
 
@@ -107,6 +109,9 @@ void SearchDialog::on_listWidget_itemDoubleClicked(QListWidgetItem *item)
 void SearchDialog::keyPressEvent(QKeyEvent *event)
 {
     switch(event->key()) {
+    case Qt::Key_Escape:
+        close();
+        break;
     case Qt::Key_H:
         if(event->modifiers()==Qt::ControlModifier)
             on_pushButtonReplace_clicked();
