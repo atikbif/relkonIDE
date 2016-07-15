@@ -51,13 +51,13 @@ public:
     bool getReplaceMode(void) const {return DisplayStr::getReplaceMode();}
     void setReplaceMode(bool value);
     void addOperation(UndoRedoOperation &op);
-    bool addEmptyStrBefore(int strNum, int subStrNum, bool isUndoEn=true);
+    bool addEmptyStrBefore(int strNum, int subStrNum, bool isUndoEn=true, bool strListUpdate = true);
     bool addEmptyStrAfter(int strNum, int subStrNum, bool isUndoen=true);
     bool copyStrToBuffer(int strNum, int subStrNum);
     bool pasteStrFromBuffer(int strNum, int subStrNum, bool isUndoEn=true);
     bool deleteStr(int strNum, int subStrNum, bool isUndoEn=true);
     bool replaceStr(int strNum, int subStrNum, const DisplayStr &str);
-    bool insertSymbol(quint8 code, bool isUndoEn=true);
+    bool insertSymbol(quint8 code, bool isUndoEn=true, bool strListUpdate=true);
     void deleteSymbol(void);
     void backspace(void);
     bool addVar(PultVarDefinition &vP, bool isUndoEn = true);

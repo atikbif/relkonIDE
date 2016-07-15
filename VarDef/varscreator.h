@@ -12,6 +12,7 @@
 #include <QDomNodeList>
 #include <QHash>
 #include <QString>
+#include <QRegExp>
 
 class VarsCreator : public QObject
 {
@@ -19,6 +20,16 @@ class VarsCreator : public QObject
 
     Iterator* iter;
     IDStorage ids;
+    QHash<QString,QString> idPultName;
+
+    static const QRegExp numExp;
+    static const QRegExp memExp;
+    static const QRegExp memIExp;
+    static const QRegExp memLExp;
+    static const QRegExp eeExp;
+    static const QRegExp eeIExp;
+    static const QRegExp eeLExp;
+    static const QRegExp sitExp;
 
     QHash<int,int> elemByID; // key - id , value - индекс в allData
     QDomNodeList allData;
@@ -41,11 +52,14 @@ public:
     QStringList getIDList();
     bool checkID(QString id);
     VarItem getVarByID(QString idValue);
+    QString getIdByPultVarName(const QString &pultVarName);
+    QString getVarPultNameById(const QString &idValue);
     bool updateVarByID(QString idValue, VarItem &var);
     IDStorage& getIDStorage() {return ids;}
     QString getFullNameOfVar(const QString& idValue);
     QString getPultNameOfVar(const QString& idValue);
     QString getSimilarID(const QString& pultNameOfVar);
+    void createPultNames(void);
     ~VarsCreator();
 
 signals:

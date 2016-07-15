@@ -5,6 +5,7 @@
 #include "displaywidget.h"
 #include "display.h"
 #include "VarDef/varscreator.h"
+#include "strlistwidget.h"
 
 namespace Ui {
 class LCDForm;
@@ -16,6 +17,7 @@ class LCDForm : public QWidget
     DisplayWidget* dW;
     Display& displ;
     VarsCreator& varOwner;
+    StrListWidget* listWidget;
 
     void createEmptyStrings(QDomDocument &doc);
     void insertSymbol(QDomElement &e, int strNum);

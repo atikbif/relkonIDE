@@ -147,7 +147,7 @@ void Display::addOperation(UndoRedoOperation &op)
     undoRedo.addOperation(op);
 }
 
-bool Display::addEmptyStrBefore(int strNum, int subStrNum, bool isUndoEn)
+bool Display::addEmptyStrBefore(int strNum, int subStrNum, bool isUndoEn, bool strListUpdate)
 {
     changed = true;
     if(checkStrNum(strNum,subStrNum)==false) return false;
@@ -171,7 +171,7 @@ bool Display::addEmptyStrBefore(int strNum, int subStrNum, bool isUndoEn)
         undoRedo.addOperation(op);
     }
     emit cursorPosChanged(x,y);
-    emit strListChanged(strNum);
+    if(strListUpdate) emit strListChanged(strNum);
     emit curStrNumChanged(strNum,subStrNum);
     return true;
 }
@@ -287,7 +287,7 @@ bool Display::replaceStr(int strNum, int subStrNum, const DisplayStr &str)
     return true;
 }
 
-bool Display::insertSymbol(quint8 code, bool isUndoEn)
+bool Display::insertSymbol(quint8 code, bool isUndoEn, bool strListUpdate)
 {
     changed = true;
     if(checkStrNum(y,getCurSubStrNum(y))==false) return false;
@@ -302,7 +302,7 @@ bool Display::insertSymbol(quint8 code, bool isUndoEn)
     }
     if(str->insertSymbol(x,code)==true) {
         moveCursorRight();
-        emit strChanged(y,getCurSubStrNum(y));
+        if(strListUpdate) emit strChanged(y,getCurSubStrNum(y));
         if(isUndoEn) {
             op.setResCursor(x,y);
             op.setResStr(*(data.value(y).at(getCurSubStrNum(y))));
@@ -492,6 +492,7 @@ void Display::getVarDefinitions(QVector<PultVarDefinition> &varList,int strNum,i
 // возможно изменение адреса или типа данных
 void Display::updateDefinitions(VarsCreator &varOwner)
 {
+    varOwner.createPultNames();
     for(int i=0;i<getStrCount();i++) {
         for(int j=0;j<getSubStrCount(i);j++) {
             DisplayStr s = getString(i,j);

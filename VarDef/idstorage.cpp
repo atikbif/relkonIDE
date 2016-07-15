@@ -1,4 +1,5 @@
 #include "idstorage.h"
+#include "varscreator.h"
 
 IDStorage::IDStorage()
 {

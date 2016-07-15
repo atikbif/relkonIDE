@@ -80,6 +80,7 @@ bool StrListWidget::testStrNum(int strNum, int subStrNum)
 
 void StrListWidget::strChanged(int strNum, int subStrNum)
 {
+    //if(updFl) {
     if((strNum>=0)&&(strNum<lists.count())) {
         if((subStrNum>=0)&&(subStrNum<lists.at(strNum)->count())) {
             QListWidgetItem* item = lists[strNum]->item(subStrNum);
@@ -99,7 +100,7 @@ void StrListWidget::strChanged(int strNum, int subStrNum)
             }
             item->setText(strText);
         }
-    }
+    }//}
 }
 
 void StrListWidget::strListChanged(int strNum)

@@ -5,7 +5,6 @@
 #include <QLabel>
 #include "displaywidget.h"
 #include "patterneditorwidget.h"
-#include "strlistwidget.h"
 #include <QFile>
 #include "RCompiler/rcompiler.h"
 #include <QXmlStreamWriter>
@@ -29,7 +28,12 @@ void LCDForm::createEmptyStrings(QDomDocument &doc)
                     if((numValue>=0)&&(numValue<displ.getStrCount())) {
                         if(countValue>0) {
                             while(displ.getSubStrCount(numValue)<countValue) {
-                                displ.addEmptyStrBefore(numValue,0,false);
+                                if(displ.getSubStrCount(numValue)==countValue-1) {
+                                    displ.addEmptyStrBefore(numValue,0,false);
+                                }
+                                else {
+                                    displ.addEmptyStrBefore(numValue,0,false,false);
+                                }
                             }
                         }
                     }
@@ -46,7 +50,7 @@ void LCDForm::insertSymbol(QDomElement &e, int strNum)
     int pos = num.toInt();
     int code = symbData.toInt();
     displ.setCursor(pos,strNum);
-    displ.insertSymbol(code);
+    displ.insertSymbol(code,false,false);
 }
 
 void LCDForm::insertVar(QDomElement &e, int strNum)
@@ -130,7 +134,7 @@ LCDForm::LCDForm(Display &d, VarsCreator &vCr, QWidget *parent) :
     QGridLayout* layout = new QGridLayout(this);
     this->setLayout(layout);
 
-    StrListWidget* listWidget = new StrListWidget(displ);
+    listWidget = new StrListWidget(displ);
     layout->addWidget(listWidget,1,0,1,8);
     connect(&displ,SIGNAL(strChanged(int,int)),listWidget,SLOT(strChanged(int,int)));
     connect(&displ,SIGNAL(strListChanged(int)),listWidget,SLOT(strListChanged(int)));
@@ -269,9 +273,14 @@ void LCDForm::openLCD()
             }
         }
     }
+
     for(int i=0;i<displ.getStrCount();i++) {
+        listWidget->strListChanged(i);
         displ.goToStr(i,0);
     }
+
+
+
     displ.setCursor(0,0);
     displ.setChanged(false);
     displ.clearStack();

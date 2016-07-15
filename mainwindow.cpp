@@ -132,7 +132,11 @@ int MainWindow::openFileByName(const QString &fName)
 
         repaint();
         varOwner->generateVarsTree();
+        varOwner->createPultNames();
+        addMessageToInfoList(QDateTime::currentDateTime().time().toString() + " :Загрузка пульта...");
+        repaint();
         emit openProject();
+
         cleaner.startClean();
 
         //QThread::msleep(500);
