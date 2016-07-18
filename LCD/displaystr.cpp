@@ -57,10 +57,11 @@ bool DisplayStr::insertSymbol(int pos,quint8 code)
     return result;
 }
 
-void DisplayStr::deleteSymbol(int pos)
+int DisplayStr::deleteSymbol(int pos)
 {
     QMutexLocker locker(&mutex);
-    if(!checkPosition(pos)) return;
+    int delCnt=0;
+    if(!checkPosition(pos)) return 0;
 
     if(isVarHere(pos)) {
         PultVarDefinition* vp = nullptr;
@@ -69,6 +70,7 @@ void DisplayStr::deleteSymbol(int pos)
            if((pos >= v->getPosInStr())&&(pos < v->getPosInStr() + v->getPattern().length())) vp = v;
         }
         if(vp!=nullptr) {
+            delCnt = vp->getPattern().length();
             // удаление шаблона переменной
             data.remove(vp->getPosInStr(),vp->getPattern().length());
             data.append(QByteArray(vp->getPattern().length(),spaceCode));
@@ -80,7 +82,7 @@ void DisplayStr::deleteSymbol(int pos)
             }
             delete vp;  // очистка памяти
         }
-        return;
+        return delCnt;
     }
     // удалить один символ
     data.remove(pos,1);
@@ -89,6 +91,7 @@ void DisplayStr::deleteSymbol(int pos)
        if(v->getPosInStr()>pos) v->setPosInStr(v->getPosInStr()-1);
     }
     data.append(spaceCode);
+    return 1;
 }
 
 void DisplayStr::setReplaceMode(bool value)

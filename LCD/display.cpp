@@ -313,10 +313,11 @@ bool Display::insertSymbol(quint8 code, bool isUndoEn, bool strListUpdate)
     return false;
 }
 
-void Display::deleteSymbol()
+int Display::deleteSymbol()
 {
     changed = true;
-    if(checkStrNum(y,getCurSubStrNum(y))==false) return;
+    int delCnt=0;
+    if(checkStrNum(y,getCurSubStrNum(y))==false) return 0;
     DisplayStr* str = data.value(y).at(getCurSubStrNum(y));
     UndoRedoOperation op(*this);
     op.setOperationType(UndoRedoOperation::ReplaceString);
@@ -324,11 +325,12 @@ void Display::deleteSymbol()
     op.setStartStr(*str);
     op.setStrNum(y);
     op.setSubStrNum(getCurSubStrNum(y));
-    str->deleteSymbol(x);
+    delCnt = str->deleteSymbol(x);
     op.setResCursor(x,y);
     op.setResStr(*(data.value(y).at(getCurSubStrNum(y))));
     undoRedo.addOperation(op);
     emit strChanged(y,getCurSubStrNum(y));
+    return delCnt;
 }
 
 void Display::backspace()
@@ -486,6 +488,7 @@ void Display::getVarDefinitions(QVector<PultVarDefinition> &varList,int strNum,i
         s.getVar(j,v);
         varList += v;
     }
+    qSort(varList);
 }
 
 // изменения описания переменной в связи с перекомпиляцией

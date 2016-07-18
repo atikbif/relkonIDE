@@ -58,7 +58,7 @@ public:
     bool deleteStr(int strNum, int subStrNum, bool isUndoEn=true);
     bool replaceStr(int strNum, int subStrNum, const DisplayStr &str);
     bool insertSymbol(quint8 code, bool isUndoEn=true, bool strListUpdate=true);
-    void deleteSymbol(void);
+    int deleteSymbol(void);
     void backspace(void);
     bool addVar(PultVarDefinition &vP, bool isUndoEn = true);
     bool updVar(PultVarDefinition& vP);

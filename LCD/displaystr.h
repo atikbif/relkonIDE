@@ -32,7 +32,7 @@ public:
     int getSymbol(int pos) const;
     const QByteArray getString(void) const {QMutexLocker locker(&mutex);return data;}
     bool insertSymbol(int pos, quint8 code);
-    void deleteSymbol(int pos);
+    int deleteSymbol(int pos);
     static void setReplaceMode(bool value);
     bool addVar(const PultVarDefinition& vDef);
     bool updVar(const PultVarDefinition& vDef);

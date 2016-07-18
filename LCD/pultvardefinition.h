@@ -40,6 +40,7 @@ public:
     void setId(const QString &value);
     bool isExist() const;
     void setExist(bool value);
+    bool operator <(const PultVarDefinition &a) const {return posInStr<a.posInStr;}
 };
 
 #endif // PULTVARDEFINITION_H

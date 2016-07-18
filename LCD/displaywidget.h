@@ -24,13 +24,23 @@ class DisplayWidget : public QWidget
         QByteArray copyData;
     }selection;
 
-    void justKey(QKeyEvent *event); // обработка стандартных клавиш
+    struct {
+        int strNum;
+        int startPos;
+        QString pat;
+    }patMem;
 
+    void justKey(QKeyEvent *event); // обработка стандартных клавиш
+    void destroySelection(void);
+    void destroyPatternMem(void);
 public:
     explicit DisplayWidget(Display& d, QWidget *parent = 0);
     const LCDPhont&  getPhont(void) const {return *phont;}
-    void destroySelection(void);
+
     ~DisplayWidget();
+
+signals:
+    void patternUpdate(const QString &varPattern, int startPos);
 
     // QWidget interface
 protected:
@@ -49,6 +59,10 @@ protected:
     // QWidget interface
 protected:
     void contextMenuEvent(QContextMenuEvent *event);
+
+    // QWidget interface
+protected:
+    void wheelEvent(QWheelEvent *event);
 };
 
 #endif // DISPLAYWIDGET_H

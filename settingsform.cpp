@@ -288,7 +288,7 @@ void SettingsForm::saveSettings()
     fName += ".sfr";
     QFile* sFile = new QFile(fName);
     if(sFile->open(QIODevice::WriteOnly)) {
-        unsigned int vers = 0x01;
+        unsigned int vers = 0x02;
         QDataStream stream(sFile);
         stream.setVersion(QDataStream::Qt_5_4);
         stream << codeWord;
@@ -321,6 +321,16 @@ void SettingsForm::openSettings()
         stream >> versValue;
         if(codeWordValue == codeWord) {
             if(versValue == 0x01) {
+                stream >> progAddr;
+                stream >> data;
+                stream >> plc;
+                setPLCType(plc);
+                //ui->comboBoxPrPort->setCurrentText(port);
+                if(stream.status()==QDataStream::Ok) {
+                    readFromBin(data);
+                    updateData();
+                }
+            }else if(versValue == 0x02) {
                 stream >> progAddr;
                 stream >> data;
                 stream >> plc;

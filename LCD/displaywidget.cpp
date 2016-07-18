@@ -4,6 +4,7 @@
 #include <QPaintEvent>
 #include <QKeyEvent>
 #include <QMouseEvent>
+#include <QWheelEvent>
 #include <QDesktopWidget>
 #include <QBrush>
 #include <QMenu>
@@ -17,6 +18,14 @@ void DisplayWidget::destroySelection()
     selection.stopPos = -1;
     selection.prevXPos = -1;
     repaint();
+}
+
+void DisplayWidget::destroyPatternMem()
+{
+    patMem.strNum = -1;
+    patMem.startPos = -1;
+    patMem.pat = "";
+    emit patternUpdate("",-1);
 }
 
 void DisplayWidget::justKey(QKeyEvent *event)
@@ -35,6 +44,7 @@ DisplayWidget::DisplayWidget(Display &d, QWidget *parent) : QWidget(parent),
     displ(d)
 {
     destroySelection();
+    destroyPatternMem();
     phont = new LCDPhont();
     symbInStrCount = d.getLength();
     setFocusPolicy(Qt::ClickFocus);
@@ -66,7 +76,7 @@ void DisplayWidget::mousePressEvent(QMouseEvent *event)
 
         }
     }
-
+    destroyPatternMem();
 }
 
 void DisplayWidget::keyPressEvent(QKeyEvent *event)
@@ -152,8 +162,16 @@ void DisplayWidget::keyPressEvent(QKeyEvent *event)
         if (QApplication::keyboardModifiers().testFlag(Qt::ShiftModifier)) {
             displ.deleteStr(displ.getYPosition(),displ.getCurSubStrNum(displ.getYPosition()));
         }else {
-            destroySelection();
-            displ.deleteSymbol();
+            if((selection.strNum>=0)&&(selection.startPos!=selection.stopPos)) {
+                int delLength = selection.stopPos-selection.startPos+1;
+                int delCnt = 0;
+                while(delCnt<delLength) {
+                    int cnt = displ.deleteSymbol();
+                    if(cnt==0) break;
+                    delCnt+=cnt;
+                }
+                destroySelection();
+            }else displ.deleteSymbol();
         }
         break;
     case Qt::Key_Backspace:
@@ -176,8 +194,22 @@ void DisplayWidget::keyPressEvent(QKeyEvent *event)
         break;
     case Qt::Key_X:
         if (QApplication::keyboardModifiers().testFlag(Qt::ControlModifier)) {
-            displ.copyStrToBuffer(displ.getYPosition(),displ.getCurSubStrNum(displ.getYPosition()));
-            displ.deleteStr(displ.getYPosition(),displ.getCurSubStrNum(displ.getYPosition()));
+            if((selection.strNum>=0)&&(selection.startPos!=selection.stopPos)) {
+                selection.copyData.clear();
+                selection.copyData = displ.getString(selection.strNum,displ.getCurSubStrNum(selection.strNum)).getString().mid(selection.startPos,selection.stopPos-selection.startPos+1);
+                displ.setCopySubject(true);
+                int delLength = selection.stopPos-selection.startPos+1;
+                int delCnt = 0;
+                while(delCnt<delLength) {
+                    int cnt = displ.deleteSymbol();
+                    if(cnt==0) break;
+                    delCnt+=cnt;
+                }
+                destroySelection();
+            }else {
+                displ.copyStrToBuffer(displ.getYPosition(),displ.getCurSubStrNum(displ.getYPosition()));
+                displ.deleteStr(displ.getYPosition(),displ.getCurSubStrNum(displ.getYPosition()));
+            }
         }else justKey(event);
         break;
     case Qt::Key_V:
@@ -229,7 +261,31 @@ void DisplayWidget::keyPressEvent(QKeyEvent *event)
         }else justKey(event);
         break;
     default:
+        if (event->key()!=Qt::Key_Control) {
+            if((selection.strNum>=0)&&(selection.startPos!=selection.stopPos)) {
+                int delLength = selection.stopPos-selection.startPos+1;
+                int delCnt = 0;
+                while(delCnt<delLength) {
+                    int cnt = displ.deleteSymbol();
+                    if(cnt==0) break;
+                    delCnt+=cnt;
+                }
+                destroySelection();
+            }
+        }
         justKey(event);
+        if(((event->key()>=0x30)&&(event->key()<0x39))||(event->text()==".")) {
+            if(patMem.strNum!=-1) {
+                patMem.pat+=event->text();
+                emit patternUpdate(patMem.pat, patMem.startPos);
+            }else {
+                patMem.strNum = displ.getYPosition();
+                patMem.startPos = displ.getXPosition()-1;
+                patMem.pat = event->text();
+                emit patternUpdate(patMem.pat, patMem.startPos);
+            }
+        }else destroyPatternMem();
+
     }
 }
 
@@ -363,6 +419,8 @@ void DisplayWidget::contextMenuEvent(QContextMenuEvent *event)
     float widthOneSymb = ((float)width()-1)/symbInStrCount;
     float heightOneSymb = ((float)height()-1)/strCount;
 
+    destroyPatternMem();
+
     for(int y=0;y<strCount;y++) {
         for(int x=0;x<symbInStrCount;x++) {
             QRectF sRect(x*widthOneSymb+1,y*heightOneSymb+1,widthOneSymb-spaceBetwSymb,heightOneSymb-spaceBetwSymb);
@@ -421,6 +479,22 @@ void DisplayWidget::contextMenuEvent(QContextMenuEvent *event)
     }
 
 
+}
+
+void DisplayWidget::wheelEvent(QWheelEvent *event)
+{
+    destroySelection();
+    destroyPatternMem();
+    QPoint numDegrees = event->angleDelta() / 8;
+    if(numDegrees.ry()>=5) {
+        destroySelection();
+        displ.prevString();
+        emit displ.cursorPosChanged(displ.getXPosition(),displ.getYPosition());
+    }else if(numDegrees.ry()<-5) {
+        destroySelection();
+        displ.nextString();
+        emit displ.cursorPosChanged(displ.getXPosition(),displ.getYPosition());
+    }
 }
 
 

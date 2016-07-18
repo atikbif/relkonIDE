@@ -101,6 +101,7 @@ void PultVarDefinition::setExist(bool value)
 {
     isItExist = value;
 }
+
 PultVarDefinition::PultVarDefinition():
     pattern(""),name(""),dataType(""),posInStr(0),isEdit(false),
     forceSign(false), isEE(false),EEposInSettingsTable(0),

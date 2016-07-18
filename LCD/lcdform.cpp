@@ -153,6 +153,7 @@ LCDForm::LCDForm(Display &d, VarsCreator &vCr, QWidget *parent) :
 
     layout->addWidget(dW,0,0,1,8);
     PatternEditorWidget* pEd = new PatternEditorWidget(displ,varOwner,this);
+    connect(dW,SIGNAL(patternUpdate(QString,int)),pEd,SLOT(patternUpdate(QString,int)));
     pEd->setFixedWidth((float)height*1.5);
     connect(this,SIGNAL(newProject()),pEd,SLOT(newProject()));
     connect(this,SIGNAL(openProject()),pEd,SLOT(openProject()));

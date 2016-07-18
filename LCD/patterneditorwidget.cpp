@@ -101,7 +101,7 @@ void PatternEditorWidget::noVar()
     typeEdit->setText("");
     commentEdit->setText("");
     patternEdit->setText("");
-    isEditable->setCheckState(Qt::Unchecked);
+    isEditable->setCheckState(Qt::Checked);
     isSigned->setCheckState(Qt::Unchecked);
     curVarID="";
 }
@@ -337,9 +337,21 @@ void PatternEditorWidget::applyVar()
                 updVar(var);
                 displ.updVar(vp);
             }else {
-                if(displ.addVar(vp)) {
-                    updVar(var);
-                    applyButton->setText("Изменить");
+                if(startPosPat<0) {
+                    if(displ.addVar(vp)) {
+                        updVar(var);
+                        applyButton->setText("Изменить");
+                    }
+                }else {
+                    int pos = displ.getXPosition();
+                    bool replMode = displ.getReplaceMode();
+                    displ.setReplaceMode(true);
+                    displ.setCursor(startPosPat,displ.getYPosition());
+                    if(displ.addVar(vp)) {
+                        updVar(var);
+                        displ.setCursor(pos,displ.getYPosition());
+                    }
+                    displ.setReplaceMode(replMode);
                 }
             }
             emit updFocus();
@@ -353,4 +365,16 @@ void PatternEditorWidget::applyVar()
                                        tr("Выбранную переменную невозможно отобразить на пульте"),
                                        QMessageBox::Close);
     }
+}
+
+void PatternEditorWidget::patternUpdate(const QString &varPatternText, int startPos)
+{
+    if(startPos!=-1) {
+        DisplayStr str = displ.getString(currentY,displ.getCurSubStrNum(currentY));
+        if((!str.isVarHere(startPos))&&(!str.isVarHere(currentX))) {
+            patternEdit->setText(varPatternText);
+            startPosPat = startPos;
+        }
+    }
+    else startPosPat = startPos;
 }

@@ -34,6 +34,8 @@ class PatternEditorWidget : public QWidget
     int currentX;
     int currentY;// текущие позиции курсора
 
+    int startPosPat; // стартовая позиция паттерна переменной при вводе прямо с пульта
+
     void treeBuilder(const QString &varID, QTreeWidgetItem &item);
     bool checkVar(void);
     void bitVarState(void); // состояние элементов виджета при выборе битовой переменной
@@ -65,6 +67,7 @@ protected:
 private slots:
     void doubleClickedVar(QTreeWidgetItem *item, int column);
     void applyVar(void);
+    void patternUpdate(const QString &varPatternText, int startPos);
 };
 
 #endif // PATTERNEDITORWIDGET_H

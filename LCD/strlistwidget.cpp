@@ -1,19 +1,27 @@
 #include "strlistwidget.h"
 
 #include <QHBoxLayout>
+#include <QVBoxLayout>
 #include <QString>
 #include <QRegExp>
 #include <QMenu>
+#include <QLabel>
 #include <QApplication>
 
 StrListWidget::StrListWidget(Display &d, QWidget *parent) : QWidget(parent),
     displ(d)
 {
     phont = new LCDPhont();
-    QHBoxLayout* layout = new QHBoxLayout(this);
+    QVBoxLayout* layoutMain = new QVBoxLayout(this);
+    QHBoxLayout* layoutHeader = new QHBoxLayout();
+    QHBoxLayout* layoutData = new QHBoxLayout();
     for(int i=0;i<displ.getStrCount();i++) {
+        QLabel *lab = new QLabel("<b>строка "+QString::number(i+1)+":</b>");
+        lab->setTextFormat(Qt::RichText);
+        lab->setAlignment(Qt::AlignHCenter);
+        layoutHeader->addWidget(lab);
         lists += new QListWidget();
-        layout->addWidget(lists.last());
+        layoutData->addWidget(lists.last());
         lists.last()->setContextMenuPolicy(Qt::CustomContextMenu);
         connect(lists.last(),SIGNAL(customContextMenuRequested(QPoint)),
                  this,SLOT(showContextMenuForList(QPoint)));
@@ -21,6 +29,8 @@ StrListWidget::StrListWidget(Display &d, QWidget *parent) : QWidget(parent),
         curStrNumChanged(i,0);
         connect(lists.last(),SIGNAL(clicked(QModelIndex)),this,SLOT(itemClicked(QModelIndex)));
     }
+    layoutMain->addLayout(layoutHeader);
+    layoutMain->addLayout(layoutData);
     insBefore = new QAction(QIcon("://ins_16.ico"),"Добавить перед",this);
     insAfter = new QAction(QIcon("://ins_16.ico"),"Добавить после",this);
     delStr = new QAction(QIcon("://del_32.ico"),"Удалить",this);
