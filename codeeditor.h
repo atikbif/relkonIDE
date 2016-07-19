@@ -13,12 +13,14 @@ class QSize;
 class QWidget;
 
 class LineNumberArea;
+class QCompleter;
 
 class CodeEditor : public QPlainTextEdit
 {
     Q_OBJECT
 
     void scanBlocksNums(void);
+    QString textUnderCursor() const;
 
 public:
     explicit CodeEditor(QWidget *parent = 0);
@@ -28,10 +30,14 @@ public:
     int lineNumberAreaWidth();
     QString getSelectedText(void);
 
+    void setCompleter(QCompleter *c);
+    QCompleter *completer() const;
+
 protected:
     void resizeEvent(QResizeEvent *event);
     void paintEvent(QPaintEvent *event);
     void mousePressEvent(QMouseEvent *event);
+    void focusInEvent(QFocusEvent *e) Q_DECL_OVERRIDE;
 private slots:
     void updateLineNumberAreaWidth(int);
     void highlightCurrentLine();
@@ -39,6 +45,7 @@ private slots:
     void scanFolding(void);
     void getCmdFromChildWidget(QString code,int value);
     void handleScrollAction(int action);
+    void insertCompletion(const QString &completion);
 public slots:
     void foldAll(void);
     void unfoldAll(void);
@@ -51,6 +58,9 @@ private:
     LeftVerticalWidget *lNumbers;
     QList<int> numList;
     QList<int> foldList;
+
+    QCompleter *c;
+    bool releaseEnable;
 
 
     // QWidget interface

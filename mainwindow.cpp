@@ -39,6 +39,8 @@
 #include <QPrintDialog>
 #include <QPrintPreviewDialog>
 
+#include <QCompleter>
+
 
 QStringList MainWindow::getPrevProjects()
 {
@@ -640,6 +642,12 @@ MainWindow::MainWindow(QWidget *parent) :
     prFileName="";
 
     editor = new CodeEditor(this);
+
+    QCompleter *completer = new QCompleter(this);
+    completer->setModel(modelFromFile(QApplication::applicationDirPath() + "/completer.txt"));
+    completer->setCaseSensitivity(Qt::CaseInsensitive);
+    editor->setCompleter(completer);
+
     Highlighter* highlighter = new Highlighter(editor->document());
     Q_UNUSED(highlighter);
     setEditorPhont();
@@ -1684,3 +1692,28 @@ int MainWindow::loadSysFramRelk6(const QString &fName)
     }
     return 0;
 }
+
+QAbstractItemModel *MainWindow::modelFromFile(const QString& fileName)
+{
+    QFile file(fileName);
+    if (!file.open(QFile::ReadOnly))
+        return new QStringListModel(editor->completer());
+
+#ifndef QT_NO_CURSOR
+    QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+#endif
+    QStringList words;
+
+    while (!file.atEnd()) {
+        QByteArray line = file.readLine();
+        if (!line.isEmpty())
+            words << line.trimmed();
+    }
+    qSort(words);
+
+#ifndef QT_NO_CURSOR
+    QApplication::restoreOverrideCursor();
+#endif
+    return new QStringListModel(words, editor->completer());
+}
+

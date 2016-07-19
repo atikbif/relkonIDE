@@ -14,6 +14,7 @@
 #include "Search/searchdata.h"
 #include <QDockWidget>
 #include "Debugger/BackCleaner/cleanmanager.h"
+#include <QAbstractItemModel>
 
 class QPrinter;
 
@@ -66,6 +67,8 @@ class MainWindow : public QMainWindow
     void createBuilder(void);
     void createHelp(void);
     void createUtilities(void);
+
+    QAbstractItemModel *modelFromFile(const QString& fileName);
 
 public:
     explicit MainWindow(QWidget *parent = 0);
