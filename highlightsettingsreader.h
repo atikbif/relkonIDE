@@ -8,11 +8,13 @@
 
 class QTextCharFormat;
 class QXmlStreamAttributes;
+#include "ColTable/colorlist.h"
 
 class HighlightSettingsReader
 {
     const QString fName;
     QList<HighlightAlgorithm*> algs;
+    ColorList cList;
 
     static QTextCharFormat parseFormat(const QXmlStreamAttributes &attributes);
     static QString parsePattern(QXmlStreamReader &xml);

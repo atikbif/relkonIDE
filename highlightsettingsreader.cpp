@@ -2,10 +2,12 @@
 #include <QFile>
 #include <QApplication>
 #include <QTextCodec>
+#include <QSharedPointer>
 
 HighlightSettingsReader::HighlightSettingsReader(): fName("highlight.xml")
 {
     QTextCodec::setCodecForLocale(QTextCodec::codecForName("UTF-8"));
+    cList = ColorList::readUserColors();
 }
 
 QTextCharFormat HighlightSettingsReader::parseFormat(const QXmlStreamAttributes &attributes)
@@ -65,6 +67,7 @@ int HighlightSettingsReader::parseXML()
         return -1;
     }
     xml.clear();
+    ColorList::writeUserColors(cList);
     return 0;
 }
 
@@ -91,10 +94,34 @@ HighlightAlgorithm* HighlightSettingsReader::parseAlgorithm(QXmlStreamReader &xm
             alg = HighlightAlgorithmFactory::createAlgorithm(HighlightAlgorithmFactory::BRACKETS);
         }
     }
+    QString descr;
     if(attributes.hasAttribute("description")) {
-        if(alg != nullptr) alg->setAlgName(attributes.value("description").toString());
+        descr = attributes.value("description").toString();
+        if(alg != nullptr) alg->setAlgName(descr);
     }
     alg->setFormat(parseFormat(attributes));
+
+    if(!descr.isEmpty()) {
+        QSharedPointer<ColorForWord> cw = cList.getColor(descr);
+        QColor col = alg->getFormat().foreground().color();
+        if(cw->getCodeWord()!=cw->getDefaultName()) {
+            cw->setSysRed(col.red());
+            cw->setSysGreen(col.green());
+            cw->setSysBlue(col.blue());
+            if(!cw->isSystem()) {
+                int red = cw->getUserRed();
+                int green = cw->getUserGreen();
+                int blue = cw->getUserBlue();
+                col = QColor(red,green,blue);
+                QTextCharFormat f = alg->getFormat();
+                f.setForeground(QBrush(col));
+                alg->setFormat(f);
+            }
+        }else {
+            cList.addColor(descr,col.red(),col.green(),col.blue());
+        }
+    }
+
     xml.readNext();
 
     while(!(xml.tokenType() == QXmlStreamReader::EndElement &&

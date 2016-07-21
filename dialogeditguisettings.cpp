@@ -2,6 +2,8 @@
 #include "ui_dialogeditguisettings.h"
 #include <QSettings>
 #include <QFontDialog>
+#include "ColTable/colorlist.h"
+#include "ColTable/dialogwordcolors.h"
 
 DialogEditGUISettings::DialogEditGUISettings(QWidget *parent) :
     QDialog(parent),
@@ -53,4 +55,17 @@ void DialogEditGUISettings::on_pushButtonEdFont_clicked()
         settings.setValue("Settings/edFontSize",edFontSize);
         ui->lineEditEdFont->setText(edFontName + " " + QString::number(edFontSize));
     }
+}
+
+void DialogEditGUISettings::on_pushButtonColors_clicked()
+{
+    ColorList cList = ColorList::readUserColors();
+    DialogWordColors *dialog = new DialogWordColors(this);
+    dialog->setColorList(cList);
+    int ret = dialog->exec();
+    if(ret==QDialog::Accepted) {
+        cList = dialog->getColorList();
+        ColorList::writeUserColors(cList);
+    }
+    delete dialog;
 }

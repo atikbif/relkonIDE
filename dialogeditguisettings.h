@@ -25,6 +25,8 @@ private slots:
 
     void on_pushButtonEdFont_clicked();
 
+    void on_pushButtonColors_clicked();
+
 private:
     Ui::DialogEditGUISettings *ui;
 };

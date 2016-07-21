@@ -13,7 +13,7 @@ QT       += printsupport
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 RC_ICONS = R.ico
-VERSION = 1.0.0.44
+VERSION = 1.0.0.47
 QMAKE_TARGET_COMPANY = Kontel Co
 QMAKE_TARGET_PRODUCT = RIDE (Relkon7)
 QMAKE_TARGET_DESCRIPTION = Relkon IDE
@@ -116,7 +116,9 @@ SOURCES += main.cpp\
     QuickWatch/varwatcher.cpp \
     QuickWatch/varwatchermanager.cpp \
     Debugger/BackCleaner/cleanmanager.cpp \
-    Debugger/BackCleaner/cleanprocess.cpp
+    Debugger/BackCleaner/cleanprocess.cpp \
+    ColTable/colorlist.cpp \
+    ColTable/dialogwordcolors.cpp
 
 HEADERS  += mainwindow.h \
     codeeditor.h \
@@ -207,7 +209,9 @@ HEADERS  += mainwindow.h \
     QuickWatch/varwatcher.h \
     QuickWatch/varwatchermanager.h \
     Debugger/BackCleaner/cleanmanager.h \
-    Debugger/BackCleaner/cleanprocess.h
+    Debugger/BackCleaner/cleanprocess.h \
+    ColTable/colorlist.h \
+    ColTable/dialogwordcolors.h
 
 FORMS    += mainwindow.ui \
     settingsform.ui \
@@ -220,7 +224,8 @@ FORMS    += mainwindow.ui \
     dialogeditguisettings.ui \
     Help/aboutdialog.ui \
     Search/searchdialog.ui \
-    LCD/dialogspessymb.ui
+    LCD/dialogspessymb.ui \
+    ColTable/dialogwordcolors.ui
 
 RESOURCES += \
     icons.qrc \
