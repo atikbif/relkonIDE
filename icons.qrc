@@ -69,5 +69,6 @@
         <file>settings2.ico</file>
         <file>preview.ico</file>
         <file>printer.ico</file>
+        <file>update.ico</file>
     </qresource>
 </RCC>

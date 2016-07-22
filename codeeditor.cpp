@@ -300,6 +300,7 @@ void CodeEditor::keyPressEvent(QKeyEvent *e)
         if (!c || !isShortcut) // do not process the shortcut when we have a completer
         {
             releaseEnable = true;
+
             switch(e->key()) {
             case Qt::Key_C:
                 if(QApplication::keyboardModifiers().testFlag(Qt::ControlModifier)) {

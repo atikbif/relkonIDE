@@ -89,8 +89,28 @@ void MainWindow::updatePrevProjects(const QStringList &prNames)
     }
 }
 
-int MainWindow::openFileByName(const QString &fName)
+int MainWindow::openFileByName(const QString &fName, bool importFlag)
 {
+    if((!importFlag)&&(QFile::exists(fName))) {
+        QFileInfo fInfo(fName);
+        QString path = fInfo.absolutePath();
+        QString fileName = fInfo.fileName();
+        if(fileName.length()>4) {
+            fileName.remove(fileName.length()-4,4);
+            fileName+=".sfr";
+            fileName = path+"/"+fileName;
+            if(!QFile::exists(fileName)) {
+                int ret = QMessageBox::question(this,"Предупреждение","Возможно вы пытаетесь открыть проект версии Релкон 6.x.\n"
+                                                                      "Для корректной работы его необходимо импортировать.\n"
+                                                                      "Прямое открытие не перенесёт в проект содержимое \n"
+                                                                      "пульта и настроек.\n"
+                                                                      "Отменить загрузку?",QMessageBox::Yes|QMessageBox::No);
+                if(ret==QMessageBox::Yes) return 0;
+            }
+        }
+
+    }
+
     activateInfoPanel();
     addMessageToInfoList(QDateTime::currentDateTime().time().toString() + " :Открытие файла " + fName);
 
@@ -313,6 +333,19 @@ void MainWindow::printPreview(QPrinter *printer)
     editor->setLineWrapMode(QPlainTextEdit::WidgetWidth);
     editor->print(printer);
     editor->setLineWrapMode(QPlainTextEdit::NoWrap);
+}
+
+void MainWindow::checkUpdates()
+{
+    QString path = QApplication::applicationDirPath() + "/maintenancetool.exe";
+    if(QFile::exists(path)) {
+        QProcess* loader = new QProcess;
+        connect(loader, SIGNAL(finished(int)), loader, SLOT(deleteLater()));
+        loader->start("\""+path+"\""+" --updater");
+    }else {
+        activateInfoPanel();
+        addMessageToInfoList("error: Ошибка открытия файла " + path);
+    }
 }
 
 int MainWindow::saveWarning()
@@ -608,12 +641,19 @@ void MainWindow::createHelp()
 {
     helpBrAct = new QAction(QIcon("://help.ico"), "Меню", this);
     ui->menuHelp->addAction(helpBrAct);
+
+    QAction *updateAction = new QAction(QIcon("://update.ico"), "Проверка обновлений", this);
+    connect(updateAction,SIGNAL(triggered()),this,SLOT(checkUpdates()));
+    ui->menuHelp->addAction(updateAction);
+
     QAction *aboutAction = new QAction(QIcon("://about.ico"), "О программе", this);
     connect(aboutAction,SIGNAL(triggered()),this,SLOT(viewAboutWindow()));
     ui->menuHelp->addAction(aboutAction);
 
     helpBr = new HelpBrowser(QApplication::applicationDirPath()+"/Doc","index.html");
     connect(helpBrAct,SIGNAL(triggered()),this,SLOT(viewHelp()));
+
+
 }
 
 void MainWindow::createUtilities()
@@ -1273,9 +1313,9 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
     case Qt::Key_F:
         if (QApplication::keyboardModifiers() && Qt::ControlModifier) searchText();
         break;
-    case Qt::Key_S:
-        if (QApplication::keyboardModifiers() && Qt::ControlModifier) {
-            saveFile();
+    case Qt::Key_N:
+        if(QApplication::keyboardModifiers().testFlag(Qt::ControlModifier)) {
+            newFile();
             if(!ui->listWidget->isVisible()) {
                 activateInfoPanel();
                 ui->listWidget->repaint();
@@ -1283,7 +1323,38 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
                 activateInfoPanel();
             }
         }
-
+        break;
+    case Qt::Key_O:
+        if(QApplication::keyboardModifiers().testFlag(Qt::ControlModifier)) {
+            openFile();
+            if(!ui->listWidget->isVisible()) {
+                activateInfoPanel();
+                ui->listWidget->repaint();
+                QThread::sleep(1);
+                activateInfoPanel();
+            }
+        }
+        break;
+    case Qt::Key_S:
+        if(QApplication::keyboardModifiers().testFlag(Qt::ControlModifier)) {
+            if(QApplication::keyboardModifiers().testFlag(Qt::ShiftModifier)) {
+                saveAsFile();
+                if(!ui->listWidget->isVisible()) {
+                    activateInfoPanel();
+                    ui->listWidget->repaint();
+                    QThread::sleep(1);
+                    activateInfoPanel();
+                }
+            }else {
+                saveFile();
+                if(!ui->listWidget->isVisible()) {
+                    activateInfoPanel();
+                    ui->listWidget->repaint();
+                    QThread::sleep(1);
+                    activateInfoPanel();
+                }
+            }
+        }
         break;
     case Qt::Key_F1:
         if(helpBr->isVisible()) {
@@ -1564,13 +1635,19 @@ int MainWindow::importPult(const QString &fName)
 
 void MainWindow::importProject()
 {
-    QString dir = QFileDialog::getExistingDirectory(this, tr("Выберите каталог проекта"),
+    QString dir = QFileDialog::getExistingDirectory(this, tr("Выберите каталог проекта Relkon6.x"),
                                                     PathStorage::getPrDir(),
                                                     QFileDialog::ShowDirsOnly
                                                     | QFileDialog::DontResolveSymlinks);
     if(!dir.isEmpty()) {
         QDir oldPr(dir);
-        QDir newPr(dir + "/Relkon7_project");
+
+        QString newDir = QFileDialog::getExistingDirectory(this, tr("Выберите каталог проекта Relkon7 для сохранения"),
+                                                        PathStorage::getPrDir(),
+                                                        QFileDialog::ShowDirsOnly
+                                                        | QFileDialog::DontResolveSymlinks);
+
+        QDir newPr(newDir);
         if(!newPr.exists()) newPr.mkdir(".");
 
         QStringList konFiles;
@@ -1580,7 +1657,7 @@ void MainWindow::importProject()
             addMessageToInfoList("копирование kon файла");
             QString konFile = newPr.absolutePath()+"/"+konFiles.at(0);
             QFile::copy(oldPr.absolutePath()+"/"+konFiles.at(0), konFile);
-            if(openFileByName(konFile)==1) {
+            if(openFileByName(konFile,true)==1) {
                 QStringList pultFiles;
                 pultFiles = oldPr.entryList(QStringList() << "*.plt",
                                                  QDir::Files | QDir::NoSymLinks);
@@ -1619,7 +1696,7 @@ void MainWindow::startReloader()
     if(QFile::exists(path)) {
         QProcess* loader = new QProcess;
         connect(loader, SIGNAL(finished(int)), loader, SLOT(deleteLater()));
-        loader->start(path);
+        loader->start("\""+path+"\"");
     }else {
         activateInfoPanel();
         addMessageToInfoList("error: Ошибка открытия файла " + path);
@@ -1633,7 +1710,7 @@ void MainWindow::startMMBConfig()
     if(QFile::exists(path)) {
         QProcess* mmb = new QProcess;
         connect(mmb, SIGNAL(finished(int)), mmb, SLOT(deleteLater()));
-        mmb->start(path);
+        mmb->start("\""+path+"\"");
     }else {
         activateInfoPanel();
         addMessageToInfoList("error: Ошибка открытия файла " + path);

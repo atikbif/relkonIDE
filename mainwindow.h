@@ -48,7 +48,7 @@ class MainWindow : public QMainWindow
 
     QStringList getPrevProjects(void);
     void updatePrevProjects(const QStringList &prNames);
-    int openFileByName(const QString &fName);
+    int openFileByName(const QString &fName, bool importFlag = false);
     void saveFileByName(const QString &fName);
 
     int saveWarning(void);
@@ -181,6 +181,7 @@ private slots:
     void printText();
     void previewText();
     void printPreview(QPrinter *printer);
+    void checkUpdates(void);
 
 
 public slots:
