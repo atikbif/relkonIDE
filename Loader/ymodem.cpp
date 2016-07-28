@@ -31,7 +31,7 @@ bool Ymodem::sendHeader()
                 answer.clear();
                 port->write(txBuf);
                 port->waitForBytesWritten(100);
-                port->waitForReadyRead(1500);
+                port->waitForReadyRead(2000);
                 answer+=port->readAll();
                 if(answer.count()) {
                     if(answer.contains(0x06)&&answer.contains('C')) return true;
@@ -57,7 +57,7 @@ bool Ymodem::sendStartYmodem()
                 port->readAll();
                 cnt++;if(cnt>=maxCnt) break;
             }
-            port->waitForReadyRead(1500);
+            port->waitForReadyRead(2000);
             answer+=port->readAll();
             if(answer.contains(0x43)) return true;
         }

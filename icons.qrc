@@ -70,5 +70,8 @@
         <file>preview.ico</file>
         <file>printer.ico</file>
         <file>update.ico</file>
+        <file>cut.ico</file>
+        <file>off.ico</file>
+        <file>on.ico</file>
     </qresource>
 </RCC>

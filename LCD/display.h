@@ -19,6 +19,7 @@ class Display: public QObject
     QHash<int, QVector<DisplayStr*> > data; // номер строки, массив подстрок
     QHash<int, int> curStr; // номер строки, номер активной подстроки
     DisplayStr* copyStrBuf; // указатель на скопированную строку
+    QVector<DisplayStr*> copyStrList;
     int x, y; // координаты курсора
     bool copySubject;    // объект последней операции копирования : false - строка , true - выделение
     UndoRedoStack undoRedo; // класс для работы с операциями undo redo
@@ -54,7 +55,12 @@ public:
     bool addEmptyStrBefore(int strNum, int subStrNum, bool isUndoEn=true, bool strListUpdate = true);
     bool addEmptyStrAfter(int strNum, int subStrNum, bool isUndoen=true);
     bool copyStrToBuffer(int strNum, int subStrNum);
+    bool copyStrListToBuffer(int strNum, QVector<int> &subNums);
     bool pasteStrFromBuffer(int strNum, int subStrNum, bool isUndoEn=true);
+    bool pasteStrFromCopyListBuffer(int strNum, int subStrNum, int listIndex, bool isUndoEn=true);
+    void clearCopyStrList();
+    const DisplayStr getStrFromCopyList(int i) const;
+    int getCopyStrListCount() const {return copyStrList.count();}
     bool deleteStr(int strNum, int subStrNum, bool isUndoEn=true);
     bool replaceStr(int strNum, int subStrNum, const DisplayStr &str);
     bool insertSymbol(quint8 code, bool isUndoEn=true, bool strListUpdate=true);

@@ -214,6 +214,19 @@ bool Display::copyStrToBuffer(int strNum, int subStrNum)
     return true;
 }
 
+bool Display::copyStrListToBuffer(int strNum, QVector<int> &subNums)
+{
+    for(int i=0;i<copyStrList.count();++i) {
+        delete copyStrList.at(i);
+    }
+    copyStrList.clear();
+    for(int i=0;i<subNums.count();++i) {
+        DisplayStr *s = new DisplayStr(*(data.value(strNum).at(subNums.at(i))));
+        copyStrList.append(s);
+    }
+    return true;
+}
+
 bool Display::pasteStrFromBuffer(int strNum, int subStrNum, bool isUndoEn)
 {
     changed = true;
@@ -241,6 +254,51 @@ bool Display::pasteStrFromBuffer(int strNum, int subStrNum, bool isUndoEn)
     emit curStrNumChanged(strNum,subStrNum);
     emit strChanged(strNum, subStrNum);
     return true;
+}
+
+bool Display::pasteStrFromCopyListBuffer(int strNum, int subStrNum, int listIndex, bool isUndoEn)
+{
+    if((listIndex<0)||(listIndex>=copyStrList.count())) return false;
+    changed = true;
+    if(checkStrNum(strNum,subStrNum)==false) return false;
+    QVector<DisplayStr*> subStrings = data.value(strNum);
+    DisplayStr* str = subStrings.at(subStrNum);
+    UndoRedoOperation op(*this);
+    if(isUndoEn) {
+        op.setOperationType(UndoRedoOperation::ReplaceString);
+        op.setStartCursor(x,y);
+        op.setStartStr(*str);
+        op.setStrNum(strNum);
+        op.setSubStrNum(subStrNum);
+    }
+    str->operator =(*(copyStrList.at(listIndex)));
+    curStr.insert(strNum,subStrNum);
+    x=0;y=strNum;
+    if(isUndoEn) {
+        op.setResCursor(x,y);
+        op.setResStr(*str);
+        undoRedo.addOperation(op);
+    }
+    emit cursorPosChanged(x,y);
+    emit curStrNumChanged(strNum,subStrNum);
+    emit strChanged(strNum, subStrNum);
+    return true;
+}
+
+void Display::clearCopyStrList()
+{
+    for(int i=0;i<copyStrList.count();++i) {
+        delete copyStrList.at(i);
+    }
+    copyStrList.clear();
+}
+
+const DisplayStr Display::getStrFromCopyList(int i) const
+{
+    if((i>=0)&&(i<copyStrList.count())) {
+        return DisplayStr(*(copyStrList.at(i)));
+    }
+    return DisplayStr();
 }
 
 bool Display::deleteStr(int strNum, int subStrNum, bool isUndoEn)

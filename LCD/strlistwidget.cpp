@@ -20,7 +20,9 @@ StrListWidget::StrListWidget(Display &d, QWidget *parent) : QWidget(parent),
         lab->setTextFormat(Qt::RichText);
         lab->setAlignment(Qt::AlignHCenter);
         layoutHeader->addWidget(lab);
-        lists += new QListWidget();
+        QListWidget *w = new QListWidget();
+        w->setSelectionMode(QAbstractItemView::ExtendedSelection);
+        lists += w;
         layoutData->addWidget(lists.last());
         lists.last()->setContextMenuPolicy(Qt::CustomContextMenu);
         connect(lists.last(),SIGNAL(customContextMenuRequested(QPoint)),
@@ -37,12 +39,18 @@ StrListWidget::StrListWidget(Display &d, QWidget *parent) : QWidget(parent),
     enableDisableStr = new QAction(QIcon("://act_32.ico"),"откл/вкл строку",this);
     copyStr = new QAction(QIcon("://copy_32.ico"),"копировать",this);
     pasteStr = new QAction(QIcon("://paste_32.ico"),"вставить",this);
+    cutStr = new QAction(QIcon("://cut.ico"),"вырезать",this);
+    actGroup = new QAction(QIcon("://on.ico"),"включить строки",this);
+    deactGroup = new QAction(QIcon("://off.ico"),"отключить строки",this);
     connect(insBefore,SIGNAL(triggered()),this,SLOT(insertStringBefore()));
     connect(insAfter,SIGNAL(triggered()),this,SLOT(insertStringAfter()));
     connect(delStr,SIGNAL(triggered()),this,SLOT(deleteString()));
     connect(enableDisableStr,SIGNAL(triggered()),this,SLOT(activateDesactString()));
     connect(copyStr,SIGNAL(triggered()),this,SLOT(copyString()));
     connect(pasteStr,SIGNAL(triggered()),this,SLOT(pasteString()));
+    connect(cutStr,SIGNAL(triggered()),this,SLOT(cutString()));
+    connect(actGroup,SIGNAL(triggered()),this,SLOT(activateGroup()));
+    connect(deactGroup,SIGNAL(triggered()),this,SLOT(desactivateGroup()));
 }
 
 StrListWidget::~StrListWidget()
@@ -127,8 +135,10 @@ void StrListWidget::itemClicked(const QModelIndex &index)
         for(int i=0;i<lists.count();i++) {
            if(lists.at(i)==lWidget) {
                if(row>=0) {
-                   displ.goToStr(i,row);
-                   emit updFocus();
+                   if(lWidget->selectedItems().count()<2) {
+                        displ.goToStr(i,row);
+                        emit updFocus();
+                   }
                }
            }
         }
@@ -156,12 +166,22 @@ void StrListWidget::showContextMenuForList(const QPoint &pos)
             }
         }
         QMenu contextMenu(tr("Context menu"), this);
-        contextMenu.addAction(insBefore);
-        contextMenu.addAction(insAfter);
-        contextMenu.addAction(enableDisableStr);
-        contextMenu.addSeparator();
+        if(w->selectedItems().count()<2) {
+            contextMenu.addAction(insBefore);
+            contextMenu.addAction(insAfter);
+            contextMenu.addAction(enableDisableStr);
+            contextMenu.addSeparator();
+        }
+
+        contextMenu.addAction(cutStr);
         contextMenu.addAction(copyStr);
-        contextMenu.addAction(pasteStr);
+
+        if(w->selectedItems().count()<2) {
+            contextMenu.addAction(pasteStr);
+        }else {
+            contextMenu.addAction(actGroup);
+            contextMenu.addAction(deactGroup);
+        }
         contextMenu.addSeparator();
         contextMenu.addAction(delStr);
         contextMenu.exec(w->mapToGlobal(pos));
@@ -185,9 +205,25 @@ void StrListWidget::insertStringAfter()
 
 void StrListWidget::deleteString()
 {
-    if(testStrNum(actData.strNum,actData.subStrNum)) {
-        displ.deleteStr(actData.strNum,actData.subStrNum);
+    if((actData.strNum<0)||(actData.strNum>=lists.count())) return;
+    QListWidget *w = lists.at(actData.strNum);
+    QList<QListWidgetItem*> selItems = w->selectedItems();
+    if(selItems.count()<2) {
+        if(testStrNum(actData.strNum,actData.subStrNum)) {
+            displ.deleteStr(actData.strNum,actData.subStrNum);
+        }
+    }else {
+        QVector<int> strNums;
+        for(int i=0;i<selItems.count();++i) {
+            strNums.append(w->row(selItems.at(i)));
+        }
+        int cnt = selItems.count();
+        qSort(strNums);
+        for(int i=0;i<cnt;++i) {
+            displ.deleteStr(actData.strNum,strNums.at(i)-i);
+        }
     }
+
 }
 
 void StrListWidget::activateDesactString()
@@ -199,19 +235,103 @@ void StrListWidget::activateDesactString()
 
 void StrListWidget::copyString()
 {
-    if(testStrNum(actData.strNum,actData.subStrNum)) {
-        displ.copyStrToBuffer(actData.strNum,actData.subStrNum);
-        curStrNumChanged(actData.strNum,displ.getCurSubStrNum(actData.strNum));
-        emit updFocus();
+    if((actData.strNum<0)||(actData.strNum>=lists.count())) return;
+    QListWidget *w = lists.at(actData.strNum);
+    QList<QListWidgetItem*> selItems = w->selectedItems();
+    if(selItems.count()<2) {
+        if(testStrNum(actData.strNum,actData.subStrNum)) {
+            displ.clearCopyStrList();
+            displ.copyStrToBuffer(actData.strNum,actData.subStrNum);
+            curStrNumChanged(actData.strNum,displ.getCurSubStrNum(actData.strNum));
+            emit updFocus();
+        }
+    }else {
+        QVector<int> strNums;
+        for(int i=0;i<selItems.count();++i) {
+            strNums.append(w->row(selItems.at(i)));
+        }
+        displ.copyStrListToBuffer(actData.strNum,strNums);
     }
+
 }
 
 void StrListWidget::pasteString()
 {
-    if(testStrNum(actData.strNum,actData.subStrNum)) {
-        displ.addEmptyStrBefore(actData.strNum, actData.subStrNum);
-        displ.pasteStrFromBuffer(actData.strNum, actData.subStrNum);
+    if((actData.strNum<0)||(actData.strNum>=lists.count())) return;
+    if(displ.getCopyStrListCount()==0) {
+        if(testStrNum(actData.strNum,actData.subStrNum)) {
+            displ.addEmptyStrBefore(actData.strNum, actData.subStrNum);
+            displ.pasteStrFromBuffer(actData.strNum, actData.subStrNum);
+            emit updFocus();
+        }
+    }else {
+        int subStrNum = actData.subStrNum;
+        for(int i=0;i<displ.getCopyStrListCount();++i) {
+            displ.addEmptyStrBefore(actData.strNum, subStrNum);
+            displ.pasteStrFromCopyListBuffer(actData.strNum, subStrNum,i);
+            subStrNum++;
+        }
         emit updFocus();
+    }
+
+}
+
+void StrListWidget::cutString()
+{
+    if((actData.strNum<0)||(actData.strNum>=lists.count())) return;
+    QListWidget *w = lists.at(actData.strNum);
+    QList<QListWidgetItem*> selItems = w->selectedItems();
+    if(selItems.count()<2) {
+        if(testStrNum(actData.strNum,actData.subStrNum)) {
+            displ.clearCopyStrList();
+            displ.copyStrToBuffer(actData.strNum,actData.subStrNum);
+            displ.deleteStr(actData.strNum,actData.subStrNum);
+            curStrNumChanged(actData.strNum,displ.getCurSubStrNum(actData.strNum));
+            emit updFocus();
+        }
+    }else {
+        QVector<int> strNums;
+        for(int i=0;i<selItems.count();++i) {
+            strNums.append(w->row(selItems.at(i)));
+        }
+        displ.copyStrListToBuffer(actData.strNum,strNums);
+        int cnt = selItems.count();
+        qSort(strNums);
+        for(int i=0;i<cnt;++i) {
+            displ.deleteStr(actData.strNum,strNums.at(i)-i);
+        }
+    }
+}
+
+void StrListWidget::activateGroup()
+{
+    if((actData.strNum<0)||(actData.strNum>=lists.count())) return;
+    QListWidget *w = lists.at(actData.strNum);
+    QList<QListWidgetItem*> selItems = w->selectedItems();
+    if(selItems.count()>=2) {
+        QVector<int> strNums;
+        for(int i=0;i<selItems.count();++i) {
+            strNums.append(w->row(selItems.at(i)));
+        }
+        for(int i=0;i<strNums.count();++i) {
+            if(!displ.getString(actData.strNum,strNums.at(i)).isActive()) displ.toggleActive(actData.strNum,strNums.at(i));
+        }
+    }
+}
+
+void StrListWidget::desactivateGroup()
+{
+    if((actData.strNum<0)||(actData.strNum>=lists.count())) return;
+    QListWidget *w = lists.at(actData.strNum);
+    QList<QListWidgetItem*> selItems = w->selectedItems();
+    if(selItems.count()>=2) {
+        QVector<int> strNums;
+        for(int i=0;i<selItems.count();++i) {
+            strNums.append(w->row(selItems.at(i)));
+        }
+        for(int i=0;i<strNums.count();++i) {
+            if(displ.getString(actData.strNum,strNums.at(i)).isActive()) displ.toggleActive(actData.strNum,strNums.at(i));
+        }
     }
 }
 

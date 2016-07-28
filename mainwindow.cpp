@@ -644,7 +644,7 @@ void MainWindow::createHelp()
 
     QAction *updateAction = new QAction(QIcon("://update.ico"), "Проверка обновлений", this);
     connect(updateAction,SIGNAL(triggered()),this,SLOT(checkUpdates()));
-    ui->menuHelp->addAction(updateAction);
+    //ui->menuHelp->addAction(updateAction);
 
     QAction *aboutAction = new QAction(QIcon("://about.ico"), "О программе", this);
     connect(aboutAction,SIGNAL(triggered()),this,SLOT(viewAboutWindow()));
