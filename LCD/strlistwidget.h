@@ -31,6 +31,9 @@ class StrListWidget : public QWidget
     QAction* enableDisableStr;
     QAction* copyStr;
     QAction* pasteStr;
+    QAction* cutStr;
+    QAction* actGroup;
+    QAction* deactGroup;
 
     subStrActionData actData;
 
@@ -56,6 +59,9 @@ private slots:
     void activateDesactString(void);
     void copyString(void);
     void pasteString(void);
+    void cutString(void);
+    void activateGroup(void);
+    void desactivateGroup(void);
 
     // QWidget interface
 protected:

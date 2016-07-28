@@ -229,6 +229,7 @@ void DisplayWidget::keyPressEvent(QKeyEvent *event)
         break;
     case Qt::Key_C:
         if (QApplication::keyboardModifiers().testFlag(Qt::ControlModifier)) {
+            displ.clearCopyStrList();
             if((selection.strNum>=0)&&(selection.startPos!=selection.stopPos)) {
                 selection.copyData.clear();
                 int begPos = (selection.startPos<selection.stopPos)?selection.startPos:selection.stopPos;
@@ -244,6 +245,7 @@ void DisplayWidget::keyPressEvent(QKeyEvent *event)
         break;
     case Qt::Key_X:
         if (QApplication::keyboardModifiers().testFlag(Qt::ControlModifier)) {
+            displ.clearCopyStrList();
             if((selection.strNum>=0)&&(selection.startPos!=selection.stopPos)) {
                 selection.copyData.clear();
                 int begPos = (selection.startPos<selection.stopPos)?selection.startPos:selection.stopPos;
