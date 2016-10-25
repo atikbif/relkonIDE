@@ -40,6 +40,7 @@
 #include <QPrintPreviewDialog>
 
 #include <QCompleter>
+#include "ModbusMaster/modbusconfdialog.h"
 
 
 QStringList MainWindow::getPrevProjects()
@@ -348,6 +349,13 @@ void MainWindow::checkUpdates()
     }
 }
 
+void MainWindow::modbusVarsConfig()
+{
+    ModbusConfDialog* dialog = new ModbusConfDialog(this);
+    dialog->exec();
+    delete dialog;
+}
+
 int MainWindow::saveWarning()
 {
     if(prChangedFlag || displ->getChanged()) {
@@ -490,6 +498,7 @@ void MainWindow::createToolbar()
     toPlcAct = new QAction(QIcon("://flash_chip.png"), "Загрузить программу в контроллер F7", this);
     editGUI = new QAction(QIcon("://config.ico"), "Настройки среды", this);
     closeProjectAct = new QAction(QIcon("://close.ico"), "Закрыть проект", this);
+    modbusVarsAct = new QAction(QIcon("://modbus.ico"), "Modbus переменные", this);
 
     noEmuAct = new QAction(QIcon("://no_emu_off.ico"), "без эмуляции", this);
     emuAct = new QAction(QIcon("://all_emu_off.ico"), "полная эмуляция", this);
@@ -515,6 +524,8 @@ void MainWindow::createToolbar()
     connect(noEmuAct, SIGNAL(triggered(bool)), this, SLOT(noEmuActSlot()));
     connect(emuAct, SIGNAL(triggered(bool)), this, SLOT(emuInpOutpActSlot()));
     connect(emuInpAct, SIGNAL(triggered(bool)), this, SLOT(emuInpActSlot()));
+
+    connect(modbusVarsAct, SIGNAL(triggered(bool)), this, SLOT(modbusVarsConfig()));
 
     ui->mainToolBar->addAction(newAct);
     ui->mainToolBar->addAction(openAct);
@@ -547,6 +558,7 @@ void MainWindow::createToolbar()
     ui->menuCmd->addAction(rdSettings);
     ui->menuCmd->addAction(toTableAction);
     ui->menuCmd->addAction(fromTableAction);
+    ui->menuCmd->addAction(modbusVarsAct);
 
     ui->mainToolBar->addSeparator();
     ui->mainToolBar->addAction(buildAct);
@@ -562,6 +574,8 @@ void MainWindow::createToolbar()
     ui->mainToolBar->addAction(emuInpAct);
     ui->mainToolBar->addAction(emuAct);
     ui->mainToolBar->addAction(sysMessAction);
+    ui->mainToolBar->addSeparator();
+    ui->mainToolBar->addAction(modbusVarsAct);
     ui->mainToolBar->addSeparator();
 }
 
@@ -837,6 +851,7 @@ void MainWindow::disableActionWithoutProject()
     dockSettings->toggleViewAction()->setEnabled(false);
     printAct->setEnabled(false);
     previewAct->setEnabled(false);
+    modbusVarsAct->setEnabled(false);
 }
 
 void MainWindow::enableActionWithProject()
@@ -869,6 +884,7 @@ void MainWindow::enableActionWithProject()
     dockSettings->toggleViewAction()->setEnabled(true);
     printAct->setEnabled(true);
     previewAct->setEnabled(true);
+    modbusVarsAct->setEnabled(true);
 }
 
 void MainWindow::newFile()

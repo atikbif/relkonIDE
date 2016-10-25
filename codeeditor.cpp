@@ -614,7 +614,9 @@ void CodeEditor::toggleFolding(QTextBlock &block)
             while(tmpBl.isValid()) {
                 QRegExp rExp1("\\s*#PROCESS\\s+\\d+\\b");
                 QRegExp rExp2("\\s*#INIT\\b");
+
                 if(tmpBl.text().contains(rExp1) || tmpBl.text().contains(rExp2)) break;
+
                 QString txt = tmpBl.text();
                 txt.remove(' ');
                 txt.remove('\t');

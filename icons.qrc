@@ -73,5 +73,6 @@
         <file>cut.ico</file>
         <file>off.ico</file>
         <file>on.ico</file>
+        <file>modbus.ico</file>
     </qresource>
 </RCC>

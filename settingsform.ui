@@ -30,107 +30,40 @@
           <string/>
          </property>
          <layout class="QGridLayout" name="gridLayout_7">
-          <item row="4" column="0" colspan="2">
-           <widget class="QGroupBox" name="groupBox_6">
+          <item row="1" column="0" colspan="2">
+           <widget class="QGroupBox" name="groupBox_2">
             <property name="title">
              <string/>
             </property>
-            <layout class="QVBoxLayout" name="verticalLayout_5">
+            <layout class="QVBoxLayout" name="verticalLayout_2">
              <item>
-              <widget class="QRadioButton" name="radioButtonNoEmulation">
-               <property name="text">
-                <string>Эмуляция отключена</string>
-               </property>
-               <property name="checked">
-                <bool>true</bool>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QRadioButton" name="radioButtonInputEmulation">
-               <property name="text">
-                <string>Эмуляция входов</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QRadioButton" name="radioButtonInputOutputEmulation">
-               <property name="text">
-                <string>Эмуляция входов/выходов</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </widget>
-          </item>
-          <item row="3" column="0" colspan="2">
-           <widget class="QGroupBox" name="groupBox_3">
-            <property name="title">
-             <string>канал PROG</string>
-            </property>
-            <layout class="QVBoxLayout" name="verticalLayout_3">
-             <item>
-              <layout class="QGridLayout" name="gridLayout_3">
+              <layout class="QGridLayout" name="gridLayout_2">
                <item row="0" column="0">
-                <widget class="QLabel" name="label_5">
+                <widget class="QLabel" name="label_3">
                  <property name="text">
-                  <string>Протокол:</string>
+                  <string>IP адрес:</string>
                  </property>
                 </widget>
                </item>
                <item row="0" column="1">
-                <widget class="QComboBox" name="comboBoxProgProtocol">
-                 <item>
-                  <property name="text">
-                   <string>RTU/BIN</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>ASCII</string>
-                  </property>
-                 </item>
+                <widget class="QLineEdit" name="lineEditIP">
+                 <property name="inputMask">
+                  <string>000.000.000.000;_</string>
+                 </property>
                 </widget>
                </item>
                <item row="1" column="0">
-                <widget class="QLabel" name="label_6">
+                <widget class="QLabel" name="label_4">
                  <property name="text">
-                  <string>Скорость:</string>
+                  <string>MAC адрес</string>
                  </property>
                 </widget>
                </item>
                <item row="1" column="1">
-                <widget class="QComboBox" name="comboBoxProgSpeed">
-                 <item>
-                  <property name="text">
-                   <string>4800</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>9600</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>19200</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>38400</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>57600</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>115200</string>
-                  </property>
-                 </item>
+                <widget class="QLineEdit" name="lineEditMAC">
+                 <property name="inputMask">
+                  <string>HH:HH:HH:HH:HH:HH;_</string>
+                 </property>
                 </widget>
                </item>
               </layout>
@@ -213,45 +146,126 @@
             </layout>
            </widget>
           </item>
-          <item row="1" column="0" colspan="2">
-           <widget class="QGroupBox" name="groupBox_2">
+          <item row="3" column="0" colspan="2">
+           <widget class="QGroupBox" name="groupBox_3">
             <property name="title">
-             <string/>
+             <string>канал PROG</string>
             </property>
-            <layout class="QVBoxLayout" name="verticalLayout_2">
+            <layout class="QVBoxLayout" name="verticalLayout_3">
              <item>
-              <layout class="QGridLayout" name="gridLayout_2">
+              <layout class="QGridLayout" name="gridLayout_3">
                <item row="0" column="0">
-                <widget class="QLabel" name="label_3">
+                <widget class="QLabel" name="label_5">
                  <property name="text">
-                  <string>IP адрес:</string>
+                  <string>Протокол:</string>
                  </property>
                 </widget>
                </item>
                <item row="0" column="1">
-                <widget class="QLineEdit" name="lineEditIP">
-                 <property name="inputMask">
-                  <string>000.000.000.000;_</string>
-                 </property>
+                <widget class="QComboBox" name="comboBoxProgProtocol">
+                 <item>
+                  <property name="text">
+                   <string>RTU/BIN</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>ASCII</string>
+                  </property>
+                 </item>
                 </widget>
                </item>
                <item row="1" column="0">
-                <widget class="QLabel" name="label_4">
+                <widget class="QLabel" name="label_6">
                  <property name="text">
-                  <string>MAC адрес</string>
+                  <string>Скорость:</string>
                  </property>
                 </widget>
                </item>
                <item row="1" column="1">
-                <widget class="QLineEdit" name="lineEditMAC">
-                 <property name="inputMask">
-                  <string>HH:HH:HH:HH:HH:HH;_</string>
-                 </property>
+                <widget class="QComboBox" name="comboBoxProgSpeed">
+                 <item>
+                  <property name="text">
+                   <string>4800</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>9600</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>19200</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>38400</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>57600</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>115200</string>
+                  </property>
+                 </item>
                 </widget>
                </item>
               </layout>
              </item>
             </layout>
+           </widget>
+          </item>
+          <item row="5" column="0" colspan="2">
+           <widget class="QGroupBox" name="groupBox_6">
+            <property name="title">
+             <string/>
+            </property>
+            <layout class="QVBoxLayout" name="verticalLayout_5">
+             <item>
+              <widget class="QRadioButton" name="radioButtonNoEmulation">
+               <property name="text">
+                <string>Эмуляция отключена</string>
+               </property>
+               <property name="checked">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QRadioButton" name="radioButtonInputEmulation">
+               <property name="text">
+                <string>Эмуляция входов</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QRadioButton" name="radioButtonInputOutputEmulation">
+               <property name="text">
+                <string>Эмуляция входов/выходов</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item row="7" column="0" colspan="2">
+           <widget class="QCheckBox" name="checkBoxSD">
+            <property name="text">
+             <string>Поддержка SD карты</string>
+            </property>
+           </widget>
+          </item>
+          <item row="8" column="0">
+           <widget class="QLabel" name="label_9">
+            <property name="text">
+             <string>Тип контроллера:</string>
+            </property>
            </widget>
           </item>
           <item row="0" column="0" colspan="2">
@@ -287,43 +301,36 @@
            </layout>
           </item>
           <item row="6" column="0" colspan="2">
-           <widget class="QCheckBox" name="checkBoxSD">
-            <property name="text">
-             <string>Поддержка SD карты</string>
-            </property>
-           </widget>
-          </item>
-          <item row="5" column="0" colspan="2">
            <widget class="QCheckBox" name="checkBoxDisplay">
             <property name="text">
              <string>Разрешить пульт на канале PU</string>
             </property>
            </widget>
           </item>
-          <item row="7" column="0">
-           <widget class="QLabel" name="label_9">
-            <property name="text">
-             <string>Тип контроллера:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="7" column="1">
-           <widget class="QComboBox" name="comboBoxPLCType"/>
-          </item>
-          <item row="9" column="1">
-           <widget class="QComboBox" name="comboBoxPrPort"/>
-          </item>
-          <item row="9" column="0">
+          <item row="10" column="0">
            <widget class="QLabel" name="label_10">
             <property name="text">
              <string>Порт программирования:</string>
             </property>
            </widget>
           </item>
-          <item row="10" column="0" colspan="2">
+          <item row="10" column="1">
+           <widget class="QComboBox" name="comboBoxPrPort"/>
+          </item>
+          <item row="11" column="0" colspan="2">
            <widget class="QPushButton" name="pushButtonPortListUpdate">
             <property name="text">
              <string>Обновить список портов</string>
+            </property>
+           </widget>
+          </item>
+          <item row="8" column="1">
+           <widget class="QComboBox" name="comboBoxPLCType"/>
+          </item>
+          <item row="4" column="0">
+           <widget class="QCheckBox" name="checkBoxModbus">
+            <property name="text">
+             <string>Modbus Master</string>
             </property>
            </widget>
           </item>

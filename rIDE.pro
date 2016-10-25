@@ -118,7 +118,12 @@ SOURCES += main.cpp\
     Debugger/BackCleaner/cleanmanager.cpp \
     Debugger/BackCleaner/cleanprocess.cpp \
     ColTable/colorlist.cpp \
-    ColTable/dialogwordcolors.cpp
+    ColTable/dialogwordcolors.cpp \
+    ModbusMaster/dialogaddeditmodbusvar.cpp \
+    ModbusMaster/modbusconfdialog.cpp \
+    ModbusMaster/modbusrequestlist.cpp \
+    ModbusMaster/modbusvar.cpp \
+    ModbusMaster/modbusvarsstorage.cpp \
 
 HEADERS  += mainwindow.h \
     codeeditor.h \
@@ -211,7 +216,12 @@ HEADERS  += mainwindow.h \
     Debugger/BackCleaner/cleanmanager.h \
     Debugger/BackCleaner/cleanprocess.h \
     ColTable/colorlist.h \
-    ColTable/dialogwordcolors.h
+    ColTable/dialogwordcolors.h \
+    ModbusMaster/dialogaddeditmodbusvar.h \
+    ModbusMaster/modbusconfdialog.h \
+    ModbusMaster/modbusrequestlist.h \
+    ModbusMaster/modbusvar.h \
+    ModbusMaster/modbusvarsstorage.h \
 
 FORMS    += mainwindow.ui \
     settingsform.ui \
@@ -225,7 +235,9 @@ FORMS    += mainwindow.ui \
     Help/aboutdialog.ui \
     Search/searchdialog.ui \
     LCD/dialogspessymb.ui \
-    ColTable/dialogwordcolors.ui
+    ColTable/dialogwordcolors.ui \
+    ModbusMaster/dialogaddeditmodbusvar.ui \
+    ModbusMaster/modbusconfdialog.ui
 
 RESOURCES += \
     icons.qrc \

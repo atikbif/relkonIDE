@@ -133,6 +133,8 @@ void SettingsForm::updateData()
     else ui->checkBoxSD->setChecked(false);
     ui->comboBoxPLCType->setCurrentText(getPLCType());
 
+    ui->checkBoxModbus->setChecked(modbusMaster);
+
     printFactorySettings();
 }
 
@@ -288,7 +290,7 @@ void SettingsForm::saveSettings()
     fName += ".sfr";
     QFile* sFile = new QFile(fName);
     if(sFile->open(QIODevice::WriteOnly)) {
-        unsigned int vers = 0x02;
+        unsigned int vers = 0x03;
         QDataStream stream(sFile);
         stream.setVersion(QDataStream::Qt_5_4);
         stream << codeWord;
@@ -297,6 +299,7 @@ void SettingsForm::saveSettings()
         stream << data;
         stream << getPLCType();
         stream << getPortName();
+        stream << ui->checkBoxModbus->isChecked();
         sFile->close();
     }
     delete sFile;
@@ -335,6 +338,18 @@ void SettingsForm::openSettings()
                 stream >> data;
                 stream >> plc;
                 stream >> port;
+                setPLCType(plc);
+                ui->comboBoxPrPort->setCurrentText(port);
+                if(stream.status()==QDataStream::Ok) {
+                    readFromBin(data);
+                    updateData();
+                }
+            }else if(versValue == 0x03) {
+                stream >> progAddr;
+                stream >> data;
+                stream >> plc;
+                stream >> port;
+                stream >> modbusMaster;
                 setPLCType(plc);
                 ui->comboBoxPrPort->setCurrentText(port);
                 if(stream.status()==QDataStream::Ok) {
