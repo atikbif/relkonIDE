@@ -12,6 +12,7 @@ class PrBuilder : public QObject
     QStringList konFile;
     int convertStrNum(int cStrNum);
     const Display& lcd;
+    QString plcType;
 
     void removeBuildFiles(const QString & prPath, const QString &prName);
 public:
@@ -22,7 +23,7 @@ signals:
     void buildIsOk(void);
 public slots:
     void buildRequest(QString prPath, QString prName);
-    void setFileText(QStringList str);
+    void setFileText(QStringList str, QString plc);
 };
 
 #endif // PRBUILDER_H

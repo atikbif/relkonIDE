@@ -78,6 +78,9 @@ int KonParser::createVarBlock()
 
 int KonParser::createInitBlock()
 {
+    double coeff = getCoeff();
+    initBlock.addString("adc_coeff="+QString::number(coeff)+";\n",1);
+
     bool initEnable = false;
     if(konSource.count()==0) return -1;
     for(int i=0;i<konSource.count();i++) {
@@ -180,4 +183,22 @@ void KonParser::parse()
 const QStringList &KonParser::getErrors() const
 {
     return parsingErrors;
+}
+
+void KonParser::setPLCType(const QString &plc)
+{
+    plcType = plc;
+}
+
+double KonParser::getCoeff()
+{
+    QRegExp re1("^PC\\d{3,3}[CB]?$");
+    if(re1.indexIn(plcType)!=-1) {
+        return 125.0/127;
+    }
+    QRegExp re2("^PC\\d{3,3}DB");
+    if(re2.indexIn(plcType)!=-1) {
+        return 1207.0/1194;
+    }
+    return 1.0;
 }

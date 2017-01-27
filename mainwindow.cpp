@@ -631,7 +631,7 @@ void MainWindow::createBuilder()
     buildProc->moveToThread(&builderThread);
     connect(&builderThread, SIGNAL(finished()), buildProc, SLOT(deleteLater()));
     connect(this, SIGNAL(startBuild(QString,QString)), buildProc, SLOT(buildRequest(QString,QString)));
-    connect(this,SIGNAL(updateKonFileForBuilder(QStringList)), buildProc, SLOT(setFileText(QStringList)));
+    connect(this,SIGNAL(updateKonFileForBuilder(QStringList,QString)), buildProc, SLOT(setFileText(QStringList,QString)));
     connect(buildProc, SIGNAL(printMessage(QString)), this, SLOT(addMessageToInfoList(QString)));
     connect(buildProc, SIGNAL(buildIsOk()),this,SLOT(buildWithoutErrors()));
     builderThread.start();
@@ -1253,7 +1253,8 @@ void MainWindow::buildPr()
         for(int i=0;i<editor->blockCount();i++) {
             conFile << editor->document()->findBlockByNumber(i).text() + " ";
         }
-        emit updateKonFileForBuilder(conFile);
+
+        emit updateKonFileForBuilder(conFile,settings->getPLCType());
         emit startBuild(prDirPath,prFileName);
     }
 }

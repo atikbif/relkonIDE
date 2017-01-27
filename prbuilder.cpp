@@ -50,9 +50,10 @@ PrBuilder::PrBuilder(const Display &d, QObject *parent) :
 {
 }
 
-void PrBuilder::setFileText(QStringList str)
+void PrBuilder::setFileText(QStringList str, QString plc)
 {
     konFile = str;
+    plcType = plc;
 }
 
 void PrBuilder::buildRequest(QString prPath, QString prName)
@@ -83,6 +84,7 @@ void PrBuilder::buildRequest(QString prPath, QString prName)
         }
 
         KonParser parser(lcd);
+        parser.setPLCType(plcType);
         FreeRtosFactory factory;
         parser.setCHFactory(&factory);
         parser.parse();

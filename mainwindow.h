@@ -76,7 +76,7 @@ public:
 
 signals:
     void startBuild(QString prPath, QString prName);
-    void updateKonFileForBuilder(QStringList str);
+    void updateKonFileForBuilder(QStringList str, QString plcType);
     void newProject(void);
     void openProject(void);
     void saveProject(void);

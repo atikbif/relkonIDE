@@ -513,6 +513,7 @@ void DebuggerForm::on_startButton_clicked()
     settings.setIpAddress(ui->lineEditIP->text());
     settings.setUdpFlag(ui->radioButtonUDP->isChecked());
     scan->setDebSettings(settings);
+    QThread::msleep(50);
 
     ui->tabWidgetCanal->setEnabled(false);
     ui->pushButtonTimeWrite->setEnabled(true);

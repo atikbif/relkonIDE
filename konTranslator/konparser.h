@@ -24,12 +24,16 @@ class KonParser
     int createInitBlock(void);
     int createProcessBlock(void);
     const Display& lcd;
+    QString plcType;
 
 public:
     explicit KonParser(const Display& d);
     void setCHFactory(AbstractCHFilesFactory* factory);
     void parse(void);
     const QStringList &getErrors(void) const;
+    void setPLCType(const QString &plc);
+private:
+    double getCoeff(void);
 };
 
 #endif // KONPARSER_H

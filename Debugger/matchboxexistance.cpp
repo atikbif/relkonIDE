@@ -22,21 +22,21 @@ QString MatchboxExistance::getMatchboxFile()
     }
 
     if(plc!="MMB507") {
-        if(plc=="PC164C") {
+        if((plc=="PC164C")||(plc=="PC164B")||(plc=="PC164DB")) {
             res += QString(" IN0 OUT0 ADC1 ADC2 ADC3 ADC4 DAC1 DAC2 ");
-        }else if(plc=="PC165C") {
+        }else if((plc=="PC165C")||(plc=="PC165B")||(plc=="PC165DB")) {
             res += QString(" IN0 IN1 OUT0 ADC1 ADC2 ADC3 ADC4 ");
-        }else if(plc=="PC263C") {
+        }else if((plc=="PC263C")||(plc=="PC263B")||(plc=="PC263DB")) {
             res += QString(" IN0 IN1 IN2 OUT0 OUT1 ADC1 ADC2 ADC3 ADC4 ADC5 ADC6 ADC7 ADC8 ");
-        }else if(plc=="PC264C") {
+        }else if((plc=="PC264C")||(plc=="PC264B")||(plc=="PC264DB")) {
             res += QString(" IN0 IN1 OUT0 OUT1 ADC1 ADC2 ADC3 ADC4 ADC5 ADC6 ADC7 ADC8 DAC1 DAC2 ");
-        }else if(plc=="PC265C") {
+        }else if((plc=="PC265C")||(plc=="PC265B")||(plc=="PC265DB")) {
             res += QString(" IN0 IN1 IN2 OUT0 OUT1 ADC1 ADC2 ADC3 ADC4 ADC5 ADC6 ADC7 ADC8 ");
-        }else if(plc=="PC363C") {
+        }else if((plc=="PC363C")||(plc=="PC363B")||(plc=="PC363DB")) {
             res += QString(" IN0 IN1 IN2 OUT0 OUT1 OUT2 ADC1 ADC2 ADC3 ADC4 ADC5 ADC6 ADC7 ADC8 ");
-        }else if(plc=="PC364C") {
+        }else if((plc=="PC364C")||(plc=="PC364B")||(plc=="PC364DB")) {
             res += QString(" IN0 IN1 IN2 OUT0 OUT1 OUT2 ADC1 ADC2 ADC3 ADC4 ADC5 ADC6 ADC7 ADC8 DAC1 DAC2 ");
-        }else if(plc=="PC365C") {
+        }else if((plc=="PC365C")||(plc=="PC365B")||(plc=="PC365DB")) {
             res += QString(" IN0 IN1 IN2 OUT0 OUT1 OUT2 ADC1 ADC2 ADC3 ADC4 ADC5 ADC6 ADC7 ADC8 ");
         }else if(plc=="PC471") {
             res += QString(" IN0 IN1 OUT0 OUT1 ADC201 ADC202 ADC203 ADC204 ADC205 ADC206 DAC1 DAC2 ");
