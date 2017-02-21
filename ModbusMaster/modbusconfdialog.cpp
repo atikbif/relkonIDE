@@ -14,21 +14,29 @@ ModbusConfDialog::ModbusConfDialog(QWidget *parent) :
     ui->tableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
     ui->tableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
     vars.openStorage(PathStorage::getBuildDir()+"/mvar.xml");
+    ui->spinBoxMaxLength->setValue(vars.getMaxLength());
+    ui->spinBoxMaxBreak->setValue(vars.getMaxSpaceLength());
+    ui->spinBoxDelay->setValue(vars.getDelay());
     for(int i=0;i<vars.getVarCnt();++i) {
         int row = ui->tableWidget->rowCount();
         ui->tableWidget->insertRow(row);
         updateRow(row,*(vars.getModbusVar(i)));
     }
+    ui->tableWidget->sortByColumn(0, Qt::AscendingOrder);
 }
 
 ModbusConfDialog::~ModbusConfDialog()
 {
+    vars.setMaxLength(ui->spinBoxMaxLength->value());
+    vars.setMaxSpaceLength(ui->spinBoxMaxBreak->value());
+    vars.setDelay(ui->spinBoxDelay->value());
     vars.saveStorage(PathStorage::getBuildDir()+"/mvar.xml");
-    ModbusRequestList rList("MB", vars);
-    rList.setMaxLength(ui->spinBoxMaxLength->value());
-    rList.setMaxSpaceLength(ui->spinBoxMaxBreak->value());
+
+    /*ModbusRequestList rList("MB", vars);
+    rList.setMaxLength(vars.getMaxLength());
+    rList.setMaxSpaceLength(vars.getMaxSpaceLength());
     QStringList reqBody = rList.getResult();
-    Q_UNUSED(reqBody)
+    Q_UNUSED(reqBody)*/
     delete ui;
 }
 
@@ -116,7 +124,6 @@ void ModbusConfDialog::on_pushButtonDel_clicked()
 
 void ModbusConfDialog::updateRow(int row, const ModbusVar &v)
 {
-    ui->tableWidget->setItem(row,0,new QTableWidgetItem(v.getVarName()));
     ModbusVar::canType cType = v.getCanType();
     if(cType==ModbusVar::CAN_MB) ui->tableWidget->setItem(row,1,new QTableWidgetItem("MB"));
     else if(cType==ModbusVar::CAN_PC) ui->tableWidget->setItem(row,1,new QTableWidgetItem("PC"));
@@ -130,6 +137,7 @@ void ModbusConfDialog::updateRow(int row, const ModbusVar &v)
     ui->tableWidget->setItem(row,5,new QTableWidgetItem(QString::number(v.getMemAddr())));
     ui->tableWidget->setItem(row,6,new QTableWidgetItem(v.getActiv()?"вкл":"откл"));
     ui->tableWidget->setItem(row,7,new QTableWidgetItem(v.getComment()));
+    ui->tableWidget->setItem(row,0,new QTableWidgetItem(v.getVarName()));
 }
 
 void ModbusConfDialog::on_pushButtonEnableAll_clicked()

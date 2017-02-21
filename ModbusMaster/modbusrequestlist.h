@@ -34,12 +34,16 @@ class ModbusRequestList
     static const unsigned char crc16H[256];
     static const unsigned char crc16L[256];
 
+    int delay;
+
 public:
     ModbusRequestList(const QString &canName, ModbusVarsStorage &mVars);
     QStringList getResult();
     QStringList getPlugResult();
     void setMaxSpaceLength(int value);
     void setMaxLength(int value);
+    void setDelay(int value) {delay = value;}
+    int getDelay() const {return delay;}
     QStringList getVarNames();
     QStringList getPlugVarNames();
 

@@ -5,7 +5,8 @@
 
 namespace modbusMaster {
 
-ModbusVarsStorage::ModbusVarsStorage()
+ModbusVarsStorage::ModbusVarsStorage():
+    maxSpaceLength(4),maxLength(16),delay(100)
 {
 
 }
@@ -87,6 +88,9 @@ bool ModbusVarsStorage::saveStorage(const QString &fullFileName)
 
     stream.writeStartElement("modbusVariables");
     stream.writeAttribute("version", "1.0");
+    stream.writeAttribute("maxLength",QString::number(maxLength));
+    stream.writeAttribute("maxSpaceLength",QString::number(maxSpaceLength));
+    stream.writeAttribute("delay",QString::number(delay));
     for(QSharedPointer<ModbusVar> var:vars) {
         stream.writeStartElement("variable");
         stream.writeTextElement("name",var->getVarName());
@@ -122,6 +126,9 @@ bool ModbusVarsStorage::openStorage(const QString &fullFileName)
     file.close();
 
     QDomElement documentElement = doc.documentElement();
+    maxLength = documentElement.attribute("maxLength").toInt();
+    maxSpaceLength = documentElement.attribute("maxSpaceLength").toInt();
+    delay = documentElement.attribute("delay").toInt();
     QDomNodeList elements = documentElement.elementsByTagName( "variable" );
     for(int i=0;i<elements.count();++i) {
         QDomNode n = elements.at(i).firstChild();
@@ -170,6 +177,16 @@ void ModbusVarsStorage::disableAll()
     for(auto &var:vars) {
         var->setActiv(false);
     }
+}
+
+void ModbusVarsStorage::setMaxSpaceLength(int value)
+{
+    maxSpaceLength = value;
+}
+
+void ModbusVarsStorage::setMaxLength(int value)
+{
+    maxLength = value;
 }
 
 }

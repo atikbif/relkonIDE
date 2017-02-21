@@ -44,6 +44,7 @@ class VarsCreator : public QObject
     void addDispVar(CompositeVar* parent);
     void addSituationNum(CompositeVar* parent);
     void addDisplVars(CompositeVar* parent);
+    void addModbusVars(CompositeVar* parent);
     void addExchangeBufs(CompositeVar* parent);
     void addTimeVars(CompositeVar* parent);
 public:

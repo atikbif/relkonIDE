@@ -76,7 +76,8 @@ QStringList ModbusRequestList::getVarNames()
 {
     QStringList res;
     const unsigned char varsCountInString = 5;
-    res += "extern const unsigned short " + can.toLower() + "_req_count=" + QString::number(reqs.count());
+    res += "const unsigned short " + can.toLower() + "_req_count=" + QString::number(reqs.count())+";";
+    res += "const unsigned short modbus_delay = " + QString::number(delay)+";";
     int varIndex = 0;
     int strNum=0;
 
@@ -86,7 +87,7 @@ QStringList ModbusRequestList::getVarNames()
             varIndex = strNum*varsCountInString + i;
             if(varIndex>=vars.count()) break;
             s += vars.at(varIndex)->getVarName();
-            if(i!=varsCountInString-1) s += ",";
+            if((i!=varsCountInString-1)&&(varIndex+1<vars.count())) s += ",";
         }
         s += ";";
         res += s;
@@ -98,14 +99,16 @@ QStringList ModbusRequestList::getVarNames()
 
 QStringList ModbusRequestList::getPlugVarNames()
 {
-    return QStringList() << "extern const unsigned short " + can.toLower() + "_req_count=0;";
+    return QStringList() << "const unsigned short " + can.toLower() + "_req_count=0;" <<
+                            "const unsigned short modbus_delay = 100;";
 }
 
 QStringList ModbusRequestList::getHeader()
 {
     QStringList res;
+    res+="#include \"mmb.h\"";
     res+=getVarNames();
-    res+="typedef struct";
+    /*res+="typedef struct";
     res+="{";
     res+="\tunsigned short start_byte_num;";
     res+="\tchar bit_offset;";
@@ -120,12 +123,12 @@ QStringList ModbusRequestList::getHeader()
     res+="\tconst mvar *varsPtr;";
     res+="\tunsigned short varCnt;";
     res+="\tunsigned char wr_flag;";
-    res+="}mvar_reqs;";
+    res+="}mvar_reqs;";*/
     return res;
 }
 
 ModbusRequestList::ModbusRequestList(const QString &canName, ModbusVarsStorage &mVars):can(canName),
-    maxSpaceLength(16),maxLength(128)
+    maxSpaceLength(16),maxLength(128),delay(100)
 {
     int varCnt = mVars.getVarCnt();
     for(int i=0;i<varCnt;++i) {
@@ -366,7 +369,7 @@ QStringList ModbusRequestList::getReqText()
         res += "};";
     }
     res+="";
-    res += "const " + can.toLower() + "_mvar_reqs[] = {";
+    res += "const mvar_reqs " + can.toLower() + "_mvar_reqs[] = {";
     for(int i=0;i<reqs.count();++i) {
         Request r = reqs.at(i);
         QString reqStr = "{\"";

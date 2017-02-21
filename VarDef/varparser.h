@@ -142,6 +142,7 @@ public:
     static bool readSitNum(QVector<int> &addr, QVector<int> &prNum);
     static bool readDisplVars(QStringList &names, QVector<int> &addr, QStringList &types);
     static bool readExchangeBufs(QStringList &names, QVector<int> &addr);
+    static bool readModbusVars(QStringList &names, QVector<int> &addr);
     ~VarParser();
 };
 

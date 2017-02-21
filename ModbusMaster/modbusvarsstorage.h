@@ -15,6 +15,9 @@ class ModbusVarsStorage
     const QString coilsName="Coils";
     const QString holdRegsName="HoldingRegisters";
     const QString inpregsName="InputRegisters";
+    int maxSpaceLength;
+    int maxLength;
+    int delay;
 public:
     ModbusVarsStorage();
     int getVarCnt() const {return vars.count();}
@@ -28,6 +31,12 @@ public:
     bool openStorage(const QString &fullFileName);
     void enableAll();
     void disableAll();
+    void setMaxSpaceLength(int value);
+    void setMaxLength(int value);
+    int getMaxSpaceLength() const {return maxSpaceLength;}
+    int getMaxLength() const {return maxLength;}
+    int getDelay() const {return delay;}
+    void setDelay(int value) {delay = value;}
 };
 
 }
