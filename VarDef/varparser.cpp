@@ -9,6 +9,10 @@
 #include "RCompiler/rcompiler.h"
 #include "VarDef/varitem.h"
 #include "pathstorage.h"
+#include "ModbusMaster/modbusvarsstorage.h"
+#include "ModbusMaster/modbusrequestlist.h"
+
+using namespace modbusMaster;
 
 void VarParser::getVarsBlock()
 {
@@ -646,6 +650,40 @@ bool VarParser::readExchangeBufs(QStringList &names, QVector<int> &addr)
                    }else if(vName.contains(QRegExp("\\b[TR]X_[1-8]\\b"))) {
                        names+=vName;
                        addr+=varAddress - 0x20000000;
+                   }
+               }
+           }
+       }
+    }
+    file.close();
+    return true;
+}
+
+bool VarParser::readModbusVars(QStringList &names, QVector<int> &addr)
+{
+    ModbusVarsStorage vars;
+    vars.openStorage(PathStorage::getBuildDir()+"/mvar.xml");
+    QStringList vn = vars.getModbusVarsNames();
+
+    QString fName = PathStorage::getMapFileFullName();
+    QFile file(fName);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+            return false;
+    QTextStream in(&file);
+
+    while (!in.atEnd()) {
+       QString line = in.readLine();
+       if(line.contains("OBJECT")) {
+           QStringList fields = line.split(QRegExp("[\\s\\t]+"));
+           fields.removeFirst();
+           if(fields.count()==8) {
+               bool convRes = false;
+               int varAddress = fields[1].toInt(&convRes,16);
+               if(convRes) {
+                   QString vName = fields.last();
+                   if(vn.contains(vName)) {
+                       names += vName;
+                       addr += varAddress - 0x20000000;
                    }
                }
            }

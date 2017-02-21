@@ -36,6 +36,7 @@ protected:
     bool sdOn;
     QString konFileName;
     QString plcType;
+    bool modbusMaster;
     QHash<QString,QString> plcBuilds;
 
     virtual void updateData(void)=0;    // обновление GUI

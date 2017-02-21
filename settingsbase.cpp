@@ -17,6 +17,7 @@ void SettingsBase::clearSettings()
     displayOn = false;
     sdOn = false;
     plcType = "PC365C";
+    modbusMaster = false;
     readPLCTypes();
     emit emuModeChanged(NoEmulation);
 }

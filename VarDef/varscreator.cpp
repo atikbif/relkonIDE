@@ -95,6 +95,7 @@ void VarsCreator::createSysVars(CompositeVar* parent)
     addDispVar(parent);
     addSituationNum(parent);
     addDisplVars(parent);
+    addModbusVars(parent);
     addExchangeBufs(parent);
     addTimeVars(parent);
 }
@@ -468,6 +469,28 @@ void VarsCreator::addDisplVars(CompositeVar *parent)
             }
         parent->addChild(*displVar);
         ids.addVar(displVar);
+    }
+}
+
+void VarsCreator::addModbusVars(CompositeVar *parent)
+{
+    QStringList varNames;
+    QVector<int> varAddr;
+    if(VarParser::readModbusVars(varNames,varAddr)) {
+        CompositeVar* mVar = new CompositeVar();
+        mVar->setName("MODBUS");
+            for(int i=0;i<varNames.count();i++) {
+                CompositeVar* var = new CompositeVar();
+                var->setName(varNames.at(i));
+                var->setDataType(VarItem::ushortType);
+                var->setMemAddress(varAddr.at(i));
+                var->setMemType("RAM");
+                //var->setEditable(false);
+                mVar->addChild(*var);
+                ids.addVar(var);
+            }
+        parent->addChild(*mVar);
+        ids.addVar(mVar);
     }
 }
 

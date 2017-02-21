@@ -32,6 +32,7 @@ public:
     void updateTable(void);
     void setEmuMode(emuType value);
     QString getPortName() const;
+    bool isModbusMasterEnable() const {return modbusMaster;}
 
 
 private slots:

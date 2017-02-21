@@ -5,6 +5,10 @@
 #include <QTextStream>
 #include <LCD/ccodecreator.h>
 #include "pathstorage.h"
+#include "ModbusMaster/modbusvarsstorage.h"
+#include "ModbusMaster/modbusrequestlist.h"
+
+using namespace modbusMaster;
 
 FreeRtosGenerator::FreeRtosGenerator(const Display &d): CHGenerator(d)
 {
@@ -482,6 +486,21 @@ void FreeRtosGenerator::createFcuC()
     out << "const unsigned short S4_max = " + QString::number(lcd.getVisibleSubStrCount(lcd.getStrCount()-1)) + ";\n";
 
     out << "\n";
+
+    // modbus master
+
+    ModbusVarsStorage vars;
+    vars.openStorage(PathStorage::getBuildDir()+"/mvar.xml");
+    ModbusRequestList rList("MB", vars);
+    rList.setMaxLength(vars.getMaxLength());
+    rList.setMaxSpaceLength(vars.getMaxSpaceLength());
+    rList.setDelay(vars.getDelay());
+    QStringList reqBody;
+    if(vars.getVarCnt()) reqBody = rList.getResult();
+    else reqBody = rList.getPlugResult();
+    for(const QString &s: reqBody) {
+        out << s+"\n";
+    }
 
     // matchbox defenition
 

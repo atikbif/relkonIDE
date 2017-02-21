@@ -116,6 +116,7 @@ private:
     QAction *rp6Act;
     QAction *printAct;
     QAction *previewAct;
+    QAction *modbusVarsAct;
 
 
 
@@ -182,6 +183,7 @@ private slots:
     void previewText();
     void printPreview(QPrinter *printer);
     void checkUpdates(void);
+    void modbusVarsConfig();
 
 
 public slots:
