@@ -34,6 +34,31 @@ int PrBuilder::convertStrNum(int cStrNum)
     return 0;
 }
 
+QString PrBuilder::chekPultVarError(int cStrNum)
+{
+    QString fileName = PathStorage::getSrcDir();
+    fileName += "/fc_u.c";
+    QFile file(fileName);
+    if (file.open(QIODevice::ReadOnly)) {
+        QTextStream in (&file);
+        int strNum = 0;
+        QString str;
+        while (!in.atEnd()) {
+            str = in.readLine();
+            strNum++;
+            if(strNum==cStrNum) {
+                QRegExp exp("PULT (\\d+):(\\d+)");
+                if(exp.indexIn(str)!=-1) {
+                    file.close();
+                    return exp.cap(0);
+                }
+            }
+        }
+        file.close();
+    }
+    return QString();
+}
+
 void PrBuilder::removeBuildFiles(const QString & prPath, const QString &prName)
 {
     Q_UNUSED(prName)
@@ -133,6 +158,9 @@ void PrBuilder::buildRequest(QString prPath, QString prName)
                         int konNum = convertStrNum(compileErr.at(i).strNum);
                         if(konNum>0) {
                             errText += " (строка:" +QString::number(konNum)+")";
+                        }else {
+                            QString pultStr = chekPultVarError(compileErr.at(i).strNum);
+                            if(!pultStr.isEmpty()) errText+= " " + pultStr;
                         }
                     }
                     emit printMessage(errText);

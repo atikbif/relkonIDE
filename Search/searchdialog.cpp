@@ -137,6 +137,12 @@ void SearchDialog::keyPressEvent(QKeyEvent *event)
 void SearchDialog::on_pushButtonReplaceAll_clicked()
 {
     if(!ui->lineEditReplace->text().isEmpty()) {
-        emit replaceAll(ui->comboBoxSearch->currentText(), ui->lineEditReplace->text());
+        SearchData sData;
+        sData.setRoundcondition(ui->checkBoxRound->isChecked());
+        sData.setSearchText(ui->comboBoxSearch->currentText());
+        sData.setCaseSensivity(ui->checkBoxCaseSens->isChecked());
+        sData.setWholeWord(ui->checkBoxWholeWord->isChecked());
+        sData.setSearchRegion(ui->radioButtonForward->isChecked()?SearchData::FORWARD:SearchData::BACKWARD);
+        emit replaceAll(sData, ui->lineEditReplace->text());
     }
 }

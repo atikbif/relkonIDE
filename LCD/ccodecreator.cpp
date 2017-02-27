@@ -70,7 +70,7 @@ QString CCodeCreator::printFloatVar(const QString &name, int str, int pos, int l
     QString res = "\t\t\tprint_float("+name+"," +
             QString::number(str+1) + "," + QString::number(pos+1) +
             "," + QString::number(length) +
-            "," + QString::number(frLength) + ");\n";
+            "," + QString::number(frLength) + ");";
     return res;
 }
 
@@ -80,7 +80,7 @@ QString CCodeCreator::printEditEEVar(int eePosInTable, int str, int pos, int len
         "," + QString::number(str+1) + "," + QString::number(pos+1) +
         "," + QString::number(length) +
         "," + QString::number(frLength) + "," +
-        QString::number(vType) + ");\n";
+        QString::number(vType) + ");";
     return res;
 }
 
@@ -96,7 +96,7 @@ QString CCodeCreator::printTimeVar(const QString &name, int str, int pos)
     if(tCode != -1) {
         QString res = "\t\tprint_time(" +
             QString::number(str+1) + "," + QString::number(pos+1) +
-            "," + QString::number(tCode) + ");\n";
+            "," + QString::number(tCode) + ");";
         return res;
     }
     return QString();
@@ -108,7 +108,7 @@ QString CCodeCreator::printPlainEditVar(const QString &name, int str, int pos, i
             QString::number(str+1) + "," + QString::number(pos+1) +
             "," + QString::number(length) +
             "," + QString::number(frLength) + "," +
-            QString::number(vType) + ");\n";
+            QString::number(vType) + ");";
     return res;
 }
 
@@ -117,7 +117,7 @@ QString CCodeCreator::printLongVar(const QString &name, int str, int pos, int le
     QString res = "\t\t\tprint_long("+name+"," +
        QString::number(str+1) + "," + QString::number(pos+1) +
        "," + QString::number(length) +
-       "," + QString::number(frLength) + ");\n";
+       "," + QString::number(frLength) + ");";
     return res;
 }
 
@@ -177,11 +177,12 @@ QStringList CCodeCreator::getText(const Display &d)
                 QString prVarsStr;
                 foreach (PultVarDefinition vDef, varList) {
                    if(!vDef.getName().isEmpty()) {
-                       prVarsStr += printVar(d,vDef,i);
+                       prVarsStr += printVar(d,vDef,i) + "// PULT " + QString::number(i) + ":" +QString::number(j-invisVarCnt) + "\n";
                    }
                 }
                 if(!prVarsStr.isEmpty()) {
-                    prVarsStr = "\t\tcase " + QString::number(j-invisVarCnt) + ":\n" + prVarsStr + "\t\tbreak;\n";
+                    prVarsStr = "\t\tcase " + QString::number(j-invisVarCnt) + ":\n" +
+                            prVarsStr + "\t\tbreak;\n";
                     code << prVarsStr;
                 }
             }else invisVarCnt++;

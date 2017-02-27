@@ -22,7 +22,7 @@ public:
 signals:
     void startSearch(const SearchData &sInfo);
     void replace(const QString &newText);
-    void replaceAll(const QString &inpText, const QString &outText);
+    void replaceAll(const SearchData &sInfo, const QString &outText);
     void goToStr(int strNum, const SearchData &sInfo);
     void unfoldStr(int strNum);
 public slots:

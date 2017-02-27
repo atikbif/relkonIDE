@@ -11,6 +11,7 @@ class PrBuilder : public QObject
     bool newBuild = false;
     QStringList konFile;
     int convertStrNum(int cStrNum);
+    QString chekPultVarError(int cStrNum);
     const Display& lcd;
     QString plcType;
 

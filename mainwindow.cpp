@@ -1085,7 +1085,7 @@ void MainWindow::searchText()
         connect(dialog,SIGNAL(goToStr(int,SearchData)),this,SLOT(goToStr(int,SearchData)));
         connect(dialog,SIGNAL(unfoldStr(int)),this,SLOT(unfoldStr(int)));
         connect(dialog,SIGNAL(replace(QString)),this,SLOT(replaceTxt(QString)));
-        connect(dialog,SIGNAL(replaceAll(QString,QString)),this,SLOT(replaceAll(QString,QString)));
+        connect(dialog,SIGNAL(replaceAll(SearchData,QString)),this,SLOT(replaceAll(SearchData,QString)));
         dialog->show();
     }
 }
@@ -1095,12 +1095,12 @@ void MainWindow::searchCmd(const SearchData &sData)
     QStringList sList;
     QTextDocument::FindFlags flags;
     if(sData.getCaseSensivity()) flags |= QTextDocument::FindCaseSensitively;
-    if(sData.getWholeWord()) flags |= QTextDocument::FindWholeWords;
     if(sData.getSearchRegion()==SearchData::BACKWARD) flags |= QTextDocument::FindBackward;
 
     QTextCursor highlightCursor = editor->textCursor();
     if(sData.getWholeWord()) {
-        QRegExp exp("\\b"+ sData.getSearchText() + "\\b");
+        QRegExp exp("\\b"+ QRegExp::escape(sData.getSearchText()));
+        if(!sData.getCaseSensivity()) exp.setCaseSensitivity(Qt::CaseInsensitive);
         highlightCursor = editor->document()->find(exp , highlightCursor, flags);
     }else {
         highlightCursor = editor->document()->find(sData.getSearchText() , highlightCursor, flags);
@@ -1118,12 +1118,13 @@ void MainWindow::searchCmd(const SearchData &sData)
         QString strText = editor->document()->findBlockByNumber(blNum).text();
         if(sData.getWholeWord()) {
             QString exprStr = strText;
-            QString searchText = sData.getSearchText();
-            if(!sData.getCaseSensivity()) {
+            QString searchText = QRegExp::escape(sData.getSearchText());
+            /*if(!sData.getCaseSensivity()) {
                 exprStr = exprStr.toLower();
                 searchText = searchText.toLower();
-            }
-            QRegExp exp("\\b"+ searchText + "\\b");
+            }*/
+            QRegExp exp("\\b"+ searchText);
+            if(!sData.getCaseSensivity()) exp.setCaseSensitivity(Qt::CaseInsensitive);
             if(exp.indexIn(exprStr)==-1) strText="";
         }
         if(!strText.isEmpty()) {
@@ -1131,7 +1132,8 @@ void MainWindow::searchCmd(const SearchData &sData)
             sList << strText;
         }
         if(sData.getWholeWord()) {
-            QRegExp exp("\\b"+ sData.getSearchText() + "\\b");
+            QRegExp exp("\\b"+ QRegExp::escape(sData.getSearchText()));
+            if(!sData.getCaseSensivity()) exp.setCaseSensitivity(Qt::CaseInsensitive);
             highlightCursor = editor->document()->find(exp , highlightCursor, flags);
         }else {
             highlightCursor = editor->document()->find(sData.getSearchText() , highlightCursor, flags);
@@ -1142,7 +1144,8 @@ void MainWindow::searchCmd(const SearchData &sData)
         highlightCursor.movePosition(QTextCursor::Start);
         if(flags & QTextDocument::FindBackward) {highlightCursor.movePosition(QTextCursor::End);}
         if(sData.getWholeWord()) {
-            QRegExp exp("\\b"+ sData.getSearchText() + "\\b");
+            QRegExp exp("\\b"+ QRegExp::escape(sData.getSearchText()));
+            if(!sData.getCaseSensivity()) exp.setCaseSensitivity(Qt::CaseInsensitive);
             highlightCursor = editor->document()->find(exp , highlightCursor, flags);
         }else {
             highlightCursor = editor->document()->find(sData.getSearchText() , highlightCursor, flags);
@@ -1163,12 +1166,13 @@ void MainWindow::searchCmd(const SearchData &sData)
             QString strText = editor->document()->findBlockByNumber(blNum).text();
             if(sData.getWholeWord()) {
                 QString exprStr = strText;
-                QString searchText = sData.getSearchText();
-                if(!sData.getCaseSensivity()) {
+                QString searchText = QRegExp::escape(sData.getSearchText());
+                /*if(!sData.getCaseSensivity()) {
                     exprStr = exprStr.toLower();
-                    searchText = searchText.toLower();
-                }
-                QRegExp exp("\\b"+ searchText + "\\b");
+                    searchText = QRegExp::escape(searchText.toLower());
+                }*/
+                QRegExp exp("\\b"+ searchText);
+                if(!sData.getCaseSensivity()) exp.setCaseSensitivity(Qt::CaseInsensitive);
                 if(exp.indexIn(exprStr)==-1) strText="";
             }
             if(!strText.isEmpty()) {
@@ -1176,7 +1180,8 @@ void MainWindow::searchCmd(const SearchData &sData)
                 sList << strText;
             }
             if(sData.getWholeWord()) {
-                QRegExp exp("\\b"+ sData.getSearchText() + "\\b");
+                QRegExp exp("\\b"+ QRegExp::escape(sData.getSearchText()));
+                if(!sData.getCaseSensivity()) exp.setCaseSensitivity(Qt::CaseInsensitive);
                 highlightCursor = editor->document()->find(exp , highlightCursor, flags);
             }else {
                 highlightCursor = editor->document()->find(sData.getSearchText() , highlightCursor, flags);
@@ -1232,7 +1237,7 @@ void MainWindow::replaceTxt(const QString &newTxt)
     }
 }
 
-void MainWindow::replaceAll(const QString &inp, const QString &out)
+void MainWindow::replaceAll(const SearchData &sData, const QString &out)
 {
     QTextCursor cursor = editor->textCursor();
     cursor.beginEditBlock();
@@ -1240,11 +1245,19 @@ void MainWindow::replaceAll(const QString &inp, const QString &out)
     QTextCursor newCursor = cursor;
     quint64 count = 0;
     QTextDocument::FindFlags options;
-    options = options | QTextDocument::FindCaseSensitively;
-    options = options | QTextDocument::FindWholeWords;
+    if(sData.getCaseSensivity()) options |= QTextDocument::FindCaseSensitively;
+
     while (true)
     {
-        newCursor = editor->document()->find(inp, newCursor, options);
+        if(sData.getWholeWord()) {
+            QRegExp exp("\\b"+ QRegExp::escape(sData.getSearchText()));
+            if(!sData.getCaseSensivity()) exp.setCaseSensitivity(Qt::CaseInsensitive);
+            newCursor = editor->document()->find(exp, newCursor, options);
+        }else {
+            newCursor = editor->document()->find(sData.getSearchText(), newCursor, options);
+        }
+
+        //newCursor = editor->document()->find(exp, newCursor, options);
         if (!newCursor.isNull())
         {
             if (newCursor.hasSelection())

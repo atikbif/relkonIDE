@@ -137,7 +137,7 @@ private slots:
     void goToStr(int strNum, const SearchData &sData);
     void unfoldStr(int strNum);
     void replaceTxt(const QString &newTxt);
-    void replaceAll(const QString &inp, const QString &out);
+    void replaceAll(const SearchData &sData, const QString &out);
     void buildPr(void);
     void projectToPlc(void);
     void progrAll(void);
