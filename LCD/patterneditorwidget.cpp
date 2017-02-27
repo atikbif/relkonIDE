@@ -81,12 +81,14 @@ void PatternEditorWidget::showEditAndSign(PultVarDefinition &vDef)
 void PatternEditorWidget::showVar(PultVarDefinition &vDef, const QString &comment)
 {
     QString vName = varOwner.getFullNameOfVar(vDef.getId()).remove(QRegExp("^[^\\.]*\\.[^\\.]*\\."));
-    if(!vName.contains(QRegExp(".*\\.\\d+.*"))) {
+    /*if(!vName.contains(QRegExp(".*\\.\\d+.*"))) {
         QStringList names = vName.split(".");
         vName = names.last();
-    }
+    }*/
 
     nameEdit->setStyleSheet("QLineEdit{background: yellow;}");
+    vName.remove(QRegExp("^EE\\.(char|short|long)\\."));
+    vName.remove(QRegExp("^Disp\\.(char|short|long)\\."));
     nameEdit->setText(vName);
     typeEdit->setText(vDef.getDataType());
     commentEdit->setText(comment);
@@ -301,10 +303,12 @@ void PatternEditorWidget::doubleClickedVar(QTreeWidgetItem *item, int column)
         QString id = idWidgetItem.key(item);
         VarItem var = varOwner.getVarByID(id);
         QString vName = item->toolTip(0).remove(QRegExp("^[^\\.]*\\.[^\\.]*\\."));
-        if(!vName.contains(QRegExp(".*\\.\\d+.*"))) {
+        vName.remove(QRegExp("^EE\\.(char|short|long)\\."));
+        vName.remove(QRegExp("^Disp\\.(char|short|long)\\."));
+        /*if(!vName.contains(QRegExp(".*\\.\\d+.*"))) {
             QStringList names = vName.split(".");
             vName = names.last();
-        }
+        }*/
         nameEdit->setStyleSheet("QLineEdit{background: red;}");
         nameEdit->setText(vName);
         typeEdit->setText(var.getDataType());

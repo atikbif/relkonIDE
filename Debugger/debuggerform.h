@@ -82,6 +82,7 @@ public:
     void tabChanged();
     void setNetAddress(int value);
     void closeQuickWatch();
+    void setIP(const QString &ip);
     ~DebuggerForm();
 
 private slots:

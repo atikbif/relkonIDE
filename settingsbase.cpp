@@ -37,6 +37,11 @@ QString SettingsBase::getBuildName()
     return plcBuilds.value(plcType);
 }
 
+QString SettingsBase::getIP() const
+{
+    return QString::number(ipAddr[0])+"."+QString::number(ipAddr[1])+"."+QString::number(ipAddr[2])+"."+QString::number(ipAddr[3]);
+}
+
 void SettingsBase::readPLCTypes()
 {
     QDomDocument doc("plc");

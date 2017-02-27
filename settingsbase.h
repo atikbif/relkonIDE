@@ -63,6 +63,7 @@ public:
     QString getBuildName();
     virtual void setEmuMode(emuType value)=0;
     virtual QString getPortName() const=0;
+    QString getIP() const;
 
 signals:
     writeToPLC(QByteArray binData);    // запрос записи данных в ПЛК

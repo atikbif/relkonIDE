@@ -115,12 +115,20 @@ void DebuggerForm::openView()
         QDomElement e = n.toElement();
         if(!e.isNull()) {
             QString fullName = e.attribute("name");
+
             QString newId = fullNames.value(fullName);
             // проверка на наличие в текущем проекте переменной с указанным именем
             if(!newId.isEmpty()) {
                 VarItem var = varOwner.getVarByID(newId);
                 QStringList sList;
                 QString varName;
+
+                bool structFlag = false;
+                if(iter->goToID(newId)) {
+                    if(iter->up()) {
+                        do{if(varOwner.getVarByID(iter->currentID()).getDataType().contains("структура")) structFlag = true;}while (iter->up());
+                    }
+                }
 
                 QStringList fNameList = fullName.split('.');
                 // Удаление из имени 2-х первых узлов (Переменные.(пользватель/система))
@@ -131,7 +139,7 @@ void DebuggerForm::openView()
                 varName.remove(0,1);// удаление стартовой "."
 
                 QRegExp exp(".*\\.\\d+.*");
-                if(exp.indexIn(varName)==-1) {
+                if((exp.indexIn(varName)==-1)&&(!structFlag)) {
                     QStringList names = varName.split(".");
                     varName = names.last();
                 }
@@ -221,6 +229,11 @@ void DebuggerForm::setNetAddress(int value)
 void DebuggerForm::closeQuickWatch()
 {
     ui->checkBoxQuickWatch->setChecked(false);
+}
+
+void DebuggerForm::setIP(const QString &ip)
+{
+    ui->lineEditIP->setText(ip);
 }
 
 void DebuggerForm::stopDebugger()
@@ -429,9 +442,13 @@ void DebuggerForm::on_treeWidgetMain_itemDoubleClicked(QTreeWidgetItem *item, in
             QStringList sList;
             QString varName;
             QString fullName = var.getName();
+            bool structFlag = false;
             if(iter->up()) {
                 VarItem var = varOwner.getVarByID(iter->currentID());
-                do{var = varOwner.getVarByID(iter->currentID());fullName = var.getName()+"."+fullName;}while (iter->up());
+                do{
+                    var = varOwner.getVarByID(iter->currentID());fullName = var.getName()+"."+fullName;
+                    if(var.getDataType().contains("структура")) structFlag = true;
+                }while (iter->up());
             }
             QStringList fNameList = fullName.split('.');
             fNameList.removeFirst();fNameList.removeFirst();
@@ -443,7 +460,7 @@ void DebuggerForm::on_treeWidgetMain_itemDoubleClicked(QTreeWidgetItem *item, in
             if(idActiveWidgetItem.contains(id)) return;
 
             QRegExp exp(".*\\.\\d+.*");
-            if(exp.indexIn(varName)==-1) {
+            if((exp.indexIn(varName)==-1)&&(!structFlag)) {
                 QStringList names = varName.split(".");
                 varName = names.last();
             }
