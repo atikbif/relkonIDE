@@ -38,6 +38,7 @@ protected:
     QString plcType;
     bool modbusMaster;
     QHash<QString,QString> plcBuilds;
+    int eMemSize;
 
     virtual void updateData(void)=0;    // обновление GUI
     virtual void writeToBin(QByteArray &outData)=0; // запись настроек в бинарный массив
@@ -64,6 +65,7 @@ public:
     virtual void setEmuMode(emuType value)=0;
     virtual QString getPortName() const=0;
     QString getIP() const;
+    int getEMemSize() const {return eMemSize;}
 
 signals:
     writeToPLC(QByteArray binData);    // запрос записи данных в ПЛК

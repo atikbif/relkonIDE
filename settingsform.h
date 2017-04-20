@@ -52,6 +52,8 @@ private slots:
 
     void on_pushButtonPortListUpdate_clicked();
 
+    void on_spinBoxEMemSize_valueChanged(int arg1);
+
 public slots:
     void readFromBin(const QByteArray inpData); // прочитать настройки из бинарного массива
     void writeSysFram(void);

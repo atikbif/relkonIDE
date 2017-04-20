@@ -13,7 +13,7 @@ QT       += printsupport
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 RC_ICONS = R.ico
-VERSION = 1.0.0.65
+VERSION = 1.0.0.66
 
 QMAKE_TARGET_COMPANY = Kontel Co
 QMAKE_TARGET_PRODUCT = RIDE (Relkon7)
@@ -125,6 +125,7 @@ SOURCES += main.cpp\
     ModbusMaster/modbusrequestlist.cpp \
     ModbusMaster/modbusvar.cpp \
     ModbusMaster/modbusvarsstorage.cpp \
+    fcucsettings.cpp
 
 HEADERS  += mainwindow.h \
     codeeditor.h \
@@ -223,6 +224,7 @@ HEADERS  += mainwindow.h \
     ModbusMaster/modbusrequestlist.h \
     ModbusMaster/modbusvar.h \
     ModbusMaster/modbusvarsstorage.h \
+    fcucsettings.h
 
 FORMS    += mainwindow.ui \
     settingsform.ui \

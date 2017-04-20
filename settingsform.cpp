@@ -134,6 +134,7 @@ void SettingsForm::updateData()
     ui->comboBoxPLCType->setCurrentText(getPLCType());
 
     ui->checkBoxModbus->setChecked(modbusMaster);
+    ui->spinBoxEMemSize->setValue(eMemSize);
 
     printFactorySettings();
 }
@@ -255,6 +256,7 @@ SettingsForm::SettingsForm(SettingsBase *parent) :
         ui->comboBoxPLCType->addItem(plcName);
     }
     ui->comboBoxPLCType->setCurrentText(getPLCType());
+    ui->spinBoxEMemSize->setValue(eMemSize);
 
     on_pushButtonPortListUpdate_clicked();
 
@@ -290,7 +292,7 @@ void SettingsForm::saveSettings()
     fName += ".sfr";
     QFile* sFile = new QFile(fName);
     if(sFile->open(QIODevice::WriteOnly)) {
-        unsigned int vers = 0x03;
+        unsigned int vers = 0x04;
         QDataStream stream(sFile);
         stream.setVersion(QDataStream::Qt_5_4);
         stream << codeWord;
@@ -300,6 +302,7 @@ void SettingsForm::saveSettings()
         stream << getPLCType();
         stream << getPortName();
         stream << ui->checkBoxModbus->isChecked();
+        stream << ui->spinBoxEMemSize->value();
         sFile->close();
     }
     delete sFile;
@@ -328,6 +331,7 @@ void SettingsForm::openSettings()
                 stream >> data;
                 stream >> plc;
                 setPLCType(plc);
+                eMemSize = 10;
                 //ui->comboBoxPrPort->setCurrentText(port);
                 if(stream.status()==QDataStream::Ok) {
                     readFromBin(data);
@@ -340,6 +344,7 @@ void SettingsForm::openSettings()
                 stream >> port;
                 setPLCType(plc);
                 ui->comboBoxPrPort->setCurrentText(port);
+                eMemSize = 10;
                 if(stream.status()==QDataStream::Ok) {
                     readFromBin(data);
                     updateData();
@@ -350,6 +355,20 @@ void SettingsForm::openSettings()
                 stream >> plc;
                 stream >> port;
                 stream >> modbusMaster;
+                setPLCType(plc);
+                ui->comboBoxPrPort->setCurrentText(port);
+                eMemSize = 10;
+                if(stream.status()==QDataStream::Ok) {
+                    readFromBin(data);
+                    updateData();
+                }
+            }else if(versValue == 0x04) {
+                stream >> progAddr;
+                stream >> data;
+                stream >> plc;
+                stream >> port;
+                stream >> modbusMaster;
+                stream >> eMemSize;
                 setPLCType(plc);
                 ui->comboBoxPrPort->setCurrentText(port);
                 if(stream.status()==QDataStream::Ok) {
@@ -591,4 +610,9 @@ void SettingsForm::on_pushButtonPortListUpdate_clicked()
     }
     ui->comboBoxPrPort->addItem("AUTO");
     ui->comboBoxPrPort->setCurrentText("AUTO");
+}
+
+void SettingsForm::on_spinBoxEMemSize_valueChanged(int arg1)
+{
+    eMemSize = arg1;
 }

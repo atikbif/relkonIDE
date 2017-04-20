@@ -6,6 +6,7 @@
 #include "konprocess.h"
 #include "abstractchfilesfactory.h"
 #include "LCD/display.h"
+#include "fcucsettings.h"
 
 class KonParser
 {
@@ -25,6 +26,7 @@ class KonParser
     int createProcessBlock(void);
     const Display& lcd;
     QString plcType;
+    FCUCSettings fc_conf;
 
 public:
     explicit KonParser(const Display& d);
@@ -32,6 +34,7 @@ public:
     void parse(void);
     const QStringList &getErrors(void) const;
     void setPLCType(const QString &plc);
+    void setFCConf(FCUCSettings conf) {fc_conf = conf;}
 private:
     double getCoeff(void);
 };

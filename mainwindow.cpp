@@ -642,10 +642,11 @@ void MainWindow::createDisplay()
 
 void MainWindow::createBuilder()
 {
+    qRegisterMetaType<FCUCSettings>("FCUCSettings");
     PrBuilder *buildProc = new PrBuilder(*displ);
     buildProc->moveToThread(&builderThread);
     connect(&builderThread, SIGNAL(finished()), buildProc, SLOT(deleteLater()));
-    connect(this, SIGNAL(startBuild(QString,QString)), buildProc, SLOT(buildRequest(QString,QString)));
+    connect(this, SIGNAL(startBuild(QString,QString,FCUCSettings)), buildProc, SLOT(buildRequest(QString,QString,FCUCSettings)));
     connect(this,SIGNAL(updateKonFileForBuilder(QStringList,QString)), buildProc, SLOT(setFileText(QStringList,QString)));
     connect(buildProc, SIGNAL(printMessage(QString)), this, SLOT(addMessageToInfoList(QString)));
     connect(buildProc, SIGNAL(buildIsOk()),this,SLOT(buildWithoutErrors()));
@@ -1286,7 +1287,9 @@ void MainWindow::buildPr()
         }
 
         emit updateKonFileForBuilder(conFile,settings->getPLCType());
-        emit startBuild(prDirPath,prFileName);
+        FCUCSettings conf;
+        conf.setEMemSize(settings->getEMemSize());
+        emit startBuild(prDirPath,prFileName,conf);
     }
 }
 

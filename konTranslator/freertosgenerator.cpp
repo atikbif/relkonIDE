@@ -484,6 +484,9 @@ void FreeRtosGenerator::createFcuC()
     out << "extern unsigned long sd_fl;\n";
     out << "extern float adc_coeff;\n";
     out << "const unsigned short S4_max = " + QString::number(lcd.getVisibleSubStrCount(lcd.getStrCount()-1)) + ";\n";
+    out << "unsigned short emem["+QString::number(fc_conf.getEMemsize())+"];\n";
+    out << "const unsigned short emem_size = " + QString::number(fc_conf.getEMemsize()) + ";\n";
+    out << "unsigned short* emem_ptr = emem;\r\n";
 
     out << "\n";
 

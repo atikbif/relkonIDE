@@ -15,6 +15,7 @@
 #include <QDockWidget>
 #include "Debugger/BackCleaner/cleanmanager.h"
 #include <QAbstractItemModel>
+#include "fcucsettings.h"
 
 class QPrinter;
 
@@ -75,7 +76,7 @@ public:
     ~MainWindow();
 
 signals:
-    void startBuild(QString prPath, QString prName);
+    void startBuild(QString prPath, QString prName,FCUCSettings conf);
     void updateKonFileForBuilder(QStringList str, QString plcType);
     void newProject(void);
     void openProject(void);

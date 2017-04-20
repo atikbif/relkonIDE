@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QStringList>
 #include "LCD/display.h"
+#include "fcucsettings.h"
 
 class PrBuilder : public QObject
 {
@@ -14,6 +15,7 @@ class PrBuilder : public QObject
     QString chekPultVarError(int cStrNum);
     const Display& lcd;
     QString plcType;
+    FCUCSettings fc_conf;
 
     void removeBuildFiles(const QString & prPath, const QString &prName);
 public:
@@ -23,7 +25,7 @@ signals:
     void buildIsFinished(void);
     void buildIsOk(void);
 public slots:
-    void buildRequest(QString prPath, QString prName);
+    void buildRequest(QString prPath, QString prName, FCUCSettings conf);
     void setFileText(QStringList str, QString plc);
 };
 

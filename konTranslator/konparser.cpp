@@ -173,6 +173,7 @@ void KonParser::parse()
     createProcessBlock();
     if(factory != nullptr) {
         CHGenerator* generator = factory->createCHGenerator(lcd);
+        generator->setFCConf(fc_conf);
         generator->createFiles(varBlock,initBlock,prBlock);
 
         parsingErrors += generator->getErrors();
@@ -198,7 +199,7 @@ double KonParser::getCoeff()
     }
     QRegExp re2("^PC\\d{3,3}DB");
     if(re2.indexIn(plcType)!=-1) {
-        return 1207.0/1194;
+        return 1.0408;
     }
     return 1.0;
 }

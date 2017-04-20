@@ -422,6 +422,26 @@ void VarsCreator::addDispVar(CompositeVar *parent)
     dispVar->addChild(*longVar);
     ids.addVar(longVar);
 
+    int ememAddr=0, ememCount=0;
+    if(VarParser::readEmemAddr(ememAddr,ememCount)) {
+        CompositeVar* ememVar = new CompositeVar();
+        ememVar->setName("emem");
+        ememVar->setMemAddress(1);   // для различия с другими узлами emem
+
+        for(int i=0;i<ememCount;i++) {
+            CompositeVar* var = new CompositeVar();
+            var->setName("emem["+QString::number(i)+"]");
+            var->setDataType(VarItem::ushortType);
+            var->setMemAddress(ememAddr+i*2);
+            var->setMemType("RAM");
+            ememVar->addChild(*var);
+            ids.addVar(var);
+        }
+        dispVar->addChild(*ememVar);
+        ids.addVar(ememVar);
+    }
+
+
     parent->addChild(*dispVar);
     ids.addVar(dispVar);
 }

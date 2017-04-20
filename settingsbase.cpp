@@ -19,6 +19,7 @@ void SettingsBase::clearSettings()
     plcType = "PC365C";
     modbusMaster = false;
     readPLCTypes();
+    eMemSize = 10;
     emit emuModeChanged(NoEmulation);
 }
 
@@ -65,7 +66,7 @@ void SettingsBase::readPLCTypes()
 
 }
 
-SettingsBase::SettingsBase(QWidget *parent) : QWidget(parent)
+SettingsBase::SettingsBase(QWidget *parent) : QWidget(parent),eMemSize(10)
 {
     clearSettings();
 }
