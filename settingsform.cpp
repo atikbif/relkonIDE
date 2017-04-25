@@ -68,6 +68,14 @@ void SettingsForm::guiToData()
         macAddr[4]=macList.at(4).toInt(&res,16);
         macAddr[5]=macList.at(5).toInt(&res,16);
     }
+    QStringList gateList = ui->lineEditGATE->text().remove('_').split('.');
+    if(gateList.count()>=4) {
+        ipGate[0]=gateList.at(0).toInt();
+        ipGate[1]=gateList.at(1).toInt();
+        ipGate[2]=gateList.at(2).toInt();
+        ipGate[3]=gateList.at(3).toInt();
+    }
+    prDef = ui->lineEditProjectDefenition->text();
     int speedValue = ui->comboBoxProgSpeed->currentText().toInt();
     protocolType protocol = BIN;
     switch(ui->comboBoxProgProtocol->currentIndex()) {
@@ -117,6 +125,17 @@ void SettingsForm::updateData()
         if(i!=5) macStr+=":";
     }
     ui->lineEditMAC->setText(macStr);
+
+    QString gateStr;
+    for(int i=0;i<4;i++) {
+        QString num = QString::number(ipGate[i]);
+        while(num.size()<3) num = "0"+num;
+        gateStr+=num;
+        if(i!=3) gateStr+=".";
+    }
+    ui->lineEditGATE->setText(gateStr);
+
+    ui->lineEditProjectDefenition->setText(prDef);
 
     ui->comboBoxProgProtocol->setCurrentIndex(prUart.protocol);
     ui->comboBoxProgSpeed->setCurrentText(QString::number(prUart.speed));
@@ -187,6 +206,10 @@ void SettingsForm::writeToBin(QByteArray &outData)
     }
     outData[1029]=emulationCode;
 
+    QByteArray prDefBin = prDef.toUtf8();
+    prDefBin.resize(64);
+    for(int i=0;i<64;i++) outData[1036+i] = prDefBin.at(i);
+
     outData[1100]=ipAddr[0];
     outData[1101]=ipAddr[1];
     outData[1102]=ipAddr[2];
@@ -207,6 +230,11 @@ void SettingsForm::writeToBin(QByteArray &outData)
 
     if(sdOn) outData[1113]=0x31;
     else outData[1113]='\0';
+
+    outData[1114]=ipGate[0];
+    outData[1115]=ipGate[1];
+    outData[1116]=ipGate[2];
+    outData[1117]=ipGate[3];
 
     outData.replace(1269,10,"Relkon 7.0");
 }
@@ -470,11 +498,31 @@ void SettingsForm::readFromBin(const QByteArray inpData)
         macAddr[4] = inpData.at(1108);
         macAddr[5] = inpData.at(1109);
 
+        ipGate[0] = inpData.at(1114);
+        ipGate[1] = inpData.at(1115);
+        ipGate[2] = inpData.at(1116);
+        ipGate[3] = inpData.at(1117);
+
+        if((ipGate[0]==0)&&(ipGate[1]==0)&&(ipGate[2]==0)&&(ipGate[3]==0)) {
+            if((ipAddr[0])||(ipAddr[1])||(ipAddr[2])||(ipAddr[3])) {
+                ipGate[0] = ipAddr[0];
+                ipGate[1] = ipAddr[1];
+                ipGate[2] = ipAddr[2];
+                ipGate[3] = 1;
+            }
+        }
+
+
         if(inpData.at(1111)==0x31) displayOn=false;
         else displayOn=true;
 
         if(inpData.at(1113)==0x31) sdOn=true;
         else sdOn=false;
+
+        QByteArray prDefBin;
+        for(int i=0;i<64;i++) prDefBin.append(inpData[1036+i]);
+        prDef = QString::fromUtf8(prDefBin);
+
         updateData();
     }
 }

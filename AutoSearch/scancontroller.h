@@ -23,9 +23,11 @@ signals:
     void finished(const QString& message);
     void found(SearchController plc,const QString &pName);
     void startScan(const QString &pName);
+    void portIsBusy(const QString &pName);
 private slots:
     void percentUpdate(float percValue);
     void plcHasBeenFound(SearchController plc);
+    void portIsBusy();
 };
 
 #endif // SCANCONTROLLER_H

@@ -28,6 +28,7 @@ ScanGUI::ScanGUI(int progAddr, bool mode, const QString &portName, QWidget *pare
             ports+= port;
             connect(port,SIGNAL(updated(float,QString)),this,SLOT(percentUpdate(float,QString)));
             connect(port,SIGNAL(found(SearchController,QString)),this,SLOT(plcHasBeenFound(SearchController,QString)));
+            connect(port,SIGNAL(portIsBusy(QString)),this,SLOT(portIsBusy(QString)));
             QProgressBar* bar = new QProgressBar();
             bar->setFormat(pName);bar->setValue(0);
             ui->verticalLayout->addWidget(bar);
@@ -84,4 +85,13 @@ void ScanGUI::plcHasBeenFound(SearchController plc, const QString &pName)
             accept();
         }
     }else {thread()->msleep(500);accept();}
+}
+
+void ScanGUI::portIsBusy(const QString &pName)
+{
+    foreach(QProgressBar* bar, prBar){
+        if(bar->format()==pName) {
+            bar->setFormat(pName+" занят");
+        }
+    }
 }

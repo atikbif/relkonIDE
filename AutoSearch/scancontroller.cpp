@@ -9,6 +9,7 @@ ScanController::ScanController(const QString &pName, int progAddr, QObject *pare
     scanWorker->moveToThread(&scanThread);
     connect(&scanThread,SIGNAL(finished()),scanWorker,SLOT(deleteLater()));
     connect(scanWorker,SIGNAL(percentUpdate(float)),this,SLOT(percentUpdate(float)));
+    connect(scanWorker,SIGNAL(portIsBusy()),this,SLOT(portIsBusy()));
     connect(scanWorker,SIGNAL(plcHasBeenFound(SearchController)),this,SLOT(plcHasBeenFound(SearchController)));
     connect(scanWorker,SIGNAL(scanIsFinished(QString)),this, SIGNAL(finished(QString)));
     connect(this,SIGNAL(startScan(QString)),scanWorker,SLOT(startScan(QString)));
@@ -31,5 +32,10 @@ void ScanController::percentUpdate(float percValue)
 void ScanController::plcHasBeenFound(SearchController plc)
 {
     emit found(plc,pName);
+}
+
+void ScanController::portIsBusy()
+{
+    emit portIsBusy(pName);
 }
 

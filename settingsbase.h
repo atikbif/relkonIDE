@@ -30,6 +30,8 @@ protected:
     unsigned char progAddr;     // адрес при поиске и программировании
     unsigned char ipAddr[4];
     unsigned char macAddr[6];
+    unsigned char ipGate[4];
+    QString prDef;
     uartInfo prUart,pcUart;
     emuType emulation;
     bool displayOn;

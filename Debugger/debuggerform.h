@@ -71,7 +71,6 @@ class DebuggerForm : public QWidget
     void updateMemVarGUI(const QString &id);    // обновление ячеек таблицы при опросе памяти
     void updateMatchboxVisibility();    // скрытие неиспользуемых входов/выходов
     int getIOAddrByName(const QString &name);   // возвращает адрес дискретного или аналогового вх/вых по имени
-    void writeVar();    // записать значение, введённое в диалоге редактирования
     void openInputs(const QString &fName);  // открыть файл с состоянием входов и опрашиваемых переменных и записать их в контроллер
 
 public:
@@ -127,6 +126,7 @@ private slots:
     void on_pushButtonLoadVars_clicked();
 
     void on_checkBoxHexMem_clicked();
+    void writeVar();    // записать значение, введённое в диалоге редактирования
 
 signals:
     void quickInfo(QStringList names, QStringList values);

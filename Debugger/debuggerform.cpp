@@ -820,8 +820,10 @@ QVector<QGroupBox*> DebuggerForm::addAIO(const QString &grName, const QString &i
         QLineEdit *number = new QLineEdit();
         number->setStyleSheet("border: 2px solid gray;"
                               "border-radius: 5px;"
-                              "padding: 0 8px;"
+                              "padding: 0 4px;"
+                              "font-size: 12px;"
                               "background: rgb(230,240,240);");
+        number->setMinimumWidth(5*12);
         number->setReadOnly(true);
         QLineEdit *comment = new QLineEdit();
 

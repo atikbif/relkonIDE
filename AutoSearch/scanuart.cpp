@@ -3,6 +3,7 @@
 #include <QThread>
 #include "Protocols/rk.h"
 #include "Protocols/asciidecorator.h"
+#include <QMessageBox>
 
 
 using namespace RkProtocol;
@@ -148,6 +149,8 @@ void ScanUART::startScan(const QString &pName)
             scan(port);
         }
         port.close();
+    }else {
+        emit portIsBusy();
     }
 }
 

@@ -30,6 +30,7 @@ private:
 public slots:
     void percentUpdate(float percValue,const QString& pName);
     void plcHasBeenFound(SearchController plc,const QString& pName);
+    void portIsBusy(const QString& pName);
 };
 
 #endif // SCANGUI_H

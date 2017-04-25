@@ -35,6 +35,7 @@ signals:
     void percentUpdate(float percValue);
     void scanIsFinished(const QString& message);
     void plcHasBeenFound(SearchController plc);
+    void portIsBusy();
 public slots:
     void startScan(const QString &pName);
     void stopScan(void);
