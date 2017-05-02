@@ -10,6 +10,7 @@
 #include <QAbstractItemView>
 #include <QModelIndex>
 #include <QAbstractItemModel>
+#include "dialoggotostring.h"
 
 /* определение и сохранение номеров текстовых блоков и их координат по вертикали */
 void CodeEditor::scanBlocksNums()
@@ -302,6 +303,32 @@ void CodeEditor::keyPressEvent(QKeyEvent *e)
             releaseEnable = true;
 
             switch(e->key()) {
+            case Qt::Key_G:
+                if(QApplication::keyboardModifiers().testFlag(Qt::ControlModifier)) {
+                    // переход на строку по номеру
+                    DialogGoToString *dialog = new DialogGoToString(this);
+                    if(dialog->exec()==QDialog::Accepted) {
+                        int strNum = dialog->getStrNum()-1;
+                        // unfold str
+                        QTextBlock block = document()->findBlockByNumber(strNum);
+                        if(!block.isVisible()) {
+                            while(!block.isVisible()) {
+                                block = block.previous();
+                                if(block.isValid()) {
+                                    if(block.isVisible()) {
+                                        toggleFolding(block);
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        block = document()->findBlockByNumber(strNum);
+                        QTextCursor cursor(block);
+                        setTextCursor(cursor);
+                    }
+                    delete dialog;
+                }
+                break;
             case Qt::Key_C:
                 if(QApplication::keyboardModifiers().testFlag(Qt::ControlModifier)) {
                     QTextCursor curs = textCursor();

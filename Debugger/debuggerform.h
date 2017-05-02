@@ -45,6 +45,7 @@ class DebuggerForm : public QWidget
     ScanManager* scan;  // управление процессом опроса
     RequestScheduler scheduler; // планировщик запросов
     QString lastOpenInpFile;    // последний открытый файл с состоянием входов и переменных отладчика
+    QString lastSaveInpFile;    // последний открытый файл с состоянием входов и переменных отладчика
     VarItem wrVar;      // переменная для записи
     QCheckBox *adc8bit;
     QVector<QGroupBox*> ioBoxes;
@@ -127,6 +128,8 @@ private slots:
 
     void on_checkBoxHexMem_clicked();
     void writeVar();    // записать значение, введённое в диалоге редактирования
+
+    void on_pushButtonSaveLastInp_clicked();
 
 signals:
     void quickInfo(QStringList names, QStringList values);

@@ -10,6 +10,7 @@ void SettingsBase::clearSettings()
     progAddr=0x00;
     ipAddr[0]=192;ipAddr[1]=168;ipAddr[2]=0;ipAddr[3]=31;
     ipGate[0]=192;ipGate[1]=168;ipGate[2]=0;ipGate[3]=1;
+    ipMask[0]=255;ipMask[1]=255;ipMask[2]=255;ipMask[3]=0;
     prDef = "новый проект";
     macAddr[0]=0x86;macAddr[1]=0x50;macAddr[2]=0xB2;
     macAddr[3]=0xDB;macAddr[4]=0xD7;macAddr[5]=0x5F;
@@ -22,6 +23,7 @@ void SettingsBase::clearSettings()
     modbusMaster = false;
     readPLCTypes();
     eMemSize = 10;
+    modbMasterEmuMode = false;
     emit emuModeChanged(NoEmulation);
 }
 

@@ -88,7 +88,7 @@ void PatternEditorWidget::showVar(PultVarDefinition &vDef, const QString &commen
 
     nameEdit->setStyleSheet("QLineEdit{background: yellow;}");
     vName.remove(QRegExp("^EE\\.(char|short|long)\\."));
-    vName.remove(QRegExp("^Disp\\.(char|short|long)\\."));
+    vName.remove(QRegExp("^Disp\\.(char|short|long|emem)\\."));
     nameEdit->setText(vName);
     typeEdit->setText(vDef.getDataType());
     commentEdit->setText(comment);
@@ -183,7 +183,11 @@ void PatternEditorWidget::createWidgets()
 
     QHBoxLayout* hButtonLayout = new QHBoxLayout() ;
     applyButton = new QPushButton(QIcon(":/edit_32.ico"),"Добавить переменную");
-    connect(applyButton,SIGNAL(clicked()),this,SLOT(applyVar()));
+
+    applyButton->setDefault(false);
+    applyButton->setAutoDefault(true);
+
+    connect(applyButton,SIGNAL(clicked(bool)),this,SLOT(applyVar()));
 
     QWidget* spacer = new QWidget();
     spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -304,7 +308,7 @@ void PatternEditorWidget::doubleClickedVar(QTreeWidgetItem *item, int column)
         VarItem var = varOwner.getVarByID(id);
         QString vName = item->toolTip(0).remove(QRegExp("^[^\\.]*\\.[^\\.]*\\."));
         vName.remove(QRegExp("^EE\\.(char|short|long)\\."));
-        vName.remove(QRegExp("^Disp\\.(char|short|long)\\."));
+        vName.remove(QRegExp("^Disp\\.(char|short|long|emem)\\."));
         /*if(!vName.contains(QRegExp(".*\\.\\d+.*"))) {
             QStringList names = vName.split(".");
             vName = names.last();
@@ -314,6 +318,7 @@ void PatternEditorWidget::doubleClickedVar(QTreeWidgetItem *item, int column)
         typeEdit->setText(var.getDataType());
         commentEdit->setText(var.getComment());
         curVarID = id;
+        applyButton->setFocus();
     }
 }
 

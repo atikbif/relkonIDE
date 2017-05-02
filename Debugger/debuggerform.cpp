@@ -369,7 +369,7 @@ void DebuggerForm::treeBuilder(const QString &varID, QTreeWidgetItem &item)
 }
 
 DebuggerForm::DebuggerForm(VarsCreator &vCr, QWidget *parent) :
-    QWidget(parent), varOwner(vCr), lastOpenInpFile(""),memStartAddr(0),memLength(64),
+    QWidget(parent), varOwner(vCr), lastOpenInpFile(""),lastSaveInpFile(""),memStartAddr(0),memLength(64),
     startCheckTmr(0),
     ui(new Ui::DebuggerForm)
 {
@@ -1489,6 +1489,8 @@ void DebuggerForm::saveInputs()
                                                     path,
                                                     tr("SnapShot file (*.inp )"));
     if(!fName.isEmpty()) {
+        lastSaveInpFile = fName;
+        ui->pushButtonSaveLastInp->setEnabled(true);
         QFile file(fName);
         if (file.open(QIODevice::WriteOnly)) {
             QDataStream stream(&file);
@@ -1789,3 +1791,36 @@ void DebuggerForm::on_checkBoxHexMem_clicked()
     }
 }
 
+
+void DebuggerForm::on_pushButtonSaveLastInp_clicked()
+{
+    QString fName = lastSaveInpFile;
+
+    QByteArray diData = memStor.getData(MemStorage::ioMemName,0x00,5);
+    QByteArray aiData = memStor.getData(MemStorage::ioMemName,0x0C,16);
+    QByteArray mdiData = memStor.getData(MemStorage::ioMemName,0x24,32);
+    QByteArray maiData = memStor.getData(MemStorage::ioMemName,0x64,256);
+    QByteArray i2cAiData = memStor.getData(MemStorage::ioMemName,AnIO::i2cInputStartAddress,16);
+
+    QFile file(fName);
+    if (file.open(QIODevice::WriteOnly)) {
+        QDataStream stream(&file);
+        stream.setVersion(QDataStream::Qt_5_4);
+        stream << diData;
+        stream << aiData;
+        stream << mdiData;
+        stream << maiData;
+        stream << i2cAiData;
+        stream << idActiveWidgetItem.count();   // количество переменных в окне просмотра
+        foreach (QString id, idActiveWidgetItem.keys()) {
+            VarItem var = varOwner.getVarByID(id);
+            stream << idActiveWidgetItem.value(id)->toolTip(0);
+            bool bitVar = (var.getBitNum()>=0)?true:false;
+            stream << bitVar;
+            QString vValue = idActiveWidgetItem.value(id)->text(1);
+            stream << vValue;
+        }
+
+        file.close();
+    }else QMessageBox::warning(this,"Предупреждение","Не удалось сохранить файл");
+}

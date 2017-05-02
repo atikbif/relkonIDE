@@ -75,6 +75,13 @@ void SettingsForm::guiToData()
         ipGate[2]=gateList.at(2).toInt();
         ipGate[3]=gateList.at(3).toInt();
     }
+    QStringList maskList = ui->lineEditMASK->text().remove('_').split('.');
+    if(maskList.count()>=4) {
+        ipMask[0]=maskList.at(0).toInt();
+        ipMask[1]=maskList.at(1).toInt();
+        ipMask[2]=maskList.at(2).toInt();
+        ipMask[3]=maskList.at(3).toInt();
+    }
     prDef = ui->lineEditProjectDefenition->text();
     int speedValue = ui->comboBoxProgSpeed->currentText().toInt();
     protocolType protocol = BIN;
@@ -101,6 +108,7 @@ void SettingsForm::guiToData()
     if(ui->checkBoxDisplay->isChecked()) displayOn=true;else displayOn=false;
     if(ui->checkBoxSD->isChecked()) sdOn=true;else sdOn=false;
     setPLCType(ui->comboBoxPLCType->currentText());
+    if(ui->checkBoxModbus->isChecked()) modbMasterEmuMode = true; else modbMasterEmuMode = false;
 }
 
 void SettingsForm::updateData()
@@ -135,6 +143,15 @@ void SettingsForm::updateData()
     }
     ui->lineEditGATE->setText(gateStr);
 
+    QString maskStr;
+    for(int i=0;i<4;i++) {
+        QString num = QString::number(ipMask[i]);
+        while(num.size()<3) num = "0"+num;
+        maskStr+=num;
+        if(i!=3) maskStr+=".";
+    }
+    ui->lineEditMASK->setText(maskStr);
+
     ui->lineEditProjectDefenition->setText(prDef);
 
     ui->comboBoxProgProtocol->setCurrentIndex(prUart.protocol);
@@ -154,6 +171,7 @@ void SettingsForm::updateData()
 
     ui->checkBoxModbus->setChecked(modbusMaster);
     ui->spinBoxEMemSize->setValue(eMemSize);
+    ui->checkBoxModbus->setChecked(modbMasterEmuMode);
 
     printFactorySettings();
 }
@@ -235,6 +253,13 @@ void SettingsForm::writeToBin(QByteArray &outData)
     outData[1115]=ipGate[1];
     outData[1116]=ipGate[2];
     outData[1117]=ipGate[3];
+
+    outData[1118] = modbMasterEmuMode;
+
+    outData[1119]=ipMask[0];
+    outData[1120]=ipMask[1];
+    outData[1121]=ipMask[2];
+    outData[1122]=ipMask[3];
 
     outData.replace(1269,10,"Relkon 7.0");
 }
@@ -512,6 +537,21 @@ void SettingsForm::readFromBin(const QByteArray inpData)
             }
         }
 
+        if(inpData.at(1118)) modbMasterEmuMode=true;else modbMasterEmuMode=false;
+
+        ipMask[0] = inpData.at(1119);
+        ipMask[1] = inpData.at(1120);
+        ipMask[2] = inpData.at(1121);
+        ipMask[3] = inpData.at(1122);
+
+        if((ipMask[0]==0)&&(ipMask[1]==0)&&(ipMask[2]==0)&&(ipMask[3]==0)) {
+            if((ipAddr[0])||(ipAddr[1])||(ipAddr[2])||(ipAddr[3])) {
+                ipMask[0] = 255;
+                ipMask[1] = 255;
+                ipMask[2] = 255;
+                ipMask[3] = 0;
+            }
+        }
 
         if(inpData.at(1111)==0x31) displayOn=false;
         else displayOn=true;
@@ -663,4 +703,9 @@ void SettingsForm::on_pushButtonPortListUpdate_clicked()
 void SettingsForm::on_spinBoxEMemSize_valueChanged(int arg1)
 {
     eMemSize = arg1;
+}
+
+void SettingsForm::on_checkBoxModbus_clicked(bool checked)
+{
+    modbMasterEmuMode = checked;
 }

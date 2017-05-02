@@ -125,7 +125,8 @@ SOURCES += main.cpp\
     ModbusMaster/modbusrequestlist.cpp \
     ModbusMaster/modbusvar.cpp \
     ModbusMaster/modbusvarsstorage.cpp \
-    fcucsettings.cpp
+    fcucsettings.cpp \
+    dialoggotostring.cpp
 
 HEADERS  += mainwindow.h \
     codeeditor.h \
@@ -224,7 +225,8 @@ HEADERS  += mainwindow.h \
     ModbusMaster/modbusrequestlist.h \
     ModbusMaster/modbusvar.h \
     ModbusMaster/modbusvarsstorage.h \
-    fcucsettings.h
+    fcucsettings.h \
+    dialoggotostring.h
 
 FORMS    += mainwindow.ui \
     settingsform.ui \
@@ -240,7 +242,8 @@ FORMS    += mainwindow.ui \
     LCD/dialogspessymb.ui \
     ColTable/dialogwordcolors.ui \
     ModbusMaster/dialogaddeditmodbusvar.ui \
-    ModbusMaster/modbusconfdialog.ui
+    ModbusMaster/modbusconfdialog.ui \
+    dialoggotostring.ui
 
 RESOURCES += \
     icons.qrc \

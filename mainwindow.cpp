@@ -736,9 +736,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(previewAct,SIGNAL(triggered(bool)),this,SLOT(previewText()));
 
     QStringList prNames = getPrevProjects();
-    if(prNames.count()) {
-        updatePrevProjects(prNames);
-    }
+    updatePrevProjects(prNames);
 
     PathStorage::setCoreDir(QApplication::applicationDirPath() + "/core");
 

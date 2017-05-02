@@ -31,6 +31,7 @@ protected:
     unsigned char ipAddr[4];
     unsigned char macAddr[6];
     unsigned char ipGate[4];
+    unsigned char ipMask[4];
     QString prDef;
     uartInfo prUart,pcUart;
     emuType emulation;
@@ -41,6 +42,7 @@ protected:
     bool modbusMaster;
     QHash<QString,QString> plcBuilds;
     int eMemSize;
+    bool modbMasterEmuMode;
 
     virtual void updateData(void)=0;    // обновление GUI
     virtual void writeToBin(QByteArray &outData)=0; // запись настроек в бинарный массив

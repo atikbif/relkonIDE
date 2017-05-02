@@ -80,6 +80,20 @@
                  </property>
                 </widget>
                </item>
+               <item row="3" column="0">
+                <widget class="QLabel" name="label_14">
+                 <property name="text">
+                  <string>Маска:</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="3" column="1">
+                <widget class="QLineEdit" name="lineEditMASK">
+                 <property name="inputMask">
+                  <string>000.000.000.000;_</string>
+                 </property>
+                </widget>
+               </item>
               </layout>
              </item>
             </layout>
@@ -265,6 +279,13 @@
                </property>
               </widget>
              </item>
+             <item>
+              <widget class="QCheckBox" name="checkBoxModbus">
+               <property name="text">
+                <string>Modbus Master эмуляция</string>
+               </property>
+              </widget>
+             </item>
             </layout>
            </widget>
           </item>
@@ -328,13 +349,6 @@
            <widget class="QPushButton" name="pushButtonPortListUpdate">
             <property name="text">
              <string>Обновить список портов</string>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="0">
-           <widget class="QCheckBox" name="checkBoxModbus">
-            <property name="text">
-             <string>Modbus Master</string>
             </property>
            </widget>
           </item>

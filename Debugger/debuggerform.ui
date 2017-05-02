@@ -545,6 +545,13 @@
               </property>
              </widget>
             </item>
+            <item row="0" column="1">
+             <widget class="QPushButton" name="pushButtonSaveInp">
+              <property name="text">
+               <string>сохр.как</string>
+              </property>
+             </widget>
+            </item>
             <item row="1" column="0">
              <widget class="QPushButton" name="pushButtonOpenLastInp">
               <property name="enabled">
@@ -555,8 +562,11 @@
               </property>
              </widget>
             </item>
-            <item row="0" column="1">
-             <widget class="QPushButton" name="pushButtonSaveInp">
+            <item row="1" column="1">
+             <widget class="QPushButton" name="pushButtonSaveLastInp">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="text">
                <string>сохр.</string>
               </property>
