@@ -123,7 +123,7 @@ void ScanUART::startScan(const QString &pName)
     if(startCmd) return;
     if(!this->pName.isEmpty()) return;
     startCmd = true;
-    this->pName = pName;
+    this->pName = pName.split(' ').at(0);
     locker.unlock();
 
     DetectedController* contr = &DetectedController::Instance();
@@ -135,14 +135,14 @@ void ScanUART::startScan(const QString &pName)
         else baudTable.insert(0,contr->getBaudrate());
     }
 
-    QSerialPort port(pName);
-    port.open(QSerialPort::ReadWrite);
-
-    sendAbortCmd(port);
-    if(testBootMode(port)==false) {
-        scan(port);
+    QSerialPort port(this->pName);
+    if(port.open(QSerialPort::ReadWrite)){
+        sendAbortCmd(port);
+        if(testBootMode(port)==false) {
+            scan(port);
+        }
+        port.close();
     }
-    port.close();
 }
 
 void ScanUART::stopScan()

@@ -193,13 +193,10 @@ void KonParser::setPLCType(const QString &plc)
 
 double KonParser::getCoeff()
 {
-    QRegExp re1("^PC\\d{3,3}[CB]?$");
+    QRegExp re1("^PC\\d{3,3}C$");
     if(re1.indexIn(plcType)!=-1) {
         return 125.0/127;
     }
-    QRegExp re2("^PC\\d{3,3}DB");
-    if(re2.indexIn(plcType)!=-1) {
-        return 1.0408;
-    }
-    return 1.0;
+    // B и D контроллеры
+    return 1.0416;
 }

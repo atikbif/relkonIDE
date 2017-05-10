@@ -11,9 +11,14 @@ ScanGUI::ScanGUI(int progAddr, const QString &comPort, QWidget *parent) :
 
     if(comPort.isEmpty()) {
         foreach (const QSerialPortInfo &info, QSerialPortInfo::availablePorts()) {
-                portNames << info.portName();
+                if(info.isBusy()) portNames << info.portName() + " занят";
+                else portNames << info.portName();
         }
-    }else portNames << comPort;
+    }else {
+        QSerialPortInfo info(comPort);
+        if(info.isBusy()) portNames << info.portName() + " занят";
+        else portNames << comPort;
+    }
 
 
     if(portNames.count()==0) {
@@ -26,7 +31,8 @@ ScanGUI::ScanGUI(int progAddr, const QString &comPort, QWidget *parent) :
             connect(port,SIGNAL(updated(float,QString)),this,SLOT(percentUpdate(float,QString)));
             connect(port,SIGNAL(found(DetectedController*,QString)),this,SLOT(plcHasBeenFound(DetectedController*,QString)));
             QProgressBar* bar = new QProgressBar();
-            bar->setFormat(pName);bar->setValue(0);
+            bar->setFormat(pName);
+            bar->setValue(0);
             ui->verticalLayout->addWidget(bar);
             prBar+= bar;
         }

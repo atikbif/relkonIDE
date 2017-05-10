@@ -327,7 +327,7 @@ void CodeEditor::keyPressEvent(QKeyEvent *e)
                         setTextCursor(cursor);
                     }
                     delete dialog;
-                }
+                }else QPlainTextEdit::keyPressEvent(e);
                 break;
             case Qt::Key_C:
                 if(QApplication::keyboardModifiers().testFlag(Qt::ControlModifier)) {
