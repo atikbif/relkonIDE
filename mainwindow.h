@@ -161,6 +161,8 @@ private slots:
     void editIDESettings(void);
     void startReloader(void);
     void startMMBConfig(void);
+    void startAdcDacTest(void);
+    void startMC35Config(void);
     void loadSysFramRelk6(void);
     int loadSysFramRelk6(const QString &fName);
     void activateInfoPanel(void);

@@ -74,5 +74,7 @@
         <file>off.ico</file>
         <file>on.ico</file>
         <file>modbus.ico</file>
+        <file>measure.ico</file>
+        <file>networking.ico</file>
     </qresource>
 </RCC>

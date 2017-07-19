@@ -1,1 +1,66 @@
-﻿<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd"> <html><head><meta content="text/html; charset=ISO-8859-1" http-equiv="content-type"><title>FRAM</title></head><body><big style="color: rgb(0, 102, 0);"><span style="font-weight: bold;">Системная область FRAM памяти</span></big><br><br><span style="font-weight: bold; color: rgb(204, 0, 0);">0x7B00...0x7EFF</span> – заводские установки<br><br><span style="font-weight: bold; color: rgb(204, 0, 0);">0x7F00</span> – сетевой адрес контроллера<br>    0т 1 до 254 включительно<br>    при 0 или 255 автоматически присваивается адрес, равный 1<br><br><span style="font-weight: bold; color: rgb(204, 0, 0);">0x7F01</span> – скорость канала PC<br>    0 — 4800<br>    1 — 9600<br>    2 — 19200<br>    3 — 38400<br>    4 — 57600<br>    5 — 115200<br>    При значениях выше 5 скорость устанавливается 115200<br><br><span style="font-weight: bold; color: rgb(204, 0, 0);">0x7F02</span> – протокол канала PC<br>    0 — BIN, Modbus RTU<br>    1 – ASCII, Modbus ASCII<br>    более 1 – BIN, Modbus RTU<br><br><span style="font-weight: bold; color: rgb(204, 0, 0);">0x7F03</span> – скорость канала PROG<br>    0 — 4800<br>    1 — 9600<br>    2 — 19200<br>    3 — 38400<br>    4 — 57600<br>    5 — 115200<br>    При значениях выше 5 скорость устанавливается 115200<br><br><span style="font-weight: bold; color: rgb(204, 0, 0);">0x7F04</span> – протокол канала PROG<br>    0 — BIN, Modbus RTU<br>    1 – ASCII, Modbus ASCII<br>    более 1 – BIN, Modbus RTU<br><br><span style="font-weight: bold; color: rgb(204, 0, 0);">0x7F05</span> – режим эмуляции<br>    0 — без эмуляции<br>    1 — режим эмуляции входов<br>    2 — режим полной эмуляции<br><br><span style="font-weight: bold; color: rgb(204, 0, 0);">0x7F06...0x7F0B</span> – размер проекта + CRC (4+2)<br><br><span style="font-weight: bold; color: rgb(204, 0, 0);">0x7F0C...0x7F4B</span> – метка проекта (64 байта)<br><br style="color: rgb(204, 0, 0);"><span style="font-weight: bold; color: rgb(204, 0, 0);">0x7F4C...0x7F4F</span> – ip-адрес<br><br><span style="font-weight: bold; color: rgb(204, 0, 0);">0x7F50...0x7F55</span> – MAC адрес<br><br><span style="font-weight: bold; color: rgb(204, 0, 0);">0x7F56</span> – год (от 0 до 99)<br><br><span style="font-weight: bold; color: rgb(204, 0, 0);">0x7F57</span> – разрешение коммуникационного канала вместо пульта<br>    (0x31 – канал, любое другое значение - пульт)<br><br style="color: rgb(204, 0, 0);"><span style="font-weight: bold; color: rgb(204, 0, 0);">0x7F59</span> – разрешение SD карты<br>    (0x31 – разрешить, любое другое значение - запретить)<br><br><span style="font-weight: bold; color: rgb(204, 0, 0);">0x7FF5...0x7FFF</span> – кодовое слово для автозагрузчика</body></html>
+<!DOCTYPE html>
+<html>
+    <head>
+      <meta charset="UTF-8">
+      <title>FRAM</title>
+        <style>
+            #header {
+                background-color:black;
+                color:white;
+                text-align:center;
+                padding:5px;
+            }
+            #content {
+                float:left;
+                padding:10px; 
+            }
+        </style>
+    </head>
+    <body>
+        <big style="color: rgb(0, 102, 0);"><span style="font-weight: bold;">Системная область FRAM памяти</span></big>
+        <br><br><span style="font-weight: bold; color: rgb(204, 0, 0);">0x7B00...0x7EFF</span> – заводские установки<br><br>
+        <span style="font-weight: bold; color: rgb(204, 0, 0);">0x7F00</span> – сетевой адрес контроллера<br>    0т 1 до 254 включительно<br>    при 0 или 255 автоматически присваивается адрес, равный 1
+        <br><br><span style="font-weight: bold; color: rgb(204, 0, 0);">0x7F01</span> – скорость канала PC
+        <br>    0 — 4800
+        <br>    1 — 9600
+        <br>    2 — 19200
+        <br>    3 — 38400
+        <br>    4 — 57600
+        <br>    5 — 115200
+        <br>    При значениях выше 5 скорость устанавливается 115200
+        <br><br><span style="font-weight: bold; color: rgb(204, 0, 0);">0x7F02</span> – протокол канала PC
+        <br>    0 — BIN, Modbus RTU
+        <br>    1 – ASCII, Modbus ASCII
+        <br>    более 1 – BIN, Modbus RTU
+        <br><br><span style="font-weight: bold; color: rgb(204, 0, 0);">0x7F03</span> – скорость канала PROG
+        <br>    0 — 4800
+        <br>    1 — 9600
+        <br>    2 — 19200
+        <br>    3 — 38400
+        <br>    4 — 57600
+        <br>    5 — 115200
+        <br>    При значениях выше 5 скорость устанавливается 115200
+        <br><br><span style="font-weight: bold; color: rgb(204, 0, 0);">0x7F04</span> – протокол канала PROG
+        <br>    0 — BIN, Modbus RTU
+        <br>    1 – ASCII, Modbus ASCII
+        <br>    более 1 – BIN, Modbus RTU
+        <br><br><span style="font-weight: bold; color: rgb(204, 0, 0);">0x7F05</span> – режим эмуляции
+        <br>    0 — без эмуляции
+        <br>    1 — режим эмуляции входов
+        <br>    2 — режим полной эмуляции
+        <br><br><span style="font-weight: bold; color: rgb(204, 0, 0);">0x7F06...0x7F0B</span> – зарезервировано
+        <br><br><span style="font-weight: bold; color: rgb(204, 0, 0);">0x7F0C...0x7F4B</span> – метка проекта (64 байта)
+        <br><br style="color: rgb(204, 0, 0);"><span style="font-weight: bold; color: rgb(204, 0, 0);">0x7F4C...0x7F4F</span> – ip-адрес
+        <br><br><span style="font-weight: bold; color: rgb(204, 0, 0);">0x7F50...0x7F55</span> – MAC адрес
+        <br><br><span style="font-weight: bold; color: rgb(204, 0, 0);">0x7F56</span> – год (от 0 до 99)
+        <br><br><span style="font-weight: bold; color: rgb(204, 0, 0);">0x7F57</span> – разрешение коммуникационного канала вместо пульта
+        <br>    (0x31 – канал, любое другое значение - пульт)
+        <br><br style="color: rgb(204, 0, 0);"><span style="font-weight: bold; color: rgb(204, 0, 0);">0x7F59</span> – разрешение SD карты
+        <br>    (0x31 – разрешить, любое другое значение - запретить)
+        <br><br><span style="font-weight: bold; color: rgb(204, 0, 0);">0x7F5A...0x7F5D</span> – шлюз Ethernet сети
+        <br><br style="color: rgb(204, 0, 0);"><span style="font-weight: bold; color: rgb(204, 0, 0);">0x7F5E</span> – эмуляция режима Modbus master
+        <br>    (0 – выключена, любое другое значение - включена)
+        <br><br><span style="font-weight: bold; color: rgb(204, 0, 0);">0x7F5F...0x7F62</span> – маска Ethernet сети
+        <br><br><span style="font-weight: bold; color: rgb(204, 0, 0);">0x7FF5...0x7FFF</span> – кодовое слово для автозагрузчика
+    </body>
+</html>

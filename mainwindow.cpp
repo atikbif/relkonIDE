@@ -680,6 +680,12 @@ void MainWindow::createUtilities()
     QAction *actMMB = new QAction(QIcon("://mmb.ico"), "Настройка Matchbox", this);
     ui->menuUtil->addAction(actMMB);
     connect(actMMB,SIGNAL(triggered()),this,SLOT(startMMBConfig()));
+    QAction *actAdcDac = new QAction(QIcon("://measure.ico"), "Тестирование АЦП и ЦАП", this);
+    ui->menuUtil->addAction(actAdcDac);
+    connect(actAdcDac,SIGNAL(triggered()),this,SLOT(startAdcDacTest()));
+    QAction *actMC35 = new QAction(QIcon("://networking.ico"), "Настройка модулей MC35", this);
+    ui->menuUtil->addAction(actMC35);
+    connect(actMC35,SIGNAL(triggered()),this,SLOT(startMC35Config()));
 }
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -1744,6 +1750,32 @@ void MainWindow::startMMBConfig()
         QProcess* mmb = new QProcess;
         connect(mmb, SIGNAL(finished(int)), mmb, SLOT(deleteLater()));
         mmb->start("\""+path+"\"");
+    }else {
+        activateInfoPanel();
+        addMessageToInfoList("error: Ошибка открытия файла " + path);
+    }
+}
+
+void MainWindow::startAdcDacTest()
+{
+    QString path = QApplication::applicationDirPath() + "/Test_ADC_DAC.exe";
+    if(QFile::exists(path)) {
+        QProcess* adc_dac = new QProcess;
+        connect(adc_dac, SIGNAL(finished(int)), adc_dac, SLOT(deleteLater()));
+        adc_dac->start("\""+path+"\"");
+    }else {
+        activateInfoPanel();
+        addMessageToInfoList("error: Ошибка открытия файла " + path);
+    }
+}
+
+void MainWindow::startMC35Config()
+{
+    QString path = QApplication::applicationDirPath() + "/MC35IO.exe";
+    if(QFile::exists(path)) {
+        QProcess* mc35 = new QProcess;
+        connect(mc35, SIGNAL(finished(int)), mc35, SLOT(deleteLater()));
+        mc35->start("\""+path+"\"");
     }else {
         activateInfoPanel();
         addMessageToInfoList("error: Ошибка открытия файла " + path);
