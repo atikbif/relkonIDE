@@ -34,7 +34,7 @@ void RCompiler::init()
         fileError.message = "Не удалось прочитать файл настроек " + fName;
         errors += fileError;
     }
-    QTextCodec::setCodecForLocale(QTextCodec::codecForName("IBM 866"));
+    //QTextCodec::setCodecForLocale(QTextCodec::codecForName("Windows-1251"));
 }
 
 void RCompiler::traverseNode(const QDomNode &node)

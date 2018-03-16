@@ -308,6 +308,7 @@ void CodeEditor::keyPressEvent(QKeyEvent *e)
                     // переход на строку по номеру
                     DialogGoToString *dialog = new DialogGoToString(this);
                     if(dialog->exec()==QDialog::Accepted) {
+                        releaseEnable = false;
                         int strNum = dialog->getStrNum()-1;
                         // unfold str
                         QTextBlock block = document()->findBlockByNumber(strNum);

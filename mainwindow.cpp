@@ -131,6 +131,16 @@ int MainWindow::openFileByName(const QString &fName, bool importFlag)
         in.setCodec("Windows-1251");
         editor->setDisabled(true);
         editor->appendPlainText(in.readAll());
+
+        /*editor->setFocus();
+        QTextCursor storeCursorPos = editor->textCursor();
+        editor->moveCursor(QTextCursor::End, QTextCursor::MoveAnchor);
+        editor->moveCursor(QTextCursor::StartOfLine, QTextCursor::MoveAnchor);
+        editor->moveCursor(QTextCursor::End, QTextCursor::KeepAnchor);
+        editor->textCursor().removeSelectedText();
+        editor->textCursor().deletePreviousChar();
+        editor->setTextCursor(storeCursorPos);*/
+
         editor->setEnabled(true);
         editor->foldAll();
 
@@ -196,7 +206,7 @@ void MainWindow::saveFileByName(const QString &fName)
         out.setCodec("Windows-1251");
         for(int i=0;i<editor->blockCount();i++) {
             out << editor->document()->findBlockByNumber(i).text();
-            out << "\r\n";
+            if(i!=editor->blockCount()-1) out << "\r\n";
         }
         file.close();
         //setWindowTitle(wTitle + " - " + fName);
@@ -694,6 +704,8 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    QTextCodec::setCodecForLocale(QTextCodec::codecForName("Windows-1251"));
+
     ui->listWidget->setVisible(false);
     ui->closeInfoListButton->setVisible(false);
     ui->infoLabel->setVisible(false);
@@ -1032,7 +1044,14 @@ void MainWindow::saveAsFile()
     fileName = QFileDialog::getSaveFileName(this, tr("Save File"),
                                                     path,
                                                     tr("Relkon Files (*.kon )"));
+    QFile mvarFile(PathStorage::getBuildDir() + "/mvar.xml");
+
     saveFileByName(fileName);
+
+    if(mvarFile.exists()) {
+        QString newMvarFileName = PathStorage::getBuildDir() + "/mvar.xml";
+        QFile::copy(mvarFile.fileName(),newMvarFileName);
+    }
 }
 
 void MainWindow::closeProject()
@@ -1732,10 +1751,12 @@ void MainWindow::startReloader()
 {
 
     QString path = QApplication::applicationDirPath() + "/Reloader.exe";
+    QStringList args;
+    args << PathStorage::getBuildDir();
     if(QFile::exists(path)) {
         QProcess* loader = new QProcess;
         connect(loader, SIGNAL(finished(int)), loader, SLOT(deleteLater()));
-        loader->start("\""+path+"\"");
+        loader->start("\""+path+"\"",args);
     }else {
         activateInfoPanel();
         addMessageToInfoList("error: Ошибка открытия файла " + path);

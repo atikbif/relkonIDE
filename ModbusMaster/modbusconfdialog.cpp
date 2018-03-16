@@ -43,6 +43,7 @@ ModbusConfDialog::~ModbusConfDialog()
 void ModbusConfDialog::on_pushButtonAddVar_clicked()
 {
     DialogAddEditModbusVar *dialog = new DialogAddEditModbusVar();
+    if(vars.getVarCnt()==0) var.setMemAddr(-1);
     dialog->setVar(var);
     int ret = dialog->exec();
     if(ret==QDialog::Accepted) {

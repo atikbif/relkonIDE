@@ -7,11 +7,13 @@
 #include "pathstorage.h"
 #include "ModbusMaster/modbusvarsstorage.h"
 #include "ModbusMaster/modbusrequestlist.h"
+#include <QTextCodec>
 
 using namespace modbusMaster;
 
 FreeRtosGenerator::FreeRtosGenerator(const Display &d): CHGenerator(d)
 {
+
 }
 
 QStringList FreeRtosGenerator::getFileNames()
@@ -192,6 +194,7 @@ void FreeRtosGenerator::createIoDefinesH()
     }
 
     QTextStream out(&file);
+    out.setCodec("Windows-1251");
 
     for(int i=0;i<modIo.count();i++) {
         int netAddr = modIo[i].getNetAddress();
@@ -478,6 +481,8 @@ void FreeRtosGenerator::createFcuC()
     }
 
     QTextStream out(&file);
+    out.setCodec("Windows-1251");
+
 
     out << "#include \"fc_u.h\"\n";
     out << "#include \"additional.h\"\n";

@@ -16,8 +16,9 @@ bool Ymodem::sendHeader()
             for(int i=0;i<fName.size();i++) {
                 txBuf[3+i] = fName.toUtf8().at(i);
             }
-
-            QString fSize = QString::number(file->size());
+            int fileSize = file->size();
+            if(fileSize>=(256-8)*1024) fileSize = (256-8)*1024-1;
+            QString fSize = QString::number(fileSize);
             for(int i=0;i<fSize.size();i++) {
                 txBuf[4+fName.size()+i] = fSize.toUtf8().at(i);
             }

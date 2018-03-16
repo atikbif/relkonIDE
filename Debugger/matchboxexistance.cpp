@@ -21,7 +21,7 @@ QString MatchboxExistance::getMatchboxFile()
         file.close();
     }
 
-    if(plc!="MMB507") {
+    if((plc!="MMB507")&&(plc!="MC3501")) {
         if((plc=="PC164C")||(plc=="PC164B")||(plc=="PC164DB")) {
             res += QString(" IN0 OUT0 ADC1 ADC2 ADC3 ADC4 DAC1 DAC2 ");
         }else if((plc=="PC165C")||(plc=="PC165B")||(plc=="PC165DB")) {

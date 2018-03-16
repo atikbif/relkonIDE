@@ -12,6 +12,8 @@ SearchDialog::SearchDialog(QString inp, QWidget *parent) :
     ui(new Ui::SearchDialog)
 {
     ui->setupUi(this);
+    ui->comboBoxSearch->setCompleter(0);
+    ui->comboBoxSearch->setInsertPolicy(QComboBox::InsertAtTop);
     ui->radioButtonForward->setChecked(true);
     cnt++;
     ui->listWidget->setFocus();
@@ -34,7 +36,8 @@ SearchDialog::SearchDialog(QString inp, QWidget *parent) :
         }
         ui->comboBoxSearch->setFocus();
     }
-    ui->comboBoxSearch->setInsertPolicy(QComboBox::InsertAtTop);
+
+
 }
 
 SearchDialog::~SearchDialog()

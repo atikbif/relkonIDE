@@ -170,6 +170,9 @@
      <property name="text">
       <string>Отмена</string>
      </property>
+     <property name="autoDefault">
+      <bool>false</bool>
+     </property>
     </widget>
    </item>
    <item row="5" column="0">

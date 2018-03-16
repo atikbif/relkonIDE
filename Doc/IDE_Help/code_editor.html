@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Редактор кода</title>
+    <style>
+        #header {
+            background-color:black;
+            color:white;
+            text-align:center;
+            padding:5px;
+        }
+        #content {
+            float:left;
+            padding:10px; 
+        }
+    </style>
+</head>
+
+<body>
+    <div id="header">
+        <h1>Редактор кода</h1>
+    </div>
+
+
+    <div id="content">
+        <p>Редактор кода представляет собой текстовый редактор с подсветкой синтаксиса языка <span style="color:darkred">Relkon</span> и возможностью сворачивания/разворачивания отдельных блоков программы (процессов и блока объявления переменных).</p>
+        <p>Все строки программы пронумерованы. Это облегчает ориентирование по коду при отладке программы и поиске текста (более подробно поиск текста описан в разделе <span style="color:blue">Меню</span>).Содержимое каждого процесса программы может находиться в свёрнутом или развёрнутом состоянии. В свёрнутом состоянии не отображается тело процесса кроме заголовка(<span style="color:darkred">#PROCESS</span>), а напротив номера строки заголовка отображается знак "+". Развернуть тело процесса можно щёлкнув мышкой по этому знаку. При этом знак поменяет своё состояние на "-". Повторный щелчок опять свернёт процесс. При открытии существующего проекта все процессы по умолчанию отображаются в свёрнутом виде.</p>
+        <p>В редакторе кода доступны следующие горячие клавиши:</p>
+        <li><span style="color:darkred">Alt+Wheel</span> (горизонтальная прокрутка текста)</li>
+        <li><span style="color:darkred">Shift+Wheel</span> (постраничная прокрутка текста)</li>
+        <li><span style="color:darkred">Ctrl+C</span> (если есть выделенный фрагмент он копируется в буфер обмена, если нет - в буфер копируется текущая строка)</li>
+        <li><span style="color:darkred">Ctrl+V</span> (вставка текста из буфера обмена)</li>
+        <li><span style="color:darkred">Ctrl+X</span> (вырезка выделенного фрагмента или текущей строки в буфер обмена)</li>
+        <li><span style="color:darkred">Shift+Del</span> (удаление текущей строки)</li>
+        <li><span style="color:darkred">Shift+Home</span> (выделение фрагмента текста от текущей позиции курсора до начала строки)</li>
+        <li><span style="color:darkred">Shift+End</span> (выделение фрагмента текста от текущей позиции до конца строки)</li>
+        <li><span style="color:darkred">Shift+Tab</span> (сдвиг строк, содержащих выделение, влево)</li>
+        <li><span style="color:darkred">Tab</span> (сдвиг строк, содержащих выделение, вправо)</li>
+        <li><span style="color:darkred">Insert</span> (включение/выключение режима замены символов)</li>
+        <li><span style="color:darkred">Ctrl+Z</span> (отмена последней операци)</li>
+        <li><span style="color:darkred">Ctrl+Y</span> (повтор отменённой операции)</li>
+    </div>
+</body>

@@ -17,6 +17,9 @@
    <iconset resource="../icons.qrc">
     <normaloff>:/srch_32.ico</normaloff>:/srch_32.ico</iconset>
   </property>
+  <property name="inputMethodHints">
+   <set>Qt::ImhNoPredictiveText|Qt::ImhSensitiveData</set>
+  </property>
   <layout class="QGridLayout" name="gridLayout_2">
    <item row="0" column="0">
     <widget class="QComboBox" name="comboBoxSearch">
@@ -26,17 +29,8 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="inputMethodHints">
-      <set>Qt::ImhNoAutoUppercase|Qt::ImhNoPredictiveText</set>
-     </property>
      <property name="editable">
       <bool>true</bool>
-     </property>
-     <property name="currentText">
-      <string notr="true"/>
-     </property>
-     <property name="insertPolicy">
-      <enum>QComboBox::NoInsert</enum>
      </property>
     </widget>
    </item>
@@ -67,7 +61,14 @@
     </spacer>
    </item>
    <item row="1" column="0">
-    <widget class="QLineEdit" name="lineEditReplace"/>
+    <widget class="QLineEdit" name="lineEditReplace">
+     <property name="inputMask">
+      <string/>
+     </property>
+     <property name="echoMode">
+      <enum>QLineEdit::Normal</enum>
+     </property>
+    </widget>
    </item>
    <item row="1" column="1">
     <widget class="QPushButton" name="pushButtonReplace">

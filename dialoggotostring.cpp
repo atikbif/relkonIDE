@@ -6,6 +6,7 @@ DialogGoToString::DialogGoToString(QWidget *parent) :
     ui(new Ui::DialogGoToString)
 {
     ui->setupUi(this);
+    ui->spinBoxStrNum->setFocus();
 }
 
 DialogGoToString::~DialogGoToString()

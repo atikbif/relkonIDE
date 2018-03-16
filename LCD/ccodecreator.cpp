@@ -177,7 +177,7 @@ QStringList CCodeCreator::getText(const Display &d)
                 QString prVarsStr;
                 foreach (PultVarDefinition vDef, varList) {
                    if(!vDef.getName().isEmpty()) {
-                       prVarsStr += printVar(d,vDef,i) + "// PULT " + QString::number(i) + ":" +QString::number(j-invisVarCnt) + "\n";
+                       prVarsStr += printVar(d,vDef,i) + "// PULT " + QString::number(i+1) + ":" +QString::number(j-invisVarCnt) + "\n";
                    }
                 }
                 if(!prVarsStr.isEmpty()) {

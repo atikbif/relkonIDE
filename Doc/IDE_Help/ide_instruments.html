@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Панель инструментов</title>
+    <style>
+        #header {
+            background-color:black;
+            color:white;
+            text-align:center;
+            padding:5px;
+        }
+        #content {
+            float:left;
+            padding:10px; 
+        }
+    </style>
+</head>
+
+<body>
+    <div id="header">
+        <h1>Панель инструментов</h1>
+    </div>
+
+
+    <div id="content">
+        <p> В панели инструментов размещены следующие команы:</p>
+        <p><img src="images/new_32.ico" alt="new project" height="16"> создать новый проект </p>
+        <p><img src="images/open_32.ico" alt="open project" height="16"> открыть существующий проект </p>
+        <p><img src="images/save_32.ico" alt="save project" height="16"> сохранить проект </p>
+        <p><img src="images/undo_32.ico" alt="undo" height="16"> отменить операцию </p>
+        <p><img src="images/redo_32.ico" alt="redo" height="16"> вернуть операцию </p>
+        <p>Команды отменить и вернуть операцию работают только для редактора кода. Для пульта можно пользоваться горячими клавишами Ctrl+Z и Ctrl+Y.</p>
+        <p><img src="images/Search.ico" alt="search text" height="16"> поиск текста в редакторе кода </p>
+        <p><img src="images/build_32.ico" alt="build project" height="16"> компиляция и сборка проекта </p>
+        <p><img src="images/allToPLC.ico" alt="load all to PLC" height="16"> Загрузка программы и настроек в контроллер </p>
+        <p><img src="images/flash_chip.png" alt="load code to PLC" height="16"> Загрузка программы в контроллер </p>
+        <p><img src="images/write_conf2.png" alt="load config to PLC" height="16"> Загрузка настроек в контроллер </p>
+        <p><img src="images/contract.ico" alt="compact view" height="16"> Свернуть все процессы в редакторе кода </p>
+        <p><img src="images/expand.ico" alt="full view" height="16"> Развернуть все процессы в редакторе кода </p>
+        <p><img src="images/no_emu_on.ico" alt="without emulation" height="16"> Отключить режим эмуляции </p>
+        <p><img src="images/inp_emu_on.ico" alt="inputs' emulation" height="16"> Включить режим эмуляции входов</p>
+        <p><img src="images/all_emu_on.ico" alt="full emulation" height="16"> Включить режим эмуляции входов и  выходов</p>
+        <p>Режим эмуляции упрощает отладку программы. В режиме "эмуляции входов" физическое состояние сигналов на дискретных и аналоговых входах не оказывает на них влияния. Благодаря этому в отладчике можно выставлять необходимые значения входов, проверяя реакцию программы. Режим полной эмуляции кроме входов влияет также и на поведение выходов. Включение какого-либо выхода программой не приведёт к физическому срабатыванию соответствующего выхода контроллера. Значки эмуляции работают по принципу переключателя. Активным может быть только один из этих режимов.</p>
+        <p><img src="images/info.ico" alt="info" height="16"> Управление видимостью информационного окна</p>
+        <p><img src="images/modbus.ico" alt="modbus" height="16"> Настройка Modbus переменных</p>
+        <p><img src="images/settings2.ico" alt="plc config" height="16"> Управление видимостью окна/вкладки настроек контроллера</p>
+        <p><img src="images/pult.ico" alt="display editor" height="16"> Управление видимостью окна/вкладки редактора пульта</p>
+        <p><img src="images/debug.png" alt="debugger" height="16"> Управление видимостью окна/вкладки отладчика</p>
+    </div>
+</body>

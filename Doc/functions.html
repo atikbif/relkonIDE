@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Функции языка Релкон</title>
+    <style>
+        #header {
+            background-color:black;
+            color:white;
+            text-align:center;
+            padding:5px;
+        }
+        #content {
+            float:left;
+            padding:10px; 
+        }
+        #prot {
+            color:black;
+            background-color:lightyellow;
+            padding:5px;
+        }
+        table {
+            border: 1px solid black;
+            width: 100%;
+            background-color: black;
+        }
+
+        th, td {
+            text-align: left;
+            border: 1px solid black;
+            padding: 8px;
+            background-color: azure;
+        }
+
+th {
+    background-color: aliceblue;
+    color: black;
+}
+    </style>
+</head>
+
+<body>
+    <div id="header">
+        <h1>Функции языка Релкон</h1>
+    </div>
+
+
+    <div id="content">
+        <table>
+            <tr>
+                <th>прототип функции</th>
+                <th>назначение</th>
+                <th>комментарий</th>
+            </tr>
+            <tr>
+                <td id="prot"><i>void <b>call</b>(unsigned char can, unsigned char* num)</i></td>
+                <td>Аналогична выполнению команды модема ATD для номера num (в голосовом режиме)</td>
+                <td>can: CAN_PC, CAN_PR</td>
+            </tr>
+            <tr>
+                <td id="prot"><i>void <b>call7</b>(unsigned char can, unsigned char* num)</i></td>
+                <td>Аналогична выполнению команды модема ATD для номера num (к началу номера автоматически добавляется +7) (в голосовом режиме)</td>
+                <td>can: CAN_PC, CAN_PR</td>
+            </tr>
+            <tr>
+                <td id="prot"><i>void <b>call_data</b>(unsigned char can, unsigned char* num)</i></td>
+                <td>Аналогична выполнению команды модема ATD для номера num (в CSD режиме)</td>
+                <td>can: CAN_PC, CAN_PR</td>
+            </tr>
+            <tr>
+                <td id="prot"><i>void <b>call_data7</b>(unsigned char can, unsigned char* num)</i></td>
+                <td>Аналогична выполнению команды модема ATD для номера num (к началу номера автоматически добавляется +7) (в CSD режиме)</td>
+                <td>can: CAN_PC, CAN_PR</td>
+            </tr>
+            <tr>
+                <td id="prot"><i>char <b>can_check</b>(request* r)</i></td>
+                <td>Возвращает результат проверки ответа на запрос, сформированный ранее командой can_cmd (1 — ответ корректный, 0 — ошибка)</td>
+                <td>Между функциями can_cmd и can_check необходима пауза для принятия данных от опрашиваемого устройства</td>
+            </tr>
+            <tr>
+                <td id="prot"><i>void <b>can_cmd</b>(request* r)</i></td>
+                <td>Посылка стандартного запроса, описываемого структурой request, в передающий буфер в режиме мастера</td>
+                <td><code>struct{ unsigned char canal; unsigned char cmd; unsigned char plc_addr; unsigned short mem_addr; unsigned short amount; unsigned char* rx; unsigned char* tx;} request;</code><br>canal: CAN_PC, CAN_PR, CAN_MB<br>Поддерживаемые команды: <br>RD_RAM – чтение оперативной памяти контроллеров на базе CORTEX <br>
+                RD_US – чтение памяти пользователя(область для диспетчеризации) контроллеров на базе CORTEX <br>
+                RD_US_ASCII – чтение памяти пользователя(область для диспетчеризации) контроллеров на базе CORTEX (ASCII протокол) <br>
+                RD_IO - чтение стандартных входов/выходов контроллеров на базе CORTEX <br>
+                RD_RAM51 - чтение оперативной памяти контроллеров на базе AT89C51ED2 <br>
+                RD_XRAM51 — чтение расширенной оперативной памяти контроллеров на базе AT89C51ED2 <br>
+                RD_RAM51_ASCII - чтение оперативной памяти контроллеров на базе AT89C51ED2 (ASCII протокол) <br>
+                RD_XRAM51_ASCII — чтение расширенной оперативной памяти контроллеров на базе AT89C51ED2 (ASCII протокол) <br>
+                WR_RAM – запись оперативной памяти контроллеров на базе CORTEX <br>
+                WR_US - запись памяти пользователя(область для диспетчеризации) контроллеров на базе CORTEX <br>
+                WR_XRAM — запись расширенной оперативной памяти контроллеров на базе AT89C51ED2 <br>
+                RD_HLD — чтение Holding регистров по протоколу Modbus RTU (Modbus код - 0x03) <br>
+                RD_INP – чтение Input регистров по протоколу Modbus RTU (Modbus код - 0x04) <br>
+                RD_DINP — чтение Input Status по протоколу Modbus RTU (Modbus код - 0x02) <br>
+                RD_COILS — чтение дискретных выходов по протоколу Modbus RTU (Modbus код - 0x01) <br>
+                WR_HLD — запись HOLDING регистров по протоколу Modbus RTU (Modbus код - 0x10) <br>
+                WR_COIL — запись дискретного выхода по протоколу Modbus RTU (Modbus код - 0x05) </td>
+            </tr>
+            <tr>
+                <td id="prot"><i>void <b>can_disable</b>(unsigned char can)</i></td>
+                <td>Запрет стандартного протокола на канале can</td>
+                <td>can: CAN_PC, CAN_PR, CAN_MB<br>Запрет протокола на канале PR приведёт к невозможности программирования контроллера без использования пульта</td>
+            </tr>
+            <tr>
+                <td id="prot"><i>void <b>can_enable</b>(unsigned char can)</i></td>
+                <td>Разрешение стандартного протокола на канале can</td>
+                <td>can: CAN_PC, CAN_PR, CAN_MB</td>
+            </tr>
+            <tr>
+                <td id="prot"><i>void <b>clear_buf</b>(unsigned char can)</i></td>
+                <td>Обнуляет счётчик принятых байт и содержимое приёмного буфера канала can </td>
+                <td>can: CAN_PC, CAN_PR</td>
+            </tr>
+            <tr>
+                <td id="prot"><i>void <b>clear_rx_cnt</b>(unsigned char can)</i></td>
+                <td>Обнуляет счётчик принятых байт в приёмном буфере канала can</td>
+                <td>can: CAN_PC, CAN_PR, CAN_MB</td>
+            </tr>
+            <tr>
+                <td id="prot"><i>void <b>del_sms</b>(unsigned char can,unsigned char i)</i></td>
+                <td>Удаляет SMS из ячейки i памяти модема по каналу can</td>
+                <td>can: CAN_PC, CAN_PR, CAN_MB</td>
+            </tr>
+            <tr>
+                <td id="prot"><i>unsigned char <b>find</b>(unsigned char* str,unsigned char* buf, unsigned short n)</i></td>
+                <td>Ищет строку str в первых n символах буфера buf</td>
+                <td>Возвращает позицию строки в буфере в случае успеха, 0 - в случае неудачи</td>
+            </tr>
+            <tr>
+                <td id="prot"><i>unsigned int <b>GetCRC16</b> (unsigned char* ptr,unsigned int cnt)</i></td>
+                <td>Возвращает контрольную сумму CRC16 для первых cnt байт буфера ptr</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td id="prot"><i>unsigned char* <b>get_can_rx_ptr</b>(unsigned char can)</i></td>
+                <td>Возвращает указатель на приёмный буфер канала can</td>
+                <td>can: CAN_PC, CAN_PR, CAN_MB<br>Размер буфера - 512 байт</td>
+            </tr>
+            <tr>
+                <td id="prot"><i>unsigned char* <b>get_can_tx_ptr</b>(unsigned char can)</i></td>
+                <td>Возвращает указатель на передающий буфер канала can</td>
+                <td>can: CAN_PC, CAN_PR, CAN_MB<br>Размер буфера - 512 байт</td>
+            </tr>
+            <tr>
+                <td id="prot"><i>unsigned short <b>get_ee_addr</b>(unsigned short index)</i></td>
+                <td>Возвращает адрес переменной EE в FRAM памяти по номеру переменной index</td>
+                <td>для прямого доступа к заводским установкам во FRAM памяти</td>
+            </tr>
+            <tr>
+                <td id="prot"><i>unsigned char <b>get_index</b>(unsigned char can)</i></td>
+                <td>Возвращает номера ячейки памяти, содержащей входящее sms</td>
+                <td>can: CAN_PC, CAN_PR, CAN_MB</td>
+            </tr>
+            <tr>
+                <td id="prot"><i>void <b>get_number</b>b>(unsigned char* ptr)</i></td>
+                <td>Сохраняет номер отправителя последней прочитанной SMS в буфер ptr</td>
+                <td>Вызывать необходимо после вызова функции get_sms_text()<br>Буфер ptr должен иметь размерность не менее 11 байт</td>
+            </tr>
+            <tr>
+                <td id="prot"><i>unsigned <b>short get_rx_cnt</b>(unsigned char can)</i></td>
+                <td>Возвращает количество принятых байт в приёмном буфере канала can</td>
+                <td>can: CAN_PC, CAN_PR, CAN_MB</td>
+            </tr>
+            <tr>
+                <td id="prot"><i>unsigned char <b>get_sms_text</b>(unsigned char can,unsigned char* ptr,unsigned char max)</i></td>
+                <td>Сохраняет содержимое входящего SMS из приёмного буфера канала CAN в буфер ptr</td>
+                <td>can: CAN_PC, CAN_PR, CAN_MB<br>max - максимальная длина сообщения за вычетом пароля</td>
+            </tr>
+            <tr>
+                <td id="prot"><i>void <b>get_time</b>(void)</i></td>
+                <td>Возвращает текущее время в структуру times</td>
+                <td><code>struct {unsigned char sec; unsigned char min; unsigned char hour; unsigned char date; unsigned char month; unsigned char year; unsigned char day;} times;</code></td>
+            </tr>
+            <tr>
+                <td id="prot"><i>unsigned char <b>print_ip_buf</b>(unsigned char ip1, unsigned char ip2, unsigned char ip3, unsigned char ip4, unsigned char* ptr)</i></td>
+                <td>Печатает ip адрес (ip1.ip2.ip3.ip4) в буфере ptr</td>
+                <td>Функция возвращает количество затраченных знакомест<br></td>
+            </tr>
+            <tr>
+                <td id="prot"><i>unsigned char <b>print_short_buf</b>(short val,unsigned char* ptr)</i></td>
+                <td>Печатает знаковую двухбайтную переменную val в буфере buf</td>
+                <td>Функция возвращает количество затраченных знакомест(с учётом возможного минуса)</td>
+            </tr>
+            <tr>
+                <td id="prot"><i>unsigned char <b>print_long_buf</b>(unsigned long val,unsigned char* buf)</i></td>
+                <td>Печатает безнаковую переменную val в буфере buf</td>
+                <td>Функция возвращает количество затраченных знакомест(может занять до 5 знакомест)<br>print_long_buf(times.hour,&my_buf[14]);</td>
+            </tr>
+            <tr>
+                <td id="prot"><i>void <b>print_sms_var</b>(short value, unsigned char *sms_buf, unsigned char width, unsigned char point_pos)</i></td>
+                <td>Печатает переменную value в буфере sms_buf</td>
+                <td>width - количество знакомест под вывод переменной<br>point_pos - число символов после запятой(для формирования дробных значений)<br>print_sms_var(v1,&sms_buf[10],5,0);</td>
+            </tr>
+            <tr>
+                <td id="prot"><i>void <b>read_fram</b>(unsigned short addr, unsigned char size, unsigned char* ptr)</i></td>
+                <td>Читает size байт FRAM памяти в буфер ptr начиная с адреса addr</td>
+                <td>Операция медленная. Вызов только из 100 мс цикла. Чтение не более 32 байт</td>
+            </tr>
+            <tr>
+                <td id="prot"><i>unsigned char <b>read_sms</b>(unsigned char can,unsigned char i)</i></td>
+                <td>Читает содержимое входящего SMS в ячейке памяти i по каналу can во внутренний буфер</td>
+                <td>can: CAN_PC, CAN_PR, CAN_MB</td>
+            </tr>
+            <tr>
+                <td id="prot"><i>char <b>search</b>(unsigned char can,unsigned char* ptr)</i></td>
+                <td>Ищет строку ptr в приёмном буфере канала can</td>
+                <td>can: CAN_PC, CAN_PR, CAN_MB<br>Возвращает 1 в случае успеха, 0 - в случае неудачи<br>if(search_str(CAN_PC,"OK")) #OUT0.0=1;</td>
+            </tr>
+            <tr>
+                <td id="prot"><i>void <b>send</b>(unsigned char can,unsigned char* ptr, unsigned short cnt)</i></td>
+                <td>Посылает cnt байт из буфера ptr в канал can</td>
+                <td>can: CAN_PC, CAN_PR, CAN_MB</td>
+            </tr>
+            <tr>
+                <td id="prot"><i>void <b>send_sms</b>(unsigned char can, unsigned char* num, unsigned char* data)</i></td>
+                <td>Отправка тела SMS в передающий буфер канала can</td>
+                <td>can: CAN_PC, CAN_PR<br>num - номер телефона получателя (без +7 или 8)<br>data - содержимое сообщения<br>send_sms(CAN_PC,”9209170680”,”Тестовое сообщение”);<br>Вызывается с задержкой после вызова write_head</td>
+            </tr>
+            <tr>
+                <td id="prot"><i>void <b>send_str</b>(unsigned char can,char* ptr)</i></td>
+                <td>Посылает строку ptr в канал can</td>
+                <td>can: CAN_PC, CAN_PR, CAN_MB<br>send_str(CAN_PC,"AT\r\n");</td>
+            </tr>
+            <tr>
+                <td id="prot"><i>void <b>set_exchange_net_addr</b>(unsigned char plcNum, unsigned char netAddr)</i></td>
+                <td>Связывает внутренний индекс контроллера plcNum при межконтроллерном обмене с реальным сетевым адресом netAddr</td>
+                <td>Необходимо использовать только если адрес опрашиваемого контроллера выходит за границы диапазона [1..8]</td>
+            </tr>
+            <tr>
+                <td id="prot"><i>void <b>set_password</b>(unsigned char* ptr)</i></td>
+                <td>Задаёт шестизначный пароль для входящих SMS</td>
+                <td>set_password("123456");</td>
+            </tr>
+            <tr>
+                <td id="prot"><i>void <b>set_time</b>(void)</i></td>
+                <td>Устанавливает время в соответствии с содержимым структуры wr_times</td>
+                <td><code>struct {unsigned char sec; unsigned char min; unsigned char hour; unsigned char date; unsigned char month; unsigned char year; unsigned char day;} wr_times;</code></td>
+            </tr>
+            <tr>
+                <td id="prot"><i>void <b>udp_cmd</b>(udp_request* r)</i></td>
+                <td>Посылка запроса в сеть Ethernet по протоколу UDP, описываемого структурой udp_request</td>
+                <td><code>struct{ unsigned char cmd; unsigned char ip[4]; unsigned short addr; unsigned short cnt; unsigned char* rx; unsigned char* tx; unsigned char result} udp_request;</code><br>Поддерживаемые команды: <br>UDP_RD_USER – чтение памяти пользователя <br>
+                UDP_WR_USER – запись памяти пользователя <br>
+            </tr>
+            <tr>
+                <td id="prot"><i>void <b>write_fram</b>(unsigned short addr, unsigned char size, unsigned char* ptr)</i></td>
+                <td>Пишет по адресу addr FRAM памяти size байт из буфер ptr </td>
+                <td>Операция медленная. Вызов только из 100 мс цикла. Запись не более 32 байт</td>
+            </tr>
+            <tr>
+                <td id="prot"><i>void <b>write_head</b>(unsigned char can)</i></td>
+                <td>Отправка заголовка SMS в передающий буфер канала can</td>
+                <td>can: CAN_PC, CAN_PR</td>
+            </tr>
+        </table>
+    </div>
+</body>
+</html>

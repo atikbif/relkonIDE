@@ -6,7 +6,7 @@
 
 HighlightSettingsReader::HighlightSettingsReader(): fName("highlight.xml")
 {
-    QTextCodec::setCodecForLocale(QTextCodec::codecForName("UTF-8"));
+    //QTextCodec::setCodecForLocale(QTextCodec::codecForName("IBM 866"));
     cList = ColorList::readUserColors();
 }
 

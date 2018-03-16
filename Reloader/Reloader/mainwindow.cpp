@@ -97,11 +97,11 @@ void MainWindow::on_pushButtonLoadSFRAM_clicked()
             stream >> codeWordValue;
             stream >> versValue;
             if(codeWordValue == codeWord) {
-                if(versValue == 0x01) {
+                //if(versValue == 0x01) {
                     unsigned char progAddr;
                     stream >> progAddr;
                     stream >> data;
-                }
+                //}
             }
             file.close();
         }

@@ -97,7 +97,7 @@ void PrBuilder::buildRequest(QString prPath, QString prName, FCUCSettings conf)
             out.setCodec("Windows-1251");
             for(int i=0;i<konFile.count();i++) {
                 out << konFile.at(i);
-                out << "\r\n";
+                if(i!=konFile.count()-1) out << "\r\n";
             }
 
             file.close();

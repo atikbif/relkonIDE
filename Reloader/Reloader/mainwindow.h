@@ -17,6 +17,7 @@ class MainWindow : public QMainWindow
     unsigned int codeWord = 0x5280;
 public:
     explicit MainWindow(QWidget *parent = 0);
+    void setPath(const QString &path) {progrPath=path;sframPath=path;}
     ~MainWindow();
 
 private slots:
