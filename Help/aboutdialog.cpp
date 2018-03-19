@@ -21,8 +21,8 @@ AboutDialog::AboutDialog(QWidget *parent) :
 
     ui->textBrowser->setOpenExternalLinks(true);
     this->setWindowTitle("О программе");
-    ui->textBrowser->insertPlainText("RIDE (Relkon7) Version: "+ QCoreApplication::applicationVersion() +"\n");
-    ui->textBrowser->insertPlainText("Relkon Version: " + relkVers + "\n");
+    ui->textBrowser->insertPlainText("Версия Relkon: "+ QCoreApplication::applicationVersion() +"\n");
+    ui->textBrowser->insertPlainText("Версия ОС ПЛК: " + relkVers + "\n");
     ui->textBrowser->insertHtml("<p>Авторские права: ООО \"Контэл\"   <a href='http://www.kontel.ru/'>www.kontel.ru</a></p>");
 
 }

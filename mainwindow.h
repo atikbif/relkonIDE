@@ -40,7 +40,7 @@ class MainWindow : public QMainWindow
     QDockWidget *dockDisplay;
     QDockWidget *dockSettings;
 
-    const QString wTitle = "RelkonIDE ";
+    const QString wTitle = "Relkon 7.1";
     const int maxAmountOfPrevProjects = 10;
     QString prDirPath;
     QString prFileName;
