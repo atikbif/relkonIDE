@@ -260,6 +260,18 @@ void MainWindow::rdSysFramSlot()
     settings->readSysFram();
 }
 
+void MainWindow::wrUserFramSlot()
+{
+    debugger->stopDebugger();
+    settings->writeUserFram();
+}
+
+void MainWindow::rdUserFramSlot()
+{
+    debugger->stopDebugger();
+    settings->readUserFram();
+}
+
 void MainWindow::emuModeChanged(SettingsBase::emuType value)
 {
     if(value==SettingsBase::NoEmulation) noEmuAct->setIcon(QIcon(":/no_emu_on.ico"));else noEmuAct->setIcon(QIcon(":/no_emu_off.ico"));
@@ -571,6 +583,13 @@ void MainWindow::createToolbar()
     ui->menuCmd->addAction(fromTableAction);
     ui->menuCmd->addAction(modbusVarsAct);
 
+    rdUserFram = new QAction(QIcon(":/readFram.ico"),"чтение несистемной FRAM",this);
+    wrUserFram = new QAction(QIcon(":/writeFram.ico"),"Запись несистемной FRAM",this);
+    ui->menuCmd->addAction(rdUserFram);
+    ui->menuCmd->addAction(wrUserFram);
+    connect(rdUserFram,SIGNAL(triggered(bool)),this,SLOT(rdUserFramSlot()));
+    connect(wrUserFram,SIGNAL(triggered(bool)),this,SLOT(wrUserFramSlot()));
+
     ui->mainToolBar->addSeparator();
     ui->mainToolBar->addAction(buildAct);
     ui->mainToolBar->addSeparator();
@@ -860,6 +879,8 @@ void MainWindow::disableActionWithoutProject()
     fromTableAction->setEnabled(false);
     wrSettings->setEnabled(false);
     rdSettings->setEnabled(false);
+    wrUserFram->setEnabled(false);
+    rdUserFram->setEnabled(false);
     noEmuAct->setEnabled(false);
     emuAct->setEnabled(false);
     emuInpAct->setEnabled(false);
@@ -893,6 +914,8 @@ void MainWindow::enableActionWithProject()
     fromTableAction->setEnabled(true);
     wrSettings->setEnabled(true);
     rdSettings->setEnabled(true);
+    wrUserFram->setEnabled(true);
+    rdUserFram->setEnabled(true);
     noEmuAct->setEnabled(true);
     emuAct->setEnabled(true);
     emuInpAct->setEnabled(true);

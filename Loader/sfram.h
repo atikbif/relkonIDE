@@ -16,8 +16,9 @@ class sFram : public QObject
     static const int reqLength = 64;
     void controllerReset(QSerialPort &port);
     bool testControllerReady(void); // проверка готовности контроллера к чтению/записи настроек
+    bool userFram = false;
 public:
-    explicit sFram(QObject *parent = 0);
+    explicit sFram(bool userFramFlag = false,QObject *parent = 0);
     ~sFram();
 
 signals:

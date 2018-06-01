@@ -17,7 +17,7 @@ class SysFramReadWrite : public QDialog
     QThread sFramThread;
     sFram* loader;
 public:
-    explicit SysFramReadWrite(QWidget *parent = 0);
+    explicit SysFramReadWrite(bool userFramflag = false, QWidget *parent = 0);
     ~SysFramReadWrite();
 signals:
     void startWrite(QByteArray data);

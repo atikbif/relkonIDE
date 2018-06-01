@@ -16,7 +16,7 @@ class SettingsForm : public SettingsBase
     const int rowCount = 103;
     unsigned int codeWord = 0x5280;
 
-    static const int settingsSize = 2048;
+    static const int settingsSize = 1280;
 
     void printFactorySettings(void); // вывод таблицы заводских установок
     void guiToData(void);
@@ -58,11 +58,18 @@ private slots:
 
 public slots:
     void readFromBin(const QByteArray inpData); // прочитать настройки из бинарного массива
+    void readUserFromBin(const QByteArray inpData);
+
     void writeSysFram(void);
     void readSysFram(void);
 
 private:
     Ui::SettingsForm *ui;
+
+    // SettingsBase interface
+public slots:
+    void readUserFram();
+    void writeUserFram();
 };
 
 #endif // SETTINGSFORM_H

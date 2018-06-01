@@ -6,7 +6,7 @@ class FCUCSettings
 {
     int eMemSize;
     static const int min_value = 10;
-    static const int max_value = 1000;
+    static const int max_value = 10000;
 public:
     FCUCSettings();
     void setEMemSize(int value) {if((value>=min_value)&&(value<=max_value)) eMemSize = value;}

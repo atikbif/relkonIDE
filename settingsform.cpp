@@ -11,6 +11,7 @@
 #include "RCompiler/rcompiler.h"
 #include "pathstorage.h"
 #include <QSerialPortInfo>
+#include <QFileDialog>
 
 void SettingsForm::printFactorySettings()
 {
@@ -567,6 +568,22 @@ void SettingsForm::readFromBin(const QByteArray inpData)
     }
 }
 
+void SettingsForm::readUserFromBin(const QByteArray inpData)
+{
+    QString  konFileName = PathStorage::getKonFileFullName();
+    QString path = QFileInfo(konFileName).absoluteDir().absolutePath();
+    QString fName = QFileDialog::getSaveFileName(this, tr("Сохранить файл"),path,tr("FRAM (*.ufr)"));
+    if(!fName.isEmpty()) {
+        QFile file(fName);
+        if (file.open(QIODevice::WriteOnly)) {
+            QDataStream stream(&file);
+            stream.setVersion(QDataStream::Qt_5_4);
+            stream << inpData;
+            file.close();
+        }else QMessageBox::warning(this,"Предупреждение","Не удалось сохранить файл");
+    }
+}
+
 void SettingsForm::writeSysFram()
 {
     on_pushButtonToPLC_clicked();
@@ -575,6 +592,57 @@ void SettingsForm::writeSysFram()
 void SettingsForm::readSysFram()
 {
     on_pushButtonFromPLC_clicked();
+}
+
+void SettingsForm::readUserFram()
+{
+    ScanGUI gui(progAddr,false,getPortName(),this);
+    int ret = gui.exec();
+    if(ret==QDialog::Accepted) {
+        DetectedController* plc = &DetectedController::Instance();
+        if(plc->getBootMode()) QMessageBox::warning(this,"системные настройки контроллера","Контроллер ожидает загрузки программы.\nЧтение/запись настроек невозможны.");
+        else{
+            SysFramReadWrite loader(true,this);
+            connect(this,SIGNAL(readFromPLC()),&loader,SLOT(startReadProcess()));
+            connect(&loader,SIGNAL(readOK(QByteArray)),this,SLOT(readUserFromBin(QByteArray)));
+            emit readFromPLC();
+            loader.exec();
+            disconnect(this,SIGNAL(writeToPLC(QByteArray)),&loader,SLOT(startWriteProcess(QByteArray)));
+        }
+    }
+}
+
+void SettingsForm::writeUserFram()
+{
+
+    QString  konFileName = PathStorage::getKonFileFullName();
+    QString path = QFileInfo(konFileName).absoluteDir().absolutePath();
+    QString fName = QFileDialog::getOpenFileName(this, tr("Загрузить файл"),path,tr("FRAM (*.ufr)"));
+    if(!fName.isEmpty()) {
+        QFile file(fName);
+        if (file.open(QIODevice::ReadOnly)) {
+            QDataStream stream(&file);
+            stream.setVersion(QDataStream::Qt_5_4);
+            QByteArray inpData;
+            stream >> inpData;
+            file.close();
+
+            ScanGUI gui(progAddr,false,getPortName(),this);
+            int ret = gui.exec();
+            if(ret==QDialog::Accepted) {
+                DetectedController* plc = &DetectedController::Instance();
+                if(plc->getBootMode()) QMessageBox::warning(this,"системные настройки контроллера","Контроллер ожидает загрузки программы.\nЧтение/запись настроек невозможны.");
+                else{
+                    SysFramReadWrite loader(true,this);
+                    connect(this,SIGNAL(writeToPLC(QByteArray)),&loader,SLOT(startWriteProcess(QByteArray)));
+                    emit writeToPLC(inpData);
+                    loader.exec();
+                    disconnect(this,SIGNAL(writeToPLC(QByteArray)),&loader,SLOT(startWriteProcess(QByteArray)));
+                }
+            }
+
+        }else QMessageBox::warning(this,"Предупреждение","Не удалось открыть файл");
+    }
 }
 
 void SettingsForm::on_tableWidget_itemChanged(QTableWidgetItem *item)
@@ -627,7 +695,7 @@ void SettingsForm::on_pushButtonFromPLC_clicked()
         DetectedController* plc = &DetectedController::Instance();
         if(plc->getBootMode()) QMessageBox::warning(this,"системные настройки контроллера","Контроллер ожидает загрузки программы.\nЧтение/запись настроек невозможны.");
         else{
-            SysFramReadWrite loader(this);
+            SysFramReadWrite loader(false,this);
             connect(this,SIGNAL(readFromPLC()),&loader,SLOT(startReadProcess()));
             connect(&loader,SIGNAL(readOK(QByteArray)),this,SLOT(readFromBin(QByteArray)));
             emit readFromPLC();
@@ -647,7 +715,7 @@ void SettingsForm::on_pushButtonToPLC_clicked()
         DetectedController* plc = &DetectedController::Instance();
         if(plc->getBootMode()) QMessageBox::warning(this,"системные настройки контроллера","Контроллер ожидает загрузки программы.\nЧтение/запись настроек невозможны.");
         else{
-            SysFramReadWrite loader(this);
+            SysFramReadWrite loader(false,this);
             connect(this,SIGNAL(writeToPLC(QByteArray)),&loader,SLOT(startWriteProcess(QByteArray)));
             emit writeToPLC(data);
             loader.exec();

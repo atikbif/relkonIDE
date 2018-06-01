@@ -80,6 +80,8 @@ public slots:
     virtual void readFromBin(const QByteArray inpData)=0;   // чтение настрое из бинарного массива
     virtual void writeSysFram(void) {}
     virtual void readSysFram(void) {}
+    virtual void readUserFram() {}
+    virtual void writeUserFram() {}
 };
 
 #endif // SETTINGSBASE_H

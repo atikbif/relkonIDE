@@ -76,5 +76,7 @@
         <file>modbus.ico</file>
         <file>measure.ico</file>
         <file>networking.ico</file>
+        <file>readFram.ico</file>
+        <file>writeFram.ico</file>
     </qresource>
 </RCC>

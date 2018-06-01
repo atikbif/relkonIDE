@@ -118,6 +118,8 @@ private:
     QAction *printAct;
     QAction *previewAct;
     QAction *modbusVarsAct;
+    QAction *rdUserFram;
+    QAction *wrUserFram;
 
 
 
@@ -170,6 +172,10 @@ private slots:
 
     void wrSysFramSlot(void);
     void rdSysFramSlot(void);
+
+    void wrUserFramSlot(void);
+    void rdUserFramSlot(void);
+
     void emuModeChanged(SettingsBase::emuType value);
 
     void emuInpActSlot(void);

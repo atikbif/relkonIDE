@@ -36,9 +36,9 @@ bool sFram::testControllerReady()
     return true;
 }
 
-sFram::sFram(QObject *parent) : QObject(parent),stopCmd(false)
+sFram::sFram(bool userFramFlag, QObject *parent) : QObject(parent),stopCmd(false)
 {
-
+    userFram = userFramFlag;
 }
 
 sFram::~sFram()
@@ -48,6 +48,13 @@ sFram::~sFram()
 
 void sFram::startWrite(QByteArray data)
 {
+
+    int startAddr = 0x7B00;
+    if(userFram) {
+        startAddr = 0;
+        if(data.count()>0x7B00) data.resize(0x7B00);
+    }
+
     bool errFlag = false;
     DetectedController* plc = &DetectedController::Instance();
     if(!testControllerReady()) return;
@@ -72,7 +79,7 @@ void sFram::startWrite(QByteArray data)
             else currentLength = reqLength;
 
             req.setDataNumber(currentLength);
-            req.setMemAddress(0x7b00 + offset);
+            req.setMemAddress(startAddr + offset);
             QByteArray wrData = data.mid(offset,reqLength);
             req.setWrData(wrData);
             errFlag = true;
@@ -104,7 +111,14 @@ void sFram::startRead()
 {
     bool errFlag = false;
 
-    QByteArray rxData(2048,'\0');
+    int readSize = 1280;
+    int startAddr = 0x7B00;
+    if(userFram) {
+        readSize = 31488;
+        startAddr = 0;
+    }
+
+    QByteArray rxData(readSize,'\0');
     DetectedController* plc = &DetectedController::Instance();
     if(!testControllerReady()) return;
 
@@ -127,7 +141,7 @@ void sFram::startRead()
             if(rxData.count()<offset+reqLength) currentLength = rxData.count() - offset;
             else currentLength = reqLength;
             req.setDataNumber(currentLength);
-            req.setMemAddress(0x7b00 + offset);
+            req.setMemAddress(startAddr + offset);
             errFlag = true;
             for(int j=0;j<3;j++) {
                 if(cmd->execute(req,port)==true) {errFlag=false;break;}

@@ -1,7 +1,7 @@
 #include "sysframreadwrite.h"
 #include "ui_sysframreadwrite.h"
 
-SysFramReadWrite::SysFramReadWrite(QWidget *parent) :
+SysFramReadWrite::SysFramReadWrite(bool userFramflag,QWidget *parent) :
     QDialog(parent),
     ui(new Ui::SysFramReadWrite)
 {
@@ -9,7 +9,9 @@ SysFramReadWrite::SysFramReadWrite(QWidget *parent) :
     ui->label->setVisible(false);
     ui->progressBar->setValue(0);
 
-    loader = new sFram();
+    if(userFramflag) setWindowTitle("Несистемная область FRAM");
+
+    loader = new sFram(userFramflag);
     loader->moveToThread(&sFramThread);
     connect(&sFramThread,SIGNAL(finished()),loader,SLOT(deleteLater()));
     connect(loader,SIGNAL(percentUpdate(float)),this,SLOT(percentUpdate(float)));
