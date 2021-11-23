@@ -15,7 +15,7 @@ public:
     ~CleanManager();
     void startClean();
 signals:
-    startProcess(void);
+    void startProcess(void);
 };
 
 #endif // CLEANMANAGER_H

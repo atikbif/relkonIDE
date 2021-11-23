@@ -25,11 +25,11 @@ public:
     ~ScanManager();
 
 signals:
-    startProcess(void); // промежуточный сигнал для запуска сканера
+    void startProcess(void); // промежуточный сигнал для запуска сканера
     // ретранслированные сигналы от сканера
     void updateAnswerCnt(int cnt, bool correctAnswer);
     void addMessage(QString message);
-    errMessage(QString message);
+    void errMessage(QString message);
     void updateTimeStr(QString timeStr);
 private slots:
     // слоты для принятия сигналов от сканера

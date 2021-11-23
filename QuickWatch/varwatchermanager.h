@@ -20,9 +20,9 @@ public:
     ~VarWatcherManager();
     void setActive(bool value);
 signals:
-    startProcess();
-    quickInfoRequest();
-    closeWatch();
+    void startProcess();
+    void quickInfoRequest();
+    void closeWatch();
 private slots:
     void quickInfo(QStringList names, QStringList values);
 

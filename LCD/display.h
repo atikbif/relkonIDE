@@ -82,10 +82,10 @@ public:
     ~Display();
 
 signals:
-    cursorPosChanged(int x,int y); // были изменены координаты курсора
-    strListChanged(int strNum);    // были добавлены/удалены подстроки в строке
-    curStrNumChanged(int strNum,int subStrNum);    // изменён номер текущей подстроки в строке
-    strChanged(int StrNum, int subStrNum); // изменено содержимое подстроки в строке
+    void cursorPosChanged(int x,int y); // были изменены координаты курсора
+    void strListChanged(int strNum);    // были добавлены/удалены подстроки в строке
+    void curStrNumChanged(int strNum,int subStrNum);    // изменён номер текущей подстроки в строке
+    void strChanged(int StrNum, int subStrNum); // изменено содержимое подстроки в строке
 };
 
 #endif // DISPLAY_H

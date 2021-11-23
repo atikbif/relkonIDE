@@ -12,7 +12,7 @@ public:
     explicit VarWatcher(QObject *parent = 0);
     void finishProcess();
 signals:
-    quickInfoRequest();
+    void quickInfoRequest();
 public slots:
     void updateProcess(void); // обновление данных    
 };

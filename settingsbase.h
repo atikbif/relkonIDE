@@ -72,10 +72,10 @@ public:
     int getEMemSize() const {return eMemSize;}
 
 signals:
-    writeToPLC(QByteArray binData);    // запрос записи данных в ПЛК
-    readFromPLC(void); // запрос чтения данных их ПЛК (результат ожидается в слоте readFromBin)
-    emuModeChanged(SettingsBase::emuType value);
-    newPLCType(const QString &plcType);
+    void writeToPLC(QByteArray binData);    // запрос записи данных в ПЛК
+    void readFromPLC(void); // запрос чтения данных их ПЛК (результат ожидается в слоте readFromBin)
+    void emuModeChanged(SettingsBase::emuType value);
+    void newPLCType(const QString &plcType);
 public slots:
     virtual void readFromBin(const QByteArray inpData)=0;   // чтение настрое из бинарного массива
     virtual void writeSysFram(void) {}

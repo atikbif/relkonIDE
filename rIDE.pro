@@ -13,7 +13,7 @@ QT       += printsupport
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 RC_ICONS = R.ico
-VERSION = 7.1.2.0
+VERSION = 7.1.4.0
 
 QMAKE_TARGET_COMPANY = Kontel Co
 QMAKE_TARGET_PRODUCT = Relkon 7.1

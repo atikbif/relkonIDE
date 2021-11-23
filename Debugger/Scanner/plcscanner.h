@@ -37,12 +37,12 @@ public:
     void updSettings(const DebuggerSettings &newSettings) {settings=newSettings;}
     bool isWorking(void) {return startCmd;}
 signals:
-    updateBlock(QString memType, int addr, QByteArray data);    // обновление блока памяти
-    updateCorrectRequestCnt(int cnt);
-    updateErrorRequestCnt(int cnt);
-    addMessage(QString message);    // добавить сообщение в лог
-    errMessage(QString message);
-    updateTimeStr(QString timeStr); // обновить текущее время ПЛК
+    void updateBlock(QString memType, int addr, QByteArray data);    // обновление блока памяти
+    void updateCorrectRequestCnt(int cnt);
+    void updateErrorRequestCnt(int cnt);
+    void addMessage(QString message);    // добавить сообщение в лог
+    void errMessage(QString message);
+    void updateTimeStr(QString timeStr); // обновить текущее время ПЛК
 public slots:
     void scanProcess(void); // рабочий процесс
 

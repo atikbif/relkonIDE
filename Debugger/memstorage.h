@@ -34,7 +34,7 @@ public:
     ~MemStorage();
 
 signals:
-    updateMemory(QStringList ids);
+    void updateMemory(QStringList ids);
 public slots:
     bool updateBlock(QString memType, int addr, QByteArray data);
 };
