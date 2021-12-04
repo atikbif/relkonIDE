@@ -28,6 +28,7 @@ TEMPLATE = app
 CONFIG += c++11
 
 SOURCES += main.cpp\
+    konTranslator/f7generator.cpp \
         mainwindow.cpp \
     codeeditor.cpp \
     foldingwidget.cpp \
@@ -51,6 +52,7 @@ SOURCES += main.cpp\
     konTranslator/situation.cpp \
     konTranslator/textblock.cpp \
     RCompiler/rcompiler.cpp \
+    plcutils.cpp \
     prbuilder.cpp \
     settingsform.cpp \
     settingsbase.cpp \
@@ -139,6 +141,7 @@ HEADERS  += mainwindow.h \
     highlightmultilinecomments.h \
     highlightsettingsreader.h \
     inpdatainterface.h \
+    konTranslator/f7generator.h \
     leftverticalwidget.h \
     linenumberswidget.h \
     konTranslator/abstractchfilesfactory.h \
@@ -151,6 +154,7 @@ HEADERS  += mainwindow.h \
     konTranslator/situation.h \
     konTranslator/textblock.h \
     RCompiler/rcompiler.h \
+    plcutils.h \
     prbuilder.h \
     settingsform.h \
     settingsbase.h \

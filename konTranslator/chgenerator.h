@@ -19,6 +19,7 @@ public:
     virtual int createFiles(TextBlock &varBlock,TextBlock &initBlock,QVector<KonProcess> &prBlock)=0;
     const QStringList& getErrors(void) const;
     void setFCConf(FCUCSettings conf) {fc_conf = conf;}
+    virtual ~CHGenerator() = default;
 };
 
 #endif // CHGENERATOR_H

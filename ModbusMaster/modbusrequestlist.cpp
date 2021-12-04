@@ -157,7 +157,7 @@ QStringList ModbusRequestList::getResult()
 QStringList ModbusRequestList::getPlugResult()
 {
     QStringList res = getPlugVarNames();
-    res += "const " + can.toLower() + "_mvar_reqs[] = {(const char*)0,0,0,(const mvar*)0,0,0};";
+    res += "const mvar_reqs " + can.toLower() + "_mvar_reqs[] = {{(const char*)0,0,0,(const mvar*)0,0,0}};";
     return res;
 }
 

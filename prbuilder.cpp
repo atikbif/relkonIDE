@@ -112,7 +112,7 @@ void PrBuilder::buildRequest(QString prPath, QString prName, FCUCSettings conf)
         KonParser parser(lcd);
         parser.setPLCType(plcType);
         parser.setFCConf(fc_conf);
-        FreeRtosFactory factory;
+        FreeRtosFactory factory(plcType);
         parser.setCHFactory(&factory);
         parser.parse();
         QStringList err = parser.getErrors();

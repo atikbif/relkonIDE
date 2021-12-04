@@ -4,7 +4,7 @@
 #include <QTextStream>
 #include <QRegExp>
 
-MatchboxExistance::MatchboxExistance(const QString &plcType):plc(plcType)
+ MatchboxExistance::MatchboxExistance(const QString &plcType):plc(plcType)
 {
 
 }

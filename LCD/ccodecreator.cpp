@@ -164,6 +164,8 @@ QStringList CCodeCreator::getText(const Display &d)
 
     printData(d,code);
 
+    code << "\n";
+
     code << "void print_var(void)\n";
     code << "{\n";
 

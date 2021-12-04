@@ -3,6 +3,7 @@
 #include <QProcess>
 #include <QDir>
 #include <QRegExp>
+#include <QDebug>
 #include "pathstorage.h"
 
 //const QString RCompiler::dirOutName = "/obj";
@@ -220,6 +221,8 @@ QByteArray RCompiler::compFile(const QString &fName)
         attr += " -o \"" + PathStorage::getObjDir() + "/" + outName + "\"";
         attr += " \"" + PathStorage::getSrcDir() + "/" + fName + "\"";
 
+        qDebug() << program << attr;
+
         builder.start(program+attr);
         if (!builder.waitForFinished()) {
             QDir::setCurrent(applPath);
@@ -311,6 +314,8 @@ void RCompiler::link()
         attr += linkPattern;
         attr += QString(" -T ") + "\"" + PathStorage::getSrcDir() + "/" + linkScript + "\"";
         attr += QString(" -o ") + "\"" + buildResDir.absolutePath() + QString("/project.elf") + "\"";
+
+        qDebug() << program << attr;
 
         // start build
         builder.start(program+attr);

@@ -6,6 +6,7 @@
 #include <QDateTime>
 #include <QApplication>
 #include "pathstorage.h"
+#include "plcutils.h"
 
 KonParser::KonParser(const Display &d):lcd(d)
 {
@@ -45,7 +46,7 @@ void KonParser::removeComments()
 void KonParser::addStringNum()
 {
     for(int i=0;i<konSource.count();i++) {
-        konSource[i] += " /* " + QString::number(i+1) + " */";
+        konSource[i] += " /* " + QString::number(i+1) + " */ ";
     }
 }
 
@@ -79,7 +80,7 @@ int KonParser::createVarBlock()
 int KonParser::createInitBlock()
 {
     double coeff = getCoeff();
-    initBlock.addString("adc_coeff="+QString::number(coeff)+";\n",1);
+    if(coeff!=0) initBlock.addString("adc_coeff="+QString::number(coeff)+";\n",1);
 
     bool initEnable = false;
     if(konSource.count()==0) return -1;
@@ -167,10 +168,11 @@ void KonParser::parse()
     if(resCode==-1) return;
     parsingErrors.clear();
     removeComments();
-    addStringNum();
+    //addStringNum();
     createVarBlock();
     createInitBlock();
     createProcessBlock();
+
     if(factory != nullptr) {
         CHGenerator* generator = factory->createCHGenerator(lcd);
         generator->setFCConf(fc_conf);
@@ -193,10 +195,5 @@ void KonParser::setPLCType(const QString &plc)
 
 double KonParser::getCoeff()
 {
-    QRegExp re1("^PC\\d{3,3}C$");
-    if(re1.indexIn(plcType)!=-1) {
-        return 125.0/127;
-    }
-    // B и D контроллеры
-    return 1.0416;
+    return PLCUtils::getADCCoeff(plcType);
 }
