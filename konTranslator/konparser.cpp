@@ -168,7 +168,7 @@ void KonParser::parse()
     if(resCode==-1) return;
     parsingErrors.clear();
     removeComments();
-    //addStringNum();
+    addStringNum();
     createVarBlock();
     createInitBlock();
     createProcessBlock();

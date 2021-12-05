@@ -1,8 +1,7 @@
 #ifndef RCOMPILER_H
 #define RCOMPILER_H
 
-#include <QString>
-#include <QVector>
+#include "rcompilerinterface.h"
 #include <QtXml>
 #include <QMap>
 
@@ -12,12 +11,7 @@ typedef struct {
     QString patternName;
 }inpFile;
 
-typedef struct {
-    int strNum;
-    QString message;
-}outMessage;
-
-class RCompiler
+class RCompiler: public RCompilerInterface
 {
     QVector<inpFile> files;
     QVector<inpFile> linkFiles;
@@ -44,9 +38,9 @@ class RCompiler
     QDir objDir;
 public:
     RCompiler();
-    QVector<outMessage>& getOutErrors(void) {return errors;}
-    void compile(void);
-    void link(void);
+    QVector<outMessage>& getOutErrors(void) override {return errors;}
+    void compile(void) override;
+    void link(void) override;
 };
 
 #endif // RCOMPILER_H

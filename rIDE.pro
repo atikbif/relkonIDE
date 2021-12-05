@@ -28,6 +28,8 @@ TEMPLATE = app
 CONFIG += c++11
 
 SOURCES += main.cpp\
+    RCompiler/f7compiler.cpp \
+    RCompiler/f7linkparams.cpp \
     konTranslator/f7generator.cpp \
         mainwindow.cpp \
     codeeditor.cpp \
@@ -131,6 +133,9 @@ SOURCES += main.cpp\
     dialoggotostring.cpp
 
 HEADERS  += mainwindow.h \
+    RCompiler/f7compiler.h \
+    RCompiler/f7linkparams.h \
+    RCompiler/rcompilerinterface.h \
     codeeditor.h \
     foldingwidget.h \
     highlightalgorithm.h \

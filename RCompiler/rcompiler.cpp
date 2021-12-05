@@ -238,7 +238,7 @@ QByteArray RCompiler::compFile(const QString &fName)
     return noFileMessage;
 }
 
-RCompiler::RCompiler()
+RCompiler::RCompiler():RCompilerInterface()
 {
     init();
 }
@@ -315,7 +315,7 @@ void RCompiler::link()
         attr += QString(" -T ") + "\"" + PathStorage::getSrcDir() + "/" + linkScript + "\"";
         attr += QString(" -o ") + "\"" + buildResDir.absolutePath() + QString("/project.elf") + "\"";
 
-        qDebug() << program << attr;
+        //qDebug() << program << attr;
 
         // start build
         builder.start(program+attr);
