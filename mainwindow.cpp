@@ -38,10 +38,15 @@
 #include <QPrinter>
 #include <QPrintDialog>
 #include <QPrintPreviewDialog>
+#include "plcutils.h"
+
+#include "Protocols/rk.h"
+#include "Protocols/asciidecorator.h"
 
 #include <QCompleter>
 #include "ModbusMaster/modbusconfdialog.h"
-
+#include "Loader/f7loaderprotocol.h"
+#include "Loader/f7loadercontroller.h"
 
 QStringList MainWindow::getPrevProjects()
 {
@@ -1339,18 +1344,43 @@ void MainWindow::buildPr()
     }
 }
 
-void MainWindow::projectToPlc()
+void MainWindow::projectToPlc(bool reset_flag)
 {
     if(QFile::exists(PathStorage::getBinFileFullName())) {
         debugger->stopDebugger();
-        ScanGUI gui(settings->getProgAddr(),true,settings->getPortName(),this);
-        int ret = gui.exec();
-        if(ret==QDialog::Accepted) {
-            BootModeSetter bootSetter(this);
-            if(bootSetter.setBootMode()) {
+
+        if(PLCUtils::isF7Version(settings->getPLCType())) {
+            ScanGUI gui(settings->getProgAddr(),false, "AUTO", this);
+            int ret = gui.exec();
+            if(ret==QDialog::Accepted) {
+
+                // switch to boot mode
                 DetectedController* plc = &DetectedController::Instance();
-                YmodemThread loader(plc->getUartName(),this);
-                loader.exec();
+                Request req;
+                CommandInterface* cmd = new RkProtocol::F7toBootMode();
+                req.setNetAddress(plc->getNetAddress());
+                if(plc->getAsciiMode()) cmd = new AsciiDecorator(cmd);
+                QSerialPort port(plc->getUartName());
+                port.setBaudRate(plc->getBaudrate());
+                if(port.open(QSerialPort::ReadWrite)){
+                    cmd->execute(req,port);
+                    port.close();
+                }
+                delete cmd;
+
+                F7LoaderController loader (plc->getUartName(),plc->getNetAddress(),PathStorage::getBinFileFullName(),reset_flag);
+
+            }
+        }else {
+            ScanGUI gui(settings->getProgAddr(),true,settings->getPortName(),this);
+            int ret = gui.exec();
+            if(ret==QDialog::Accepted) {
+                BootModeSetter bootSetter(this);
+                if(bootSetter.setBootMode()) {
+                    DetectedController* plc = &DetectedController::Instance();
+                    YmodemThread loader(plc->getUartName(),this);
+                    loader.exec();
+                }
             }
         }
     }else QMessageBox::warning(this,"Загрузка","Ошибка открытия файла "+PathStorage::getBinFileFullName());
@@ -1358,8 +1388,16 @@ void MainWindow::projectToPlc()
 
 void MainWindow::progrAll()
 {
-    projectToPlc();
-    wrSysFramSlot();
+    if(PLCUtils::isF7Version(settings->getPLCType())) {
+        projectToPlc(false);
+        wrSysFramSlot();
+    }else {
+        projectToPlc();
+        wrSysFramSlot();
+    }
+
+
+
 }
 
 void MainWindow::addMessageToInfoList(const QString &message)

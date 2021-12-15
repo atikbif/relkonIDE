@@ -47,6 +47,13 @@ bool ScanUART::scan(QSerialPort &port)
                     delete cmdGetName;
                 }
 
+
+                CommandInterface *mcuCmd = new GetCpu();
+                if(contr.getAsciiMode()) mcuCmd = new AsciiDecorator(mcuCmd);
+                if(mcuCmd->execute(req,port)) {
+                    contr.setMcuType(QString(req.getRdData()));
+                }else contr.setMcuType("");
+
                 emit percentUpdate(100);
                 emit plcHasBeenFound(contr);
 
@@ -145,9 +152,9 @@ void ScanUART::startScan(const QString &pName)
     if(port.open(QSerialPort::ReadWrite)) {
 
         sendAbortCmd(port);
-        if(testBootMode(port)==false) {
+        //if(testBootMode(port)==false) {
             scan(port);
-        }
+        //}
         port.close();
     }else {
         emit portIsBusy();

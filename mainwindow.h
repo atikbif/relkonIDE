@@ -142,7 +142,7 @@ private slots:
     void replaceTxt(const QString &newTxt);
     void replaceAll(const SearchData &sData, const QString &out);
     void buildPr(void);
-    void projectToPlc(void);
+    void projectToPlc(bool reset_flag = true);
     void progrAll(void);
     void on_closeInfoListButton_clicked();
     void viewHelp(void);

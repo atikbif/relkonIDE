@@ -262,7 +262,7 @@ void SettingsForm::writeToBin(QByteArray &outData)
     outData[1121]=ipMask[2];
     outData[1122]=ipMask[3];
 
-    outData.replace(1269,10,"Relkon 7.0");
+    //outData.replace(1269,10,"Relkon 7.0");
 }
 
 SettingsForm::SettingsForm(SettingsBase *parent) :
@@ -600,7 +600,7 @@ void SettingsForm::readUserFram()
     int ret = gui.exec();
     if(ret==QDialog::Accepted) {
         DetectedController* plc = &DetectedController::Instance();
-        if(plc->getBootMode()) QMessageBox::warning(this,"системные настройки контроллера","Контроллер ожидает загрузки программы.\nЧтение/запись настроек невозможны.");
+        if(plc->getBootMode() && (!plc->getMcuType().contains("STM32F7"))) QMessageBox::warning(this,"системные настройки контроллера","Контроллер ожидает загрузки программы.\nЧтение/запись настроек невозможны.");
         else{
             SysFramReadWrite loader(true,this);
             connect(this,SIGNAL(readFromPLC()),&loader,SLOT(startReadProcess()));
@@ -631,8 +631,9 @@ void SettingsForm::writeUserFram()
             int ret = gui.exec();
             if(ret==QDialog::Accepted) {
                 DetectedController* plc = &DetectedController::Instance();
-                if(plc->getBootMode()) QMessageBox::warning(this,"системные настройки контроллера","Контроллер ожидает загрузки программы.\nЧтение/запись настроек невозможны.");
-                else{
+                if(plc->getBootMode() && (!plc->getMcuType().contains("STM32F7"))) {
+                    QMessageBox::warning(this,"системные настройки контроллера","Контроллер ожидает загрузки программы.\nЧтение/запись настроек невозможны.");
+                }else{
                     SysFramReadWrite loader(true,this);
                     connect(this,SIGNAL(writeToPLC(QByteArray)),&loader,SLOT(startWriteProcess(QByteArray)));
                     emit writeToPLC(inpData);
@@ -693,8 +694,9 @@ void SettingsForm::on_pushButtonFromPLC_clicked()
     int ret = gui.exec();
     if(ret==QDialog::Accepted) {
         DetectedController* plc = &DetectedController::Instance();
-        if(plc->getBootMode()) QMessageBox::warning(this,"системные настройки контроллера","Контроллер ожидает загрузки программы.\nЧтение/запись настроек невозможны.");
-        else{
+        if(plc->getBootMode() && (!plc->getMcuType().contains("STM32F7"))) {
+            QMessageBox::warning(this,"системные настройки контроллера","Контроллер ожидает загрузки программы.\nЧтение/запись настроек невозможны.");
+        }else{
             SysFramReadWrite loader(false,this);
             connect(this,SIGNAL(readFromPLC()),&loader,SLOT(startReadProcess()));
             connect(&loader,SIGNAL(readOK(QByteArray)),this,SLOT(readFromBin(QByteArray)));
@@ -713,8 +715,9 @@ void SettingsForm::on_pushButtonToPLC_clicked()
     int ret = gui.exec();
     if(ret==QDialog::Accepted) {
         DetectedController* plc = &DetectedController::Instance();
-        if(plc->getBootMode()) QMessageBox::warning(this,"системные настройки контроллера","Контроллер ожидает загрузки программы.\nЧтение/запись настроек невозможны.");
-        else{
+        if(plc->getBootMode() && (!plc->getMcuType().contains("STM32F7"))) {
+            QMessageBox::warning(this,"системные настройки контроллера","Контроллер ожидает загрузки программы.\nЧтение/запись настроек невозможны.");
+        }else{
             SysFramReadWrite loader(false,this);
             connect(this,SIGNAL(writeToPLC(QByteArray)),&loader,SLOT(startWriteProcess(QByteArray)));
             emit writeToPLC(data);

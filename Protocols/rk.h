@@ -23,6 +23,7 @@ namespace RkProtocol {
         GetCpu();
         CommandInterface* clone(void) {return new GetCpu();}
         bool form(Request &req);
+        bool getAnAnswer(Request &req);
         ~GetCpu();
     };
 
@@ -162,6 +163,16 @@ namespace RkProtocol {
         bool form(Request &req);
         bool getAnAnswer(Request &req);
         ~GetCanName();
+    };
+
+    class F7toBootMode: public RkCommand
+    {
+    public:
+        F7toBootMode() = default;
+        CommandInterface* clone(void) {return new F7toBootMode();}
+        bool form(Request &req);
+        bool getAnAnswer(Request &req);
+        ~F7toBootMode() = default;
     };
 }
 

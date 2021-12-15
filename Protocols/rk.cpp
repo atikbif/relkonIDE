@@ -17,7 +17,7 @@ bool GetCoreVersion::form(Request &req)
     QByteArray reqBody = req.getBody();
     reqBody.clear();
     reqBody += req.getNetAddress();
-    reqBody += 0xA0;
+    reqBody += 0xA0u;
     int crc = CheckSum::getCRC16(reqBody);
     reqBody += crc&0xFF;
     reqBody += (crc>>8)&0xFF;
@@ -49,7 +49,23 @@ GetCpu::GetCpu()
 
 bool GetCpu::form(Request &req)
 {
-    Q_UNUSED(req)
+    QByteArray reqBody = req.getBody();
+    reqBody.clear();
+    reqBody += req.getNetAddress();
+    reqBody += 0xA1u;
+    int crc = CheckSum::getCRC16(reqBody);
+    reqBody += crc&0xFF;
+    reqBody += (crc>>8)&0xFF;
+    req.getBody() = reqBody;
+    return true;
+}
+
+bool GetCpu::getAnAnswer(Request &req)
+{
+    QByteArray answer = req.getRdData();
+    answer.chop(2);
+    answer.remove(0,2);
+    req.updateRdData(answer);
     return true;
 }
 
@@ -70,7 +86,7 @@ bool WriteFram::form(Request &req)
     QByteArray reqBody = req.getBody();
     reqBody.clear();
     reqBody += req.getNetAddress();
-    reqBody += 0xE3;
+    reqBody += 0xE3u;
     reqBody += req.getMemAddress() >> 8;
     reqBody += req.getMemAddress() & 0xFF;
     reqBody += req.getDataNumber() >>8;
@@ -124,7 +140,7 @@ bool WriteEE::form(Request &req)
     QByteArray reqBody = req.getBody();
     reqBody.clear();
     reqBody += req.getNetAddress();
-    reqBody += 0xE6;
+    reqBody += 0xE6u;
     reqBody += req.getMemAddress() >> 8;
     reqBody += req.getMemAddress() & 0xFF;
     reqBody += req.getDataNumber() >>8;
@@ -178,7 +194,7 @@ bool ResetController::form(Request &req)
     QByteArray reqBody = req.getBody();
     reqBody.clear();
     reqBody += req.getNetAddress();
-    reqBody += 0xFE;
+    reqBody += 0xFEu;
     int crc = CheckSum::getCRC16(reqBody);
     reqBody += crc&0xFF;
     reqBody += (crc>>8)&0xFF;
@@ -203,7 +219,7 @@ bool GetCanName::form(Request &req)
     QByteArray reqBody = req.getBody();
     reqBody.clear();
     reqBody += req.getNetAddress();
-    reqBody += 0xA2;
+    reqBody += 0xA2u;
     int crc = CheckSum::getCRC16(reqBody);
     reqBody += crc&0xFF;
     reqBody += (crc>>8)&0xFF;
@@ -238,7 +254,7 @@ bool ReadFram::form(Request &req)
     QByteArray reqBody = req.getBody();
     reqBody.clear();
     reqBody += req.getNetAddress();
-    reqBody += 0xD3;
+    reqBody += 0xD3u;
     reqBody += req.getMemAddress() >> 8;
     reqBody += req.getMemAddress() & 0xFF;
     reqBody += req.getDataNumber() >>8;
@@ -298,7 +314,7 @@ bool ReadEE::form(Request &req)
     QByteArray reqBody = req.getBody();
     reqBody.clear();
     reqBody += req.getNetAddress();
-    reqBody += 0xD6;
+    reqBody += 0xD6u;
     reqBody += req.getMemAddress() >> 8;
     reqBody += req.getMemAddress() & 0xFF;
     reqBody += req.getDataNumber() >>8;
@@ -357,7 +373,7 @@ bool ReadRam::form(Request &req)
     QByteArray reqBody = req.getBody();
     reqBody.clear();
     reqBody += req.getNetAddress();
-    reqBody += 0xD4;
+    reqBody += 0xD4u;
     reqBody += req.getMemAddress() >> 8;
     reqBody += req.getMemAddress() & 0xFF;
     reqBody += req.getDataNumber() >>8;
@@ -397,7 +413,7 @@ bool ReadTime::form(Request &req)
     QByteArray reqBody = req.getBody();
     reqBody.clear();
     reqBody += req.getNetAddress();
-    reqBody += 0xD1;
+    reqBody += 0xD1u;
     reqBody += req.getMemAddress() & 0xFF;
     reqBody += req.getDataNumber() & 0xFF;
     int crc = CheckSum::getCRC16(reqBody);
@@ -435,7 +451,7 @@ bool WriteTime::form(Request &req)
     QByteArray reqBody = req.getBody();
     reqBody.clear();
     reqBody += req.getNetAddress();
-    reqBody += 0xE1;
+    reqBody += 0xE1u;
     reqBody += req.getMemAddress() & 0xFF;
     reqBody += req.getDataNumber() & 0xFF;
     for(int i=0;i<req.getDataNumber();i++) {
@@ -486,7 +502,7 @@ bool WriteRam::form(Request &req)
     QByteArray reqBody = req.getBody();
     reqBody.clear();
     reqBody += req.getNetAddress();
-    reqBody += 0xE4;
+    reqBody += 0xE4u;
     reqBody += req.getMemAddress() >> 8;
     reqBody += req.getMemAddress() & 0xFF;
     reqBody += req.getDataNumber() >>8;
@@ -520,7 +536,7 @@ bool ReadIO::form(Request &req)
     QByteArray reqBody = req.getBody();
     reqBody.clear();
     reqBody += req.getNetAddress();
-    reqBody += 0xB0;
+    reqBody += 0xB0u;
     reqBody += req.getMemAddress() >> 8;
     reqBody += req.getMemAddress() & 0xFF;
     reqBody += req.getDataNumber() >>8;
@@ -559,7 +575,7 @@ bool ReadDispRam::form(Request &req)
     QByteArray reqBody = req.getBody();
     reqBody.clear();
     reqBody += req.getNetAddress();
-    reqBody += 0xD0;
+    reqBody += 0xD0u;
     reqBody += req.getMemAddress() & 0xFF;
     reqBody += req.getDataNumber() & 0xFF;
     int crc = CheckSum::getCRC16(reqBody);
@@ -596,7 +612,7 @@ bool WriteDispRam::form(Request &req)
     QByteArray reqBody = req.getBody();
     reqBody.clear();
     reqBody += req.getNetAddress();
-    reqBody += 0xE0;
+    reqBody += 0xE0u;
     reqBody += req.getMemAddress() & 0xFF;
     reqBody += req.getDataNumber() & 0xFF;
     for(int i=0;i<req.getDataNumber();i++) {
@@ -628,7 +644,7 @@ bool WriteIO::form(Request &req)
     QByteArray reqBody = req.getBody();
     reqBody.clear();
     reqBody += req.getNetAddress();
-    reqBody += 0xB1;
+    reqBody += 0xB1u;
     reqBody += req.getMemAddress() >> 8;
     reqBody += req.getMemAddress() & 0xFF;
     reqBody += req.getDataNumber() >>8;
@@ -649,4 +665,27 @@ bool WriteIO::form(Request &req)
 WriteIO::~WriteIO()
 {
 
+}
+
+bool F7toBootMode::form(Request &req)
+{
+    QByteArray reqBody = req.getBody();
+    reqBody.clear();
+    reqBody += req.getNetAddress();
+    reqBody += 0xECu;
+    // two bytes id
+    reqBody += '\0';
+    reqBody += '\0';
+    int crc = CheckSum::getCRC16(reqBody);
+    reqBody += crc&0xFF;
+    reqBody += (crc>>8)&0xFF;
+    req.getBody() = reqBody;
+    return true;
+}
+
+bool F7toBootMode::getAnAnswer(Request &req)
+{
+    QByteArray answer = req.getRdData();
+    req.updateRdData(answer);
+    return true;
 }

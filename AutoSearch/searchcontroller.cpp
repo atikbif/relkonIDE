@@ -60,6 +60,16 @@ void SearchController::setCanName(const QString &value)
     canName = value;
 }
 
+const QString &SearchController::getMcuType() const
+{
+    return mcuType;
+}
+
+void SearchController::setMcuType(const QString &newMcuType)
+{
+    mcuType = newMcuType;
+}
+
 SearchController::SearchController()
 {
     baudrate = 0;

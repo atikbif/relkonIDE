@@ -4,6 +4,7 @@
 #include "Protocols/commandinterface.h"
 #include "Protocols/asciidecorator.h"
 #include "Protocols/rk.h"
+#include "plcutils.h"
 
 using namespace RkProtocol;
 
@@ -29,7 +30,7 @@ bool sFram::testControllerReady()
         emit error("Не задано имя COM порта");
         return false;
     }
-    if(plc->getBootMode()){
+    if(plc->getBootMode() && (!plc->getMcuType().contains("STM32F7"))){
         emit error("Контроллер ожидает загрузки программы. Чтение/запись настроек невозможны.");
         return false;
     }

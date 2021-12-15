@@ -16,7 +16,7 @@ class SettingsForm : public SettingsBase
     const int rowCount = 103;
     unsigned int codeWord = 0x5280;
 
-    static const int settingsSize = 1280;
+    static const int settingsSize = 1123;//1280;
 
     void printFactorySettings(void); // вывод таблицы заводских установок
     void guiToData(void);

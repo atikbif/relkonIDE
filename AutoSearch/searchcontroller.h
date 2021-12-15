@@ -12,6 +12,7 @@ class SearchController
     bool asciiMode;
     bool bootMode;
     QString canName;
+    QString mcuType;
 public:
     SearchController();
 
@@ -27,6 +28,8 @@ public:
     void setBootMode(bool value);
     QString getCanName() const;
     void setCanName(const QString &value);
+    const QString &getMcuType() const;
+    void setMcuType(const QString &newMcuType);
 };
 
 #endif // SEARCHCONTROLLER_H

@@ -9,6 +9,7 @@ void DetectedController::updateData(const SearchController &contr)
     setAsciiMode(contr.getAsciiMode());
     setBootMode(contr.getBootMode());
     setCanName(contr.getCanName());
+    setMcuType(contr.getMcuType());
 }
 
 DetectedController::DetectedController()

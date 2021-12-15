@@ -28,6 +28,8 @@ TEMPLATE = app
 CONFIG += c++11
 
 SOURCES += main.cpp\
+    Loader/f7loadercontroller.cpp \
+    Loader/f7loaderprotocol.cpp \
     RCompiler/f7compiler.cpp \
     RCompiler/f7linkparams.cpp \
     konTranslator/f7generator.cpp \
@@ -133,6 +135,8 @@ SOURCES += main.cpp\
     dialoggotostring.cpp
 
 HEADERS  += mainwindow.h \
+    Loader/f7loadercontroller.h \
+    Loader/f7loaderprotocol.h \
     RCompiler/f7compiler.h \
     RCompiler/f7linkparams.h \
     RCompiler/rcompilerinterface.h \

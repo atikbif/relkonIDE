@@ -29,6 +29,9 @@ QByteArray F7Compiler::compFile(const QString &fName, const F7LinkParams &params
         QString outFileName = fName;
         outFileName.replace(".c",".o");
 
+//        QString dFileName = fName;
+//        dFileName.replace(".c",".d");
+
         if (QFile::exists(objDir.absolutePath()+"/" + outFileName)) {
             QFile::remove(objDir.absolutePath()+"/" + outFileName);
         }
@@ -38,14 +41,21 @@ QByteArray F7Compiler::compFile(const QString &fName, const F7LinkParams &params
         QString attr = " ";
         QString srcFileName = "\"" + PathStorage::getSrcDir() + "/" + inpFileName + "\" ";
         attr += srcFileName;
-        qDebug() << srcFileName;
+        //qDebug() << srcFileName;
         QString compileAttr = " " + params.getCompileParams();
         attr += compileAttr;
-        qDebug() << compileAttr;
+        //qDebug() << compileAttr;
         for(const QString &incDir: params.getIncludeDirs()) {
             QString inclDir = QString(" -I ") + "\"" + PathStorage::getSrcDir() + "/" + incDir + "\"";
             attr += inclDir;
         }
+
+//        QString dFiles = " -MMD -MP -MF";
+//        dFiles += "\"" + PathStorage::getSrcDir() + "/" + dFileName + "\" ";
+//        dFiles += "-MT\"" + PathStorage::getSrcDir() + "/" + outFileName + "\" ";
+//        attr += dFiles;
+//        qDebug() << dFiles;
+
         QString objFile = QString(" -o ") + "\"" + PathStorage::getObjDir() + "/" + outFileName + "\"";
         attr += objFile;
 
