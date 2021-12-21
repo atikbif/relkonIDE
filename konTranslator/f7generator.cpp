@@ -252,9 +252,9 @@ void F7Generator::createFcuC()
     out << "void R100Task(void const * argument)\n";
     out << "{\n";
     out << "    while(core_is_ready==0) osDelay(1);\n";
-    out << "    portTickType xLastExecutionTime;\n";
+    //out << "    portTickType xLastExecutionTime;\n";
     out << "    watchdog_init();\n";
-    out << "    xLastExecutionTime = xTaskGetTickCount();\n";
+    //out << "    xLastExecutionTime = xTaskGetTickCount();\n";
     out << "    for( ;; )\n";
     out << "    {\n";
     for(int i=0;i<prBlock.count();i++) {
@@ -262,7 +262,8 @@ void F7Generator::createFcuC()
     }
     out << "        watchdog_reset();\n";
     out << "        r100++;\n";
-    out << "        vTaskDelayUntil( &xLastExecutionTime, R100_DELAY );\n";
+    //out << "        vTaskDelayUntil( &xLastExecutionTime, R100_DELAY );\n";
+    out << "        vTaskDelay(R100_DELAY);\n";
     out << "    }\n";
     out << "}\n";
     out << "\n";
@@ -270,8 +271,8 @@ void F7Generator::createFcuC()
     out << "void R1Task(void const * argument)\n";
     out << "{\n";
     out << "    while(core_is_ready==0) osDelay(1);\n";
-    out << "    portTickType xLastExecutionTime;\n";
-    out << "    xLastExecutionTime = xTaskGetTickCount();\n";
+    //out << "    portTickType xLastExecutionTime;\n";
+    //out << "    xLastExecutionTime = xTaskGetTickCount();\n";
     out << "    for( ;; )\n";
     out << "    {\n";
     for(int i=0;i<prBlock.count();i++) {
@@ -282,7 +283,8 @@ void F7Generator::createFcuC()
         printProcess(out,i,1);
     }
     out << "        r1++;\n";
-    out << "        vTaskDelayUntil( &xLastExecutionTime, R1_DELAY );\n";
+    //out << "        vTaskDelayUntil( &xLastExecutionTime, R1_DELAY );\n";
+    out << "        vTaskDelay(R1_DELAY);\n";
     out << "    }\n";
     out << "}\n";
     out << "\n";
@@ -290,15 +292,16 @@ void F7Generator::createFcuC()
     out << "void R5Task(void const * argument )\n";
     out << "{\n";
     out << "    while(core_is_ready==0) osDelay(1);\n";
-    out << "    portTickType xLastExecutionTime;\n";
-    out << "    xLastExecutionTime = xTaskGetTickCount();\n";
+    //out << "    portTickType xLastExecutionTime;\n";
+    //out << "    xLastExecutionTime = xTaskGetTickCount();\n";
     out << "    for( ;; )\n";
     out << "    {\n";
     for(int i=0;i<prBlock.count();i++) {
         printProcess(out,i,5);
     }
     out << "        r5++;\n";
-    out << "        vTaskDelayUntil( &xLastExecutionTime, R5_DELAY );\n";
+    //out << "        vTaskDelayUntil( &xLastExecutionTime, R5_DELAY );\n";
+    out << "        vTaskDelay(R5_DELAY);\n";
     out << "    }\n";
     out << "}\n";
     out << "\n";
@@ -306,15 +309,16 @@ void F7Generator::createFcuC()
     out << "void R10Task(void const * argument)\n";
     out << "{\n";
     out << "    while(core_is_ready==0) osDelay(1);\n";
-    out << "    portTickType xLastExecutionTime;\n";
-    out << "    xLastExecutionTime = xTaskGetTickCount();\n";
+    //out << "    portTickType xLastExecutionTime;\n";
+    //out << "    xLastExecutionTime = xTaskGetTickCount();\n";
     out << "    for( ;; )\n";
     out << "    {\n";
     for(int i=0;i<prBlock.count();i++) {
         printProcess(out,i,10);
     }
     out << "        r10++;\n";
-    out << "        vTaskDelayUntil( &xLastExecutionTime, R10_DELAY );\n";
+    //out << "        vTaskDelayUntil( &xLastExecutionTime, R10_DELAY );\n";
+    out << "        vTaskDelay(R10_DELAY);\n";
     out << "    }\n";
     out << "}\n";
     out << "\n";
@@ -322,15 +326,16 @@ void F7Generator::createFcuC()
     out << "void R1000Task(void const * argument)\n";
     out << "{\n";
     out << "    while(core_is_ready==0) osDelay(1);\n";
-    out << "    portTickType xLastExecutionTime;\n";
-    out << "    xLastExecutionTime = xTaskGetTickCount();\n";
+    //out << "    portTickType xLastExecutionTime;\n";
+    //out << "    xLastExecutionTime = xTaskGetTickCount();\n";
     out << "    for( ;; )\n";
     out << "    {\n";
     for(int i=0;i<prBlock.count();i++) {
         printProcess(out,i,1000);
     }
     out << "        r1000++;\n";
-    out << "        vTaskDelayUntil( &xLastExecutionTime, R1000_DELAY );\n";
+    //out << "        vTaskDelayUntil( &xLastExecutionTime, R1000_DELAY );\n";
+    out << "        vTaskDelay(R1000_DELAY);\n";
     out << "    }\n";
     out << "}\n";
     out << "\n";

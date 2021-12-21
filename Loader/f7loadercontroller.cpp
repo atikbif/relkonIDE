@@ -65,7 +65,7 @@ F7LoaderWorker::F7LoaderWorker(const QString pName, int netAddr, bool rstFlag, Q
 
 void F7LoaderWorker::writeFile(const QString &fName)
 {
-    const int wr_size = 500;
+    const int wr_size = 4000;
     QSerialPort port(pName);
     port.setDataBits(QSerialPort::Data8);
     port.setStopBits(QSerialPort::OneStop);
@@ -139,7 +139,7 @@ void F7LoaderWorker::writeFile(const QString &fName)
                         return;
                     }
                     port.readAll();
-                    bool res = F7LoaderProtocol::writeFlash(port,netAddr,100,addr,length,curIt);
+                    bool res = F7LoaderProtocol::writeFlash(port,netAddr,200,addr,length,curIt);
                     if(res) {
                         percent += percWriteStep;
                         emit percentUpdate(percent);

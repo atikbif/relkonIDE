@@ -373,9 +373,17 @@ bool ReadRam::form(Request &req)
     QByteArray reqBody = req.getBody();
     reqBody.clear();
     reqBody += req.getNetAddress();
-    reqBody += 0xD4u;
-    reqBody += req.getMemAddress() >> 8;
-    reqBody += req.getMemAddress() & 0xFF;
+
+    if(req.getMemAddress()>65535) {
+        reqBody += 0xDFu;
+        reqBody += (req.getMemAddress() >> 16) & 0xFF;
+        reqBody += (req.getMemAddress() >> 8) & 0xFF;
+        reqBody += req.getMemAddress() & 0xFF;
+    }else {
+        reqBody += 0xD4u;
+        reqBody += (req.getMemAddress() >> 8) & 0xFF;
+        reqBody += req.getMemAddress() & 0xFF;
+    }
     reqBody += req.getDataNumber() >>8;
     reqBody += req.getDataNumber() & 0xFF;
     int crc = CheckSum::getCRC16(reqBody);
@@ -502,9 +510,17 @@ bool WriteRam::form(Request &req)
     QByteArray reqBody = req.getBody();
     reqBody.clear();
     reqBody += req.getNetAddress();
-    reqBody += 0xE4u;
-    reqBody += req.getMemAddress() >> 8;
-    reqBody += req.getMemAddress() & 0xFF;
+    if(req.getMemAddress()>65535) {
+        reqBody += 0xEFu;
+        reqBody += (req.getMemAddress() >> 16) & 0xFF;
+        reqBody += (req.getMemAddress() >> 8) & 0xFF;
+        reqBody += req.getMemAddress() & 0xFF;
+    }else {
+        reqBody += 0xE4u;
+        reqBody += req.getMemAddress() >> 8;
+        reqBody += req.getMemAddress() & 0xFF;
+    }
+
     reqBody += req.getDataNumber() >>8;
     reqBody += req.getDataNumber() & 0xFF;
     for(int i=0;i<req.getDataNumber();i++) {
