@@ -21,7 +21,12 @@ QString MatchboxExistance::getMatchboxFile()
         file.close();
     }
 
-    if((plc!="MMB507")&&(plc!="MC3501")) {
+    if(!PLCUtils::hasNoIO(plc)) {
+        res += QString(" IN0 IN1 IN2 IN3 DIN4 DIN5 OUT0 OUT1 OUT2 OUT3 DOUT4 DOUT5 ADC1 ADC2 ADC3 ADC4 ADC5 ADC6 ADC7 ADC8 ADC201 ADC202 ADC203 ADC204 ADC205 ADC206 ADC207 ADC208 DAC1 DAC2 ");
+    }
+
+
+    /*if((plc!="MMB507")&&(plc!="MC3501")) {
         if((plc=="PC164C")||(plc=="PC164B")||(plc=="PC164DB")) {
             res += QString(" IN0 OUT0 ADC1 ADC2 ADC3 ADC4 DAC1 DAC2 ");
         }else if((plc=="PC165C")||(plc=="PC165B")||(plc=="PC165DB")) {
@@ -47,7 +52,7 @@ QString MatchboxExistance::getMatchboxFile()
         }else {
             res += QString(" IN0 IN1 IN2 IN3 DIN4 DIN5 OUT0 OUT1 OUT2 OUT3 DOUT4 DOUT5 ADC1 ADC2 ADC3 ADC4 ADC5 ADC6 ADC7 ADC8 ADC201 ADC202 ADC203 ADC204 ADC205 ADC206 ADC207 ADC208 DAC1 DAC2 DAC3 DAC4 ");
         }
-    }
+    }*/
     return res;
 }
 

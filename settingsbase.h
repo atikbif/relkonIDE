@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QByteArray>
 #include <QHash>
+#include "plcutils.h"
 
 class SettingsBase : public QWidget
 {
@@ -63,7 +64,10 @@ public:
     virtual void updateTable(void);
     static int getCount(void) {return factorySettingsAmount;}
     QString getPLCType() const {return plcType;}
-    void setPLCType(const QString &value) {plcType = value;}
+    void setPLCType(const QString &value) {
+        QString plcName = value;
+        plcType = PLCUtils::convertPLCType(plcName);
+    }
     QStringList getPLCNames() const {return plcBuilds.keys();}
     QString getBuildName();
     virtual void setEmuMode(emuType value)=0;

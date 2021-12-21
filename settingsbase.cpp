@@ -2,6 +2,7 @@
 #include "pathstorage.h"
 #include <QDomDocument>
 #include <QFile>
+#include "plcutils.h"
 
 void SettingsBase::clearSettings()
 {
@@ -19,7 +20,7 @@ void SettingsBase::clearSettings()
     emulation = NoEmulation;
     displayOn = false;
     sdOn = false;
-    plcType = "PC365C";
+    plcType = PLCUtils::defaultPLCName;
     modbusMaster = false;
     readPLCTypes();
     eMemSize = 10;

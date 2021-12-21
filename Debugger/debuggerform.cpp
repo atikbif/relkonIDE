@@ -373,7 +373,7 @@ DebuggerForm::DebuggerForm(VarsCreator &vCr, QWidget *parent) :
     startCheckTmr(0),
     ui(new Ui::DebuggerForm)
 {
-    plcType = "PC365C";
+    plcType = PLCUtils::defaultPLCName;
     scan = nullptr;
     iter = nullptr;
     ui->setupUi(this);

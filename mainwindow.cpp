@@ -137,15 +137,6 @@ int MainWindow::openFileByName(const QString &fName, bool importFlag)
         editor->setDisabled(true);
         editor->appendPlainText(in.readAll());
 
-        /*editor->setFocus();
-        QTextCursor storeCursorPos = editor->textCursor();
-        editor->moveCursor(QTextCursor::End, QTextCursor::MoveAnchor);
-        editor->moveCursor(QTextCursor::StartOfLine, QTextCursor::MoveAnchor);
-        editor->moveCursor(QTextCursor::End, QTextCursor::KeepAnchor);
-        editor->textCursor().removeSelectedText();
-        editor->textCursor().deletePreviousChar();
-        editor->setTextCursor(storeCursorPos);*/
-
         editor->setEnabled(true);
         editor->foldAll();
 
