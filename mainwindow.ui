@@ -14,7 +14,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Relkon 7.1</string>
+   <string>Relkon 7.2</string>
   </property>
   <property name="windowIcon">
    <iconset resource="icons.qrc">
@@ -137,7 +137,7 @@
      <x>0</x>
      <y>0</y>
      <width>472</width>
-     <height>20</height>
+     <height>31</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">

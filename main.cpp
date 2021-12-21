@@ -9,7 +9,7 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
     QCoreApplication::setOrganizationName("Kontel");
-    QCoreApplication::setApplicationName("Relkon 7.1");
+    QCoreApplication::setApplicationName("Relkon 7.2");
     QSettings settings;
 
     QString systFontName = settings.value("/Settings/sysFontName","Verdana").toString();

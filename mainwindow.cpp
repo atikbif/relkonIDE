@@ -699,18 +699,18 @@ void MainWindow::createHelp()
 
 void MainWindow::createUtilities()
 {
-    QAction *actR = new QAction(QIcon("://reloader.ico"), "Загрузчик", this);
-    ui->menuUtil->addAction(actR);
-    connect(actR,SIGNAL(triggered()),this,SLOT(startReloader()));
-    QAction *actMMB = new QAction(QIcon("://mmb.ico"), "Настройка Matchbox", this);
-    ui->menuUtil->addAction(actMMB);
-    connect(actMMB,SIGNAL(triggered()),this,SLOT(startMMBConfig()));
-    QAction *actAdcDac = new QAction(QIcon("://measure.ico"), "Тестирование АЦП и ЦАП", this);
-    ui->menuUtil->addAction(actAdcDac);
-    connect(actAdcDac,SIGNAL(triggered()),this,SLOT(startAdcDacTest()));
-    QAction *actMC35 = new QAction(QIcon("://networking.ico"), "Настройка модулей MC35", this);
-    ui->menuUtil->addAction(actMC35);
-    connect(actMC35,SIGNAL(triggered()),this,SLOT(startMC35Config()));
+//    QAction *actR = new QAction(QIcon("://reloader.ico"), "Загрузчик", this);
+//    ui->menuUtil->addAction(actR);
+//    connect(actR,SIGNAL(triggered()),this,SLOT(startReloader()));
+//    QAction *actMMB = new QAction(QIcon("://mmb.ico"), "Настройка Matchbox", this);
+//    ui->menuUtil->addAction(actMMB);
+//    connect(actMMB,SIGNAL(triggered()),this,SLOT(startMMBConfig()));
+//    QAction *actAdcDac = new QAction(QIcon("://measure.ico"), "Тестирование АЦП и ЦАП", this);
+//    ui->menuUtil->addAction(actAdcDac);
+//    connect(actAdcDac,SIGNAL(triggered()),this,SLOT(startAdcDacTest()));
+//    QAction *actMC35 = new QAction(QIcon("://networking.ico"), "Настройка модулей MC35", this);
+//    ui->menuUtil->addAction(actMC35);
+//    connect(actMC35,SIGNAL(triggered()),this,SLOT(startMC35Config()));
 }
 
 MainWindow::MainWindow(QWidget *parent) :
