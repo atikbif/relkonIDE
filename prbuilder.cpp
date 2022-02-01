@@ -130,9 +130,29 @@ void PrBuilder::buildRequest(QString prPath, QString prName, FCUCSettings conf)
                 compiler = new F7Compiler();
             }
             if(compiler) {
-                compiler->link();
+                bool res = compiler->link();
                 QVector<outMessage> compileErr = compiler->getOutErrors();
-                if(compileErr.count()==0) {
+                qDebug() << compileErr.count();
+                if(compileErr.count()){
+                    for(int i=0;i<compileErr.count();i++) {
+                        QString errText = compileErr.at(i).message;
+                        if(compileErr.at(i).strNum>0) {
+                            int konNum = convertStrNum(compileErr.at(i).strNum);
+                            if(konNum>0) {
+                                errText += " (строка:" +QString::number(konNum)+")";
+                            }else {
+                                QString pultStr = chekPultVarError(compileErr.at(i).strNum);
+                                if(!pultStr.isEmpty()) errText+= " " + pultStr;
+                            }
+                        }
+                        emit printMessage(errText);
+                    }
+                    if((res==0) && (!prPath.isEmpty())) {
+                        //removeBuildFiles(prPath,prName);
+                    }
+
+                }
+                if(compileErr.count()==0 || res) {
                     emit printMessage(QDateTime::currentDateTime().time().toString() + " :сборка успешно закончена ");
 
                     // print project size
@@ -161,25 +181,6 @@ void PrBuilder::buildRequest(QString prPath, QString prName, FCUCSettings conf)
                             emit printMessage(QDateTime::currentDateTime().time().toString() + " :создание карты памяти завершено");
                             emit buildIsOk();
                         }else emit printMessage(QDateTime::currentDateTime().time().toString() + " :ошибка разбора переменных");
-                    }
-
-                }else {
-                    for(int i=0;i<compileErr.count();i++) {
-                        QString errText = compileErr.at(i).message;
-                        if(compileErr.at(i).strNum>0) {
-                            int konNum = convertStrNum(compileErr.at(i).strNum);
-                            if(konNum>0) {
-                                errText += " (строка:" +QString::number(konNum)+")";
-                            }else {
-                                QString pultStr = chekPultVarError(compileErr.at(i).strNum);
-                                if(!pultStr.isEmpty()) errText+= " " + pultStr;
-                            }
-                        }
-                        emit printMessage(errText);
-                    }
-
-                    if(!prPath.isEmpty()) {
-                        removeBuildFiles(prPath,prName);
                     }
 
                 }

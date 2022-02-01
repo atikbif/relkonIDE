@@ -15,7 +15,7 @@ public:
     RCompilerInterface() = default;
     virtual QVector<outMessage>& getOutErrors(void) = 0;
     virtual void compile(void) = 0;
-    virtual void link(void) = 0;
+    virtual bool link(void) = 0;
     virtual ~RCompilerInterface() = default;
 };
 

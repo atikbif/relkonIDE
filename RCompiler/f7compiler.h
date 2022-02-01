@@ -24,7 +24,7 @@ public:
 public:
     QVector<outMessage> &getOutErrors();
     void compile();
-    void link();
+    bool link();
 };
 
 #endif // F7COMPILER_H

@@ -267,7 +267,7 @@ void RCompiler::compile()
     QDir::setCurrent(applPath);
 }
 
-void RCompiler::link()
+bool RCompiler::link()
 {
     QFile::remove(PathStorage::getLogFileFullName());
     QFile::remove(PathStorage::getSizeFileFullName());
@@ -339,4 +339,5 @@ void RCompiler::link()
 
     }
     QDir::setCurrent(applPath);
+    return true;
 }

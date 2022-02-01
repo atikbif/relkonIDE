@@ -380,12 +380,12 @@ void F7Generator::createIoDefinesH()
                 out << "#define OUT" << QString::number(netAddr-ModuleIO::getOutStart()+4) << "   OUT[" << QString::number(netAddr-ModuleIO::getOutStart()) << "]\n";
             }else if(netAddr<=ModuleIO::getAdcEnd()) {
                 for(int j=0;j<4;j++) {
-                    out << "#define ADC" << QString::number((netAddr-ModuleIO::getAdcStart())*4+9+j) << " _ADC.D" << QString::number(j+1) << "[" << QString::number(netAddr-ModuleIO::getAdcStart()) << "]\n";
-                    out << "#define ADH" << QString::number((netAddr-ModuleIO::getAdcStart())*4+9+j) << " (_ADC.D" << QString::number(j+1) << "[" << QString::number(netAddr-ModuleIO::getAdcStart()) << "]>>8)\n";
+                    out << "#define ADC" << QString::number((netAddr-ModuleIO::getAdcStart())*4+9+j) << " mmb_adc.D" << QString::number(j+1) << "[" << QString::number(netAddr-ModuleIO::getAdcStart()) << "]\n";
+                    out << "#define ADH" << QString::number((netAddr-ModuleIO::getAdcStart())*4+9+j) << " mmb_dac.D" << QString::number(j+1) << "[" << QString::number(netAddr-ModuleIO::getAdcStart()) << "]>>8)\n";
                 }
             }else {
                 for(int j=0;j<2;j++) {
-                    out << "#define DAC" << QString::number((netAddr-ModuleIO::getDacStart())*2+5+j) << " _DAC.D" << QString::number(j+1) << "[" << QString::number(netAddr-ModuleIO::getDacStart()) << "]\n";
+                    out << "#define DAC" << QString::number((netAddr-ModuleIO::getDacStart())*2+5+j) << " mmb_dac.D" << QString::number(j+1) << "[" << QString::number(netAddr-ModuleIO::getDacStart()) << "]\n";
                 }
             }
         }

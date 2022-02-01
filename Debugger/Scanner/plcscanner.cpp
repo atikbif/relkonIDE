@@ -165,15 +165,19 @@ void PLCScanner::scanProcess()
                         if(isUdp) cmd = new UdpDecorator(cmd);
                         else if(settings.getComSettings().protocol=="ASCII") cmd = new AsciiDecorator(cmd);
                         req.setNetAddress(settings.getNetAddress());
-
-                        if(cmd->execute(req,*ptr)) {
-                            emit updateCorrectRequestCnt(++cntCorrect);
-                            // обновление памяти по результатам чтения
-                            if(req.hasKey("mem") && req.hasKey("rw") && req.getParam("rw")=="read") {
-                                emit updateBlock(req.getParam("mem"),req.getMemAddress(),req.getRdData());
+                        bool checkFlag = false;
+                        for(int i=0;i<5;i++) {
+                            if(cmd->execute(req,*ptr)) {
+                                emit updateCorrectRequestCnt(++cntCorrect);
+                                // обновление памяти по результатам чтения
+                                if(req.hasKey("mem") && req.hasKey("rw") && req.getParam("rw")=="read") {
+                                    emit updateBlock(req.getParam("mem"),req.getMemAddress(),req.getRdData());
+                                }
+                                checkFlag = true;
+                                break;
                             }
-                        } else
-                        emit updateErrorRequestCnt(++cntError);
+                        }
+                        if(checkFlag==false) emit updateErrorRequestCnt(++cntError);
 
                         // вывод сообщения в лог
                         emit addMessage(reqToHexStr(req));

@@ -40,7 +40,7 @@ public:
     RCompiler();
     QVector<outMessage>& getOutErrors(void) override {return errors;}
     void compile(void) override;
-    void link(void) override;
+    bool link(void) override;
 };
 
 #endif // RCOMPILER_H

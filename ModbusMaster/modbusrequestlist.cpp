@@ -90,7 +90,7 @@ QStringList ModbusRequestList::getVarNames()
             if((i!=varsCountInString-1)&&(varIndex+1<vars.count())) s += ",";
         }
         s += ";";
-        res += s;
+        if(s!="unsigned short ;") res += s;
         strNum++;
         if(strNum*varsCountInString>=vars.count()) break;
     }

@@ -79,6 +79,7 @@ void F7Compiler::checkErrors()
     QFile logFile;
     outMessage errInfo;
     logFile.setFileName(PathStorage::getLogFileFullName());
+    qDebug() << PathStorage::getLogFileFullName();
     if(logFile.open(QIODevice::ReadOnly)){
         QTextStream in(&logFile);
         QStringList errMessage;
@@ -215,7 +216,7 @@ void F7Compiler::compile()
     QDir::setCurrent(applPath);
 }
 
-void F7Compiler::link()
+bool F7Compiler::link()
 {
     QFile::remove(PathStorage::getLogFileFullName());
     QFile::remove(PathStorage::getSizeFileFullName());
@@ -272,7 +273,12 @@ void F7Compiler::link()
             createMemSizeFile();
             createMapFile();
             createBinFile();
-        }else checkErrors();
+            checkErrors();
+            QDir::setCurrent(applPath);
+            return true;
+        }
+        checkErrors();
     }
-
+    QDir::setCurrent(applPath);
+    return false;
 }
