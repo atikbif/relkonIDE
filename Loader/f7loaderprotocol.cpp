@@ -163,7 +163,7 @@ bool F7LoaderProtocol::writeFlash(QSerialPort &port, int &netAddr, int waitTime,
         QByteArray tx;
         QByteArray rx;
         tx.append(static_cast<char>(netAddr));
-        tx.append(static_cast<char>(0xE9));
+        tx.append(static_cast<char>(0xE9u));
         tx.append(static_cast<char>(id>>8));
         tx.append(static_cast<char>(id&0xFF));
         tx.append(static_cast<char>((addr>>24)&0xFF));
@@ -204,7 +204,7 @@ bool F7LoaderProtocol::jumptoProg(QSerialPort &port, int &netAddr, int waitTime)
         QByteArray tx;
         QByteArray rx;
         tx.append(static_cast<char>(netAddr));
-        tx.append(static_cast<char>(0xEA));
+        tx.append(static_cast<char>(0xEAu));
         tx.append(static_cast<char>(id>>8));
         tx.append(static_cast<char>(id&0xFF));
         addCRC16(tx);

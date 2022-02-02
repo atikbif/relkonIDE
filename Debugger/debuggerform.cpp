@@ -214,6 +214,15 @@ void DebuggerForm::clearView()
     ioCheck.insert("ADC6",true);
     ioCheck.insert("ADC7",true);
     ioCheck.insert("ADC8",true);
+
+    ioCheck.insert("ADC201",true);
+    ioCheck.insert("ADC202",true);
+    ioCheck.insert("ADC203",true);
+    ioCheck.insert("ADC204",true);
+    ioCheck.insert("ADC205",true);
+    ioCheck.insert("ADC206",true);
+    ioCheck.insert("ADC207",true);
+    ioCheck.insert("ADC208",true);
 }
 
 void DebuggerForm::tabChanged()
@@ -810,6 +819,8 @@ QVector<QGroupBox*> DebuggerForm::addAIO(const QString &grName, const QString &i
     QVector<QGroupBox*> groups;
     for(int i=startNum;i<=endNum;i++) {
         QGroupBox *box = new QGroupBox(ioName+QString::number(i));
+        box->setFont(QFont("Times", 8));
+        box->setContentsMargins(5,0,5,0);
         QHBoxLayout *hLayout = new QHBoxLayout();
         AnInpSlider *slider = new AnInpSlider();
         slider->setOrientation(Qt::Horizontal);
@@ -818,12 +829,12 @@ QVector<QGroupBox*> DebuggerForm::addAIO(const QString &grName, const QString &i
         connect(slider,SIGNAL(valueChanged(int)),this,SLOT(anInOutClicked()));
 
         QLineEdit *number = new QLineEdit();
-        number->setStyleSheet("border: 2px solid gray;"
-                              "border-radius: 5px;"
-                              "padding: 0 4px;"
-                              "font-size: 12px;"
+        number->setStyleSheet("border: 1px solid gray;"
+                              "border-radius: 3px;"
+                              "padding: 0 2px;"
+                              "font-size: 8px;"
                               "background: rgb(230,240,240);");
-        number->setMinimumWidth(5*12);
+        number->setMinimumWidth(5*8);
         number->setReadOnly(true);
         QLineEdit *comment = new QLineEdit();
 
@@ -834,6 +845,7 @@ QVector<QGroupBox*> DebuggerForm::addAIO(const QString &grName, const QString &i
         box->setCheckable(true);
         box->setFlat(true);
         hLayout->setMargin(0);
+
         connect(box,SIGNAL(toggled(bool)),this,SLOT(boxToggled(bool)));
         groups+=box;
         AnIO *aDef = new AnIO();

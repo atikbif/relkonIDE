@@ -11,7 +11,7 @@ bool Ymodem::sendHeader()
             QByteArray txBuf(3+128,'\0');
             txBuf[0] = 0x01;
             txBuf[1] = 0x00;
-            txBuf[2] = 0xFF;
+            txBuf[2] = 0xFFu;
             QString fName = "project.bin";
             for(int i=0;i<fName.size();i++) {
                 txBuf[3+i] = fName.toUtf8().at(i);
@@ -128,7 +128,7 @@ bool Ymodem::sendLastReq()
             QByteArray txBuf(3+128,'\0');
             txBuf[0] = 0x01;
             txBuf[1] = 0x00;
-            txBuf[2] = 0xFF;
+            txBuf[2] = 0xFFu;
             int crc = CheckSum::getCRCXModem(txBuf.mid(3,128));
             txBuf += crc >> 8;
             txBuf += crc & 0xFF;
