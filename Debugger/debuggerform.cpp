@@ -819,8 +819,8 @@ QVector<QGroupBox*> DebuggerForm::addAIO(const QString &grName, const QString &i
     QVector<QGroupBox*> groups;
     for(int i=startNum;i<=endNum;i++) {
         QGroupBox *box = new QGroupBox(ioName+QString::number(i));
-        box->setFont(QFont("Times", 8));
-        box->setContentsMargins(5,0,5,0);
+        //box->setFont(QFont("Times", 8));
+        //box->setContentsMargins(5,0,5,0);
         QHBoxLayout *hLayout = new QHBoxLayout();
         AnInpSlider *slider = new AnInpSlider();
         slider->setOrientation(Qt::Horizontal);
@@ -829,12 +829,12 @@ QVector<QGroupBox*> DebuggerForm::addAIO(const QString &grName, const QString &i
         connect(slider,SIGNAL(valueChanged(int)),this,SLOT(anInOutClicked()));
 
         QLineEdit *number = new QLineEdit();
-        number->setStyleSheet("border: 1px solid gray;"
-                              "border-radius: 3px;"
-                              "padding: 0 2px;"
-                              "font-size: 8px;"
+        number->setStyleSheet("border: 2px solid gray;"
+                              "border-radius: 5px;"
+                              "padding: 0 4px;"
+                              "font-size: 12px;"
                               "background: rgb(230,240,240);");
-        number->setMinimumWidth(5*8);
+        number->setMinimumWidth(5*12);
         number->setReadOnly(true);
         QLineEdit *comment = new QLineEdit();
 
@@ -864,6 +864,7 @@ void DebuggerForm::buildAIO()
 {
     QWidget *clientAn = new QWidget(this);
     QVBoxLayout *vLayoutAn= new QVBoxLayout(clientAn);
+    vLayoutAn->setContentsMargins(5,0,5,0);
 
     adc8bit = new QCheckBox("  АЦП - 8 бит");
     adc8bit->setChecked(true);
@@ -890,6 +891,7 @@ void DebuggerForm::buildAIO()
     ioBoxes += boxDacMmb;
     foreach(QGroupBox* box, boxDacMmb) vLayoutAn->addWidget(box);
 
+    vLayoutAn->addStretch();
 
     clientAn->setLayout(vLayoutAn);
     ui->scrollArea_2->setWidget(clientAn);
