@@ -463,7 +463,7 @@ QString SettingsForm::getPortName() const
 
 void SettingsForm::readFromBin(const QByteArray inpData)
 {
-    if(inpData.count()>=settingsSize) {
+    if(inpData.count()>=settingsMinSize) {
         for(int i=0;i<1024;i++) {
             if(i<factorySettingsAmount) fSettings[i] = inpData.at(i);
         }
