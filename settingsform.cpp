@@ -711,6 +711,7 @@ void SettingsForm::on_pushButtonToPLC_clicked()
 {
     QByteArray data;
     writeToBin(data);
+    data = data.left(settingsMinSize);
     ScanGUI gui(progAddr,false,getPortName(),this);
     int ret = gui.exec();
     if(ret==QDialog::Accepted) {
