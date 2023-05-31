@@ -84,7 +84,7 @@ void sFram::startWrite(QByteArray data)
             QByteArray wrData = data.mid(offset,reqLength);
             req.setWrData(wrData);
             errFlag = true;
-            for(int j=0;j<3;j++) {
+            for(int j=0;j<10;j++) {
                 if(cmd->execute(req,port)==true) {errFlag=false;break;}
                 mutex.lock();
                 if(stopCmd) {port.close();mutex.unlock();return;}
@@ -144,7 +144,7 @@ void sFram::startRead()
             req.setDataNumber(currentLength);
             req.setMemAddress(startAddr + offset);
             errFlag = true;
-            for(int j=0;j<3;j++) {
+            for(int j=0;j<10;j++) {
                 if(cmd->execute(req,port)==true) {errFlag=false;break;}
                 mutex.lock();
                 if(stopCmd) {mutex.unlock();return;}

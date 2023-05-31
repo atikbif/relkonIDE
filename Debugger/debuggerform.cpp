@@ -8,7 +8,6 @@
 #include "vartomemconnector.h"
 #include "varbytesvalueconverter.h"
 #include "VarDef/varparser.h"
-#include "RCompiler/rcompiler.h"
 #include <QDateTime>
 #include <QSerialPortInfo>
 #include "AutoSearch/scangui.h"
@@ -22,6 +21,7 @@
 #include <QSlider>
 #include <QProcess>
 #include <QTextCodec>
+#include <QXmlStreamWriter>
 
 #include <QFileDialog>
 #include <QFileInfo>
@@ -726,6 +726,7 @@ void DebuggerForm::buildDIO()
 
     for(int i=0;i<6;i++) {
         QString name;
+        ioNum = 1+8*i;
         if(i<4) name = "IN"+QString::number(i);
         else name = "DIN" + QString::number(i);
         QGroupBox *boxIn = addDIO(name,BitIO::inputStartAddress + i,8);
@@ -736,6 +737,7 @@ void DebuggerForm::buildDIO()
         connect(boxIn,SIGNAL(toggled(bool)),this,SLOT(boxToggled(bool)));
         grLayout->addWidget(boxIn,1,i+1);
 
+        ioNum = 1+8*i;
         if(i<4) name = "OUT"+QString::number(i);
         else name = "DOUT" + QString::number(i);
         QGroupBox *boxOut = addDIO(name,BitIO::outputStartAddress + i,8);
@@ -749,6 +751,7 @@ void DebuggerForm::buildDIO()
     MatchboxExistance mmb;
     QString mmbList = mmb.getMatchboxFile();
     // модули Matchbox
+    ioNum = 0;
     for(int i=0;i<32;i++) {
         QString name;
         name = "IN"+QString::number(i+4);
@@ -792,8 +795,11 @@ QGroupBox *DebuggerForm::addDIO(const QString &name, int startAddress, int bitCn
     for(int j=0;j<bitCnt;j++) {
         QHBoxLayout *hLayout = new QHBoxLayout();
         QPushButton *b = new QPushButton();
-        b->setStyleSheet("border: 2px solid #8f8f91;border-radius: 10px;background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,stop: 0 #f6f7fa, stop: 1 #dadbde);");
+        b->setStyleSheet("border: 2px solid #8f8f91;border-radius: 10px;background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,stop: 0 #f6f7fa, stop: 1 #dadbde);font-size: 6pt;");
         b->setFixedSize(20,20);
+        if(ioNum) {
+            b->setText(QString::number(ioNum++));
+        }
         connect(b,SIGNAL(clicked()),this,SLOT(inOutClicked()));
         QLineEdit *e = new QLineEdit();
         hLayout->addWidget(b);
@@ -911,12 +917,12 @@ void DebuggerForm::updateIOVarGUI(const QString &id)
                     if(state!=ptr->getState()) {
                         if(state) {
                             if(ptr->getName().contains("IN"))
-                            ptr->getButton()->setStyleSheet("border: 2px solid #8f8f91;border-radius: 10px;background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,stop: 0 #00ff00, stop: 1 #ffffff);");
+                            ptr->getButton()->setStyleSheet("border: 2px solid #8f8f91;border-radius: 10px;background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,stop: 0 #00ff00, stop: 1 #ffffff);border: 2px solid #8f8f91;font-size: 6pt;");
                             else
-                            ptr->getButton()->setStyleSheet("border: 2px solid #8f8f91;border-radius: 10px;background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,stop: 0 #ff0000, stop: 1 #ffffff);");
+                            ptr->getButton()->setStyleSheet("border: 2px solid #8f8f91;border-radius: 10px;background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,stop: 0 #ff0000, stop: 1 #ffffff);border: 2px solid #8f8f91;font-size: 6pt;");
                         }
                         else {
-                            ptr->getButton()->setStyleSheet("border: 2px solid #8f8f91;border-radius: 10px;background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,stop: 0 #f6f7fa, stop: 1 #dadbde);");
+                            ptr->getButton()->setStyleSheet("border: 2px solid #8f8f91;border-radius: 10px;background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,stop: 0 #f6f7fa, stop: 1 #dadbde);border: 2px solid #8f8f91;font-size: 6pt;");
                         }
                         ptr->setState(state);
                     }

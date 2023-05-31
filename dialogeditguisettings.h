@@ -29,6 +29,8 @@ private slots:
 
 private:
     Ui::DialogEditGUISettings *ui;
+signals:
+    void font_update();
 };
 
 #endif // DIALOGEDITGUISETTINGS_H

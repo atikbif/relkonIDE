@@ -628,7 +628,7 @@ void MainWindow::createDebugger()
     connect(settings,SIGNAL(newPLCType(QString)),debugger,SLOT(newPLCType(QString)));
     //ui->tabWidget->addTab(debugger,"Отладчик");
 
-    dockDebugger = new QDockWidget(tr("Отладчик F4"), this);
+    dockDebugger = new QDockWidget(tr("Отладчик F4"));//, this);
     dockDebugger->setAllowedAreas(Qt::RightDockWidgetArea | Qt::LeftDockWidgetArea);
     dockDebugger->setWidget(debugger);
     addDockWidget(Qt::RightDockWidgetArea, dockDebugger);
@@ -699,9 +699,9 @@ void MainWindow::createHelp()
 
 void MainWindow::createUtilities()
 {
-//    QAction *actR = new QAction(QIcon("://reloader.ico"), "Загрузчик", this);
-//    ui->menuUtil->addAction(actR);
-//    connect(actR,SIGNAL(triggered()),this,SLOT(startReloader()));
+    QAction *actR = new QAction(QIcon("://reloader.ico"), "Загрузчик", this);
+    ui->menuUtil->addAction(actR);
+    connect(actR,SIGNAL(triggered()),this,SLOT(startReloader()));
     QAction *actMMB = new QAction(QIcon("://mmb.ico"), "Настройка Matchbox", this);
     ui->menuUtil->addAction(actMMB);
     connect(actMMB,SIGNAL(triggered()),this,SLOT(startMMBConfig()));
@@ -1796,6 +1796,15 @@ void MainWindow::importProject()
 void MainWindow::editIDESettings()
 {
     DialogEditGUISettings dialog;
+    connect(&dialog,&DialogEditGUISettings::font_update,[this](){
+        setEditorPhont();
+        QSettings settings;
+        QString systFontName = settings.value("/Settings/sysFontName","Verdana").toString();
+        int systFontSize = settings.value("Settings/sysFontSize",10).toInt();
+
+        QFont font(systFontName,systFontSize,QFont::Normal,false);
+        this->setFont(font);
+    });
     dialog.exec();
 }
 

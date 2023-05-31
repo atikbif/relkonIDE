@@ -14,9 +14,8 @@ const QString PLCUtils::mc23Name = "MC2302";
 double PLCUtils::getADCCoeff(const QString &plcName)
 {
     if(plcName==f7Name) return 0;
-    if(plcName==cTypePLCName || plcName==bTypePLCName) return 125.0/127;
-    if(plcName==dbTypePLCName) return 1.0416;
-    if(plcName=="X6X BH/DBH") return 1.0416;
+    if(plcName==cTypePLCName) return 125.0/127;
+    if((plcName==dbTypePLCName) || (plcName==bTypePLCName) || (plcName=="X6X BH/DBH")) return 1.0416;
     return 0;
 }
 

@@ -55,6 +55,8 @@ class DebuggerForm : public QWidget
     int memLength;
     int startCheckTmr=0;    // счётчик для вывода сообщения о неподключенном контроллере при старте
 
+    int ioNum = 1;
+
     void clearMemViewTable();
     void updateMemViewRequests(void);   // формирование очереди запросов планировщика для просмотра памяти
     void createTree();  // построение дерева переменных проекта

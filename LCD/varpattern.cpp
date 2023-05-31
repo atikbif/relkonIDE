@@ -36,16 +36,16 @@ bool VarPattern::checkPattern(const QString &pattern, const QString& dataType)
             if((lValue>=-32768)&&(lValue<=32767)) return true;
         }else if(dataType==VarItem::uintType) {
             if(!lConvRes) return false;
-            if((lValue>=-2147483648l)&&(lValue<=4294967295ul)) return true;
+            return true;
         }else if(dataType==VarItem::intType) {
             if(!lConvRes) return false;
-            if((lValue>=-2147483648l)&&(lValue<=2147483647l)) return true;
+            return true;
         }else if(dataType==VarItem::ulongType) {
             if(!lConvRes) return false;
-            if((lValue>=-2147483648l)&&(lValue<=4294967295ul)) return true;
+            return true;
         }else if(dataType==VarItem::longType) {
             if(!lConvRes) return false;
-            if((lValue>=-2147483648l)&&(lValue<=2147483647l)) return true;
+            return true;
         }else if(dataType==VarItem::longLongType) {
             if(!lConvRes) return false;
             return true;

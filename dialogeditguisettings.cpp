@@ -10,8 +10,8 @@ DialogEditGUISettings::DialogEditGUISettings(QWidget *parent) :
     ui(new Ui::DialogEditGUISettings)
 {
     QSettings settings;
-    sysFontName = settings.value("/Settings/sysFontName","Courier").toString();
-    edFontName = settings.value("/Settings/edFontName","Verdana").toString();
+    sysFontName = settings.value("/Settings/sysFontName","Verdana").toString();
+    edFontName = settings.value("/Settings/edFontName","Courier").toString();
     sysFontSize = settings.value("Settings/sysFontSize",10).toInt();
     edFontSize = settings.value("Settings/edFontSize",10).toInt();
 
@@ -39,6 +39,7 @@ void DialogEditGUISettings::on_pushButtonSysFont_clicked()
         settings.setValue("/Settings/sysFontName",sysFontName);
         settings.setValue("Settings/sysFontSize",sysFontSize);
         ui->lineEditSysFont->setText(sysFontName + " " + QString::number(sysFontSize));
+        emit font_update();
     }
 }
 
@@ -54,6 +55,7 @@ void DialogEditGUISettings::on_pushButtonEdFont_clicked()
         settings.setValue("/Settings/edFontName",edFontName);
         settings.setValue("Settings/edFontSize",edFontSize);
         ui->lineEditEdFont->setText(edFontName + " " + QString::number(edFontSize));
+        emit font_update();
     }
 }
 
