@@ -31,6 +31,8 @@
 
 #include "matchboxexistance.h"
 
+#include <QDebug>
+
 
 void DebuggerForm::saveView()
 {
@@ -170,6 +172,7 @@ void DebuggerForm::openView()
                 QLineEdit *ptr = ioComments.value(name);
                 if(ptr) {
                     ptr->setText(comment);
+                    ptr->setCursorPosition(0);
                 }
             }
         }
@@ -396,7 +399,6 @@ DebuggerForm::DebuggerForm(VarsCreator &vCr, QWidget *parent) :
     connect(&memStor,SIGNAL(updateMemory(QStringList)),this,SLOT(updateMemory(QStringList)));
     scan = new ScanManager(&memStor,this);
     connect(scan,SIGNAL(updateAnswerCnt(int,bool)),this,SLOT(updateCorrErrAnswerCount(int,bool)));
-    connect(scan,SIGNAL(addMessage(QString)),this,SLOT(getMessageFromDebugProcess(QString)));
     connect(scan,SIGNAL(errMessage(QString)),this,SLOT(getErrMessageFromDebugProcess(QString)));
     connect(scan,SIGNAL(updateTimeStr(QString)),this,SLOT(getTimeStr(QString)));
     ui->lcdNumberCorrect->setDigitCount(8);
@@ -414,7 +416,6 @@ DebuggerForm::DebuggerForm(VarsCreator &vCr, QWidget *parent) :
     ui->tableWidgetMem->setRowCount(memViewRowCount);
     ui->tableWidgetMem->setColumnCount(memViewColumnCount);
     clearMemViewTable();
-    on_checkBoxLog_clicked();
     on_tabWidget_currentChanged(1);
     quick = new VarWatcherManager();
     connect(quick,SIGNAL(quickInfoRequest()),this,SLOT(getQuickWatchInfo()));
@@ -605,21 +606,6 @@ void DebuggerForm::updateCorrErrAnswerCount(int cnt, bool correctFlag)
     }
 }
 
-void DebuggerForm::getMessageFromDebugProcess(QString message)
-{
-    if(!ui->textBrowserRequests->isEnabled()) return;
-    QString txt = ui->textBrowserRequests->toPlainText();
-    QStringList sList = txt.split("\n");
-    if(sList.count()>5) {
-        sList.removeFirst();
-        sList+=message;
-    }else sList+=message;
-    txt="";
-    foreach (QString str, sList) {
-        if(!str.isEmpty()) txt+=str+"\n";
-    }
-    ui->textBrowserRequests->setText(txt);
-}
 
 void DebuggerForm::getErrMessageFromDebugProcess(QString message)
 {
@@ -733,7 +719,7 @@ void DebuggerForm::buildDIO()
         boxIn->setStyleSheet(QString::fromUtf8("QGroupBox { background-color: rgb(230,240,240); border: 1px solid darkgray; border-radius: 5px; margin-top: 7px; margin-bottom: 7px; padding: 0px} QGroupBox::title {top:-7 ex;left: 10px; subcontrol-origin: border}"));
         ioBoxes+=boxIn;
         boxIn->setCheckable(true);
-        boxIn->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
+        boxIn->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::Preferred);
         connect(boxIn,SIGNAL(toggled(bool)),this,SLOT(boxToggled(bool)));
         grLayout->addWidget(boxIn,1,i+1);
 
@@ -744,7 +730,7 @@ void DebuggerForm::buildDIO()
         boxOut->setStyleSheet(QString::fromUtf8("QGroupBox { background-color: rgb(230,240,240); border: 1px solid darkgray; border-radius: 5px; margin-top: 7px; margin-bottom: 7px; padding: 0px} QGroupBox::title {top:-7 ex;left: 10px; subcontrol-origin: border}"));
         ioBoxes+=boxOut;
         boxOut->setCheckable(true);
-        boxOut->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
+        boxOut->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::Preferred);
         connect(boxOut,SIGNAL(toggled(bool)),this,SLOT(boxToggled(bool)));
         grLayout->addWidget(boxOut,2,i+1);
     }
@@ -791,6 +777,7 @@ void DebuggerForm::updateIOFoldedState()
 QGroupBox *DebuggerForm::addDIO(const QString &name, int startAddress, int bitCnt)
 {
     QGroupBox *box = new QGroupBox(name);
+    box->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::Preferred);
     QVBoxLayout *layout = new QVBoxLayout(box);
     for(int j=0;j<bitCnt;j++) {
         QHBoxLayout *hLayout = new QHBoxLayout();
@@ -825,21 +812,20 @@ QVector<QGroupBox*> DebuggerForm::addAIO(const QString &grName, const QString &i
     QVector<QGroupBox*> groups;
     for(int i=startNum;i<=endNum;i++) {
         QGroupBox *box = new QGroupBox(ioName+QString::number(i));
-        //box->setFont(QFont("Times", 8));
-        //box->setContentsMargins(5,0,5,0);
+        QFont font = box->font();
+        int fSize = font.pointSize();
+        fSize = fSize*0.9;
+        font.setPointSize(fSize);
+        box->setFont(font);
         QHBoxLayout *hLayout = new QHBoxLayout();
         AnInpSlider *slider = new AnInpSlider();
         slider->setOrientation(Qt::Horizontal);
         slider->setMaximum(65535);
         slider->setMinimum(0);
         connect(slider,SIGNAL(valueChanged(int)),this,SLOT(anInOutClicked()));
+        connect(slider,SIGNAL(sliderReleased()),this,SLOT(anInOutClicked()));
 
         QLineEdit *number = new QLineEdit();
-        number->setStyleSheet("border: 2px solid gray;"
-                              "border-radius: 5px;"
-                              "padding: 0 4px;"
-                              "font-size: 12px;"
-                              "background: rgb(230,240,240);");
         number->setMinimumWidth(5*12);
         number->setReadOnly(true);
         QLineEdit *comment = new QLineEdit();
@@ -873,6 +859,11 @@ void DebuggerForm::buildAIO()
     vLayoutAn->setContentsMargins(5,0,5,0);
 
     adc8bit = new QCheckBox("  АЦП - 8 бит");
+    QFont font = adc8bit->font();
+    int fontSize = font.pointSize();
+    font.setPointSize(fontSize*0.9);
+    adc8bit->setFont(font);
+
     adc8bit->setChecked(true);
     connect(adc8bit,SIGNAL(clicked(bool)),this,SLOT(adc8bitChanged()));
     vLayoutAn->addWidget(adc8bit);
@@ -900,7 +891,9 @@ void DebuggerForm::buildAIO()
     vLayoutAn->addStretch();
 
     clientAn->setLayout(vLayoutAn);
+
     ui->scrollArea_2->setWidget(clientAn);
+    ui->scrollArea_2->setMinimumWidth(clientAn->sizeHint().width()*0.75);
 }
 
 void DebuggerForm::updateIOVarGUI(const QString &id)
@@ -937,7 +930,17 @@ void DebuggerForm::updateIOVarGUI(const QString &id)
                    if(ptr->getName().contains("ADC")) txtValue = QString::number(value>>8);
                 }
                 ptr->getLcdNum()->setText(txtValue);
-                if(!ptr->getSlider()->hasFocus()) ptr->getSlider()->setValue(value);
+                ptr->getLcdNum()->repaint();
+
+                if(!ptr->getSlider()->hasFocus()) {
+                    disconnect(ptr->getSlider(),SIGNAL(valueChanged(int)),this,SLOT(anInOutClicked()));
+                    disconnect(ptr->getSlider(),SIGNAL(sliderReleased()),this,SLOT(anInOutClicked()));
+                    ptr->getSlider()->setValue(value);
+                    connect(ptr->getSlider(),SIGNAL(valueChanged(int)),this,SLOT(anInOutClicked()));
+                    connect(ptr->getSlider(),SIGNAL(sliderReleased()),this,SLOT(anInOutClicked()));
+                }
+
+
             }
         }
     }
@@ -1110,13 +1113,6 @@ void DebuggerForm::on_pushButtonAutoSearch_clicked()
     }
 }
 
-void DebuggerForm::on_checkBoxLog_clicked()
-{
-    if(ui->checkBoxLog->isChecked()) ui->textBrowserRequests->setEnabled(true);
-    else {
-        ui->textBrowserRequests->setEnabled(false);
-    }
-}
 
 void DebuggerForm::on_pushButtonTimeWrite_clicked()
 {
@@ -1222,14 +1218,16 @@ void DebuggerForm::anInOutClicked()
     if(sl) {
         foreach (AnIO* ptr, anIoHash.values()) {
            if(ptr->getSlider()==sl) {
-               VarItem var;
-               quint16 byte = sl->value();
-               var.setValue(QString::number(byte));
-               var.setDataType(VarItem::ushortType);
-               var.setMemAddress(ptr->getAddress());
-               var.setMemType(MemStorage::ioMemName);
-               var.setPriority(1);
-               scheduler.addWriteOperation(var);
+               if(!sl->isSliderDown()) {
+                   VarItem var;
+                   quint16 byte = sl->value();
+                   var.setValue(QString::number(byte));
+                   var.setDataType(VarItem::ushortType);
+                   var.setMemAddress(ptr->getAddress());
+                   var.setMemType(MemStorage::ioMemName);
+                   var.setPriority(1);
+                   scheduler.addWriteOperation(var);
+               }
                break;
            }
         }

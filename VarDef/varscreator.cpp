@@ -610,7 +610,7 @@ void VarsCreator::generateVarsTree()
 {
     ids.clear();
     CompositeVar* mainVar = new CompositeVar();
-    mainVar->setName("Переменные");
+    mainVar->setName("Переменные проекта:          ");
     CompositeVar* sysVars = new CompositeVar();
     sysVars->setName("Система");
     sysVars->setDataType("-");

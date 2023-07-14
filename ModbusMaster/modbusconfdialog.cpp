@@ -23,6 +23,8 @@ ModbusConfDialog::ModbusConfDialog(QWidget *parent) :
         updateRow(row,*(vars.getModbusVar(i)));
     }
     ui->tableWidget->sortByColumn(0, Qt::AscendingOrder);
+
+    connect(ui->tableWidget, &QTableWidget::cellDoubleClicked, [this](){on_pushButtonEdit_clicked();});
 }
 
 ModbusConfDialog::~ModbusConfDialog()
@@ -125,6 +127,7 @@ void ModbusConfDialog::on_pushButtonDel_clicked()
 
 void ModbusConfDialog::updateRow(int row, const ModbusVar &v)
 {
+    ui->tableWidget->setSortingEnabled(false);
     ModbusVar::canType cType = v.getCanType();
     if(cType==ModbusVar::CAN_MB) ui->tableWidget->setItem(row,1,new QTableWidgetItem("MB"));
     else if(cType==ModbusVar::CAN_PC) ui->tableWidget->setItem(row,1,new QTableWidgetItem("PC"));
@@ -139,6 +142,7 @@ void ModbusConfDialog::updateRow(int row, const ModbusVar &v)
     ui->tableWidget->setItem(row,6,new QTableWidgetItem(v.getActiv()?"вкл":"откл"));
     ui->tableWidget->setItem(row,7,new QTableWidgetItem(v.getComment()));
     ui->tableWidget->setItem(row,0,new QTableWidgetItem(v.getVarName()));
+    ui->tableWidget->setSortingEnabled(true);
 }
 
 void ModbusConfDialog::on_pushButtonEnableAll_clicked()

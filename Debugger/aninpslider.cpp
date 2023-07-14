@@ -5,6 +5,11 @@ AnInpSlider::AnInpSlider(QWidget *parent): QSlider(parent), eightBit(true)
 {
     setEightBit(true);
     setPageStep(256*5);
+    setStyleSheet("QSlider::handle:horizontal {"
+                  "background: #dcdcdc;"
+                  "border: 1px solid #8c8c8c;"
+                  "width: 10px;"
+                  "}");
 }
 
 void AnInpSlider::mousePressEvent(QMouseEvent *event)

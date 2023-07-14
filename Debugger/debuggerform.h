@@ -94,7 +94,6 @@ private slots:
     void on_stopButton_clicked();   // остановить опрос
     void on_pushButtonCOMUpdate_clicked();  // обновить список COM портов
     void on_pushButtonAutoSearch_clicked(); // автопоиск контроллера
-    void on_checkBoxLog_clicked();  // скрытие/отображение лога работы
     void on_pushButtonTimeWrite_clicked();  // обновление времени ПЛК (команда по протоколу)
     void on_treeWidgetWatch_customContextMenuRequested(const QPoint &pos);  // запрос контекстного меню дерева просмотра - редактирование переменных
     void on_tabWidget_currentChanged(int index);    // переключение между вкладками отладчика
@@ -107,7 +106,6 @@ private slots:
 
     void updateMemory(QStringList ids); // вызывается хранилищем памяти для обновления значений переменных
     void updateCorrErrAnswerCount(int cnt, bool correctFlag);   // обновление счётчиков корректного и ошибочного опроса
-    void getMessageFromDebugProcess(QString message);   // вывести текстовое сообщение в лог
     void getErrMessageFromDebugProcess(QString message);   // вывести сообщение об ошибке в окно
     void getTimeStr(QString timeStr);   // обновить время ПЛК (GUI отображение)
 

@@ -32,7 +32,7 @@ bool Ymodem::sendHeader()
                 answer.clear();
                 port->write(txBuf);
                 port->waitForBytesWritten(100);
-                port->waitForReadyRead(3500);
+                port->waitForReadyRead(6000);
                 answer+=port->readAll();
                 if(answer.count()) {
                     if(answer.contains(0x06)&&answer.contains('C')) return true;
