@@ -30,8 +30,7 @@ QString PLCScanner::reqToHexStr(Request &req)
     foreach(quint8 byteValue,body) {
         str = QString::number(byteValue,16);
         if(str.size()<2) str="0"+str;
-        str.toUpper();
-         message+=str.toUpper() + " ";
+        message+=str.toUpper() + " ";
     }
     return message;
 }

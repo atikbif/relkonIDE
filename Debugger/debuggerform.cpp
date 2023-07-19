@@ -582,6 +582,8 @@ void DebuggerForm::updateMemory(QStringList ids)
             if(ui->checkBoxQuickWatch->isChecked()) updateVarGUI(id);
         }else if(ui->tabWidget->currentIndex()==0) {
             updateVarGUI(id);
+            updateIOVarGUI(id);
+            if(ui->checkBoxQuickWatch->isChecked()) updateVarGUI(id);
         }else if(ui->tabWidget->currentIndex()==2) {
             updateMemVarGUI(id);
             if(ui->checkBoxQuickWatch->isChecked()) updateVarGUI(id);
@@ -1244,6 +1246,16 @@ void DebuggerForm::on_tabWidget_currentChanged(int index)
             var.setPriority(1);
             scheduler.addReadOperation(var);
         }
+
+        for(int i=0;i<0x23;i++) {//MemStorage::ioMemSize;i++) {
+            VarItem var;
+            var.setDataType(VarItem::ucharType);
+            var.setMemType(MemStorage::ioMemName);
+            var.setPriority(1);
+            var.setMemAddress(i);
+            scheduler.addReadOperation(var);
+        }
+
         scheduler.schedule();
     }else if(index==1) {    // вкладка входов/выходов
         scheduler.clear();

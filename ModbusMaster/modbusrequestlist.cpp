@@ -82,15 +82,21 @@ QStringList ModbusRequestList::getVarNames()
     int strNum=0;
 
     forever{
+        QString s_perm = "unsigned short ";
         QString s = "unsigned short ";
         for(int i=0;i<varsCountInString;++i) {
             varIndex = strNum*varsCountInString + i;
             if(varIndex>=vars.count()) break;
-            s += vars.at(varIndex)->getVarName();
+            s += vars.at(varIndex)->getVarName() + "=0";
             if((i!=varsCountInString-1)&&(varIndex+1<vars.count())) s += ",";
+
+            s_perm += vars.at(varIndex)->getVarName() + "_prm=0";
+            if((i!=varsCountInString-1)&&(varIndex+1<vars.count())) s_perm += ",";
         }
         s += ";";
+        s_perm += ";";
         if(s!="unsigned short ;") res += s;
+        if(s_perm!="unsigned short ;") res += s_perm;
         strNum++;
         if(strNum*varsCountInString>=vars.count()) break;
     }
@@ -322,31 +328,33 @@ void ModbusRequestList::addRequestToList(const Request &r)
     // search last similar request
     bool findFlag = false;
     if(reqs.count()) {
-        for(int i=reqs.count()-1;i>=0;--i) {
-            Request req = reqs.at(i);
-            if((req.netAddress==r.netAddress)&&(req.cmd==r.cmd)&&(req.memAddress<r.memAddress)&&r.reqVars.count()) {
-                int startAddr = req.memAddress;
-                int cnt = req.cnt;
-                int requiredCount = r.memAddress + r.cnt - 1;
-                requiredCount = requiredCount - startAddr + 1;
-                int spaceLength = r.memAddress - (startAddr+cnt);
-                if((requiredCount <= maxLength) && (spaceLength <= maxSpaceLength)) {
-                    reqs[i].cnt=requiredCount;
-                    VarReq vr = r.reqVars.at(0);
-                    if((r.cmd==READ_DI)||(r.cmd==READ_COILS)||(r.cmd==WRITE_COILS)) {
-                        int bitNum = r.memAddress - req.memAddress;
-                        vr.byteOffset = bitNum/8;
-                        vr.bitOffset = bitNum%8;
+        if(!((r.cmd==WRITE_COILS)||(r.cmd==WRITE_HOLD_REG))) {
+            for(int i=reqs.count()-1;i>=0;--i) {
+                Request req = reqs.at(i);
+                if((req.netAddress==r.netAddress)&&(req.cmd==r.cmd)&&(req.memAddress<r.memAddress)&&r.reqVars.count()) {
+                    int startAddr = req.memAddress;
+                    int cnt = req.cnt;
+                    int requiredCount = r.memAddress + r.cnt - 1;
+                    requiredCount = requiredCount - startAddr + 1;
+                    int spaceLength = r.memAddress - (startAddr+cnt);
+                    if((requiredCount <= maxLength) && (spaceLength <= maxSpaceLength)) {
+                        reqs[i].cnt=requiredCount;
+                        VarReq vr = r.reqVars.at(0);
+                        if((r.cmd==READ_DI)||(r.cmd==READ_COILS)||(r.cmd==WRITE_COILS)) {
+                            int bitNum = r.memAddress - req.memAddress;
+                            vr.byteOffset = bitNum/8;
+                            vr.bitOffset = bitNum%8;
+                        }else {
+                            vr.byteOffset = (r.memAddress - req.memAddress)*2;
+                        }
+                        reqs[i].reqVars.append(vr);
+                        findFlag = true;
+                        break;
                     }else {
-                        vr.byteOffset = (r.memAddress - req.memAddress)*2;
+                        reqs.append(r);
+                        findFlag = true;
+                        break;
                     }
-                    reqs[i].reqVars.append(vr);
-                    findFlag = true;
-                    break;
-                }else {
-                    reqs.append(r);
-                    findFlag = true;
-                    break;
                 }
             }
         }
@@ -362,7 +370,7 @@ QStringList ModbusRequestList::getReqText()
         res += "const mvar " + can.toLower() + "_req" + QString::number(i+1) + "_vars[] = {";
         for(int j=0;j<reqs.at(i).reqVars.count();++j) {
             VarReq v = reqs.at(i).reqVars.at(j);
-            QString varDef = "{" + QString::number(v.byteOffset) + "," + QString::number(v.bitOffset) + ",&"  +v.varName+"}";
+            QString varDef = "{" + QString::number(v.byteOffset) + "," + QString::number(v.bitOffset) + ",&"  +v.varName+",&"+v.varName+"_prm}";
             if(j!=reqs.at(i).reqVars.count()-1) varDef += ",";
             res += "\t" + varDef;
         }
