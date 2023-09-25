@@ -5,6 +5,7 @@
 #include <QRegExp>
 #include <QDebug>
 #include "pathstorage.h"
+#include <QtConcurrent/QtConcurrent>
 
 //const QString RCompiler::dirOutName = "/obj";
 //const QString RCompiler::dirBuildName = "/build";
@@ -269,75 +270,78 @@ void RCompiler::compile()
 
 bool RCompiler::link()
 {
-    QFile::remove(PathStorage::getLogFileFullName());
-    QFile::remove(PathStorage::getSizeFileFullName());
+    QFuture<void> future = QtConcurrent::run([=]() {
+        QFile::remove(PathStorage::getLogFileFullName());
+        QFile::remove(PathStorage::getSizeFileFullName());
 
-    QDir::setCurrent(gccDir.absolutePath());
+        QDir::setCurrent(gccDir.absolutePath());
 
-    if(!objDir.exists()) objDir.mkdir(".");
-    if(!buildResDir.exists()) buildResDir.mkdir(".");
+        if(!objDir.exists()) objDir.mkdir(".");
+        if(!buildResDir.exists()) buildResDir.mkdir(".");
 
-    QProcess builder;
-    builder.setProcessChannelMode(QProcess::MergedChannels);
-    builder.setWorkingDirectory(gccDir.absolutePath());
-    QString program = "\"" + gccDir.absolutePath() + "/arm-none-eabi-gcc.exe\"";
+        QProcess builder;
+        builder.setProcessChannelMode(QProcess::MergedChannels);
+        builder.setWorkingDirectory(gccDir.absolutePath());
+        QString program = "\"" + gccDir.absolutePath() + "/arm-none-eabi-gcc.exe\"";
 
-    QFile logFile;
-    logFile.setFileName(PathStorage::getLogFileFullName());
-    if(logFile.open(QIODevice::WriteOnly)){
+        QFile logFile;
+        logFile.setFileName(PathStorage::getLogFileFullName());
+        if(logFile.open(QIODevice::WriteOnly)){
 
 
-        QTextStream out(&logFile);
+            QTextStream out(&logFile);
 
-        for(int i=0;i<linkFiles.count();i++) {
-            QByteArray result = compFile(linkFiles[i].inpName);
-            if(result.count()) out << result;
+            for(int i=0;i<linkFiles.count();i++) {
+                QByteArray result = compFile(linkFiles[i].inpName);
+                if(result.count()) out << result;
+            }
+
+            // build process
+
+            // remove elf file
+            if (QFile::exists(buildResDir.absolutePath() + QString("/project.elf"))) {
+                QFile::remove(buildResDir.absolutePath() + QString("/project.elf"));
+            }
+
+            // form attributes
+            QString attr;
+            for(int i=0;i<files.count();i++) {
+                attr+=" \"" + PathStorage::getObjDir() + "/" + files[i].outName + "\"";
+            }
+            for(int i=0;i<linkFiles.count();i++) {
+                attr+=" \"" + PathStorage::getObjDir() + "/" + linkFiles[i].outName + "\"";
+            }
+            attr+=" ";
+
+            attr += linkPattern;
+            attr += QString(" -T ") + "\"" + PathStorage::getSrcDir() + "/" + linkScript + "\"";
+            attr += QString(" -o ") + "\"" + buildResDir.absolutePath() + QString("/project.elf") + "\"";
+
+            //qDebug() << program << attr;
+
+            // start build
+            builder.start(program+attr);
+            if (!builder.waitForFinished())
+                out << builder.errorString();
+            else
+                out <<  builder.readAll();
+
+            logFile.close();
+
+
+
+
+            if (QFile::exists(buildResDir.absolutePath()+"/project.elf")) {
+                createMemSizeFile();
+                createMapFile();
+                createBinFile();
+            }else {
+                errorAnalysis();
+            }
+
         }
+        QDir::setCurrent(applPath);
+    });
 
-        // build process
-
-        // remove elf file
-        if (QFile::exists(buildResDir.absolutePath() + QString("/project.elf"))) {
-            QFile::remove(buildResDir.absolutePath() + QString("/project.elf"));
-        }
-
-        // form attributes
-        QString attr;
-        for(int i=0;i<files.count();i++) {
-            attr+=" \"" + PathStorage::getObjDir() + "/" + files[i].outName + "\"";
-        }
-        for(int i=0;i<linkFiles.count();i++) {
-            attr+=" \"" + PathStorage::getObjDir() + "/" + linkFiles[i].outName + "\"";
-        }
-        attr+=" ";
-
-        attr += linkPattern;
-        attr += QString(" -T ") + "\"" + PathStorage::getSrcDir() + "/" + linkScript + "\"";
-        attr += QString(" -o ") + "\"" + buildResDir.absolutePath() + QString("/project.elf") + "\"";
-
-        //qDebug() << program << attr;
-
-        // start build
-        builder.start(program+attr);
-        if (!builder.waitForFinished())
-            out << builder.errorString();
-        else
-            out <<  builder.readAll();
-
-        logFile.close();
-
-
-
-
-        if (QFile::exists(buildResDir.absolutePath()+"/project.elf")) {
-            createMemSizeFile();
-            createMapFile();
-            createBinFile();
-        }else {
-            errorAnalysis();
-        }
-
-    }
-    QDir::setCurrent(applPath);
     return true;
 }

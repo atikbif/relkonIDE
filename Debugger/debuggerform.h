@@ -25,6 +25,7 @@ namespace Ui {
 class DebuggerForm;
 }
 
+
 class DebuggerForm : public QWidget
 {
     Q_OBJECT

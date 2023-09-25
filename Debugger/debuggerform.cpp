@@ -32,6 +32,8 @@
 #include "matchboxexistance.h"
 
 #include <QDebug>
+#include <QFuture>
+#include <QtConcurrent/QtConcurrent>
 
 
 void DebuggerForm::saveView()
@@ -103,7 +105,7 @@ void DebuggerForm::openView()
     if (!doc.setContent(&file)) {
         return;
     }
-    // построение списка соответствий полного имени переменной в дереви и её идентификатора
+    // построение списка соответствий полного имени переменной в дереве и её идентификатора
     QHash<QString,QString> fullNames;
     foreach (QTreeWidgetItem* item, idWidgetItem.values()) {
        QString fName = item->toolTip(0);
@@ -133,7 +135,7 @@ void DebuggerForm::openView()
                 }
 
                 QStringList fNameList = fullName.split('.');
-                // Удаление из имени 2-х первых узлов (Переменные.(пользватель/система))
+                // Удаление из имени 2-х первых узлов (Переменные.(пользователь/система))
                 fNameList.removeFirst();fNameList.removeFirst();
                 foreach (QString s, fNameList) {
                   varName += "." + s;
@@ -350,7 +352,9 @@ void DebuggerForm::createTree()
 
     ui->treeWidgetMain->setItemExpanded(item,true);
     ui->treeWidgetMain->header()->resizeSections(QHeaderView::ResizeToContents);
-
+    ui->treeWidgetMain->header()->resizeSection(0,ui->treeWidgetMain->header()->sectionSize(0)*1.3);
+    ui->treeWidgetWatch->header()->resizeSections(QHeaderView::ResizeToContents);
+    ui->treeWidgetWatch->header()->resizeSection(0,ui->treeWidgetWatch->header()->sectionSize(0)*5);
 }
 
 void DebuggerForm::treeBuilder(const QString &varID, QTreeWidgetItem &item)
@@ -1256,6 +1260,15 @@ void DebuggerForm::on_tabWidget_currentChanged(int index)
             scheduler.addReadOperation(var);
         }
 
+        for(int i=484;i<500;i++) {//MemStorage::ioMemSize;i++) {
+            VarItem var;
+            var.setDataType(VarItem::ucharType);
+            var.setMemType(MemStorage::ioMemName);
+            var.setPriority(1);
+            var.setMemAddress(i);
+            scheduler.addReadOperation(var);
+        }
+
         scheduler.schedule();
     }else if(index==1) {    // вкладка входов/выходов
         scheduler.clear();
@@ -1754,6 +1767,7 @@ void DebuggerForm::on_pushButtonLoadVars_clicked()
                         QString vComment;
                         stream >> vComment;
                         if((bitVar==false)&&(!vValue.isEmpty())) {
+                            fullName.replace(QRegExp("Переменные[.]*\\x2E"),"Переменные.");
                             QString newId = fullNames.value(fullName);
                             if(!newId.isEmpty()) {
                                 on_treeWidgetMain_itemDoubleClicked(idWidgetItem.value(newId),0);

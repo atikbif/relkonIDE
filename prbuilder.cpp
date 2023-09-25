@@ -11,7 +11,7 @@
 #include "RCompiler/rcompiler.h"
 #include "RCompiler/f7compiler.h"
 #include "plcutils.h"
-
+#include <QtConcurrent/QtConcurrent>
 
 int PrBuilder::convertStrNum(int cStrNum)
 {

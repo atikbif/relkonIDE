@@ -41,8 +41,7 @@ void NameSortIterator::createCash(const QString &varID)
                 }
                 QStringList varNames = vars.keys();
                 varNames.removeDuplicates();
-                qSort(varNames.begin(),varNames.end(),lessThan);
-                //varNames.sort();
+                std::sort(varNames.begin(),varNames.end(),lessThan);
                 int curId=0;
                 foreach (QString vName, varNames) {
                    QStringList varsByName = vars.values(vName);
