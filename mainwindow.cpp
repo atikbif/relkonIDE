@@ -708,7 +708,7 @@ void MainWindow::createUtilities()
     QAction *actAdcDac = new QAction(QIcon("://measure.ico"), "Тестирование АЦП и ЦАП", this);
     ui->menuUtil->addAction(actAdcDac);
     connect(actAdcDac,SIGNAL(triggered()),this,SLOT(startAdcDacTest()));
-    QAction *actMC35 = new QAction(QIcon("://networking.ico"), "Настройка модулей MC35", this);
+    QAction *actMC35 = new QAction(QIcon("://networking.ico"), "Настройка модулей MC", this);
     ui->menuUtil->addAction(actMC35);
     connect(actMC35,SIGNAL(triggered()),this,SLOT(startMC35Config()));
 }
@@ -1853,7 +1853,7 @@ void MainWindow::startAdcDacTest()
 
 void MainWindow::startMC35Config()
 {
-    QString path = QApplication::applicationDirPath() + "/MC35IO.exe";
+    QString path = QApplication::applicationDirPath() + "/mcConfig.exe";
     if(QFile::exists(path)) {
         QProcess* mc35 = new QProcess;
         connect(mc35, SIGNAL(finished(int)), mc35, SLOT(deleteLater()));
