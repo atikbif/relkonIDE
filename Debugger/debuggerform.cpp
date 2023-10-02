@@ -107,9 +107,15 @@ void DebuggerForm::openView()
     }
     // построение списка соответствий полного имени переменной в дереве и её идентификатора
     QHash<QString,QString> fullNames;
-    foreach (QTreeWidgetItem* item, idWidgetItem.values()) {
-       QString fName = item->toolTip(0);
-       fullNames.insert(fName,idWidgetItem.key(item));
+//    foreach (QTreeWidgetItem* item, idWidgetItem.values()) {
+//       QString fName = item->toolTip(0);
+//       fullNames.insert(fName,idWidgetItem.key(item));
+//    }
+    QHashIterator<QString, QTreeWidgetItem*> it(idWidgetItem);
+    while (it.hasNext()) {
+        it.next();
+        QString fName = it.value()->toolTip(0);
+        fullNames.insert(fName,it.key());
     }
 
     // поиск описания переменных для вывода в дереве просмотра
@@ -662,9 +668,15 @@ void DebuggerForm::updTree()
 void DebuggerForm::updateValuesTree()
 {
     QHash<QString,QString> fullNames;
-    foreach (QTreeWidgetItem* item, idWidgetItem.values()) {
-       QString fName = item->toolTip(0);
-       fullNames.insert(fName,idWidgetItem.key(item));
+//    foreach (QTreeWidgetItem* item, idWidgetItem.values()) {
+//       QString fName = item->toolTip(0);
+//       fullNames.insert(fName,idWidgetItem.key(item));
+//    }
+    QHashIterator<QString, QTreeWidgetItem*> it(idWidgetItem);
+    while (it.hasNext()) {
+        it.next();
+        QString fName = it.value()->toolTip(0);
+        fullNames.insert(fName,it.key());
     }
     scheduler.clear();
     QList<QTreeWidgetItem*> actItems = idActiveWidgetItem.values();
@@ -1492,9 +1504,15 @@ void DebuggerForm::openInputs(const QString &fName)
             stream >> vCnt;
             if(stream.status()==QDataStream::Ok) {
                 QHash<QString,QString> fullNames;
-                foreach (QTreeWidgetItem* item, idWidgetItem.values()) {
-                   QString fName = item->toolTip(0);
-                   fullNames.insert(fName,idWidgetItem.key(item));
+//                foreach (QTreeWidgetItem* item, idWidgetItem.values()) {
+//                   QString fName = item->toolTip(0);
+//                   fullNames.insert(fName,idWidgetItem.key(item));
+//                }
+                QHashIterator<QString, QTreeWidgetItem*> it(idWidgetItem);
+                while (it.hasNext()) {
+                    it.next();
+                    QString fName = it.value()->toolTip(0);
+                    fullNames.insert(fName,it.key());
                 }
                 for(int i=0;i<vCnt;i++) {
                     QString fullName;
@@ -1753,9 +1771,15 @@ void DebuggerForm::on_pushButtonLoadVars_clicked()
                 stream >> vCnt;
                 if(stream.status()==QDataStream::Ok) {
                     QHash<QString,QString> fullNames;
-                    foreach (QTreeWidgetItem* item, idWidgetItem.values()) {
-                       QString fName = item->toolTip(0);
-                       fullNames.insert(fName,idWidgetItem.key(item));
+//                    foreach (QTreeWidgetItem* item, idWidgetItem.values()) {
+//                       QString fName = item->toolTip(0);
+//                       fullNames.insert(fName,idWidgetItem.key(item));
+//                    }
+                    QHashIterator<QString, QTreeWidgetItem*> it(idWidgetItem);
+                    while (it.hasNext()) {
+                        it.next();
+                        QString fName = it.value()->toolTip(0);
+                        fullNames.insert(fName,it.key());
                     }
                     for(int i=0;i<vCnt;i++) {
                         QString fullName;

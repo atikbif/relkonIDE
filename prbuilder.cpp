@@ -123,6 +123,7 @@ void PrBuilder::buildRequest(QString prPath, QString prName, FCUCSettings conf)
         if(err.count()==0) {
             emit printMessage(QDateTime::currentDateTime().time().toString() + " :преобразование в си файл выполнено ");
             emit printMessage(QDateTime::currentDateTime().time().toString() + " :запуск сборки проекта");
+            auto t1 = QDateTime::currentDateTime();
             RCompilerInterface *compiler = nullptr;
             if(PLCUtils::isBaseVersion(plcType)) {
                 compiler = new RCompiler();
@@ -153,7 +154,10 @@ void PrBuilder::buildRequest(QString prPath, QString prName, FCUCSettings conf)
 
                 }
                 if(compileErr.count()==0 || res) {
-                    emit printMessage(QDateTime::currentDateTime().time().toString() + " :сборка успешно закончена ");
+                    emit printMessage(QDateTime::currentDateTime().time().toString() + " :сборка закончена ");
+
+                    auto ms = t1.msecsTo(QDateTime::currentDateTime());
+                    emit printMessage("Длительность операции: " + QString::number(ms) + " мс");
 
                     // print project size
 
@@ -177,10 +181,13 @@ void PrBuilder::buildRequest(QString prPath, QString prName, FCUCSettings conf)
 
                         VarParser parser(PathStorage::getKonFileFullName());
                         emit printMessage(QDateTime::currentDateTime().time().toString() + " :анализ переменных проекта");
+                        t1 = QDateTime::currentDateTime();
                         if(parser.createXML()) {
                             emit printMessage(QDateTime::currentDateTime().time().toString() + " :создание карты памяти завершено");
                             emit buildIsOk();
                         }else emit printMessage(QDateTime::currentDateTime().time().toString() + " :ошибка разбора переменных");
+                        ms = t1.msecsTo(QDateTime::currentDateTime());
+                        emit printMessage("Длительность операции: " + QString::number(ms) + " мс");
                     }
 
                 }

@@ -68,8 +68,11 @@ void VarParser::treatDefines()
         if(dataBlock.at(i).isEmpty()) continue;
         if(dataBlock.at(i).contains('['))
         for(int j=0;j<defTab.count();j++) {
-            QRegExp defExpr("\\b"+defTab.keys().at(j)+"\\b");
-            dataBlock[i].replace(defExpr,defTab.values().at(j));
+            if(dataBlock.at(i).contains(defTab.keys().at(j)))
+            {
+                QRegExp defExpr("\\b"+defTab.keys().at(j)+"\\b");
+                dataBlock[i].replace(defExpr,defTab.values().at(j));
+            }
         }
     }
 }

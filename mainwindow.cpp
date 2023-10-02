@@ -118,7 +118,10 @@ int MainWindow::openFileByName(const QString &fName, bool importFlag)
     }
 
     activateInfoPanel();
+    addMessageToInfoList(QDateTime::currentDateTime().time().toString() + " :Загрузка проекта...");
     addMessageToInfoList(QDateTime::currentDateTime().time().toString() + " :Открытие файла " + fName);
+    repaint();
+    auto t1 = QDateTime::currentDateTime();
 
     QFile file(fName);
     if (file.open(QIODevice::ReadOnly)) {
@@ -178,6 +181,11 @@ int MainWindow::openFileByName(const QString &fName, bool importFlag)
         noProject = false;
         connect(editor,SIGNAL(textChanged()),this,SLOT(prWasChanged()));
         enableActionWithProject();
+
+        auto ms = t1.msecsTo(QDateTime::currentDateTime());
+        addMessageToInfoList("Длительность операции: " + QString::number(ms) + " мс");
+        repaint();
+
         return 1;
 
     }
